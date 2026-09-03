@@ -341,6 +341,7 @@ export class GameView {
       // 美術杯貼圖：杯身實色，液體用 multiply 畫喺杯內（反光留光、珍珠留深）
       ctx.drawImage(this.sprite, 0, 0, w, h);
       ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+      if (c.seg.length === 0 && !(c.extraUnits > 0)) this.coverPearls(c, w, h);   // 空杯唔應該見到珍珠
       this.drawLayers(c, w, h, now);
       if (c.locked) {
         const g = this.geom;
@@ -379,6 +380,22 @@ export class GameView {
     const bottom = h - 5, slotH = (h - 10) / 4;
     const isBag = c.kind === 'takeaway', inset = isBag ? 7 : 0;
     return { bottom, slotH, xl: y => (isBag ? inset : this._xAt(w, h, y)), xr: y => (isBag ? w - inset : w - this._xAt(w, h, y)), sprite: false };
+  }
+
+  /**
+   * 空杯遮走貼圖底部內置嘅珍珠：用貼圖上面一段乾淨膠身拉長蓋住珍珠帶（裁喺杯內多邊形）。
+   * 有液體時珍珠透過 multiply 露出，似真係沉喺杯底。
+   */
+  coverPearls(c, w, h) {
+    const ctx = this.ctx, L = this._liquid(c), g = this.geom.inner;
+    const iw = this.sprite.naturalWidth, ih = this.sprite.naturalHeight;
+    const y1 = 0.80 * h, y2 = Math.min(h, (g.botY + 0.03) * h);
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(L.xl(y1), y1); ctx.lineTo(L.xr(y1), y1); ctx.lineTo(L.xr(y2) + 1, y2); ctx.lineTo(L.xl(y2) - 1, y2); ctx.closePath();
+    ctx.clip();
+    ctx.drawImage(this.sprite, 0, 0.66 * ih, iw, 0.12 * ih, 0, y1, w, y2 - y1);
+    ctx.restore();
   }
 
   /** 封膜：平面膠膜 + 鎖 */
@@ -505,7 +522,7 @@ export class GameView {
     const inset = isBag ? 7 : 0;
     ctx.save();
     if (L.sprite) {
-      const top = bottom - c.cap * sh;
+      const top = bottom - (c.cap + 0.08) * sh;   // 留 8% 位畀滿杯落定時嘅回彈
       ctx.beginPath();
       ctx.moveTo(L.xl(top), top); ctx.lineTo(L.xr(top), top); ctx.lineTo(L.xr(bottom), bottom); ctx.lineTo(L.xl(bottom), bottom); ctx.closePath();
       ctx.clip();

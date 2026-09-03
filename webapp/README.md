@@ -114,6 +114,8 @@ Campaign 暫時得 40 關，所以只有第 40 關之後會見到「落雨喇，
 | 階段背景（整張直向圖） | 複製到 `webapp/assets/bg/src/stage{N}.jpg`，跑 `python tools/build-bg.py`。腳本自動偵測平坦帶；切位唔啱可以加 `stage{N}.json`：`{"scene_end": 0.46, "counter_start": 0.77}` |
 | 其他全部（logo、字標、摩卡六姿勢 + 待機三幀、四位食客 × 三表情、杯種） | 跑 `python tools/build-assets.py`（需要 Pillow + numpy）。腳本按檔名喺 `assets-raw/` 搵圖，自動去背（假格仔底 / 純白底）、裁圓形頭像、轉 WebP 到 `webapp/assets/` |
 
+| 遊戲杯貼圖 | 美術交真透明 PNG → `assets-raw/cup-transparent.png`，跑 `python tools/extract-cup.py` → `assets/cup-body.webp` + `assets/cup-geom.json`（杯內液體四角 / 杯口位置，由 alpha 自動量度）。杯身係實色，所以 game.js 用 `multiply` 將液體畫喺杯內：反光留光、珍珠留深；空杯會用貼圖上段膠身遮走內置珍珠。磨砂杯、外帶袋仍然程式畫；教學畫面「普通杯」直接用呢張貼圖。 |
+
 食客：1 貓（眼鏡圍巾）· 2 兔 · 3 柴犬 · 4 熊（西裝），表情 `wait`（等待）/ `happy`（出單）/ `angry`（步數超三星門檻仍未出單）。
 新嘅白磨砂杯同透明有蓋杯去唔到背（白底白杯 / 膠身透出格仔），教學畫面沿用舊素材（`assets-raw/legacy/`）。
 `assets-raw/` 唔喺 git 入面（72 MB），生成出嚟嘅 `webapp/assets/` 先會 commit。
