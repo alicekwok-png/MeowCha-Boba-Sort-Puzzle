@@ -139,7 +139,14 @@ body {
   display: flex; align-items: center; gap: 8px;
   padding: max(8px, env(safe-area-inset-top)) 12px 4px;
 }
-.level-title { flex: 1; text-align: center; display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
+/* 標題落喺場景圖上面，要有底板先讀得清（背景規格：頂欄可以有內容，但文字要有可讀性） */
+.level-title {
+  flex: 0 1 auto; margin: 0 auto; max-width: 58%; min-width: 0;
+  text-align: center; display: flex; flex-direction: column; line-height: 1.15;
+  background: rgba(255,255,255,0.85); border: 1.5px solid var(--tan-2); border-radius: 12px;
+  padding: 3px 14px; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 2px 6px rgba(80,50,20,0.12);
+}
 .level-title b { font-size: 16px; color: var(--brown-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .level-title span { font-size: 11px; color: var(--orange-2); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pace {
