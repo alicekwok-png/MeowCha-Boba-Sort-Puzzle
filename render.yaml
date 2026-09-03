@@ -1,0 +1,16 @@
+# Render Blueprint — 喵喵茶記 Boba Cat
+# 純靜態站：index.html + ES modules + fetch('levels/campaign.json')，唔需要 Node 執行期。
+# Render Dashboard → New → Blueprint → 揀呢個 repo，就會照呢個檔案建站。
+services:
+  - type: web
+    name: meowcha-boba-sort
+    runtime: static
+    buildCommand: ""
+    staticPublishPath: ./webapp
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=604800
+      - path: /levels/*
+        name: Cache-Control
+        value: public, max-age=3600

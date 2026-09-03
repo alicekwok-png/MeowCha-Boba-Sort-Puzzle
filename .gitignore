@@ -1,0 +1,11 @@
+# 原始素材（72 MB，Hailuo 出圖 / PSD 級原檔）留喺本機，唔推上 GitHub
+assets-raw/
+*.zip
+*.docx
+
+# 工具 / 系統
+.claude/
+node_modules/
+.DS_Store
+Thumbs.db
+webapp/tools/dev/*.log

@@ -1,0 +1,520 @@
+// client/main.js — 畫面流程、進度、輸入處理。規則永遠交畀 core/，權威判定交畀 LocalServer，背景交畀 BackgroundManager。
+
+import { CAMPAIGN, CHAPTERS, PRACTICE } from '../core/levels.js';
+import { PALETTE } from '../core/palette.js';
+import { canPour, pourAmount, applyMove, isSolved, isDead, isComplete } from '../core/rules.js';
+import { LocalServer } from './local-server.js';
+import { GameView } from './game.js';
+import { Sfx } from './audio.js';
+import { BackgroundManager, STAGES, stageForLevel, stageTransitionAfter } from './background.js';
+
+const $ = (s) => document.querySelector(s);
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+const server = new LocalServer({ solverWorkerUrl: new URL('./solver.worker.js', import.meta.url) });
+const sfx = new Sfx();
+const bg = new BackgroundManager($('#bg-layers'), new URL('../../assets/bg/', import.meta.url).href);
+const PARAMS = new URLSearchParams(location.search);
+
+// ---------- 進度 ----------
+const PKEY = 'meowcha.progress.v1';
+const progress = (() => {
+  try { return Object.assign({ stars: {}, coins: 0 }, JSON.parse(localStorage.getItem(PKEY) || '{}')); }
+  catch { return { stars: {}, coins: 0 }; }
+})();
+function saveProgress() { try { localStorage.setItem(PKEY, JSON.stringify(progress)); } catch { /* ignore */ } }
+function nextLevelId() {
+  let id = 1;
+  while (progress.stars[id] && id < CAMPAIGN.length) id++;
+  return id;
+}
+function totalStars() { return Object.values(progress.stars).reduce((a, b) => a + b, 0); }
+
+// ---------- 關卡資料 ----------
+let LEVELS = null;
+async function loadLevels() {
+  if (LEVELS) return LEVELS;
+  const res = await fetch(new URL('../../levels/campaign.json', import.meta.url));
+  const data = await res.json();
+  LEVELS = new Map(data.levels.map(l => [l.id, l]));
+  return LEVELS;
+}
+
+// ---------- 畫面 ----------
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+  if (id === 'screen-game' && G.view) G.view.resize();
+}
+function refreshTitle() {
+  const n = nextLevelId();
+  $('#btn-continue').textContent = progress.stars[n] ? `重玩 第 ${n} 關` : (n === 1 ? '開始' : `繼續 · 第 ${n} 關`);
+  $('#coins-title').textContent = progress.coins;
+  $('#stars-title').textContent = totalStars();
+  $('#coins-levels').textContent = progress.coins;
+}
+
+function renderLevelGrid() {
+  const grid = $('#level-grid');
+  grid.innerHTML = '';
+  const unlockedTo = nextLevelId();
+  for (const ch of CHAPTERS) {
+    const h = document.createElement('div');
+    h.className = 'chapter';
+    h.textContent = `第${['一', '二', '三', '四', '五', '六', '七', '八'][CHAPTERS.indexOf(ch)]}章 · ${ch.name}`;
+    grid.appendChild(h);
+    const g = document.createElement('div');
+    g.className = 'chapter-grid';
+    for (let id = ch.from; id <= ch.to; id++) {
+      const b = document.createElement('button');
+      const st = progress.stars[id] || 0;
+      const locked = id > unlockedTo && !st;
+      b.className = 'lv' + (locked ? ' locked' : '') + (id === unlockedTo ? ' current' : '');
+      b.innerHTML = `${id}<span class="st">${'★'.repeat(st)}<span class="off">${'★'.repeat(3 - st)}</span></span>`;
+      b.title = CAMPAIGN[id - 1].title;
+      b.addEventListener('click', () => { sfx.click(); playCampaign(id); });
+      g.appendChild(b);
+    }
+    grid.appendChild(g);
+  }
+}
+
+// ---------- Modal / Toast ----------
+function modal(html, { dismiss = false } = {}) {
+  const m = $('#modal');
+  $('#modal-card').innerHTML = html;
+  m.classList.remove('hidden');
+  m.onclick = dismiss ? (e) => { if (e.target === m) closeModal(); } : null;
+}
+function closeModal() { $('#modal').classList.add('hidden'); }
+let toastTimer = null;
+function toast(text, ms = 1600) {
+  const t = $('#toast');
+  t.textContent = text; t.classList.remove('hidden');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.add('hidden'), ms);
+}
+
+// ---------- Mocha ----------
+const LINES = {
+  idle: ['揀一隻杯，再揀倒去邊隻～', '同色先可以疊埋一齊喎', '空杯乜嘢都裝得', '諗清楚先倒，唔急～', '客人要純色滿杯先收貨'],
+  serve: ['叮！有單出咗～', '多謝惠顧喵～', '呢杯正！'],
+  almost: ['就快得喇！', '仲差少少～'],
+  stuck: ['唔…冇得郁喇，撤銷一步試下？', '卡住咗…重新嚟過？'],
+  clear: ['收工！你係最叻嘅茶記店員～', '全部出晒單，勁！'],
+  hint: ['試下呢步？', '我會咁倒～'],
+  frosted: ['磨砂杯睇唔到入面，倒走頂層先知～'],
+  unlock: ['封膜開咗！可以用呢隻杯喇'],
+  pour: ['倒緊…'],
+};
+function mocha(state, text) {
+  const img = $('#mocha-img');
+  const src = `assets/mocha-${state}.png`;
+  if (!img.src.endsWith(src)) img.src = new URL('../../' + src, import.meta.url).href;
+  if (text !== undefined) $('#mocha-bubble').textContent = text;
+  else if (LINES[state]) $('#mocha-bubble').textContent = LINES[state][Math.floor(Math.random() * LINES[state].length)];
+  if (state === 'serve' || state === 'clear') { img.classList.remove('hop'); void img.offsetWidth; img.classList.add('hop'); }
+}
+
+// ---------- 客人排 ----------
+const FUR = ['#F2B36B', '#D9D0C2', '#8C6A4E', '#F6E7CF', '#A9A9B4', '#E7A27A'];
+function catSvg(fur, happy) {
+  const eyes = happy
+    ? `<path d="M22 30 q4 -5 8 0" stroke="#3E2A14" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M42 30 q4 -5 8 0" stroke="#3E2A14" stroke-width="2.4" fill="none" stroke-linecap="round"/>`
+    : `<circle cx="26" cy="31" r="3.2" fill="#3E2A14"/><circle cx="46" cy="31" r="3.2" fill="#3E2A14"/><circle cx="27" cy="30" r="1" fill="#fff"/><circle cx="47" cy="30" r="1" fill="#fff"/>`;
+  return `<svg viewBox="0 0 72 60" xmlns="http://www.w3.org/2000/svg">
+    <path d="M14 26 L10 6 L28 16 Z" fill="${fur}" stroke="#7A4E1E" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M58 26 L62 6 L44 16 Z" fill="${fur}" stroke="#7A4E1E" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M15 24 L13 11 L25 18 Z" fill="#F7C6C0"/><path d="M57 24 L59 11 L47 18 Z" fill="#F7C6C0"/>
+    <ellipse cx="36" cy="36" rx="26" ry="22" fill="${fur}" stroke="#7A4E1E" stroke-width="2"/>
+    ${eyes}
+    <path d="M33 39 l3 3 l3 -3 z" fill="#E88D5A"/>
+    <path d="M30 44 q6 5 12 0" stroke="#3E2A14" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M8 38 h14 M8 42 h14 M50 38 h14 M50 42 h14" stroke="#7A4E1E" stroke-width="1.4" stroke-linecap="round" opacity=".7"/>
+  </svg>`;
+}
+
+function renderCustomers(popColor = null) {
+  const el = $('#customers');
+  const orders = G.board.orders;
+  el.innerHTML = '';
+  if (!orders.length) {
+    const s = document.createElement('span'); s.className = 'customers-note'; s.textContent = '今日冇客人落單 · 每種飲品裝滿一杯就收工';
+    el.appendChild(s);
+  } else {
+    // 頭兩位客人用美術頭像（assets/customer-1/2.png），之後嘅用程式畫嘅貓
+    const seats = [0, 1].map(k => (G.seatSeed + k) % 2);
+    orders.forEach((o, i) => {
+      const p = PALETTE[o.color];
+      const d = document.createElement('div');
+      d.className = 'customer' + (o.filled ? ' done' : '') + (popColor === o.color ? ' pop' : '');
+      const face = i < 2
+        ? `<img class="avatar" src="${new URL(`../../assets/customer-${seats[i] + 1}.png`, import.meta.url).href}" alt="">`
+        : catSvg(FUR[(G.seatSeed + i) % FUR.length], o.filled);
+      d.innerHTML = `${face}<span class="cbubble"><span class="sw" style="background:${p.hex}"></span>${p.zh}${o.filled ? '<span class="tick">✓</span>' : ''}</span>`;
+      el.appendChild(d);
+    });
+  }
+  const sealed = G.board.cups.filter(c => c.locked).length;
+  if (sealed) {
+    const n = document.createElement('span'); n.className = 'customers-note lock';
+    n.textContent = `🔒 再交 ${2 - (G.board.delivered % 2)} 單解封`;
+    el.appendChild(n);
+  }
+}
+
+// ---------- 遊戲狀態 ----------
+const G = {
+  view: null, level: null, session: null, board: null, moves: [], ts: [], history: [],
+  selected: null, busy: false, startedAt: 0, practice: false, hints: 0, seatSeed: 0, stage: null,
+};
+
+function updatePace() {
+  const n = G.moves.length, th = G.session.starThresholds;
+  const lit = n <= th.three ? 3 : n <= th.two ? 2 : 1;
+  $('#pace-stars').innerHTML = '★'.repeat(lit) + `<span class="off">${'★'.repeat(3 - lit)}</span>`;
+  $('#pace-moves').textContent = `${n} 步`;
+  $('#pace').title = `步數 ${n} · 三星 ≤ ${th.three} · 最優 ${G.session.optimalMoves}`;
+  $('#btn-undo').disabled = G.moves.length === 0 || G.busy;
+}
+
+function canBeSource(cup) {
+  return cup.seg.length > 0 && !cup.locked && !isComplete(cup);
+}
+
+async function startLevel(levelData, { practice = false } = {}) {
+  G.level = levelData; G.practice = practice;
+  const st = server.start(levelData);
+  G.session = st;
+  G.board = st.maskedBoard;
+  G.moves = []; G.ts = []; G.history = []; G.selected = null; G.busy = false; G.hints = 0;
+  G.seatSeed = Math.floor(Math.random() * FUR.length);
+  G.startedAt = performance.now();
+  if (!G.view) G.view = new GameView($('#board'), { onCupTap });
+  G.view.setBoard(G.board);
+  G.view.select(null);
+  G.view.clearHint();
+  $('#game-level-no').textContent = practice ? '練習' : `第 ${levelData.id} 關`;
+  $('#game-level-title').textContent = levelData.title || '';
+
+  // 背景階段（?stage=N 可強制預覽）
+  const forced = Number(PARAMS.get('stage'));
+  const stage = forced ? STAGES.find(s => s.id === forced) : stageForLevel(practice ? nextLevelId() : levelData.id);
+  if (!G.stage || G.stage.id !== stage.id) { bg.setStage(stage); G.stage = stage; }
+  if (!practice) bg.preloadAround(levelData.id);
+
+  show('screen-game');
+  updatePace();
+  renderCustomers();
+  const frosted = G.board.cups.some(c => c.kind === 'frosted');
+  mocha('idle', frosted && Math.random() < 0.6 ? LINES.frosted[0] : undefined);
+}
+
+async function playCampaign(id) {
+  const levels = await loadLevels();
+  const l = levels.get(id);
+  if (!l) { toast('關卡資料未生成'); return; }
+  await startLevel(l);
+}
+
+// ---------- 走步 ----------
+async function onCupTap(idx) {
+  if (G.busy) return;
+  const cup = G.board.cups[idx];
+
+  if (G.selected === null) {
+    if (canBeSource(cup)) { G.selected = idx; G.view.select(idx); sfx.select(); }
+    else { G.view.shake(idx); sfx.shake(); if (cup.locked) toast('封膜杯：交 2 單先解封'); }
+    return;
+  }
+  if (G.selected === idx) { G.selected = null; G.view.select(null); sfx.deselect(); return; }
+
+  const m = { from: G.selected, to: idx };
+  if (!canPour(G.board, m.from, m.to)) {
+    if (canBeSource(cup)) { G.selected = idx; G.view.select(idx); sfx.select(); }
+    else { G.view.shake(idx); sfx.shake(); }
+    return;
+  }
+
+  // ---- 樂觀執行 ----
+  G.busy = true; G.selected = null; G.view.select(null); G.view.clearHint();
+  $('#btn-undo').disabled = true; $('#btn-hint').disabled = true;
+  const src = G.board.cups[m.from];
+  const color = src.seg[src.seg.length - 1];
+  const prevBoard = G.board;
+  const nextMoves = [...G.moves, m];
+  let n, next, events = [];
+
+  if (src.kind === 'frosted') {
+    // 磨砂杯：真實倒出量 client 唔知（頂層下面可能同色），先問 server（回應被倒液動畫遮蓋）
+    const r = server.reveal(G.session.sessionId, nextMoves);
+    n = r.poured; next = r.maskedBoard; events = r.events;
+  } else {
+    n = pourAmount(G.board, m.from, m.to);
+    next = applyMove(G.board, m, events);
+  }
+
+  G.moves = nextMoves; G.ts.push(Math.round(performance.now() - G.startedAt)); G.history.push(prevBoard);
+  mocha('pouring', LINES.pour[0]);
+  sfx.pour(n);
+  bg.onPour();                                   // 倒液微視差
+  await G.view.animatePour(m.from, m.to, n, color);
+
+  G.board = next;
+  G.view.setBoard(G.board);
+  updatePace();
+
+  // 結算事件動畫
+  let served = false;
+  for (const ev of events) {
+    if (ev.type === 'deliver') {
+      served = true; sfx.deliver();
+      renderCustomers(ev.color);
+      mocha('serve');
+      await G.view.animateDeliver(ev.cup, `✓ ${PALETTE[ev.color].zh} 出單`);
+    } else if (ev.type === 'unlock') {
+      sfx.unlock(); mocha('serve', LINES.unlock[0]);
+      await G.view.animateUnlock(ev.cup);
+      renderCustomers();
+    }
+  }
+  G.view.setBoard(G.board);
+  G.busy = false;
+  $('#btn-hint').disabled = false;
+  updatePace();
+
+  if (isSolved(G.board)) { await onSolved(); return; }
+  if (isDead(G.board)) { mocha('stuck'); sfx.stuck(); await sleep(350); showStuck(); return; }
+  if (!served) {
+    const left = G.board.orders.filter(o => !o.filled).length;
+    const segsLeft = G.board.cups.reduce((a, c) => a + c.seg.filter((v, i) => i === 0 || v !== c.seg[i - 1]).length, 0);
+    if (segsLeft - G.board.colors <= 2 || (G.board.orders.length && left === 1 && Math.random() < 0.5)) mocha('almost');
+    else mocha('idle', Math.random() < 0.25 ? undefined : $('#mocha-bubble').textContent === LINES.pour[0] ? LINES.idle[0] : $('#mocha-bubble').textContent);
+  }
+}
+
+async function undo() {
+  if (G.busy || !G.moves.length) return;
+  G.moves.pop(); G.ts.pop();
+  G.history.pop();
+  const r = server.reveal(G.session.sessionId, G.moves);   // 由 server 取回同步後嘅遮罩盤面（已露出嘅格保留）
+  G.board = r.maskedBoard;
+  G.selected = null; G.view.select(null); G.view.clearHint();
+  G.view.setBoard(G.board);
+  sfx.undo();
+  updatePace(); renderCustomers();
+  mocha('idle', '好，退返一步～');
+}
+
+async function hint() {
+  if (G.busy) return;
+  G.busy = true; $('#btn-hint').disabled = true;
+  mocha('idle', '等我諗諗…');
+  try {
+    const r = await server.hint(G.session.sessionId, G.moves);
+    if (!r.move) { mocha('stuck', '呢個局面我都解唔到…撤銷幾步試下？'); }
+    else {
+      G.hints++;
+      G.selected = null; G.view.select(null);
+      G.view.showHint(r.move.from, r.move.to);
+      sfx.hint();
+      mocha('idle', `${LINES.hint[Math.floor(Math.random() * LINES.hint.length)]}（仲有 ${r.remaining} 步就得）`);
+    }
+  } catch (e) {
+    toast('提示暫時用唔到');
+    console.error(e);
+  }
+  G.busy = false; $('#btn-hint').disabled = false; updatePace();
+}
+
+function restart() {
+  if (G.busy) return;
+  sfx.click();
+  startLevel(G.level, { practice: G.practice });
+}
+
+// ---------- 完成 / 卡關 ----------
+async function onSolved() {
+  G.busy = true;
+  mocha('clear');
+  sfx.win();
+  G.view.animateWin();
+  const res = server.complete(G.session.sessionId, {
+    moves: G.moves, clientElapsedMs: Math.round(performance.now() - G.startedAt), moveTimestamps: G.ts,
+  });
+  await sleep(700);
+  if (!res.verified) {
+    modal(`<img class="mascot" src="assets/mocha-stuck.png"><h3>驗證失敗</h3><p>${res.reason}</p>
+      <div class="row"><button class="btn" id="m-retry">再嚟一次</button></div>`);
+    $('#m-retry').onclick = () => { closeModal(); restart(); };
+    return;
+  }
+  let coins = res.coinsAwarded;
+  if (!G.practice) {
+    const prev = progress.stars[G.level.id] || 0;
+    if (res.stars > prev) progress.stars[G.level.id] = res.stars; else coins = 5;
+  } else coins = Math.round(coins / 2);
+  progress.coins += coins;
+  saveProgress(); refreshTitle();
+
+  const isLast = !G.practice && G.level.id >= CAMPAIGN.length;
+  const nextStage = G.practice ? null : stageTransitionAfter(G.level.id);
+  modal(`
+    <img class="mascot" src="assets/mocha-clear.png">
+    <h3>${G.practice ? '練習完成！' : `第 ${G.level.id} 關完成！`}</h3>
+    <div class="stars">${[1, 2, 3].map(i => `<span class="s${i <= res.stars ? ' on' : ''}">★</span>`).join('')}</div>
+    <div class="result">
+      <div><span class="lbl">你嘅步數</span><b>${res.moves}</b></div>
+      <div><span class="lbl">最優</span><b>${res.optimal}</b></div>
+      <div><span class="lbl">三星門檻</span><b>≤ ${G.session.starThresholds.three}</b></div>
+      <div><span class="lbl">金幣</span><b>+${coins}</b></div>
+    </div>
+    ${res.stars < 3 ? `<p style="font-size:13px">${res.moves > G.session.starThresholds.two ? '過到就係贏！' : '再少幾步就三星～'}</p>` : '<p style="font-size:13px">完美！Mocha 都拍手～</p>'}
+    <div class="row">
+      <button class="btn" id="m-replay">再玩</button>
+      ${G.practice ? '<button class="btn primary" id="m-practice">再嚟一局</button>'
+        : nextStage ? '<button class="btn primary" id="m-continue">繼續 ›</button>'
+        : isLast ? '' : '<button class="btn primary" id="m-next">下一關 ›</button>'}
+    </div>
+    <div class="row"><button class="btn ghost" id="m-menu">返回主頁</button></div>
+  `);
+  $('#m-replay').onclick = () => { closeModal(); restart(); };
+  $('#m-menu').onclick = () => { closeModal(); refreshTitle(); show('screen-title'); };
+  if ($('#m-next')) $('#m-next').onclick = () => { closeModal(); playCampaign(G.level.id + 1); };
+  if ($('#m-practice')) $('#m-practice').onclick = () => { closeModal(); pickPractice(); };
+  if ($('#m-continue')) $('#m-continue').onclick = async () => {
+    closeModal();
+    await playStageTransition(nextStage);
+    const levels = await loadLevels();
+    if (levels.has(G.level.id + 1)) playCampaign(G.level.id + 1);
+    else { refreshTitle(); renderLevelGrid(); show('screen-levels'); }
+  };
+}
+
+/** 階段過渡時刻（背景規格 §6）：鏡頭橫移 3 秒 → 摩卡跳入講對白 → 字卡 → 回到關卡 */
+async function playStageTransition(nextStage) {
+  G.busy = true;
+  const col = $('.game-col');
+  col.classList.add('dim');
+  $('#mocha-bubble').textContent = '…';
+  await bg.transitionTo(nextStage);
+  G.stage = nextStage;
+  col.classList.remove('dim');
+  mocha('serve', nextStage.line);
+  sfx.win();
+  const card = $('#stage-card');
+  card.innerHTML = `<small>第 ${nextStage.id} 階段</small><b>${nextStage.name}</b>`;
+  card.classList.remove('hidden');
+  await sleep(2200);
+  card.classList.add('hidden');
+  G.busy = false;
+}
+
+function showStuck() {
+  modal(`
+    <img class="mascot" src="assets/mocha-stuck.png">
+    <h3>冇路行喇…</h3>
+    <p>所有杯都倒唔到。撤銷幾步，或者重新嚟過？</p>
+    <div class="row">
+      <button class="btn" id="m-undo">↶ 撤銷</button>
+      <button class="btn primary" id="m-restart">↻ 重來</button>
+    </div>
+  `);
+  $('#m-undo').onclick = () => { closeModal(); undo(); };
+  $('#m-restart').onclick = () => { closeModal(); restart(); };
+}
+
+// ---------- 練習模式 ----------
+function pickPractice() {
+  modal(`
+    <h3>練習模式</h3>
+    <p style="font-size:13px">每局隨機生成，唔計入關卡進度。</p>
+    <div class="diff">
+      <button class="btn" data-d="easy">輕鬆<small>8 杯 · 6 色 · 1 位客人</small></button>
+      <button class="btn" data-d="medium">普通<small>10 杯 · 7 色 · 磨砂 + 外帶</small></button>
+      <button class="btn primary" data-d="hard">困難<small>12 杯 · 9 色 · 全部杯種</small></button>
+    </div>
+    <div class="row"><button class="btn ghost" id="m-close">取消</button></div>
+  `, { dismiss: true });
+  $('#m-close').onclick = closeModal;
+  document.querySelectorAll('[data-d]').forEach(b => b.onclick = async () => {
+    const cfg = PRACTICE[b.dataset.d];
+    sfx.click();
+    modal(`<img class="mascot" src="assets/mocha-pouring.png"><h3>Mocha 整緊飲品…</h3><div class="spinner"></div><p style="font-size:13px">生成緊隨機關卡，稍等一陣</p>`);
+    try {
+      const seed = `v1:p:${b.dataset.d}:${Date.now().toString(36)}:${Math.random().toString(36).slice(2, 8)}`;
+      const lvl = await server.generatePractice(cfg, seed);
+      closeModal();
+      if (!lvl) { toast('生成失敗，再試一次'); return; }
+      await startLevel(lvl, { practice: true });
+    } catch (e) {
+      closeModal(); toast('生成失敗：' + e.message); console.error(e);
+    }
+  });
+}
+
+// ---------- 說明 ----------
+function showHelp() {
+  const cup = (img, name, desc) => `<div class="cuptype"><img src="assets/${img}.png" alt=""><div><b>${name}</b><span>${desc}</span></div></div>`;
+  modal(`
+    <h3>點樣玩？</h3>
+    <div class="help">
+      <h4>基本</h4>
+      <ul>
+        <li>㩒一隻杯揀起，再㩒另一隻杯就會倒過去。</li>
+        <li>只可以倒落<b>空杯</b>或者<b>頂層同色</b>嘅杯，一次倒晒頂層連續同色嘅幾格。</li>
+        <li>每種飲品裝滿一隻杯（4 格純色）就完成；全部完成即過關。</li>
+        <li>步數越少星越多：三星 = 最優步數 + 3（有磨砂杯每隻再 +2）。頂欄嘅三粒星會跟住你嘅步數變。</li>
+      </ul>
+      <h4>客人</h4>
+      <ul><li>排隊嘅客人手上寫住想飲乜。裝滿一杯佢要嘅飲品會即刻<b>出單</b>，隻杯清空變返空杯——多咗空間！</li></ul>
+      <h4>杯種</h4>
+      <div class="cuptypes">
+        ${cup('cup-full', '普通杯', '透明，睇晒入面。')}
+        ${cup('cup-frosted', '磨砂杯 ?', '只見到最頂一格，倒走先知下面係乜。')}
+        ${cup('cup-sealed', '封膜杯 🔒', '鎖住唔郁得，每交 2 張單解封一隻。')}
+        ${cup('cup-takeaway', '外帶袋', '只裝 3 格，永遠裝唔滿一色，係暫存用嘅。最後要清空。')}
+      </div>
+      <h4>工具</h4>
+      <ul><li>撤銷：退返一步。提示：Mocha 會指出下一步（唔影響過關，但冇「零提示」加分）。</li></ul>
+    </div>
+    <div class="row"><button class="btn primary" id="m-ok">明白！</button></div>
+  `, { dismiss: true });
+  $('#m-ok').onclick = closeModal;
+}
+
+// ---------- 綁定 ----------
+function bind() {
+  $('#btn-continue').onclick = () => { sfx.click(); playCampaign(nextLevelId()); };
+  $('#btn-levels').onclick = () => { sfx.click(); renderLevelGrid(); refreshTitle(); show('screen-levels'); };
+  $('#btn-practice').onclick = () => { sfx.click(); pickPractice(); };
+  $('#btn-help').onclick = () => { sfx.click(); showHelp(); };
+  $('#btn-levels-back').onclick = () => { sfx.click(); refreshTitle(); show('screen-title'); };
+  $('#btn-game-back').onclick = () => {
+    if (G.busy) return;
+    sfx.click(); refreshTitle();
+    show(G.practice ? 'screen-title' : 'screen-levels');
+    if (!G.practice) renderLevelGrid();
+  };
+  $('#btn-undo').onclick = undo;
+  $('#btn-hint').onclick = hint;
+  $('#btn-restart').onclick = restart;
+  const muteBtn = $('#btn-mute');
+  const syncMute = () => { muteBtn.textContent = sfx.muted ? '🔇' : '🔊'; };
+  muteBtn.onclick = () => { sfx.setMuted(!sfx.muted); syncMute(); if (!sfx.muted) sfx.click(); };
+  syncMute();
+  document.addEventListener('keydown', (e) => {
+    if (!$('#screen-game').classList.contains('active') || !$('#modal').classList.contains('hidden')) return;
+    if (e.key === 'Escape') { G.selected = null; G.view && G.view.select(null); }
+    else if (e.key === 'u' || e.key === 'z') undo();
+    else if (e.key === 'h') hint();
+    else if (e.key === 'r') restart();
+    else if (/^[1-9]$/.test(e.key)) { const i = Number(e.key) - 1; if (G.board && i < G.board.cups.length) onCupTap(i); }
+  });
+}
+
+bind();
+refreshTitle();
+loadLevels().catch(() => toast('載入關卡失敗：請用 npm start 開啟'));
+
+// 除錯 / 自動化測試用（正式版可移除）
+window.meowcha = { G, server, bg, STAGES, playCampaign, playStageTransition, onCupTap, undo, hint, restart, progress };

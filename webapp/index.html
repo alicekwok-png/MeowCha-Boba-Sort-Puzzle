@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#F2D9B6">
+  <title>喵喵茶記 Boba Cat</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧋</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ===== 主畫面 ===== -->
+  <section id="screen-title" class="screen active">
+    <div class="title-bg"></div>
+    <div class="title-content">
+      <img class="title-mascot" src="assets/mocha-serve.png" alt="Mocha">
+      <h1 class="logo"><span class="logo-main">喵喵茶記</span><span class="logo-sub">Boba Cat · 珍珠奶茶分類</span></h1>
+      <div class="menu">
+        <button id="btn-continue" class="btn primary">開始</button>
+        <button id="btn-levels" class="btn">關卡選擇</button>
+        <button id="btn-practice" class="btn">練習模式</button>
+        <button id="btn-help" class="btn ghost">點樣玩？</button>
+      </div>
+      <div class="title-foot">
+        <span class="coins">🪙 <b id="coins-title">0</b></span>
+        <span class="stars-total">⭐ <b id="stars-title">0</b>/120</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 關卡選擇 ===== -->
+  <section id="screen-levels" class="screen">
+    <header class="bar">
+      <button class="icon-btn" id="btn-levels-back" aria-label="返回">‹</button>
+      <h2>關卡</h2>
+      <span class="coins">🪙 <b id="coins-levels">0</b></span>
+    </header>
+    <div id="level-grid" class="level-grid"></div>
+  </section>
+
+  <!-- ===== 遊戲（五層結構）===== -->
+  <section id="screen-game" class="screen">
+    <!-- z 0–30：遠景 / 中景 / 氛圍 / 遮罩 -->
+    <div id="bg-layers" class="bg-layers" aria-hidden="true">
+      <img id="bg-far" class="bg-far" alt="">
+      <img id="bg-far-next" class="bg-far" alt="" hidden>
+      <div id="bg-mid" class="bg-mid"></div>
+      <canvas id="bg-ambient" class="bg-ambient"></canvas>
+      <div id="bg-mask" class="bg-mask"></div>
+    </div>
+
+    <!-- z 40–60：安全區版面（9:20 設計基準） -->
+    <div class="game-col">
+      <header class="zone zone-top">
+        <button class="icon-btn" id="btn-game-back" aria-label="返回">‹</button>
+        <div class="level-title"><b id="game-level-no">第 1 關</b><span id="game-level-title"></span></div>
+        <div class="pace" id="pace" title="步數 / 三星門檻"><span class="pace-stars" id="pace-stars">★★★</span><span class="pace-moves" id="pace-moves">0 步</span></div>
+        <button class="icon-btn" id="btn-mute" aria-label="音效">🔊</button>
+      </header>
+      <div class="zone zone-customers" id="customers"></div>
+      <div class="zone zone-board"><canvas id="board"></canvas></div>
+      <div class="zone zone-mocha">
+        <img id="mocha-img" src="assets/mocha-idle.png" alt="Mocha">
+        <div id="mocha-bubble" class="bubble">揀一隻杯，再揀倒去邊隻～</div>
+      </div>
+      <footer class="zone zone-actions">
+        <button class="act" id="btn-undo"><i>↶</i><span>撤銷</span></button>
+        <button class="act" id="btn-hint"><i>💡</i><span>提示</span></button>
+        <button class="act" id="btn-restart"><i>↻</i><span>重來</span></button>
+      </footer>
+    </div>
+
+    <!-- 階段過渡字卡 -->
+    <div id="stage-card" class="stage-card hidden"></div>
+  </section>
+
+  <!-- ===== Modal / Toast ===== -->
+  <div id="modal" class="modal hidden"><div class="card" id="modal-card"></div></div>
+  <div id="toast" class="toast hidden"></div>
+</div>
+<script type="module" src="src/client/main.js"></script>
+</body>
+</html>

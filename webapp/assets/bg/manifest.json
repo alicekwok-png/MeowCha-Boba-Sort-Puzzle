@@ -1,0 +1,68 @@
+{
+ "width": 1080,
+ "height": 2800,
+ "bleed": 200,
+ "stages": [
+  {
+   "id": 1,
+   "file": "bg1_far.webp",
+   "bytes": 44394,
+   "safeZoneRgb": [
+    238,
+    227,
+    200
+   ],
+   "safeZoneL": 90.45,
+   "desc": "街邊木頭車（日光）",
+   "source": "stage1.jpg"
+  },
+  {
+   "id": 2,
+   "file": "bg2_far.webp",
+   "bytes": 10024,
+   "safeZoneRgb": [
+    244,
+    242,
+    238
+   ],
+   "safeZoneL": 95.54,
+   "desc": "樓梯底小店（雨夜）"
+  },
+  {
+   "id": 3,
+   "file": "bg3_far.webp",
+   "bytes": 13792,
+   "safeZoneRgb": [
+    249,
+    246,
+    242
+   ],
+   "safeZoneL": 97.01,
+   "desc": "商場店面（冷光）"
+  },
+  {
+   "id": 4,
+   "file": "bg4_far.webp",
+   "bytes": 10712,
+   "safeZoneRgb": [
+    246,
+    240,
+    235
+   ],
+   "safeZoneL": 95.12,
+   "desc": "夜市旗艦店（夜）"
+  },
+  {
+   "id": 5,
+   "file": "bg5_far.webp",
+   "bytes": 12330,
+   "safeZoneRgb": [
+    249,
+    246,
+    242
+   ],
+   "safeZoneL": 97.01,
+   "desc": "雲頂總店（夢幻）"
+  }
+ ]
+}

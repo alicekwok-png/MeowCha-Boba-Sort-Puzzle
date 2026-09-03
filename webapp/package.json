@@ -1,0 +1,13 @@
+{
+  "name": "meowcha-boba-sort",
+  "version": "1.0.0",
+  "description": "喵喵茶記 Boba Cat — boba sort puzzle webapp",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test tests/core.test.js tests/background.test.js",
+    "gen": "node tools/gen.js --out levels/campaign.json"
+  },
+  "engines": { "node": ">=18" }
+}
