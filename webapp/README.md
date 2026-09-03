@@ -89,6 +89,22 @@ Campaign 暫時得 40 關，所以只有第 40 關之後會見到「落雨喇，
 5. 中景（`bg-mid`）同氛圍切圖未有美術，中景留空、氛圍元素全部程式畫。
 6. 第一階段遮罩用 0.50 而唔係規格嘅 0.45：對真實街車圖跑灰階對比測試差 0.2 未達 25，按 §3 驗收流程 +0.05。
 
+## 開場流程（開場規格）
+
+```
+撳 MeowCha → Boot（讀 flag / ?host=app，即刻並行下載批次 2）
+          → 公司 Logo（純白，首次 2.0s，之後 1.2s，host=app 跳過；撳邊度都可跳過）
+          → Loading（奶白：字標 + 摩卡三幀 loop + 隨機色注液進度條 + 文案輪播，最少 0.8s）
+          → 直接落上次關卡（唔問、唔彈窗）
+```
+
+- 實作喺 [src/client/boot.js](src/client/boot.js)：`decideLogoDuration` / `decideEntry` / `loadCore` 係純函數（有測試），`BootFlow` 負責 DOM。
+- 批次 1（logo、字標、摩卡三幀 ≈ 145 KB）用 `<link rel="preload">` 喺 HTML 層載；批次 2（關卡檔、第一階段背景、摩卡六姿勢、食客 12 個頭像 ≈ 420 KB）阻塞 Loading；批次 3（主畫面背景、教學杯圖）入關後閒時載。
+- 每個資源 15 秒 timeout、自動重試 1 次，之後顯示「載入唔到，撳一下重試」（撳一下由頭嚟過，logo 會縮短）。
+- 續玩例外先落主畫面：剛跨階段（`mc_pending_stage`）、首次過第 10 關後回訪（`mc_intro_cafe`）、未領獎勵 / 賽事未讀（旗標已預留）。
+- 關卡左上角 🏪 返回店舖（主畫面）。開場時間會印喺 console：`[boot] logo … ms · total … ms`。
+- 首次進入本機實測約 3.4 秒（logo 2.2s + loading 1.2s）；批次 2 由本機伺服器載入只需 11 ms。
+
 ## 素材流程
 
 所有原始素材放喺專案根目錄嘅 `assets-raw/`（Hailuo 出圖檔名好長，用時間排序搵最新）。
@@ -96,8 +112,11 @@ Campaign 暫時得 40 關，所以只有第 40 關之後會見到「落雨喇，
 | 素材 | 做法 |
 |---|---|
 | 階段背景（整張直向圖） | 複製到 `webapp/assets/bg/src/stage{N}.jpg`，跑 `python tools/build-bg.py`。腳本自動偵測平坦帶；切位唔啱可以加 `stage{N}.json`：`{"scene_end": 0.46, "counter_start": 0.77}` |
-| 客人 | 頭部圓形裁切成 256px 頭像 → `webapp/assets/customer-{N}.png`；客人排頭兩位用頭像，之後用程式畫嘅貓 |
-| 摩卡 / 杯種 | 假格仔底要去背（見 session 記錄嘅 keyout 流程），縮到 512 / 320px 放 `webapp/assets/` |
+| 其他全部（logo、字標、摩卡六姿勢 + 待機三幀、四位食客 × 三表情、杯種） | 跑 `python tools/build-assets.py`（需要 Pillow + numpy）。腳本按檔名喺 `assets-raw/` 搵圖，自動去背（假格仔底 / 純白底）、裁圓形頭像、轉 WebP 到 `webapp/assets/` |
+
+食客：1 貓（眼鏡圍巾）· 2 兔 · 3 柴犬 · 4 熊（西裝），表情 `wait`（等待）/ `happy`（出單）/ `angry`（步數超三星門檻仍未出單）。
+新嘅白磨砂杯同透明有蓋杯去唔到背（白底白杯 / 膠身透出格仔），教學畫面沿用舊素材（`assets-raw/legacy/`）。
+`assets-raw/` 唔喺 git 入面（72 MB），生成出嚟嘅 `webapp/assets/` 先會 commit。
 
 ## 玩法
 

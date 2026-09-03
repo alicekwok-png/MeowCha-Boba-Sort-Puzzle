@@ -7,6 +7,7 @@ import { LocalServer } from './local-server.js';
 import { GameView } from './game.js';
 import { Sfx } from './audio.js';
 import { BackgroundManager, STAGES, stageForLevel, stageTransitionAfter } from './background.js';
+import { BootFlow, decideEntry } from './boot.js';
 
 const $ = (s) => document.querySelector(s);
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
@@ -108,7 +109,7 @@ const LINES = {
 };
 function mocha(state, text) {
   const img = $('#mocha-img');
-  const src = `assets/mocha-${state}.png`;
+  const src = `assets/mocha-${state}.webp`;
   if (!img.src.endsWith(src)) img.src = new URL('../../' + src, import.meta.url).href;
   if (text !== undefined) $('#mocha-bubble').textContent = text;
   else if (LINES[state]) $('#mocha-bubble').textContent = LINES[state][Math.floor(Math.random() * LINES[state].length)];
@@ -141,14 +142,16 @@ function renderCustomers(popColor = null) {
     const s = document.createElement('span'); s.className = 'customers-note'; s.textContent = '今日冇客人落單 · 每種飲品裝滿一杯就收工';
     el.appendChild(s);
   } else {
-    // 頭兩位客人用美術頭像（assets/customer-1/2.png），之後嘅用程式畫嘅貓
-    const seats = [0, 1].map(k => (G.seatSeed + k) % 2);
+    // 四位食客（貓 / 兔 / 柴犬 / 熊）× 三表情：等待 wait · 出單 happy · 步數超三星門檻仍未出單 angry
+    const late = G.session && G.moves.length > G.session.starThresholds.three;
     orders.forEach((o, i) => {
       const p = PALETTE[o.color];
       const d = document.createElement('div');
       d.className = 'customer' + (o.filled ? ' done' : '') + (popColor === o.color ? ' pop' : '');
-      const face = i < 2
-        ? `<img class="avatar" src="${new URL(`../../assets/customer-${seats[i] + 1}.png`, import.meta.url).href}" alt="">`
+      const who = ((G.seatSeed + i) % 4) + 1;
+      const mood = o.filled ? 'happy' : late ? 'angry' : 'wait';
+      const face = i < 4
+        ? `<img class="avatar" src="${new URL(`../../assets/customer-${who}-${mood}.webp`, import.meta.url).href}" alt="">`
         : catSvg(FUR[(G.seatSeed + i) % FUR.length], o.filled);
       d.innerHTML = `${face}<span class="cbubble"><span class="sw" style="background:${p.hex}"></span>${p.zh}${o.filled ? '<span class="tick">✓</span>' : ''}</span>`;
       el.appendChild(d);
@@ -187,8 +190,9 @@ async function startLevel(levelData, { practice = false } = {}) {
   G.session = st;
   G.board = st.maskedBoard;
   G.moves = []; G.ts = []; G.history = []; G.selected = null; G.busy = false; G.hints = 0;
-  G.seatSeed = Math.floor(Math.random() * FUR.length);
+  G.seatSeed = Math.floor(Math.random() * 4);
   G.startedAt = performance.now();
+  if (!practice) { progress.last = levelData.id; saveProgress(); }   // 續玩：下次直接落返呢關
   if (!G.view) G.view = new GameView($('#board'), { onCupTap });
   G.view.setBoard(G.board);
   G.view.select(null);
@@ -281,6 +285,7 @@ async function onCupTap(idx) {
   G.busy = false;
   $('#btn-hint').disabled = false;
   updatePace();
+  if (!served) renderCustomers();   // 步數超門檻 → 食客轉不耐煩表情
 
   if (isSolved(G.board)) { await onSolved(); return; }
   if (isDead(G.board)) { mocha('stuck'); sfx.stuck(); await sleep(350); showStuck(); return; }
@@ -343,7 +348,7 @@ async function onSolved() {
   });
   await sleep(700);
   if (!res.verified) {
-    modal(`<img class="mascot" src="assets/mocha-stuck.png"><h3>驗證失敗</h3><p>${res.reason}</p>
+    modal(`<img class="mascot" src="assets/mocha-stuck.webp"><h3>驗證失敗</h3><p>${res.reason}</p>
       <div class="row"><button class="btn" id="m-retry">再嚟一次</button></div>`);
     $('#m-retry').onclick = () => { closeModal(); restart(); };
     return;
@@ -358,8 +363,10 @@ async function onSolved() {
 
   const isLast = !G.practice && G.level.id >= CAMPAIGN.length;
   const nextStage = G.practice ? null : stageTransitionAfter(G.level.id);
+  // 跨階段：記低旗標，下次開 app 會先落主畫面播過渡（開場規格 §7）
+  if (nextStage) { try { localStorage.setItem('mc_pending_stage', String(nextStage.id)); } catch { /* ignore */ } }
   modal(`
-    <img class="mascot" src="assets/mocha-clear.png">
+    <img class="mascot" src="assets/mocha-clear.webp">
     <h3>${G.practice ? '練習完成！' : `第 ${G.level.id} 關完成！`}</h3>
     <div class="stars">${[1, 2, 3].map(i => `<span class="s${i <= res.stars ? ' on' : ''}">★</span>`).join('')}</div>
     <div class="result">
@@ -384,6 +391,7 @@ async function onSolved() {
   if ($('#m-continue')) $('#m-continue').onclick = async () => {
     closeModal();
     await playStageTransition(nextStage);
+    try { localStorage.removeItem('mc_pending_stage'); } catch { /* ignore */ }
     const levels = await loadLevels();
     if (levels.has(G.level.id + 1)) playCampaign(G.level.id + 1);
     else { refreshTitle(); renderLevelGrid(); show('screen-levels'); }
@@ -411,7 +419,7 @@ async function playStageTransition(nextStage) {
 
 function showStuck() {
   modal(`
-    <img class="mascot" src="assets/mocha-stuck.png">
+    <img class="mascot" src="assets/mocha-stuck.webp">
     <h3>冇路行喇…</h3>
     <p>所有杯都倒唔到。撤銷幾步，或者重新嚟過？</p>
     <div class="row">
@@ -439,7 +447,7 @@ function pickPractice() {
   document.querySelectorAll('[data-d]').forEach(b => b.onclick = async () => {
     const cfg = PRACTICE[b.dataset.d];
     sfx.click();
-    modal(`<img class="mascot" src="assets/mocha-pouring.png"><h3>Mocha 整緊飲品…</h3><div class="spinner"></div><p style="font-size:13px">生成緊隨機關卡，稍等一陣</p>`);
+    modal(`<img class="mascot" src="assets/mocha-pouring.webp"><h3>Mocha 整緊飲品…</h3><div class="spinner"></div><p style="font-size:13px">生成緊隨機關卡，稍等一陣</p>`);
     try {
       const seed = `v1:p:${b.dataset.d}:${Date.now().toString(36)}:${Math.random().toString(36).slice(2, 8)}`;
       const lvl = await server.generatePractice(cfg, seed);
@@ -454,7 +462,7 @@ function pickPractice() {
 
 // ---------- 說明 ----------
 function showHelp() {
-  const cup = (img, name, desc) => `<div class="cuptype"><img src="assets/${img}.png" alt=""><div><b>${name}</b><span>${desc}</span></div></div>`;
+  const cup = (img, name, desc) => `<div class="cuptype"><img src="assets/${img}.webp" alt=""><div><b>${name}</b><span>${desc}</span></div></div>`;
   modal(`
     <h3>點樣玩？</h3>
     <div class="help">
@@ -489,11 +497,11 @@ function bind() {
   $('#btn-practice').onclick = () => { sfx.click(); pickPractice(); };
   $('#btn-help').onclick = () => { sfx.click(); showHelp(); };
   $('#btn-levels-back').onclick = () => { sfx.click(); refreshTitle(); show('screen-title'); };
+  // 關卡角落 🏪 → 返回店舖（主畫面）
   $('#btn-game-back').onclick = () => {
     if (G.busy) return;
     sfx.click(); refreshTitle();
-    show(G.practice ? 'screen-title' : 'screen-levels');
-    if (!G.practice) renderLevelGrid();
+    show('screen-title');
   };
   $('#btn-undo').onclick = undo;
   $('#btn-hint').onclick = hint;
@@ -512,9 +520,45 @@ function bind() {
   });
 }
 
-bind();
-refreshTitle();
-loadLevels().catch(() => toast('載入關卡失敗：請用 npm start 開啟'));
+// ---------- 開場：Boot → 公司 Logo（並行下載）→ Loading → 直接落上次關卡 ----------
+async function enterCafe(entry) {
+  const banner = $('#cafe-banner');
+  banner.hidden = false;
+  if (entry.reason === 'stage') {
+    const st = STAGES.find(s => s.id === entry.stageId) || STAGES[0];
+    banner.textContent = `🎉 第 ${st.id} 階段「${st.name}」開張！${st.line}`;
+    try { localStorage.removeItem('mc_pending_stage'); } catch { /* ignore */ }
+  } else if (entry.reason === 'intro') {
+    banner.textContent = '🏪 恭喜過咗 10 關！呢度係你嘅店舖：可以揀關卡、練習，或者睇玩法。';
+    try { localStorage.setItem('mc_intro_cafe', '1'); } catch { /* ignore */ }
+  } else if (entry.reason === 'reward') {
+    banner.textContent = '🎁 有獎勵未領！';
+  } else if (entry.reason === 'tournament') {
+    banner.textContent = '🏆 賽事已結算，去睇名次！';
+  } else banner.hidden = true;
+  refreshTitle();
+  show('screen-title');
+}
+
+async function startApp() {
+  bind();
+  const boot = new BootFlow({
+    logoScreen: $('#screen-logo'), loadingScreen: $('#screen-loading'),
+    liquidColors: PALETTE.map(p => p.hex), base: new URL('../../', import.meta.url).href,
+  });
+  const timing = await boot.run();
+  if (!timing) return;                      // 重試畫面已接手（重試成功會再入嚟）
+  console.info('[boot]', `logo ${Math.round(timing.logoDone)} ms · total ${Math.round(timing.total)} ms`, timing.fromHostApp ? '(host=app)' : '');
+  window.meowcha.bootTiming = timing;
+
+  const levels = await loadLevels().catch(() => null);
+  if (!levels) { toast('載入關卡失敗'); return enterCafe({ reason: null }); }
+  const entry = decideEntry({ storage: localStorage, progress, levelCount: CAMPAIGN.length });
+  if (entry.screen === 'level') await playCampaign(entry.levelId);
+  else await enterCafe(entry);
+  $('#cafe-banner').onclick = () => { $('#cafe-banner').hidden = true; };
+}
 
 // 除錯 / 自動化測試用（正式版可移除）
-window.meowcha = { G, server, bg, STAGES, playCampaign, playStageTransition, onCupTap, undo, hint, restart, progress };
+window.meowcha = { G, server, bg, STAGES, playCampaign, playStageTransition, onCupTap, undo, hint, restart, progress, enterCafe };
+startApp();
