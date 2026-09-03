@@ -13,6 +13,8 @@ export const TIPS = ['正在煮珍珠…', '正在搖勻…', '摩卡準備緊�
 export const CORE_ASSETS = [
   { url: 'levels/campaign.json', bytes: 20_000 },
   { url: 'assets/bg/bg1_far.webp', bytes: 44_000 },
+  { url: 'assets/cup-body.webp', bytes: 27_000 },
+  { url: 'assets/cup-geom.json', bytes: 400 },
   ...['idle', 'pouring', 'serve', 'stuck', 'almost', 'clear'].map(k => ({ url: `assets/mocha-${k}.webp`, bytes: 42_000 })),
   ...[1, 2, 3, 4].flatMap(c => ['wait', 'happy', 'angry'].map(m => ({ url: `assets/customer-${c}-${m}.webp`, bytes: 9_000 }))),
 ];

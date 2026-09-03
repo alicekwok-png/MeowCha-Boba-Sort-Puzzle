@@ -29,6 +29,13 @@ export class GameView {
     this.floaters = [];
     this.streams = [];
     this.hintArrow = null;
+    // 杯貼圖（美術透明 PNG）+ 杯內液體幾何；未載入時用程式畫嘅杯
+    this.sprite = null; this.geom = null;
+    const base = new URL('../../assets/', import.meta.url);
+    const img = new Image();
+    img.onload = () => { this.sprite = img; this.layout(); };
+    img.src = new URL('cup-body.webp', base).href;
+    fetch(new URL('cup-geom.json', base)).then(r => r.json()).then(g => { this.geom = g; this.layout(); }).catch(() => {});
     this.frame = this.frame.bind(this);
     this._raf = requestAnimationFrame(this.frame);
     this._onPointer = (e) => {
@@ -74,7 +81,8 @@ export class GameView {
       if (!best || cupW > best.cupW) best = { rows, cols, cupW };
     }
     const { rows, cols, cupW } = best;
-    const w = Math.max(28, cupW), h = w * 1.5;
+    const aspect = this.geom ? this.geom.aspect : 1 / 1.5;
+    const w = Math.max(28, Math.min(cupW, (this.H - padTop - padBottom - gapY * (rows - 1)) / rows * aspect)), h = w / aspect;
     const rowH = h + gapY;
     const totalH = rows * rowH - gapY;
     const y0 = padTop + Math.max(0, (this.H - padTop - padBottom - totalH) / 2);
@@ -196,7 +204,8 @@ export class GameView {
   _splash(T, color, count) {
     const cx = T.x + T.w / 2;
     const level = T.seg.length + T.extraUnits;
-    const cy = T.y + T.h - 5 - level * this.slotH;
+    const L = this._liquid(T);
+    const cy = T.y + L.bottom - level * L.slotH;
     for (let i = 0; i < count; i++) {
       this.particles.push({
         x: cx + (Math.random() - 0.5) * T.w * 0.5, y: cy,
@@ -328,6 +337,21 @@ export class GameView {
       ctx.shadowColor = 'rgba(80,50,20,0.18)'; ctx.shadowBlur = 8; ctx.shadowOffsetY = 3;
     }
 
+    if (this._useSprite(c)) {
+      // 美術杯貼圖：杯身實色，液體用 multiply 畫喺杯內（反光留光、珍珠留深）
+      ctx.drawImage(this.sprite, 0, 0, w, h);
+      ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+      this.drawLayers(c, w, h, now);
+      if (c.locked) {
+        const g = this.geom;
+        ctx.save(); ctx.translate(0, c.lidOffset || 0); ctx.globalAlpha *= (c.lidAlpha ?? 1);
+        this.drawFilmLid(w, g.rimY * h, g.rimRx * w, g.rimRy * h * 1.15);
+        ctx.restore();
+      }
+      ctx.restore();
+      return;
+    }
+
     if (c.kind === 'takeaway') this.drawBag(c, w, h);
     else this.drawPlasticBody(c, w, h);
     ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
@@ -336,6 +360,41 @@ export class GameView {
     if (c.kind === 'takeaway') this.drawBagFront(c, w, h);
     else this.drawPlasticFront(c, w, h);
     ctx.restore();
+  }
+
+  /** 普通杯 / 封膜杯（cap 4、非磨砂）用貼圖；磨砂、外帶維持程式畫 */
+  _useSprite(c) {
+    return !!(this.sprite && this.geom) && c.cap === 4 && c.kind !== 'frosted' && c.kind !== 'takeaway';
+  }
+
+  /** 液體區域幾何：bottom（液面 y=0 基準）、slotH、左右邊界函數 */
+  _liquid(c) {
+    const w = c.w, h = c.h;
+    if (this._useSprite(c)) {
+      const g = this.geom.inner;
+      const top = g.topY * h, bottom = g.botY * h, span = bottom - top;
+      const lerpX = (y, a, b) => (a + (b - a) * ((bottom - y) / span)) * w;   // y 由底向上
+      return { bottom, slotH: span / c.cap, xl: y => lerpX(y, g.botL, g.topL), xr: y => lerpX(y, g.botR, g.topR), sprite: true };
+    }
+    const bottom = h - 5, slotH = (h - 10) / 4;
+    const isBag = c.kind === 'takeaway', inset = isBag ? 7 : 0;
+    return { bottom, slotH, xl: y => (isBag ? inset : this._xAt(w, h, y)), xr: y => (isBag ? w - inset : w - this._xAt(w, h, y)), sprite: false };
+  }
+
+  /** 封膜：平面膠膜 + 鎖 */
+  drawFilmLid(w, cy, rx, ry) {
+    const ctx = this.ctx;
+    ctx.beginPath(); ctx.ellipse(w / 2, cy, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fillStyle = '#F3D9B1'; ctx.fill();
+    ctx.strokeStyle = 'rgba(140,95,50,0.7)'; ctx.lineWidth = 1.4; ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(w / 2, cy, rx * 0.86, ry * 0.55, 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fill();
+    const lx = w / 2, ly = cy - 13;
+    ctx.fillStyle = '#8A5A2B';
+    ctx.beginPath(); ctx.roundRect(lx - 7, ly, 14, 10, 2); ctx.fill();
+    ctx.strokeStyle = '#8A5A2B'; ctx.lineWidth = 2.2;
+    ctx.beginPath(); ctx.arc(lx, ly, 4.5, Math.PI, 0); ctx.stroke();
+    ctx.fillStyle = '#F6E7CF'; ctx.beginPath(); ctx.arc(lx, ly + 5, 1.6, 0, Math.PI * 2); ctx.fill();
   }
 
   // 杯身梯形：頂闊 w，底闊 0.84w
@@ -401,19 +460,7 @@ export class GameView {
     ctx.translate(0, c.lidOffset || 0);
     ctx.globalAlpha *= (c.lidAlpha ?? 1);
     if (c.locked) {
-      // 封膜：平面膜 + 鎖
-      ctx.beginPath(); ctx.ellipse(w / 2, 0, w / 2 + 3, 6, 0, 0, Math.PI * 2);
-      ctx.fillStyle = '#F3D9B1'; ctx.fill();
-      ctx.strokeStyle = 'rgba(140,95,50,0.7)'; ctx.lineWidth = 1.4; ctx.stroke();
-      ctx.beginPath(); ctx.ellipse(w / 2, 0, w / 2 - 4, 3.5, 0, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fill();
-      // 鎖
-      const lx = w / 2, ly = -13;
-      ctx.fillStyle = '#8A5A2B';
-      ctx.beginPath(); ctx.roundRect(lx - 7, ly, 14, 10, 2); ctx.fill();
-      ctx.strokeStyle = '#8A5A2B'; ctx.lineWidth = 2.2;
-      ctx.beginPath(); ctx.arc(lx, ly, 4.5, Math.PI, 0); ctx.stroke();
-      ctx.fillStyle = '#F6E7CF'; ctx.beginPath(); ctx.arc(lx, ly + 5, 1.6, 0, Math.PI * 2); ctx.fill();
+      this.drawFilmLid(w, 0, w / 2 + 3, 6);
     } else {
       // 開口杯：只有一個薄杯沿（背景規格 §8：拿走杯頂圓拱，令杯陣區更平靜）
       ctx.beginPath(); ctx.ellipse(w / 2, 0, w / 2 + 2, 4.5, 0, 0, Math.PI * 2);
@@ -452,12 +499,18 @@ export class GameView {
 
   drawLayers(c, w, h, now) {
     const ctx = this.ctx;
-    const sh = this.slotH;
-    const bottom = h - 5;
+    const L = this._liquid(c);
+    const sh = L.slotH, bottom = L.bottom;
     const isBag = c.kind === 'takeaway';
     const inset = isBag ? 7 : 0;
     ctx.save();
-    if (isBag) { ctx.beginPath(); ctx.roundRect(inset, bottom - 3 * sh - 1, w - inset * 2, 3 * sh + 1, 3); ctx.clip(); }
+    if (L.sprite) {
+      const top = bottom - c.cap * sh;
+      ctx.beginPath();
+      ctx.moveTo(L.xl(top), top); ctx.lineTo(L.xr(top), top); ctx.lineTo(L.xr(bottom), bottom); ctx.lineTo(L.xl(bottom), bottom); ctx.closePath();
+      ctx.clip();
+      ctx.globalCompositeOperation = 'multiply';   // 液體 × 膠杯：反光留光、珍珠留深
+    } else if (isBag) { ctx.beginPath(); ctx.roundRect(inset, bottom - 3 * sh - 1, w - inset * 2, 3 * sh + 1, 3); ctx.clip(); }
     else { this._bodyPath(w, h, 1.2); ctx.clip(); }
     ctx.globalAlpha *= c.layerAlpha;
 
@@ -470,9 +523,8 @@ export class GameView {
     }
     const drawBand = (from, to, color, hidden) => {
       const y1 = bottom - to * sh, y2 = bottom - from * sh;
-      const xl1 = isBag ? inset : this._xAt(w, h, y1), xl2 = isBag ? inset : this._xAt(w, h, y2);
       ctx.beginPath();
-      ctx.moveTo(xl1, y1); ctx.lineTo(w - xl1, y1); ctx.lineTo(w - xl2, y2); ctx.lineTo(xl2, y2); ctx.closePath();
+      ctx.moveTo(L.xl(y1), y1); ctx.lineTo(L.xr(y1), y1); ctx.lineTo(L.xr(y2), y2); ctx.lineTo(L.xl(y2), y2); ctx.closePath();
       if (hidden) {
         ctx.fillStyle = '#E9E1D4'; ctx.fill();
         ctx.strokeStyle = 'rgba(160,130,100,0.35)'; ctx.lineWidth = 1; ctx.stroke();
@@ -481,6 +533,8 @@ export class GameView {
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText('?', w / 2, (y1 + y2) / 2 + 1);
         ctx.textBaseline = 'alphabetic';
+      } else if (L.sprite) {
+        ctx.fillStyle = color; ctx.fill();
       } else {
         const g = ctx.createLinearGradient(0, 0, w, 0);
         g.addColorStop(0, shade(color, -0.12)); g.addColorStop(0.45, shade(color, 0.08)); g.addColorStop(1, shade(color, -0.15));
@@ -504,6 +558,7 @@ export class GameView {
     // 正在倒入嘅新層
     if (c.extraUnits > 0 && c.extraColor !== null) drawBand(level, level + c.extraUnits, HEX[c.extraColor], false);
 
+    if (L.sprite) { ctx.restore(); return; }   // 貼圖杯：珍珠 / 反光 / 封膜白紗都喺貼圖或封膜蓋度
     // 珍珠（底層）
     if (n > 0 && c.seg[0] !== null) {
       ctx.fillStyle = 'rgba(40,25,15,0.35)';
@@ -537,7 +592,8 @@ export class GameView {
       const cos = Math.cos(S.rot), sin = Math.sin(S.rot);
       const spx = ox + lx * cos - ly * sin, spy = oy + lx * sin + ly * cos;
       const level = T.seg.length + T.extraUnits;
-      const tx = T.x + T.w / 2, ty = T.y + T.h - 5 - level * this.slotH;
+      const LT = this._liquid(T);
+      const tx = T.x + T.w / 2, ty = T.y + LT.bottom - level * LT.slotH;
       ctx.save();
       ctx.globalAlpha = s.alpha;
       ctx.lineCap = 'round';

@@ -124,7 +124,8 @@ CUSTOMERS = {
     1: {'wait': 'One quiet cup. Every morning. 副本 (12).png', 'happy': '*delighted ex_552026760040030213.jpg', 'angry': '*impatient expr_552026722790432774.jpg'},
     2: {'wait': 'One quiet cup. Every morning. 副本 (14).png', 'happy': '*delighted ex_552027978212704262.jpg', 'angry': '*impatient expr_552026282375884800.jpg'},
     3: {'wait': 'dog.png',                                    'happy': '*delighted ex_552026135432663042.jpg', 'angry': '*impatient expr_552029929621028869.jpg'},
-    4: {'wait': 'One quiet cup. Every morning. 副本 (11).png', 'happy': '*delighted ex_552020696531820552 (1).jpg', 'angry': '*impatient expr_552020736394534919.jpg'},
+    # 熊嘅透明等待圖原檔已被覆蓋成杯（副本 (11).png），customer-4-wait.webp 沿用已生成版本
+    4: {'wait': 'bear-wait.png', 'happy': '*delighted ex_552020696531820552 (1).jpg', 'angry': '*impatient expr_552020736394534919.jpg'},
 }
 def avatar(im):
     """頭部圓形頭像：以去背後 bbox 定位（頭喺上方），奶白底圓，256px。"""
@@ -140,7 +141,12 @@ def avatar(im):
     return disc.resize((256, 256), Image.LANCZOS)
 for cid, faces in CUSTOMERS.items():
     for mood, pat in faces.items():
-        save(avatar(Image.open(raw(pat))), f'customer-{cid}-{mood}.webp')
+        try:
+            src = raw(pat)
+        except FileNotFoundError:
+            print(f'customer-{cid}-{mood}: source {pat} missing, keeping existing webp')
+            continue
+        save(avatar(Image.open(src)), f'customer-{cid}-{mood}.webp')
 
 # ---------------- 杯種（教學畫面用） ----------------
 # 新嘅白磨砂杯（白底白杯）同透明有蓋杯（膠身透出格仔）去唔到背，教學畫面沿用舊素材
