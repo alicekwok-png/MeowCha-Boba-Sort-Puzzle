@@ -127,7 +127,8 @@ body {
   position: relative; z-index: 40;
   height: 100%; width: 100%;
   display: grid;
-  grid-template-rows: 10% 10% 53% 15% 12%;   /* 頂欄 · 客人排 · 杯陣安全區 · 摩卡+對話 · 按鈕區 */
+  /* 工單 #4 版面（1080 × 2400）：頂欄 0–160 · 客人區 160–560（含托盤）· 間隔 560–600 · 杯陣安全區 600–1750 · 摩卡 1750–2100 · 按鈕 2100–2400 */
+  grid-template-rows: 6.67% 16.67% 1.67% 47.92% 14.58% 12.49%;
 }
 @media (min-aspect-ratio: 3/4) {
   .game-col { width: min(100%, 68vh); }
@@ -157,30 +158,42 @@ body {
 .pace-stars .off { color: #D9CDB8; text-shadow: none; }
 .pace-moves { font-size: 10px; font-weight: 800; color: #9A7B58; }
 
-/* 客人排 */
-.zone-customers { display: flex; align-items: flex-end; justify-content: center; gap: 10px; padding: 0 10px 2px; overflow: hidden; }
-.customer { display: flex; align-items: flex-end; gap: 4px; transition: opacity .4s, transform .4s; max-height: 100%; }
-.customer svg { width: clamp(38px, 7.5vh, 60px); height: auto; filter: drop-shadow(0 3px 4px rgba(80,50,20,0.25)); }
-.customer img.avatar {
-  width: clamp(44px, 8.5vh, 68px); height: clamp(44px, 8.5vh, 68px); border-radius: 50%;
-  border: 2.5px solid #fff; box-shadow: 0 3px 6px rgba(80,50,20,0.28); background: #FFF7EA; margin-bottom: 2px;
+/* 客人區（工單 #4 任務 2）：四個訂單槽水平均分；客人半身圖貼頂，高度 ≈ 畫面 19%，由頂邊出（可被頂欄少量遮住） */
+.zone-top { z-index: 60; grid-row: 1; }
+.zone-customers { grid-row: 2; }
+.zone-board { grid-row: 4; }
+.zone-mocha { grid-row: 5; }
+.zone-actions { grid-row: 6; }
+.zone-customers {
+  z-index: 35; overflow: visible;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 0 8px; align-items: end;
 }
-.customer.done img.avatar { filter: saturate(.7); }
-.customer .cbubble {
-  position: relative; background: #fff; border: 2px solid var(--tan-2); border-radius: 12px; padding: 4px 8px 4px 6px;
-  display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 800; color: var(--brown-2); margin-bottom: 14px; white-space: nowrap;
+.slot { position: relative; height: 100%; min-width: 0; --label-h: 24px; }
+.slot:nth-child(1) { z-index: 1 } .slot:nth-child(2) { z-index: 2 } .slot:nth-child(3) { z-index: 3 } .slot:nth-child(4) { z-index: 4 }
+/* 客人半身圖：畫布 560 高、身體 480 → 22vh 畫布 ≈ 身體 18.9% 畫面高；底邊釘喺標籤 / 托盤頂 */
+.slot img.body {
+  position: absolute; bottom: var(--label-h); left: 50%; transform: translateX(-50%);
+  height: 22vh; width: auto; max-width: none;
+  filter: drop-shadow(0 4px 6px rgba(80,50,20,0.25)); transition: filter .3s;
 }
-.customer .cbubble::before { content: ""; position: absolute; left: -8px; bottom: 8px; border: 6px solid transparent; border-right-color: var(--tan-2); border-left: 0; }
-.customer .cbubble::after { content: ""; position: absolute; left: -5px; bottom: 9px; border: 5px solid transparent; border-right-color: #fff; border-left: 0; }
-.customer .sw { width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.15); }
-.customer.done { opacity: .55; }
-.customer.done .cbubble { text-decoration: line-through; }
-.customer.done .cbubble::after { border-right-color: #fff; }
-.customer.done .tick { text-decoration: none; color: #2E8B57; }
-.customer.pop { animation: pop .5s ease; }
-@keyframes pop { 0% { transform: scale(1) } 40% { transform: scale(1.18) } 100% { transform: scale(1) } }
-.customers-note { font-size: 12px; font-weight: 700; color: #7C6448; background: rgba(255,255,255,0.7); padding: 4px 10px; border-radius: 999px; margin-bottom: 6px; }
-.customers-note.lock { color: var(--brown-2); }
+.slot.done img.body { filter: drop-shadow(0 4px 6px rgba(80,50,20,0.25)) saturate(.85); }
+.slot svg.chair { position: absolute; bottom: calc(var(--label-h) + 4px); left: 50%; transform: translateX(-50%); height: 9vh; width: auto; opacity: .3; }
+.slot .label {
+  position: absolute; left: 0; right: 0; bottom: 0; height: var(--label-h); box-sizing: border-box;
+  text-align: center; background: rgba(255,255,255,0.9); border: 1.5px solid var(--tan-2);
+  border-radius: 8px; padding: 2px 4px; font-size: 12px; font-weight: 800; color: var(--brown-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+}
+.slot .sw { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.15); flex: 0 0 auto; }
+.slot.done .label { text-decoration: line-through; opacity: .6; }
+.slot.done .tick { text-decoration: none; color: #2E8B57; }
+.slot.pop img.body { animation: pop .5s ease; }
+@keyframes pop { 0% { transform: translateX(-50%) scale(1) } 40% { transform: translateX(-50%) scale(1.12) } 100% { transform: translateX(-50%) scale(1) } }
+.customers-note {
+  position: absolute; left: 50%; bottom: 2px; transform: translateX(-50%); z-index: 6;
+  font-size: 12px; font-weight: 700; color: #7C6448; background: rgba(255,255,255,0.85); padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+}
+.customers-note.lock { left: auto; right: 8px; transform: none; color: var(--brown-2); bottom: auto; top: 4px; }
 
 /* 杯陣安全區 */
 .zone-board { }

@@ -116,46 +116,43 @@ function mocha(state, text) {
   if (state === 'serve' || state === 'clear') { img.classList.remove('hop'); void img.offsetWidth; img.classList.add('hop'); }
 }
 
-// ---------- 客人排 ----------
-const FUR = ['#F2B36B', '#D9D0C2', '#8C6A4E', '#F6E7CF', '#A9A9B4', '#E7A27A'];
-function catSvg(fur, happy) {
-  const eyes = happy
-    ? `<path d="M22 30 q4 -5 8 0" stroke="#3E2A14" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M42 30 q4 -5 8 0" stroke="#3E2A14" stroke-width="2.4" fill="none" stroke-linecap="round"/>`
-    : `<circle cx="26" cy="31" r="3.2" fill="#3E2A14"/><circle cx="46" cy="31" r="3.2" fill="#3E2A14"/><circle cx="27" cy="30" r="1" fill="#fff"/><circle cx="47" cy="30" r="1" fill="#fff"/>`;
-  return `<svg viewBox="0 0 72 60" xmlns="http://www.w3.org/2000/svg">
-    <path d="M14 26 L10 6 L28 16 Z" fill="${fur}" stroke="#7A4E1E" stroke-width="2" stroke-linejoin="round"/>
-    <path d="M58 26 L62 6 L44 16 Z" fill="${fur}" stroke="#7A4E1E" stroke-width="2" stroke-linejoin="round"/>
-    <path d="M15 24 L13 11 L25 18 Z" fill="#F7C6C0"/><path d="M57 24 L59 11 L47 18 Z" fill="#F7C6C0"/>
-    <ellipse cx="36" cy="36" rx="26" ry="22" fill="${fur}" stroke="#7A4E1E" stroke-width="2"/>
-    ${eyes}
-    <path d="M33 39 l3 3 l3 -3 z" fill="#E88D5A"/>
-    <path d="M30 44 q6 5 12 0" stroke="#3E2A14" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M8 38 h14 M8 42 h14 M50 38 h14 M50 42 h14" stroke="#7A4E1E" stroke-width="1.4" stroke-linecap="round" opacity=".7"/>
+// ---------- 客人區 ----------
+/** 空椅剪影（訂單槽少於 4 個時填空位，alpha 0.3） */
+function chairSvg() {
+  return `<svg class="chair" viewBox="0 0 60 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <rect x="12" y="4" width="36" height="34" rx="8" fill="#7A4E1E"/>
+    <rect x="6" y="40" width="48" height="12" rx="5" fill="#7A4E1E"/>
+    <rect x="10" y="52" width="6" height="26" rx="2" fill="#7A4E1E"/><rect x="44" y="52" width="6" height="26" rx="2" fill="#7A4E1E"/>
   </svg>`;
 }
+
+const SLOT_COUNT = 4;   // 客人區固定四個槽位；空位用空椅剪影
 
 function renderCustomers(popColor = null) {
   const el = $('#customers');
   const orders = G.board.orders;
   el.innerHTML = '';
+  // 四位食客（貓 / 兔 / 柴犬 / 熊）× 三表情：等待 wait · 出單 happy · 步數超三星門檻仍未出單 angry
+  const late = G.session && G.moves.length > G.session.starThresholds.three;
+  for (let i = 0; i < SLOT_COUNT; i++) {
+    const o = orders[i];
+    const slot = document.createElement('div');
+    if (!o) {
+      slot.className = 'slot empty';
+      slot.innerHTML = chairSvg();
+    } else {
+      const p = PALETTE[o.color];
+      const who = ((G.seatSeed + i) % 4) + 1;
+      const mood = o.filled ? 'happy' : late ? 'angry' : 'wait';
+      slot.className = 'slot' + (o.filled ? ' done' : '') + (popColor === o.color ? ' pop' : '');
+      slot.innerHTML = `<img class="body" src="${new URL(`../../assets/customer-${who}-${mood}-body.webp`, import.meta.url).href}" alt="">
+        <span class="label"><span class="sw" style="background:${p.hex}"></span>${p.zh}${o.filled ? '<span class="tick">✓</span>' : ''}</span>`;
+    }
+    el.appendChild(slot);
+  }
   if (!orders.length) {
     const s = document.createElement('span'); s.className = 'customers-note'; s.textContent = '今日冇客人落單 · 每種飲品裝滿一杯就收工';
     el.appendChild(s);
-  } else {
-    // 四位食客（貓 / 兔 / 柴犬 / 熊）× 三表情：等待 wait · 出單 happy · 步數超三星門檻仍未出單 angry
-    const late = G.session && G.moves.length > G.session.starThresholds.three;
-    orders.forEach((o, i) => {
-      const p = PALETTE[o.color];
-      const d = document.createElement('div');
-      d.className = 'customer' + (o.filled ? ' done' : '') + (popColor === o.color ? ' pop' : '');
-      const who = ((G.seatSeed + i) % 4) + 1;
-      const mood = o.filled ? 'happy' : late ? 'angry' : 'wait';
-      const face = i < 4
-        ? `<img class="avatar" src="${new URL(`../../assets/customer-${who}-${mood}.webp`, import.meta.url).href}" alt="">`
-        : catSvg(FUR[(G.seatSeed + i) % FUR.length], o.filled);
-      d.innerHTML = `${face}<span class="cbubble"><span class="sw" style="background:${p.hex}"></span>${p.zh}${o.filled ? '<span class="tick">✓</span>' : ''}</span>`;
-      el.appendChild(d);
-    });
   }
   const sealed = G.board.cups.filter(c => c.locked).length;
   if (sealed) {

@@ -118,35 +118,7 @@ save(frame(1.00, 1.00, 0), 'mocha-idle-01.webp')
 save(frame(1.02, 0.975, 0), 'mocha-idle-02.webp')
 save(frame(1.01, 0.99, 1.5), 'mocha-idle-03.webp')
 
-# ---------------- 四位食客 × 三表情 ----------------
-# 1 貓（眼鏡圍巾） 2 兔 3 柴犬 4 熊（西裝）
-CUSTOMERS = {
-    1: {'wait': 'One quiet cup. Every morning. 副本 (12).png', 'happy': '*delighted ex_552026760040030213.jpg', 'angry': '*impatient expr_552026722790432774.jpg'},
-    2: {'wait': 'One quiet cup. Every morning. 副本 (14).png', 'happy': '*delighted ex_552027978212704262.jpg', 'angry': '*impatient expr_552026282375884800.jpg'},
-    3: {'wait': 'dog.png',                                    'happy': '*delighted ex_552026135432663042.jpg', 'angry': '*impatient expr_552029929621028869.jpg'},
-    # 熊嘅透明等待圖原檔已被覆蓋成杯（副本 (11).png），customer-4-wait.webp 沿用已生成版本
-    4: {'wait': 'bear-wait.png', 'happy': '*delighted ex_552020696531820552 (1).jpg', 'angry': '*impatient expr_552020736394534919.jpg'},
-}
-def avatar(im):
-    """頭部圓形頭像：以去背後 bbox 定位（頭喺上方），奶白底圓，256px。"""
-    im = trim(keyout(im))
-    w, h = im.size
-    side = int(w * 0.82)
-    cx, cy = w // 2, int(h * 0.40)
-    box = (cx - side // 2, cy - side // 2, cx + side // 2, cy + side // 2)
-    disc = Image.new('RGBA', (side, side), CREAM + (255,))
-    disc.alpha_composite(im.crop(box))
-    mask = Image.new('L', (side, side), 0); ImageDraw.Draw(mask).ellipse((0, 0, side - 1, side - 1), fill=255)
-    disc.putalpha(mask.filter(ImageFilter.GaussianBlur(0.8)))
-    return disc.resize((256, 256), Image.LANCZOS)
-for cid, faces in CUSTOMERS.items():
-    for mood, pat in faces.items():
-        try:
-            src = raw(pat)
-        except FileNotFoundError:
-            print(f'customer-{cid}-{mood}: source {pat} missing, keeping existing webp')
-            continue
-        save(avatar(Image.open(src)), f'customer-{cid}-{mood}.webp')
+# ---------------- 四位食客：見 tools/build-customers.py（半身圖，工單 #4）----------------
 
 # ---------------- 杯種（教學畫面用） ----------------
 # 新嘅白磨砂杯（白底白杯）同透明有蓋杯（膠身透出格仔）去唔到背，教學畫面沿用舊素材

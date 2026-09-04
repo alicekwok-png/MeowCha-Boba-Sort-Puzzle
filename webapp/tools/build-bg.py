@@ -4,7 +4,7 @@
 #       assets/bg/manifest.json（每階段安全區平均 L*，供對比度自動測試用）
 #
 # 美術端預處理照規格做喺呢度：far 層高斯 10px、飽和 −30%、亮度 −10%。
-# Y 470–1750（+200 出血 → 670–1950）保持單一平坦表面。
+# Y 600–1750（+200 出血 → 800–1950）保持單一平坦表面（工單 #4 起）。
 
 import json, os, sys
 from PIL import Image, ImageFilter, ImageEnhance, ImageDraw
@@ -16,7 +16,7 @@ os.makedirs(OUT, exist_ok=True)
 
 W, H = 1080, 2800          # 含出血
 BLEED = 200
-SAFE_TOP, SAFE_BOT = 470 + BLEED, 1750 + BLEED
+SAFE_TOP, SAFE_BOT = 600 + BLEED, 1750 + BLEED   # 工單 #4：安全區上界 470 → 600
 
 # 階段：來源圖、色調（乘法）、亮度倍率、場景描述
 STAGES = [

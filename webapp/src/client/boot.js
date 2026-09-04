@@ -16,7 +16,7 @@ export const CORE_ASSETS = [
   { url: 'assets/cup-body.webp', bytes: 27_000 },
   { url: 'assets/cup-geom.json', bytes: 400 },
   ...['idle', 'pouring', 'serve', 'stuck', 'almost', 'clear'].map(k => ({ url: `assets/mocha-${k}.webp`, bytes: 42_000 })),
-  ...[1, 2, 3, 4].flatMap(c => ['wait', 'happy', 'angry'].map(m => ({ url: `assets/customer-${c}-${m}.webp`, bytes: 9_000 }))),
+  ...[1, 2, 3, 4].flatMap(c => ['wait', 'happy', 'angry'].map(m => ({ url: `assets/customer-${c}-${m}-body.webp`, bytes: 27_000 }))),
 ];
 
 /** 批次 3 — 延後（進入關卡後閒時載） */

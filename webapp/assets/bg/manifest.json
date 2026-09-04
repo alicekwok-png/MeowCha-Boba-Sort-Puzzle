@@ -6,20 +6,20 @@
   {
    "id": 1,
    "file": "bg1_far.webp",
-   "bytes": 44394,
+   "bytes": 48054,
    "safeZoneRgb": [
     238,
     227,
-    200
+    199
    ],
-   "safeZoneL": 90.45,
+   "safeZoneL": 90.43,
    "desc": "街邊木頭車（日光）",
    "source": "stage1.jpg"
   },
   {
    "id": 2,
    "file": "bg2_far.webp",
-   "bytes": 10024,
+   "bytes": 11164,
    "safeZoneRgb": [
     244,
     242,
@@ -31,7 +31,7 @@
   {
    "id": 3,
    "file": "bg3_far.webp",
-   "bytes": 13792,
+   "bytes": 15618,
    "safeZoneRgb": [
     249,
     246,
@@ -43,7 +43,7 @@
   {
    "id": 4,
    "file": "bg4_far.webp",
-   "bytes": 10712,
+   "bytes": 11628,
    "safeZoneRgb": [
     246,
     240,
@@ -55,7 +55,7 @@
   {
    "id": 5,
    "file": "bg5_far.webp",
-   "bytes": 12330,
+   "bytes": 13680,
    "safeZoneRgb": [
     249,
     246,

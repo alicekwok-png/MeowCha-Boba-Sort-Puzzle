@@ -2,7 +2,7 @@
 // 層次：bg-far(0) → bg-mid(10) → bg-ambient(20) → readability-mask(30) → board(40) → characters(50) → ui(60)
 // 遮罩一定係程式畫（CSS gradient），透明度可以執行期調。氛圍層可一鍵關閉（FPS 救生索）。
 
-export const SAFE_TOP = 0.196;      // 470 / 2400
+export const SAFE_TOP = 0.25;       // 600 / 2400（工單 #4：客人區放大，安全區上界由 470 移到 600）
 export const SAFE_BOTTOM = 0.729;   // 1750 / 2400
 export const FADE = 0.042;          // 100 / 2400
 

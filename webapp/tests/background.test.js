@@ -42,8 +42,8 @@ describe('background', () => {
     }
   });
 
-  test('遮罩幾何：安全區 470–1750 / 2400，上下 100px 過渡', () => {
-    assert.ok(Math.abs(SAFE_TOP - 470 / 2400) < 1e-3);
+  test('遮罩幾何：安全區 600–1750 / 2400，上下 100px 過渡', () => {
+    assert.ok(Math.abs(SAFE_TOP - 600 / 2400) < 1e-3);   // 工單 #4
     assert.ok(Math.abs(SAFE_BOTTOM - 1750 / 2400) < 1e-3);
     assert.ok(Math.abs(FADE - 100 / 2400) < 1e-3);
   });
