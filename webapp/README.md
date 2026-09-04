@@ -23,12 +23,12 @@ Windows 可以直接雙擊 `start.cmd`。
 | 指令 | 作用 |
 |---|---|
 | `npm start` | 零依賴靜態伺服器（`server.js`） |
-| `npm test` | 34 個測試：rules / encoding / solver / generator / server / background（灰階對比） |
+| `npm test` | 87 個測試：rules / encoding / solver / generator / server / 廣告 / 難度 / 版面 / 背景 |
 | `npm run gen` | 離線批次生成 40 關 → `levels/campaign.json`（約 1 分鐘） |
 | `node tools/gen.js --only 12` | 只生成第 12 關（除錯） |
-| `python tools/build-bg.py` | 生成五個階段遠景圖 → `assets/bg/`（需要 Pillow）。有 `assets/bg/src/stage{N}.jpg\|png` 就用美術交付嘅整張直向圖（自動偵測平坦帶、切三段對位到 0–470 / 470–1750 / 1750–2400），冇就由 style anchor 合成 |
-| `node tools/dev/contrast.mjs` | 逐階段計算要幾多遮罩透明度先過到對比測試 |
-| `npm run stats` | 輸出 40 關數據表（容器 / 色數 / 空杯 / 每色平均段數 / 隱藏% / 最優 / 上限 / 杯種） |
+| `python tools/build-assets-v2.py` | Spec v2 全部美術：`assets-raw/v2/` → `assets/v2/`（webp + 器皿幾何 `vessels.json` + `asset-check.json` 驗證 + 全套 icon） |
+| `npm run stats` | 輸出 40 關數據表（容器 / 色數 / 空瓶 / 每色平均段數 / 隱藏% / 最優 / 3★ / 上限 / 瓶種） |
+| `python tools/build-bg.py`、`build-assets.py`、`build-customers.py`、`extract-cup.py`、`build-icon.py` | 珍奶 / 夜市時期嘅腳本，已廢棄（build-bg 直接退出；其餘只留歷史參考） |
 | `python tools/build-icon.py` | App Icon 方向一「發光珍奶杯」程式繪製版 → `assets/icons/` 全套 + `../design/icon/` 驗收 mock（48px、深 / 淺列表、搜尋結果） |
 
 ## 架構
@@ -41,41 +41,38 @@ webapp/
     solver.js            IDA*（可採納 heuristic、正規化、剪枝）、countOptimalPaths、safeOpening
     generator.js         randomFill + 7 項質量檢查、starThresholds
     prng.js              mulberry32 確定性亂數
-    palette.js           夜市 10 色液體色板 + 色相/明度互斥規則（純色最多 6 色同關）
-    levels.js            Campaign 1–40 關 LevelConfig 表、練習模式 config
+    palette.js           由 config/theme.js 派生嘅 10 色液體色板 + 互斥 / 圖案規則（純色最多 6 色同關）
+    levels.js            Campaign 1–40 關 LevelConfig 表（含每關色組 palette / patterns）、練習模式 config
+    layout.js            Spec v2 §4 瓶子排列（seed = levelId、抖動、分離、z-order）+ R2 驗證 + fallback
+    difficulty.js        步數上限 / 隱藏密度 / 機制登場表
+  src/config/
+    theme.js             COLORS（黃銅 / 深木 / 燭光）、LIQUID_COLORS A–J（唔准改 hex）、互斥對、圖案、FROSTED_GLASS
+    layout.js            LAYOUT 抖動版面常數、CLOTH 布遮尺寸
+    render.js            RENDER（multiply、配料 UV / wrap / inset、揭開時長、發光三件套）、AD_SLOTS、CLIENT_ORDER
+    assets.js            ASSET_MAP（邏輯名 → assets/v2 路徑）、VESSEL_SPRITE、CLIENT_SPRITE
   src/client/
     local-server.js      §5 權威協定嘅瀏覽器內模擬：session、reveal、hint、complete、rhythmRisk
     solver.worker.js     Web Worker：提示求解、練習關生成（唔阻塞 UI）
-    background.js        BackgroundManager：五層結構、程式遮罩、階段表、氛圍層、過渡、微視差、FPS 救生索
-    game.js              Canvas 渲染杯陣、觸控、倒液 / 交付 / 解封動畫
-    main.js              畫面流程、客人排、進度（localStorage）、Mocha 對白、階段過渡時刻
+    background.js        BackgroundManager：單張背景 + 可讀性遮罩（階段 / 視差 / 氛圍已取消，接口保留做 no-op）
+    game.js              Canvas 渲染瓶陣（器皿 sprite + 內壁多邊形 multiply 液體、磨砂 / 布遮 / 裂瓶、配料、發光）、觸控、倒液 / 交貨 / 揭開動畫
+    render-assets.js     v2 素材預載、vessels.json 幾何、內壁多邊形 / 逐行闊度工具
+    main.js              畫面流程、委託人排、進度（localStorage）、導師貓對白、廣告入口
     audio.js             WebAudio 合成音效
   levels/campaign.json   預生成 40 關（board 編碼 + 最優步數 + 三星門檻）
-  assets/bg/             bg{1..5}_far.webp（1080 × 2800，含出血）+ manifest.json（安全區 L*）
+  assets/v2/             Spec v2 美術（單張背景、器皿、布 / 蠟封、角色、UI、配料 tile、LIQ_base）+ vessels.json + asset-check.json
   tools/gen.js           離線批次生成關卡
-  tools/build-bg.py      合成背景遠景圖
+  tools/build-assets-v2.py  由 assets-raw/v2 出全部美術 + 器皿幾何
   tests/                 測試套件
 ```
 
-### 背景五層（z-index）
+### 畫面層序（Spec v2 §3.2）
 
-| z | 層 | 實作 |
-|---|---|---|
-| 0 | `bg-far` | `<img>` cover 式縮放；非 9:20 螢幕會按尺寸對位，保證出血以外嘅頂部場景留低 |
-| 10 | `bg-mid` | 預留（未有中景切圖） |
-| 20 | `bg-ambient` | `<canvas>` 程式畫：飄葉 / 光斑 / 雨絲 / 招牌閃 / 人流 / 燈籠 / bokeh / 珍珠 |
-| 30 | `readability-mask` | CSS linear-gradient，Y 370→470 漸入、1750→1850 漸出；`bg.setMaskAlpha()` 可執行期調 |
-| 40 | `board` | 杯陣 canvas，只佔安全區（Y 20%–73%） |
-| 50 | `characters` | 摩卡 + 對話泡（Y 73%–88%）、客人排（Y 10%–20%） |
-| 60 | `ui` | 頂欄、按鈕區 |
-
-**FPS 救生索**：氛圍層 < 45 fps 持續 3 秒自動隱藏。
-**階段過渡**：跨階段關（40 / 120 / 250 / 450）過關後撳「繼續」→ 遠景 0.15× / 中景 0.5× 橫移 3 秒 → 摩卡跳入講對白 → 階段字卡。
-Campaign 暫時得 40 關，所以只有第 40 關之後會見到「落雨喇，我哋搬入舖頭！」；用 `?stage=N` 可以強制預覽任何階段嘅背景。
+背景 `BG_lab_full`（單張，object-position center 40%）→ 可讀性遮罩（`COLORS.bgTop` @ 0.28，只落喺瓶陣安全帶）→ 瓶底陰影 → 整瓶背後柔光 → 器皿 sprite → 液體（multiply）+ 配料 → 磨砂 / 布遮 → 蠟封（tint）→ 黃銅框 → UI。
+五階段 / 視差 / 氛圍粒子已取消；`STAGES` 只剩一個階段，`stageTransitionAfter()` 永遠 `null`。
 
 ### 資訊分割（引擎規格）
 
-`LocalServer` 入面嘅 session 持有真實盤面（含磨砂杯隱藏層）；`main.js` 只攞到 `mask()` 之後嘅視圖。
+`LocalServer` 入面嘅 session 持有真實盤面（含磨砂 / 布遮瓶隱藏格）；`main.js` 只攞到 `mask()` 之後嘅視圖，**每一步都經 `server.reveal`**（client 唔再本地 applyMove：倒入磨砂瓶時隱藏格可能同色、布遮解鎖後隱藏格要由 server 補返）。
 磨砂杯倒出時 client 唔知真實倒出量（頂層下面可能同色），所以會先 `reveal()` 再播動畫。
 過關時 server 由 `trueBoard` 重放全部走步驗證（`ILLEGAL_MOVE` / `NOT_SOLVED` / `TOO_FAST` / `MOVE_FLOOD`），
 唔信 client 傳嘅任何盤面狀態。換成真 server 只需將 `LocalServer` 嘅方法改成 `fetch('/v1/level/...')`。
@@ -84,24 +81,15 @@ Campaign 暫時得 40 關，所以只有第 40 關之後會見到「落雨喇，
 
 1. **外帶杯（cap 3）三格同色唔算「完成」**。規格嘅 `canPour` 會凍結任何純色滿杯，套用喺外帶杯上會令佢永遠郁唔到而成為死局。
 2. **啟發函數收緊**：`h = Σ_color (段數 − 有冇底段)`，仍可採納（BFS 驗證 3000 局），令難關由幾分鐘變幾毫秒解到。
-3. **色板**：引擎規格嘅 L\* 階梯 / 色盲檢查已由夜市 brief 嘅色相 + 明度互斥規則取代（見下節）。
-4. **背景安全帶**：引擎 / 背景規格要求淺色牆面；夜市 brief 之後改為深色（L\* ≈ 10–15），灰階對比測試（|L_cup − L_bg| ≥ 25）改由高明度液體同深底之間嘅差距過關。
+3. **色板**：引擎規格嘅 L\* 階梯 / 色盲檢查已由色相 + 明度互斥規則取代（`config/theme.js`）。
+4. **背景安全帶**：引擎 / 背景規格要求淺色牆面；而家係深色實驗室（L\* ≈ 6），灰階對比測試（|L_cup − L_bg| ≥ 25）由高明度液體同深底之間嘅差距過關。
    測試入面杯身模型 = 70% 飲品（10 色由 hex 計嘅平均 L\*）+ 30% 半透明杯身。
-5. 中景（`bg-mid`）同氛圍切圖未有美術，中景留空、氛圍元素全部程式畫。
-6. 第一階段遮罩用 0.50 而唔係規格嘅 0.45：對真實街車圖跑灰階對比測試差 0.2 未達 25，按 §3 驗收流程 +0.05。
+5. 中景 / 氛圍層已隨 Spec v2 單張背景取消。
 
-## 夜市奶茶 brief（色板 / 背景 / 液體 / Icon）
+## 主題歷史
 
-`夜市奶茶_色板與Icon_Brief.md` v1.0 嘅落地方式，同之前規格有衝突嘅地方以 brief 為準：
-
-- **色板**：`core/palette.js` 改為 10 隻高飽和液體色 A–J（檸檬黃 … 奶蓋白），互斥規則 `isExclusive`（色相距 < 40° 且明度差 < 25%），F 芋紫 × H 深藍 只准 ≤ 4 色關。
-  推論：純靠顏色最多 **6 色同關** → `validateConfig` 拒絕 7 色以上；13 關後色數封頂 6，7 色以上要等 P3 圖案系統（珍珠 / 椰果 / 布丁）。
-- **第 1–12 關**：色組、色數、機制照 brief A4 分配表（`levels.js` 每行 `palette`），隱藏層 6、磨砂 9、外帶 10、限步 12。13 關後沿用工單 #5（封膜 19、布遮 25、訂單槽 7 / 17 / 36），容器收窄至 9 隻（13–32）/ 8 隻（33+）維持難度。
-- **隱藏層 `?`**：新機制（`Cup.hidden`）：普通杯底部 k 格為未知層，頂格永遠可見，倒走上面先露出，露出過 / 倒出過嘅格撤銷後唔會再遮。磨砂杯（頂格以外全部隱藏）同布遮杯（全部隱藏）沿用；三者都由 `hiddenCount()` 統一計入隱藏密度。盤面編碼杯標頭改為 `kind<<5 | hidden<<3 | locked<<2 | capFlag`。
-- **背景**：五個階段全部夜間版（`build-bg.py build_night`）：夜空 `#171029→#2A1B47`、燈籠暖光暈 `#FFB84D`、深木檯面 `#3A2A1C`；驗收「背景飽和度 ≤ 30%」以 Lab 彩度 C* ≤ 30 判定（brief 自己嘅夜空色 C* 約 21–30）。第一階段用美術攤車圖壓暗做剪影。遮罩改深色 `#1F1638` @ 0.35。
-- **UI**：面板 `#1F1638` @ 85% + 1px `#6B5CA5` 描邊，文字淺紫白；主按鈕用壓低飽和嘅燈籠色。舊 CSS token（`--cream`、`--brown` …）全部映射到夜市 token。
-- **液體三件套 + 杯**（`game.js drawLayers / drawCupLight`）：每層上緣高光線（+20% L @80%）、左側 8–12% 高光柱（白 25% → 0%）、下緣暗邊（−18% L）；杯口 rim light 白 60%（只畫前唇弧）、右下暖光反射 `#FFB84D` 15%、杯底投影 `#0D0820` 45% blur 8。
-- **Icon**：方向一程式繪製版做首發佔位（`tools/build-icon.py`），方向二 / 三要美術手繪；原摩卡頭像留喺 `design/icon/alt-cat-1024.png` 做 A/B。
+珍奶茶記（引擎規格 + 工單 #1–#5）→ 夜市奶茶 brief（高飽和 10 色 + 互斥規則、深底發光）→ **Spec v2 煉金實驗室**（現行）。
+每次轉主題都係整套換：色板 hex 由 `config/theme.js` 一個地方管；互斥規則（色相距 < 40° 且明度差 < 25%；F × H 只准 ≤ 4 色）同 6 色上限由夜市 brief 起沿用至今；夜市 brief 嘅「隱藏層 ?」機制已刪（改用磨砂瓶）。
 
 ## 開場流程（開場規格）
 
@@ -138,6 +126,12 @@ Campaign 暫時得 40 關，所以只有第 40 關之後會見到「落雨喇，
 5. **背景**：單張 `BG_lab_full`，冇視差 / 階段過渡 / 氛圍粒子（`BackgroundManager` 保留做 no-op 接口）。
 6. **液體**：喺器皿 sprite 入面用 `multiply` 畫，clip 到 `vessels.json` 嘅玻璃內壁多邊形；配料由 `PAT_tile_large / small` 四象限取樣（P3 橫向 repeat），墨色 = 該層色 −28% 明度。
 7. **版面**：`src/core/layout.js safeLayout()` 以關卡號做種子（練習關用 seed hash），R2 永不遮液體；`?jitter=0` 強制純網格除錯。
+
+## 關卡節奏（2026-09-05）
+
+- L1–3 教學（純倒、2 隻空瓶）；L4 起只有 1 隻空瓶；L5 Undo；L6 磨砂瓶 + 曲頸瓶（混編容量）；L7 委託槽；L11 廣告加空瓶；L12 步數上限；L14 提示；L15 裂瓶；L17 第二委託槽；L19 布遮瓶；L36 第三委託槽。
+- 色組 L1–12 照夜市 brief A4 分配表（每 3 關換組）；13 關後 6 色封頂，難度靠每色段數 3.0→3.9、隱藏密度、9 → 8 隻瓶推。
+- 改遮蓋規則後要掃一次 L6–24（`npm run stats`），特別留意 L9 / L10 唔可以比 L8 淺。
 
 ## 玩法
 
