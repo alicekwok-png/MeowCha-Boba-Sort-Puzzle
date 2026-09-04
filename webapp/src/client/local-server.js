@@ -2,7 +2,7 @@
 // 真實盤面（含磨砂杯隱藏層）只存喺呢個 class 嘅 session 入面；client 只攞到遮罩視圖。
 // 換成真 server 時，只需要將呢啲方法改成 fetch('/v1/level/...')。
 
-import { decodeBoard, encodeBoard, mask, decodeMoves, cloneBoard } from '../core/board.js';
+import { decodeBoard, encodeBoard, mask, decodeMoves, cloneBoard, hiddenCount } from '../core/board.js';
 import { canPour, applyMove, isSolved, topColor, pourAmount, isComplete, settleOrders } from '../core/rules.js';
 import { starThresholds } from '../core/generator.js';
 import { hash32 } from '../core/prng.js';
@@ -140,9 +140,9 @@ export class LocalServer {
       s.board = applyMove(s.board, m, events);
       s.applied.push(m);
       LocalServer._insertExtraOrders(s.board, s.extraOrders, s.applied.length);
-      // 磨砂杯倒走頂格 → 露出新頂格
+      // 磨砂杯 / 隱藏層倒走頂格 → 露出新頂格（永久）
       const after = s.board.cups[m.from];
-      if (src.kind === 'frosted' && after.seg.length > 0) s.revealed.add(m.from + ':' + (after.seg.length - 1));
+      if (hiddenCount(src) > 0 && after.seg.length > 0) s.revealed.add(m.from + ':' + (after.seg.length - 1));
       last = { poured, events };
     }
     return last;

@@ -5,14 +5,15 @@ import { readFileSync } from 'node:fs';
 import { computeMoveLimit, hiddenRatio, maxOrders, gatingViolations, UNLOCK_LEVEL } from '../src/core/difficulty.js';
 import { CAMPAIGN } from '../src/core/levels.js';
 import { makeCup, makeBoard, encodeBoard } from '../src/core/board.js';
+import * as decodeMod from '../src/core/board.js';
 import { LocalServer, MIN_MS_PER_MOVE } from '../src/client/local-server.js';
 import { solve } from '../src/core/solver.js';
 
 describe('步數上限', () => {
-  test('公式：≤10 無上限；11–20 +12；21–30 +10；31–40 +8；41+ +6', () => {
+  test('公式：≤11 無上限（brief 第 12 關先限步）；12–20 +12；21–30 +10；31–40 +8；41+ +6', () => {
     assert.equal(computeMoveLimit(1, 5), null);
-    assert.equal(computeMoveLimit(10, 9), null);
-    assert.equal(computeMoveLimit(11, 10), 22);
+    assert.equal(computeMoveLimit(11, 9), null);
+    assert.equal(computeMoveLimit(12, 10), 22);
     assert.equal(computeMoveLimit(20, 18), 30);
     assert.equal(computeMoveLimit(21, 18), 28);
     assert.equal(computeMoveLimit(30, 20), 30);
@@ -36,8 +37,10 @@ describe('步數上限', () => {
 });
 
 describe('隱藏密度', () => {
-  test('公式：≤10 為 0；第 11 關 15.8%；第 30 關 31%；上限 65%', () => {
-    assert.equal(hiddenRatio(10), 0);
+  test('公式：≤5 為 0；第 6 關 12%（brief 隱藏層登場）；第 10 關 15%；第 11 關 15.8%；第 30 關 31%；上限 65%', () => {
+    assert.equal(hiddenRatio(5), 0);
+    assert.ok(Math.abs(hiddenRatio(6) - 0.12) < 1e-9);
+    assert.ok(Math.abs(hiddenRatio(10) - 0.15) < 1e-9);
     assert.ok(Math.abs(hiddenRatio(11) - 0.158) < 1e-9);
     assert.ok(Math.abs(hiddenRatio(30) - 0.31) < 1e-9);
     assert.equal(hiddenRatio(100), 0.65);
@@ -56,6 +59,20 @@ describe('機制登場表', () => {
     });
   });
   test('登場表數值', () => {
-    assert.deepEqual(UNLOCK_LEVEL, { orders: 7, undo: 5, frosted: 11, hint: 14, secondOrder: 17, sealed: 19, covered: 25, adEmptyCup: 11, adOrderSlot: 17, thirdOrder: 36 });
+    assert.deepEqual(UNLOCK_LEVEL, { undo: 5, hidden: 6, orders: 7, frosted: 9, takeaway: 10, adEmptyCup: 11, moveLimit: 12, hint: 14, secondOrder: 17, adOrderSlot: 17, sealed: 19, covered: 25, thirdOrder: 36 });
+  });
+  test('brief A4：第 6 關首次隱藏層、第 9 關首次磨砂、第 10 關首次外帶、第 12 關首次限步（campaign.json 實際盤面）', () => {
+    const d = JSON.parse(readFileSync(new URL('../levels/campaign.json', import.meta.url), 'utf8'));
+    const { decodeBoard } = decodeMod;
+    const hiddenCells = id => d.levels[id - 1].hiddenCells;
+    for (let id = 1; id <= 5; id++) assert.equal(hiddenCells(id), 0, `L${id}`);
+    assert.ok(hiddenCells(6) > 0);
+    const kinds = id => decodeBoard(d.levels[id - 1].board).cups.map(c => c.kind);
+    for (let id = 1; id <= 8; id++) assert.ok(!kinds(id).includes('frosted'), `L${id} frosted`);
+    assert.ok(kinds(9).includes('frosted'));
+    for (let id = 1; id <= 9; id++) assert.ok(!kinds(id).includes('takeaway'), `L${id} takeaway`);
+    assert.ok(kinds(10).includes('takeaway'));
+    for (let id = 1; id <= 11; id++) assert.equal(d.levels[id - 1].moveLimit, null, `L${id} limit`);
+    assert.ok(d.levels[11].moveLimit > 0);
   });
 });

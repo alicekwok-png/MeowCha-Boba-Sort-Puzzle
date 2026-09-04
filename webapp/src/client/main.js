@@ -131,6 +131,7 @@ const LINES = {
   clear: ['收工！你係最叻嘅茶記店員～', '全部出晒單，勁！'],
   hint: ['試下呢步？', '我會咁倒～'],
   frosted: ['磨砂杯睇唔到入面，倒走頂層先知～'],
+  hidden: ['有 ? 嘅格係蓋住咗，倒走上面先知係乜色～'],
   unlock: ['開返喇！可以用呢隻杯～'],
   pour: ['倒緊…'],
 };
@@ -288,7 +289,8 @@ async function startLevel(levelData, { practice = false } = {}) {
   updatePace();
   renderCustomers();
   const frosted = G.board.cups.some(c => c.kind === 'frosted');
-  mocha('idle', frosted && Math.random() < 0.6 ? LINES.frosted[0] : undefined);
+  const hiddenLayer = !frosted && G.board.cups.some(c => c.kind === 'normal' && c.seg.some(v => v === null));
+  mocha('idle', frosted && Math.random() < 0.6 ? LINES.frosted[0] : hiddenLayer && Math.random() < 0.6 ? LINES.hidden[0] : undefined);
 }
 
 async function playCampaign(id) {
@@ -327,8 +329,8 @@ async function onCupTap(idx) {
   const nextMoves = [...G.moves, m];
   let n, next, events = [];
 
-  if (src.kind === 'frosted') {
-    // 磨砂杯：真實倒出量 client 唔知（頂層下面可能同色），先問 server（回應被倒液動畫遮蓋）
+  if (src.kind === 'frosted' || src.seg.some(v => v === null)) {
+    // 磨砂杯 / 隱藏層：真實倒出量 client 唔知（頂層下面可能同色），先問 server（回應被倒液動畫遮蓋）
     const r = server.reveal(G.session.sessionId, nextMoves);
     n = r.poured; next = r.maskedBoard; events = r.events;
   } else {
@@ -552,7 +554,8 @@ function showHelp() {
         <li>㩒一隻杯揀起，再㩒另一隻杯就會倒過去。</li>
         <li>只可以倒落<b>空杯</b>或者<b>頂層同色</b>嘅杯，一次倒晒頂層連續同色嘅幾格。</li>
         <li>每種飲品裝滿一隻杯（4 格純色）就完成；全部完成即過關。</li>
-        <li>步數越少星越多：三星 = 最優步數 + 3（有磨砂杯每隻再 +2）。頂欄嘅三粒星會跟住你嘅步數變。</li>
+        <li>步數越少星越多：三星 = 最優步數 + 3（有 ? 嘅杯每隻再 +2）。頂欄嘅三粒星會跟住你嘅步數變。</li>
+        <li><b>隱藏層 ?</b>：杯底有 ? 嘅格係蓋住咗嘅飲品，倒走上面嗰格先會露出（露出咗就唔會再遮返）。</li>
       </ul>
       <h4>客人</h4>
       <ul><li>排隊嘅客人手上寫住想飲乜。裝滿一杯佢要嘅飲品會即刻<b>出單</b>，隻杯清空變返空杯——多咗空間！</li></ul>
