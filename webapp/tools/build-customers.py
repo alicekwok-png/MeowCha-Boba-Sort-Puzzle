@@ -53,9 +53,12 @@ for cid, faces in SRC.items():
     scale = BODY_H / ims['wait'].height           # 同一角色三個表情用同一縮放
     scaled = {m: im.resize((round(im.width * scale), round(im.height * scale)), Image.LANCZOS) for m, im in ims.items()}
     cw = max(im.width for im in scaled.values())
+    # 客人要一個一個企、唔可以疊：畫布只留中間 72%（頭 + 膊頭），兩側手 / 公事包裁走
+    keep = int(cw * 0.72)
     for mood, im in scaled.items():
-        canvas = Image.new('RGBA', (cw, CANVAS_H), (0, 0, 0, 0))
-        canvas.alpha_composite(im, ((cw - im.width) // 2, max(0, CANVAS_H - im.height)))
+        full = Image.new('RGBA', (cw, CANVAS_H), (0, 0, 0, 0))
+        full.alpha_composite(im, ((cw - im.width) // 2, max(0, CANVAS_H - im.height)))
+        canvas = full.crop(((cw - keep) // 2, 0, (cw - keep) // 2 + keep, CANVAS_H))
         p = os.path.join(A, f'customer-{cid}-{mood}-body.webp')
         canvas.save(p, 'WEBP', quality=86, method=6)
         print(f'customer-{cid}-{mood}-body.webp {canvas.size} {os.path.getsize(p) // 1024} KB')

@@ -166,14 +166,14 @@ body {
 .zone-actions { grid-row: 6; }
 .zone-customers {
   z-index: 35; overflow: visible;
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 0 8px; align-items: end;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 0 5px; align-items: end;
 }
 .slot { position: relative; height: 100%; min-width: 0; --label-h: max(28px, 3.2vh); }   /* 托盤加大：玩家係睇顏色玩 */
 .slot:nth-child(1) { z-index: 1 } .slot:nth-child(2) { z-index: 2 } .slot:nth-child(3) { z-index: 3 } .slot:nth-child(4) { z-index: 4 }
 /* 客人半身圖：畫布 560 高、身體 480 → 22vh 畫布 ≈ 身體 18.9% 畫面高；底邊釘喺標籤 / 托盤頂 */
 .slot img.body {
   position: absolute; bottom: var(--label-h); left: 50%; transform: translateX(-50%);
-  height: 22vh; width: auto; max-width: none;
+  max-width: 100%; height: auto; max-height: 22vh;   /* 一個一個企：唔會闊過自己個槽位 */
   filter: drop-shadow(0 4px 6px rgba(80,50,20,0.25)); transition: filter .3s;
 }
 .slot.done img.body { filter: drop-shadow(0 4px 6px rgba(80,50,20,0.25)) saturate(.85); }
