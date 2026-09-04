@@ -73,38 +73,54 @@ export class GameView {
     this.layout();
   }
 
+  /**
+   * 交錯網格（工單 #5）：偶數行（0-based）放 cols 個，奇數行放 cols−1 個並向右偏移半格。
+   * 揀令杯最大嘅 cols；杯闊上限 118px。
+   */
   layout() {
     const n = this.cups.length;
     if (!n) return;
-    const padX = 14, padTop = 30, padBottom = 12, gapX = 10, gapY = 40;
-    let best = null;
-    for (let rows = 1; rows <= 3; rows++) {
-      const cols = Math.ceil(n / rows);
-      if (rows > 1 && Math.ceil(n / (rows - 1)) === cols) continue;
-      const wByW = (this.W - padX * 2 - gapX * (cols - 1)) / cols;
-      const hByH = (this.H - padTop - padBottom - gapY * (rows - 1)) / rows;
-      const cupW = Math.min(118, wByW, hByH / 1.55);
-      if (!best || cupW > best.cupW) best = { rows, cols, cupW };
-    }
-    const { rows, cols, cupW } = best;
+    const padX = 10, padTop = 30, padBottom = 12, gapX = 8, gapY = 34;
     const aspect = this.geom ? this.geom.aspect : 1 / 1.5;
-    const w = Math.max(28, Math.min(cupW, (this.H - padTop - padBottom - gapY * (rows - 1)) / rows * aspect)), h = w / aspect;
-    const rowH = h + gapY;
-    const totalH = rows * rowH - gapY;
-    const y0 = padTop + Math.max(0, (this.H - padTop - padBottom - totalH) / 2);
-    let idx = 0;
-    for (let r = 0; r < rows; r++) {
-      const inRow = Math.min(cols, n - idx);
-      const rowW = inRow * w + (inRow - 1) * gapX;
-      const x0 = (this.W - rowW) / 2;
-      for (let c = 0; c < inRow; c++, idx++) {
-        const cup = this.cups[idx];
-        cup.w = w; cup.h = h;
-        cup.hx = x0 + c * (w + gapX); cup.hy = y0 + r * rowH;
-        if (!cup.anim) { cup.x = cup.hx; cup.y = cup.hy; }
-      }
+    const rowsFor = (cols) => { let rows = 0, placed = 0; while (placed < n) { placed += rows % 2 === 0 ? cols : cols - 1; rows++; } return rows; };
+    let best = null;
+    for (let cols = 2; cols <= 8; cols++) {
+      const rows = rowsFor(cols);
+      const cellW = (this.W - padX * 2) / cols;
+      const byW = cellW - gapX;
+      const byH = ((this.H - padTop - padBottom - gapY * (rows - 1)) / rows) * aspect;
+      const cupW = Math.min(118, byW, byH);
+      if (!best || cupW > best.cupW + 0.5) best = { cols, rows, cupW };
+    }
+    const { cols, rows } = best;
+    const w = Math.max(28, best.cupW), h = w / aspect;
+    const cellW = w + gapX, cellH = h + gapY;
+    const totalH = rows * cellH - gapY;
+    const originY = padTop + Math.max(0, (this.H - padTop - padBottom - totalH) / 2);
+    const originX = (this.W - cols * cellW) / 2 + gapX / 2;
+    this.gridLayout = { cols, cellW, cellH, originX, originY };
+    for (let i = 0; i < n; i++) {
+      const pos = this.cupPosition(i, this.gridLayout);
+      const cup = this.cups[i];
+      cup.w = w; cup.h = h;
+      cup.hx = pos.x; cup.hy = pos.y;
+      if (!cup.anim) { cup.x = cup.hx; cup.y = cup.hy; }
     }
     this.slotH = (h - 10) / 4;
+  }
+
+  /** 第 index 隻杯喺交錯網格嘅位置 */
+  cupPosition(index, layout) {
+    const { cols, cellW, cellH, originX, originY } = layout;
+    let row = 0, remaining = index;
+    for (;;) {
+      const inThisRow = row % 2 === 0 ? cols : cols - 1;
+      if (remaining < inThisRow) break;
+      remaining -= inThisRow;
+      row++;
+    }
+    const offsetX = row % 2 === 1 ? cellW / 2 : 0;
+    return { x: originX + remaining * cellW + offsetX, y: originY + row * cellH };
   }
 
   setBoard(board) {
@@ -347,8 +363,8 @@ export class GameView {
       ctx.shadowColor = 'rgba(80,50,20,0.18)'; ctx.shadowBlur = 8; ctx.shadowOffsetY = 3;
     }
 
-    if (c.locked) {
-      // 布遮杯：完全睇唔到入面（包括頂格）、冇刻度線；揭開動畫時先畫返底下嘅杯再畫布升起
+    if (c.kind === 'covered' || (c.locked && !this._useSprite(c) && c.kind !== 'sealed')) {
+      // 布遮杯（covered）：完全睇唔到入面（包括頂格）、冇刻度線；揭開動畫時先畫返底下嘅杯再畫布升起
       const lifting = (c.lidOffset || 0) !== 0 || (c.lidAlpha ?? 1) < 1;
       if (lifting && this._useSprite(c)) { ctx.drawImage(this.sprite, 0, 0, w, h); ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; this.drawLayers(c, w, h, now); }
       ctx.save();
@@ -366,10 +382,12 @@ export class GameView {
       if (c.seg.length === 0 && !(c.extraUnits > 0)) this.coverPearls(c, w, h);   // 空杯唔應該見到珍珠
       this.drawLayers(c, w, h, now);
       if (c.locked) {
+        // 封膜杯（sealed）：透膜見到入面，鎖死；🔒 N = 仲要交幾多單先解封
         const g = this.geom;
         ctx.save(); ctx.translate(0, c.lidOffset || 0); ctx.globalAlpha *= (c.lidAlpha ?? 1);
         this.drawFilmLid(w, g.rimY * h, g.rimRx * w, g.rimRy * h * 1.15);
         ctx.restore();
+        this.drawBadge(`🔒 ${c.unlockIn || 1}`, w, h * 0.62);
       }
       ctx.restore();
       return;
@@ -427,7 +445,9 @@ export class GameView {
   drawCovered(c, w, h) {
     const ctx = this.ctx;
     if (this.covered) {
-      ctx.drawImage(this.covered, 0, 0, w, h);
+      // 布袋素材比杯窄長：保持比例、底邊對齊、置中，束口可以高過杯口
+      const img = this.covered, bh = h * 1.06, bw = bh * (img.naturalWidth / img.naturalHeight);
+      ctx.drawImage(img, (w - bw) / 2, h - bh, bw, bh);
     } else {
       // 布身：比杯闊少少嘅梯形，底部圓角
       const base = '#B9B3A8', dark = '#9C958A', light = '#D2CCC1';
@@ -457,15 +477,22 @@ export class GameView {
       ctx.beginPath(); ctx.moveTo(w * 0.62, 8); ctx.quadraticCurveTo(w * 0.52, 20, w * 0.58, 32); ctx.stroke();
     }
     // 🧺 N：仲要交幾多單先揭開
-    const label = `🧺 ${c.unlockIn || 1}`;
+    this.drawBadge(`🧺 ${c.unlockIn || 1}`, w, h * 0.42);
+  }
+
+  /** 杯上嘅小徽章（🧺 N / 🔒 N） */
+  drawBadge(label, w, cy) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.shadowColor = 'transparent';
     ctx.font = `bold ${Math.max(11, w * 0.17)}px "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     const tw = ctx.measureText(label).width + 12;
-    ctx.beginPath(); ctx.roundRect(w / 2 - tw / 2, h * 0.42 - 11, tw, 22, 11);
+    ctx.beginPath(); ctx.roundRect(w / 2 - tw / 2, cy - 11, tw, 22, 11);
     ctx.fillStyle = 'rgba(255,250,240,0.92)'; ctx.fill();
     ctx.strokeStyle = 'rgba(122,78,30,0.6)'; ctx.lineWidth = 1.2; ctx.stroke();
-    ctx.fillStyle = '#5C3A14'; ctx.fillText(label, w / 2, h * 0.42 + 1);
-    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = '#5C3A14'; ctx.fillText(label, w / 2, cy + 1);
+    ctx.restore();
   }
 
   /** 封膜：平面膠膜 + 鎖 */
