@@ -8,9 +8,23 @@ services:
     buildCommand: ""
     staticPublishPath: ./webapp
     headers:
+      # 程式 / 版面 / 設定：每次都要向 server 驗證（避免手機用舊 JS 配新 CSS）
+      - path: /*.html
+        name: Cache-Control
+        value: no-cache
+      - path: /*.css
+        name: Cache-Control
+        value: no-cache
+      - path: /src/*
+        name: Cache-Control
+        value: no-cache
+      - path: /*.json
+        name: Cache-Control
+        value: no-cache
+      - path: /levels/*
+        name: Cache-Control
+        value: no-cache
+      # 圖片素材：內容改咗會換檔名，可以長快取
       - path: /assets/*
         name: Cache-Control
         value: public, max-age=604800
-      - path: /levels/*
-        name: Cache-Control
-        value: public, max-age=3600
