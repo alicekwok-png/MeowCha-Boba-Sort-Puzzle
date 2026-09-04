@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "orderText": false,
+  "orderSlots": {
+    "comment": "廣告槽按關卡範圍；固定槽數量跟關卡資料（levels/campaign.json）。第 1–10 關零廣告，唔可以破。",
+    "ad": [
+      { "from": 1, "to": 10, "count": 0 },
+      { "from": 11, "to": 16, "count": 0 },
+      { "from": 17, "to": 35, "count": 1 },
+      { "from": 36, "to": 9999, "count": 1 }
+    ],
+    "fixedReference": [
+      { "from": 1, "to": 10, "count": 1 },
+      { "from": 11, "to": 16, "count": 2 },
+      { "from": 17, "to": 35, "count": 2 },
+      { "from": 36, "to": 9999, "count": 3 }
+    ]
+  },
+  "adUnits": {
+    "extraOrderSlot": "rewarded_extra_order_slot",
+    "extraEmptyCup": "rewarded_extra_empty_cup"
+  }
+}

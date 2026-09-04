@@ -17,6 +17,25 @@ const sfx = new Sfx();
 const bg = new BackgroundManager($('#bg-layers'), new URL('../../assets/bg/', import.meta.url).href);
 const PARAMS = new URLSearchParams(location.search);
 
+// ---------- 遠端可調參數（config.json；載入失敗用預設）----------
+const CONFIG = {
+  orderText: false,
+  orderSlots: { ad: [{ from: 1, to: 10, count: 0 }, { from: 11, to: 16, count: 0 }, { from: 17, to: 35, count: 1 }, { from: 36, to: 9999, count: 1 }] },
+  adUnits: { extraOrderSlot: 'rewarded_extra_order_slot', extraEmptyCup: 'rewarded_extra_empty_cup' },
+};
+async function loadConfig() {
+  try {
+    const r = await fetch(new URL('../../config.json', import.meta.url), { cache: 'no-cache' });
+    if (r.ok) Object.assign(CONFIG, await r.json());
+  } catch { /* 用預設 */ }
+}
+/** 飲品名文字：預設關（色塊本身就係訊號）；用戶可喺「點樣玩」開，存 localStorage */
+function orderTextOn() {
+  try { const v = localStorage.getItem('mc_order_text'); if (v !== null) return v === '1'; } catch { /* ignore */ }
+  return !!CONFIG.orderText;
+}
+const hexScale = (hex, k) => '#' + [1, 3, 5].map(i => Math.round(parseInt(hex.slice(i, i + 2), 16) * k).toString(16).padStart(2, '0')).join('');
+
 // ---------- 進度 ----------
 const PKEY = 'meowcha.progress.v1';
 const progress = (() => {
@@ -145,8 +164,10 @@ function renderCustomers(popColor = null) {
       const who = ((G.seatSeed + i) % 4) + 1;
       const mood = o.filled ? 'happy' : late ? 'angry' : 'wait';
       slot.className = 'slot' + (o.filled ? ' done' : '') + (popColor === o.color ? ' pop' : '');
+      // 色塊托盤：顏色 = 板面液體同一個 hex；文字預設唔顯示（L* > 55 用深啡，否則白）
+      const textColor = p.L > 55 ? '#5C3A14' : '#FFFFFF';
       slot.innerHTML = `<img class="body" src="${new URL(`../../assets/customer-${who}-${mood}-body.webp`, import.meta.url).href}" alt="">
-        <span class="label"><span class="sw" style="background:${p.hex}"></span>${p.zh}${o.filled ? '<span class="tick">✓</span>' : ''}</span>`;
+        <div class="tray" style="--c:${p.hex};--cd:${hexScale(p.hex, 0.82)};--ci:${hexScale(p.hex, 0.9)};--ct:${textColor}" title="${p.zh}" aria-label="${p.zh}">${orderTextOn() && !o.filled ? `<span class="name">${p.zh}</span>` : ''}</div>`;
     }
     el.appendChild(slot);
   }
@@ -481,10 +502,16 @@ function showHelp() {
       </div>
       <h4>工具</h4>
       <ul><li>撤銷：退返一步。提示：Mocha 會指出下一步（唔影響過關，但冇「零提示」加分）。</li></ul>
+      <h4>設定</h4>
+      <label style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700"><input type="checkbox" id="opt-order-text" ${orderTextOn() ? 'checked' : ''}> 訂單色塊上顯示飲品名（無障礙）</label>
     </div>
     <div class="row"><button class="btn primary" id="m-ok">明白！</button></div>
   `, { dismiss: true });
   $('#m-ok').onclick = closeModal;
+  $('#opt-order-text').onchange = (e) => {
+    try { localStorage.setItem('mc_order_text', e.target.checked ? '1' : '0'); } catch { /* ignore */ }
+    if (G.board) renderCustomers();
+  };
 }
 
 // ---------- 綁定 ----------
@@ -548,6 +575,7 @@ async function startApp() {
   console.info('[boot]', `logo ${Math.round(timing.logoDone)} ms · total ${Math.round(timing.total)} ms`, timing.fromHostApp ? '(host=app)' : '');
   window.meowcha.bootTiming = timing;
 
+  await loadConfig();
   const levels = await loadLevels().catch(() => null);
   if (!levels) { toast('載入關卡失敗'); return enterCafe({ reason: null }); }
   const entry = decideEntry({ storage: localStorage, progress, levelCount: CAMPAIGN.length });
