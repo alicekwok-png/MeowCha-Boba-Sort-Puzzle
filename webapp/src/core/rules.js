@@ -36,7 +36,8 @@ export function canPour(b, from, to) {
   if (from === to) return false;
   if (from < 0 || to < 0 || from >= b.cups.length || to >= b.cups.length) return false;
   const F = b.cups[from], T = b.cups[to];
-  if (F.locked || T.locked) return false;                    // 封膜杯
+  if (F.locked || T.locked) return false;                    // 布遮瓶鎖死
+  if (T.kind === 'cracked') return false;                    // 裂瓶只出不入（Spec v2 更正 2）
   if (F.seg.length === 0) return false;                      // 空杯冇嘢倒
   if (T.seg.length >= T.cap) return false;                   // 目標滿
   if (isComplete(F)) return false;                           // 已完成純色滿杯唔准再動
@@ -62,18 +63,15 @@ export function applyMove(b, m, events = null) {
   next.cups[m.from].seg.splice(-n, n);
   for (let i = 0; i < n; i++) next.cups[m.to].seg.push(color);
 
-  // frosted 杯倒空之後降級為 normal（冇嘢再需要隱藏）；隱藏層倒空亦清零
-  if (next.cups[m.from].seg.length === 0) {
-    if (next.cups[m.from].kind === 'frosted') next.cups[m.from].kind = 'normal';
-    next.cups[m.from].hidden = 0;
-  }
+  // frosted 瓶倒空之後降級為 normal（冇嘢再需要隱藏）
+  if (next.cups[m.from].kind === 'frosted' && next.cups[m.from].seg.length === 0) next.cups[m.from].kind = 'normal';
 
   next.moveCount++;
   settleOrders(next, events);
   return next;
 }
 
-/** 交付：純色滿杯 + 顏色被點單 → 清空該杯，訂單推進；每交付 2 單解封一隻封膜杯 */
+/** 交付：純色滿杯 + 顏色被點單 → 清空該杯，訂單推進；每交付 2 單解開一隻布遮瓶 */
 export function settleOrders(b, events = null) {
   let changed = true;
   while (changed) {
@@ -89,13 +87,13 @@ export function settleOrders(b, events = null) {
       if (cup.kind === 'frosted') cup.kind = 'normal';
       b.delivered++;
       changed = true;
-      if (b.delivered % 2 === 0) unlockSealed(b, events);   // 每交付 2 單解封一隻
+      if (b.delivered % 2 === 0) unlockSealed(b, events);   // 每交付 2 單解開一隻布遮瓶
     }
   }
 }
 
 function unlockSealed(b, events) {
-  const ci = b.cups.findIndex(x => (x.kind === 'sealed' || x.kind === 'covered') && x.locked);
+  const ci = b.cups.findIndex(x => x.kind === 'covered' && x.locked);
   if (ci < 0) return;
   b.cups[ci].locked = false;
   b.cups[ci].kind = 'normal';

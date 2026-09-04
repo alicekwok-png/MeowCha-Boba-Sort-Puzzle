@@ -13,18 +13,20 @@ const INF = Number.MAX_SAFE_INTEGER;
  * 呢個比「段數 − 色數」更緊，因為冇底段嘅顏色全部段都要郁。
  */
 export function heuristic(b) {
-  const segs = new Uint8Array(16);
-  const hasBottom = new Uint8Array(16);
+  // unit key = color | pattern<<4，最大 15 | 4<<4 = 79 → 陣列 128 夠用
+  const segs = new Uint8Array(128);
+  const hasBottom = new Uint8Array(128);
   for (const c of b.cups) {
     const s = c.seg;
     const n = s.length;
     if (n === 0) continue;
-    if (c.cap === 4) hasBottom[s[0]] = 1;
+    if (c.cap === 4 && c.kind !== 'cracked') hasBottom[s[0]] = 1;   // 裂瓶只出不入：底段唔可以做最終家（除非已經純色滿）
+    else if (c.kind === 'cracked' && n === 4 && isUniform(c)) hasBottom[s[0]] = 1;
     segs[s[0]]++;
     for (let i = 1; i < n; i++) if (s[i] !== s[i - 1]) segs[s[i]]++;
   }
   let h = 0;
-  for (let k = 0; k < 16; k++) if (segs[k]) h += segs[k] - hasBottom[k];
+  for (let k = 0; k < 128; k++) if (segs[k]) h += segs[k] - hasBottom[k];
   return h;
 }
 
@@ -34,14 +36,15 @@ export function canonical(b) {
   const keys = new Array(n);
   for (let i = 0; i < n; i++) {
     const c = b.cups[i];
-    let k = (c.locked ? 1 : 0) | ((c.cap & 7) << 1);          // 4 bit
+    // 4 bit 杯標頭（locked / cap / cracked）+ 4 格 × 7 bit unit key（127 = 空）= 32 bit
+    let k = (c.locked ? 1 : 0) | ((c.cap === 3 ? 1 : 0) << 1) | ((c.kind === 'cracked' ? 1 : 0) << 2);
     const s = c.seg;
-    for (let j = 0; j < 4; j++) k |= ((j < s.length ? s[j] : 15) << (4 + j * 4));  // 16 bit
+    for (let j = 0; j < 4; j++) k |= ((j < s.length ? s[j] & 127 : 127) << (4 + j * 7));
     keys[i] = k;
   }
   keys.sort((a, c) => a - c);
   let str = '';
-  for (let i = 0; i < n; i++) str += String.fromCharCode(keys[i] & 0xffff, keys[i] >>> 16);
+  for (let i = 0; i < n; i++) str += String.fromCharCode(keys[i] & 0xffff, (keys[i] >>> 16) & 0xffff);
   let o = 0;
   for (let i = 0; i < b.orders.length; i++) if (b.orders[i].filled) o |= 1 << i;
   return str + String.fromCharCode(o);
@@ -66,7 +69,7 @@ export function orderedMoves(b, last) {
   let firstEmpty4 = -1, firstEmpty3 = -1;
   for (let i = 0; i < cups.length; i++) {
     const c = cups[i];
-    if (c.seg.length === 0 && !c.locked) {
+    if (c.seg.length === 0 && !c.locked && c.kind !== 'cracked') {
       if (c.cap === 4 && firstEmpty4 < 0) firstEmpty4 = i;
       else if (c.cap === 3 && firstEmpty3 < 0) firstEmpty3 = i;
     }
@@ -82,7 +85,7 @@ export function orderedMoves(b, last) {
     for (let j = 0; j < cups.length; j++) {
       if (i === j) continue;
       const T = cups[j];
-      if (T.locked || T.seg.length >= T.cap) continue;
+      if (T.locked || T.seg.length >= T.cap || T.kind === 'cracked') continue;   // 裂瓶只出不入
       if (T.seg.length === 0) {
         if (fUniform && F.cap === 4) continue;                    // 剪枝 2（外帶杯例外：佢最終必須清空）
         if (j !== (T.cap === 4 ? firstEmpty4 : firstEmpty3)) continue; // 剪枝 3

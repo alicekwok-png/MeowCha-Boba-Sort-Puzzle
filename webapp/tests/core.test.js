@@ -2,7 +2,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { makeCup, makeBoard, encodeBoard, decodeBoard, encodeMoves, decodeMoves, mask, countSegments } from '../src/core/board.js';
+import { makeCup, makeBoard, encodeBoard, decodeBoard, encodeMoves, decodeMoves, mask, countSegments, makeUnit, canMerge, canInteract } from '../src/core/board.js';
 import { canPour, applyMove, isSolved, isDead, legalMoves, IllegalMoveError } from '../src/core/rules.js';
 import { heuristic, solve, solveEx, canonical } from '../src/core/solver.js';
 import { generateLevelEx, colorSafe, randomFill, pickColors } from '../src/core/generator.js';
@@ -25,8 +25,8 @@ describe('rules', () => {
     assert.equal(canPour(b, 0, 1), false);
     assert.throws(() => applyMove(b, { from: 0, to: 1 }), IllegalMoveError);
   });
-  test('拒絕操作封膜杯', () => {
-    const b = B([makeCup('sealed', [1, 2], true), N([2]), N([])], 2);
+  test('拒絕操作布遮瓶（鎖死）', () => {
+    const b = B([makeCup('covered', [1, 2], true), N([2]), N([])], 2);
     assert.equal(canPour(b, 0, 2), false);
     assert.equal(canPour(b, 1, 0), false);
   });
@@ -61,8 +61,8 @@ describe('rules', () => {
     assert.deepEqual(n.cups[0].seg, []);
     assert.deepEqual(n.cups[2].seg, []);
   });
-  test('交付 2 單後自動解封一隻封膜杯', () => {
-    const b = B([N([1, 1, 1]), N([1]), N([2, 2, 2]), N([2]), makeCup('sealed', [3, 3, 3, 4], true), N([])], 4, [1, 2]);
+  test('交付 2 單後自動解開一隻布遮瓶', () => {
+    const b = B([N([1, 1, 1]), N([1]), N([2, 2, 2]), N([2]), makeCup('covered', [3, 3, 3, 4], true), N([])], 4, [1, 2]);
     let n = applyMove(b, { from: 1, to: 0 });
     assert.equal(n.delivered, 1);
     assert.equal(n.cups[4].locked, true);
@@ -73,7 +73,7 @@ describe('rules', () => {
   });
   test('解封觸發嘅連鎖結算正確', () => {
     // 封膜杯本身係純色滿杯且被點單：解封即時交付（第 3 單），delivered = 3
-    const b = B([N([1, 1, 1]), N([1]), N([2, 2, 2]), N([2]), makeCup('sealed', [3, 3, 3, 3], true), N([])], 3, [1, 2, 3]);
+    const b = B([N([1, 1, 1]), N([1]), N([2, 2, 2]), N([2]), makeCup('covered', [3, 3, 3, 3], true), N([])], 3, [1, 2, 3]);
     let n = applyMove(b, { from: 1, to: 0 });
     n = applyMove(n, { from: 3, to: 2 });
     assert.equal(n.delivered, 3);
@@ -93,12 +93,12 @@ describe('palette', () => {
     const d = JSON.parse(readFileSync(new URL('../levels/campaign.json', import.meta.url), 'utf8'));
     for (const l of d.levels) for (const c of decodeBoard(l.board).cups) for (const v of c.seg) assert.ok(PALETTE[v] && PALETTE[v].hex, `L${l.id} colour id ${v} has no hex`);
   });
-  test('夜市 brief A3 互斥對：A↔B、C↔D、E↔F、G↔H、B↔D 禁止；J 奶蓋白同任何色都安全', () => {
+  test('Spec v2 EXCLUSIVE_PAIRS：A↔B、C↔D、E↔F、G↔H、B↔D 禁止；J 蛋白石同任何色都安全', () => {
     const K = BY_KEY;
     for (const [x, y] of [['A', 'B'], ['C', 'D'], ['E', 'F'], ['G', 'H'], ['B', 'D']]) assert.ok(isExclusive(K[x], K[y]), `${x}↔${y}`);
     assert.ok(!isExclusive(K.F, K.H), 'F↔H 係慎用，唔係禁止');
     for (const p of PALETTE) if (p.key !== 'J') assert.ok(!isExclusive(K.J, p.id), 'J vs ' + p.key);
-    assert.equal(hueDist(K.A, K.B), 24); assert.equal(hueDist(K.C, K.D), 20); assert.equal(hueDist(K.F, K.H), 37);
+    assert.equal(hueDist(K.A, K.B), 19); assert.equal(hueDist(K.C, K.D), 17); assert.equal(hueDist(K.F, K.H), 29);
   });
   test('F×H 只可以喺 ≤4 色關同關', () => {
     const K = BY_KEY;
@@ -132,8 +132,8 @@ describe('palette', () => {
 });
 
 describe('board encoding', () => {
-  test('encode/decode 盤面 round-trip（含 frosted / sealed / takeaway / 隱藏層 / 訂單）', () => {
-    const b = B([makeCup('frosted', [1, 2]), makeCup('sealed', [3, 3, 4, 5], true), makeCup('takeaway', [6]), N([]), makeCup('normal', [7, 8, 9, 10], false, 3), makeCup('covered', [1, 2], true)], 10, [1, 3]);
+  test('encode/decode 盤面 round-trip（含 frosted / covered / takeaway / cracked / 圖案 unit key / 訂單）', () => {
+    const b = B([makeCup('frosted', [1, 2]), makeCup('covered', [3, 3, 4, 5], true), makeCup('takeaway', [6]), N([]), makeCup('cracked', [7, 8, 9, 10]), makeCup('normal', [makeUnit(1, 3), makeUnit(1, 3), makeUnit(9, 4)])], 10, [1, makeUnit(9, 4)]);
     b.orders[1].filled = true; b.delivered = 1; b.moveCount = 300;
     const d = decodeBoard(encodeBoard(b));
     assert.deepEqual(d, b);
@@ -150,15 +150,21 @@ describe('board encoding', () => {
     const m2 = mask(b, new Set(['0:1']));
     assert.deepEqual(m2.cups[0].seg, [null, 2, 3]);
   });
-  test('隱藏層：普通杯底部 hidden 格為 null，頂格永遠可見；倒空後 hidden 清零', () => {
-    const b = B([makeCup('normal', [1, 2, 3, 4], false, 2), makeCup('normal', [5, 6], false, 3), makeCup('covered', [7, 8], true), N([])], 8);
+  test('布遮瓶：只有頂格可見（蠟封提示），其餘 null；解鎖後變 normal 全部可見', () => {
+    const b = B([makeCup('covered', [1, 2, 3, 4], true), N([5, 5, 5]), N([5]), N([6, 6, 6]), N([6]), N([])], 6, [5, 6]);
     const m = mask(b);
-    assert.deepEqual(m.cups[0].seg, [null, null, 3, 4]);
-    assert.deepEqual(m.cups[1].seg, [null, 6]);       // hidden 3 但只得 2 格：頂格照樣可見
-    assert.deepEqual(m.cups[2].seg, [null, null]);     // 布遮杯連頂格都隱藏
-    assert.equal(m.cups[0].hidden, 2);
-    const one = B([makeCup('normal', [1], false, 1), N([])], 1);
-    assert.equal(applyMove(one, { from: 0, to: 1 }).cups[0].hidden, 0);
+    assert.deepEqual(m.cups[0].seg, [null, null, null, 4]);
+    assert.equal(canInteract(b.cups[0]), false);
+    let n = applyMove(b, { from: 2, to: 1 });          // 交付第 1 單
+    n = applyMove(n, { from: 4, to: 3 });              // 交付第 2 單 → 解開布遮瓶
+    assert.equal(n.cups[0].kind, 'normal'); assert.equal(n.cups[0].locked, false);
+    assert.deepEqual(mask(n).cups[0].seg, [1, 2, 3, 4]);
+  });
+  test('裂瓶只出不入', () => {
+    const b = B([makeCup('cracked', [1, 2]), N([2]), N([])], 2);
+    assert.equal(canPour(b, 1, 0), false);   // 倒入裂瓶：唔准
+    assert.equal(canPour(b, 0, 1), true);    // 由裂瓶倒出：准
+    assert.equal(canPour(b, 1, 2), true);
   });
 });
 
@@ -271,16 +277,26 @@ describe('generator', () => {
     assert.equal(a.optimal, b.optimal);
   });
   test('7 色 config 直接被 validateConfig 拒絕（要等 P3 圖案系統）', () => {
-    assert.throws(() => generateLevelEx({ cups: 10, colors: 7, empties: 2, segments: 21, frosted: 0, sealed: 0, takeaway: 0, orders: 0, optimalMin: 3, optimalMax: 40 }, 1), /colors > 6/);
+    assert.throws(() => generateLevelEx({ cups: 10, colors: 7, empties: 2, segments: 21, frosted: 0, covered: 0, takeaway: 0, cracked: 0, orders: 0, optimalMin: 3, optimalMax: 40 }, 1), /colors > 6/);
   });
-  test('隱藏層生成：有 hiddenRatio 但 frosted = 0 時，隱藏格全部落喺普通杯底部；訂單色初始可見', () => {
-    const cfg = { ...CAMPAIGN[5], hiddenRatio: 0.12 };   // 第 6 關「蓋住咗」
+  test('7 元素靠圖案：同色唔同圖案可以同關（unit key 唔同就唔合併）', () => {
+    const cfg = { cups: 10, colors: 7, empties: 2, segments: 18, frosted: 0, covered: 0, takeaway: 0, cracked: 0, orders: 0, optimalMin: 3, optimalMax: 40,
+      palette: [0, 2, 4, 6, 8, 9, 0], patterns: [0, 0, 0, 0, 0, 0, 1] };
+    const r = generateLevelEx(cfg, 5, { maxAttempts: 200 });
+    assert.ok(r, 'generated');
+    const units = new Set(r.board.cups.flatMap(c => c.seg));
+    assert.equal(units.size, 7);
+    assert.ok(units.has(makeUnit(0, 1)) && units.has(makeUnit(0, 0)));
+    assert.equal(canMerge(makeUnit(0, 1), makeUnit(0, 0)), false);
+  });
+  test('隱藏密度：hiddenRatio 由普通瓶轉磨砂瓶補足，冇任何普通瓶會有隱藏格；委託色初始可見', () => {
+    const cfg = { ...CAMPAIGN[6], hiddenRatio: 0.13 };   // 第 7 關
     const r = generateLevelEx(cfg, 99);
     assert.ok(r);
-    assert.ok(r.board.cups.every(c => c.kind !== 'frosted'));
-    assert.ok(r.hiddenCells >= 1 && r.hiddenCells <= 3, String(r.hiddenCells));
-    for (const c of r.board.cups) if (c.hidden) { assert.ok(c.kind === 'normal'); assert.ok(c.hidden <= c.seg.length - 1); }
+    assert.ok(r.board.cups.some(c => c.kind === 'frosted'));
+    assert.equal(r.hiddenCells, r.board.cups.filter(c => c.kind === 'frosted').reduce((a, c) => a + c.seg.length - 1, 0));
     const m = mask(r.board);
+    for (const c of m.cups) if (c.kind === 'normal') assert.ok(c.seg.every(v => v !== null));
     assert.equal(m.cups.reduce((a, c) => a + c.seg.filter(v => v === null).length, 0), r.hiddenCells);
   });
   test('練習難度 config 全部可生成', () => {
@@ -328,19 +344,19 @@ describe('server', () => {
     assert.equal(ok.verified, true);
     assert.equal(ok.stars, 3);
   });
-  test('reveal 隱藏層：倒走頂格露出下一格，撤銷後唔會再遮返', () => {
-    const b = B([makeCup('normal', [1, 2, 2], false, 2), N([2]), N([])], 2);
+  test('reveal 磨砂瓶：倒走頂格露出下一格；曾經露出 / 倒出過嘅格撤銷後唔會再遮返', () => {
+    const b = B([makeCup('frosted', [1, 2, 2]), N([2]), N([])], 2);
     const srv = new LocalServer();
     const st = srv.start({ id: 't', board: encodeBoard(b), optimal: 3, thresholds: { three: 6, two: 11 } });
     assert.deepEqual(st.maskedBoard.cups[0].seg, [null, null, 2]);
     const r = srv.reveal(st.sessionId, [{ from: 0, to: 1 }]);
     assert.deepEqual(r.maskedBoard.cups[0].seg, [1]);
     const back = srv.reveal(st.sessionId, []);          // 撤銷
-    assert.deepEqual(back.maskedBoard.cups[0].seg, [1, 2, 2]);   // 第 0 格曾經做過頂格、第 1 格已經倒出過（玩家見到係 2）→ 全部永久露出
-    const b2 = B([makeCup('normal', [1, 3, 2], false, 2), N([2]), N([])], 3);
+    assert.deepEqual(back.maskedBoard.cups[0].seg, [1, 2, 2]);
+    const b2 = B([makeCup('frosted', [1, 3, 2]), N([2]), N([])], 3);
     const st2 = srv.start({ id: 't', board: encodeBoard(b2), optimal: 3, thresholds: { three: 6, two: 11 } });
     srv.reveal(st2.sessionId, [{ from: 0, to: 1 }]);
-    assert.deepEqual(srv.reveal(st2.sessionId, []).maskedBoard.cups[0].seg, [null, 3, 2]);   // 只倒走 1 格 → 第 1 格露出，第 0 格仍然隱藏
+    assert.deepEqual(srv.reveal(st2.sessionId, []).maskedBoard.cups[0].seg, [null, 3, 2]);
   });
   test('reveal 只露出磨砂杯新頂格，唔會下發隱藏層', () => {
     const b = B([makeCup('frosted', [1, 2, 2]), N([2]), N([])], 2);
