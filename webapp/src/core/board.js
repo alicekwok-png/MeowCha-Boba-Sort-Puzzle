@@ -4,7 +4,7 @@ export const EMPTY = 15;
 export const CAP_NORMAL = 4;
 export const CAP_TAKEAWAY = 3;
 
-/** @typedef {'normal'|'frosted'|'sealed'|'takeaway'} CupKind */
+/** @typedef {'normal'|'frosted'|'sealed'|'takeaway'|'covered'} CupKind  — covered 布遮杯：鎖死 + 完全睇唔到內容（工單 #5） */
 /** @typedef {{kind:CupKind, cap:number, seg:number[], locked:boolean}} Cup */
 /** @typedef {{color:number, filled:boolean}} OrderSlot */
 /** @typedef {{cups:Cup[], colors:number, orders:OrderSlot[], delivered:number, moveCount:number}} Board */
@@ -15,7 +15,7 @@ export function makeCup(kind = 'normal', seg = [], locked = false) {
     kind,
     cap: kind === 'takeaway' ? CAP_TAKEAWAY : CAP_NORMAL,
     seg: [...seg],
-    locked: kind === 'sealed' ? locked : false,
+    locked: (kind === 'sealed' || kind === 'covered') ? locked : false,
   };
 }
 
@@ -54,6 +54,7 @@ export function mask(board, revealed = null) {
     delivered: board.delivered,
     moveCount: board.moveCount,
     cups: board.cups.map((c, ci) => {
+      if (c.kind === 'covered') return { kind: c.kind, cap: c.cap, seg: c.seg.map(() => null), locked: c.locked };   // 布遮杯：全部隱藏，包括頂格
       if (c.kind !== 'frosted') return { kind: c.kind, cap: c.cap, seg: c.seg.slice(), locked: c.locked };
       return {
         kind: c.kind, cap: c.cap, locked: c.locked,
@@ -68,7 +69,7 @@ export function mask(board, revealed = null) {
 // 每張訂單 1 byte: color<<1 | filled
 // 每隻杯: 1 byte 標頭 (kind<<4 | locked<<3 | cap) + ceil(cap/2) byte，每格 4 bit（EMPTY=15 補位）
 
-const KINDS = ['normal', 'frosted', 'sealed', 'takeaway'];
+const KINDS = ['normal', 'frosted', 'sealed', 'takeaway', 'covered'];
 
 function toBase64Url(bytes) {
   let bin = '';

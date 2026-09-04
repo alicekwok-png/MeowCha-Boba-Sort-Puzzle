@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-09-04T10:14:20.077Z",
+ "generatedAt": "2026-09-04T10:39:45.875Z",
  "levels": [
   {
    "id": 1,
@@ -16,16 +16,20 @@
     "orders": 0,
     "optimalMin": 3,
     "optimalMax": 8,
-    "title": "開張第一杯"
+    "title": "開張第一杯",
+    "covered": 0
    },
-   "publicSeed": "v1:c:1:df9c3b82:c4e1c796",
-   "board": "AwAAAAAFBJnpBP__BLubBP__BO6-",
-   "optimal": 4,
+   "publicSeed": "v1:c:1:0b6e0b49:c4e1c796",
+   "board": "AwAAAAAFBOleBP__BJ6ZBFXlBP__",
+   "optimal": 5,
    "thresholds": {
-    "three": 7,
-    "two": 12
+    "three": 8,
+    "two": 13
    },
-   "moveLimit": null
+   "moveLimit": null,
+   "hiddenRatio": 0,
+   "hiddenCells": 0,
+   "units": 12
   },
   {
    "id": 2,
@@ -41,16 +45,20 @@
     "orders": 0,
     "optimalMin": 4,
     "optimalMax": 9,
-    "title": "兩隻空杯"
+    "title": "兩隻空杯",
+    "covered": 0
    },
-   "publicSeed": "v1:c:2:ddd42e95:61df1f14",
-   "board": "AwAAAAAFBP__BN3uBB3RBP__BO4R",
-   "optimal": 5,
+   "publicSeed": "v1:c:2:ba85f01f:61df1f14",
+   "board": "AwAAAAAFBJkRBP__BIgRBP__BIiZ",
+   "optimal": 4,
    "thresholds": {
-    "three": 8,
-    "two": 13
+    "three": 7,
+    "two": 12
    },
-   "moveLimit": null
+   "moveLimit": null,
+   "hiddenRatio": 0,
+   "hiddenCells": 0,
+   "units": 12
   },
   {
    "id": 3,
@@ -66,20 +74,24 @@
     "orders": 0,
     "optimalMin": 5,
     "optimalMax": 11,
-    "title": "四色齊集"
+    "title": "四色齊集",
+    "covered": 0
    },
-   "publicSeed": "v1:c:3:3e03bb4c:4561d6b1",
-   "board": "BAAAAAAGBP__BDYzBOmZBGaWBOPuBP__",
+   "publicSeed": "v1:c:3:ef55fe05:4561d6b1",
+   "board": "BAAAAAAGBDOZBP__BP__BIO5BImIBLs7",
    "optimal": 7,
    "thresholds": {
     "three": 10,
     "two": 15
    },
-   "moveLimit": null
+   "moveLimit": null,
+   "hiddenRatio": 0,
+   "hiddenCells": 0,
+   "units": 16
   },
   {
    "id": 4,
-   "title": "第一張訂單",
+   "title": "四色再嚟",
    "config": {
     "cups": 6,
     "colors": 4,
@@ -88,19 +100,23 @@
     "frosted": 0,
     "sealed": 0,
     "takeaway": 0,
-    "orders": 1,
+    "orders": 0,
     "optimalMin": 5,
     "optimalMax": 12,
-    "title": "第一張訂單"
+    "title": "四色再嚟",
+    "covered": 0
    },
-   "publicSeed": "v1:c:4:71b57825:6e39c52f",
-   "board": "BAEAAAAGBAQiEwT__wQRuwT__wQiMwS7MQ",
+   "publicSeed": "v1:c:4:72948202:6e39c52f",
+   "board": "BAAAAAAGBP__BO5VBHdQBP__BHXuBAcA",
    "optimal": 8,
    "thresholds": {
     "three": 11,
     "two": 16
    },
-   "moveLimit": null
+   "moveLimit": null,
+   "hiddenRatio": 0,
+   "hiddenCells": 0,
+   "units": 16
   },
   {
    "id": 5,
@@ -113,19 +129,23 @@
     "frosted": 0,
     "sealed": 0,
     "takeaway": 0,
-    "orders": 1,
+    "orders": 0,
     "optimalMin": 6,
     "optimalMax": 13,
-    "title": "午市小高峰"
+    "title": "午市小高峰",
+    "covered": 0
    },
-   "publicSeed": "v1:c:5:008c50a6:b17c09f0",
-   "board": "BQEAAAAHCAT__wT__wREhATY3QTYpwR3RwSoqg",
-   "optimal": 9,
+   "publicSeed": "v1:c:5:4e2a5543:b17c09f0",
+   "board": "BQAAAAAHBP__BO5eBIgIBP__BGjgBGYGBFBV",
+   "optimal": 8,
    "thresholds": {
-    "three": 12,
-    "two": 17
+    "three": 11,
+    "two": 16
    },
-   "moveLimit": null
+   "moveLimit": null,
+   "hiddenRatio": 0,
+   "hiddenCells": 0,
+   "units": 20
   },
   {
    "id": 6,
@@ -138,23 +158,27 @@
     "frosted": 0,
     "sealed": 0,
     "takeaway": 0,
-    "orders": 1,
+    "orders": 0,
     "optimalMin": 7,
     "optimalMax": 14,
-    "title": "再倒多杯"
+    "title": "再倒多杯",
+    "covered": 0
    },
-   "publicSeed": "v1:c:6:515f332b:d7c55cca",
-   "board": "BQEAAAAHFgSLiAT__wSouwRq1gTdrQS6ZgT__w",
+   "publicSeed": "v1:c:6:6d91c544:d7c55cca",
+   "board": "BQAAAAAHBO6ZBHnuBP__BP__BLe7BKuqBHp5",
    "optimal": 9,
    "thresholds": {
     "three": 12,
     "two": 17
    },
-   "moveLimit": null
+   "moveLimit": null,
+   "hiddenRatio": 0,
+   "hiddenCells": 0,
+   "units": 20
   },
   {
    "id": 7,
-   "title": "六色奶茶",
+   "title": "第一張訂單",
    "config": {
     "cups": 8,
     "colors": 6,
@@ -166,120 +190,140 @@
     "orders": 1,
     "optimalMin": 7,
     "optimalMax": 15,
-    "title": "六色奶茶"
+    "title": "第一張訂單",
+    "covered": 0
    },
-   "publicSeed": "v1:c:7:2a2cebee:3f5ab324",
-   "board": "BgEAAAAICgT__wQzswQRewRZdwRVNQS7EQT__wSXmQ",
+   "publicSeed": "v1:c:7:043ef120:3f5ab324",
+   "board": "BgEAAAAIFgSq7gSIigS7KQQqIgT__wTuuwSYmQT__w",
    "optimal": 10,
    "thresholds": {
     "three": 13,
     "two": 18
    },
-   "moveLimit": null
+   "moveLimit": null,
+   "hiddenRatio": 0,
+   "hiddenCells": 0,
+   "units": 24
   },
   {
    "id": 8,
-   "title": "磨砂杯？",
+   "title": "出單清杯",
    "config": {
     "cups": 8,
     "colors": 6,
     "empties": 2,
     "segments": 14,
-    "frosted": 1,
+    "frosted": 0,
     "sealed": 0,
     "takeaway": 0,
     "orders": 1,
     "optimalMin": 8,
     "optimalMax": 16,
-    "title": "磨砂杯？"
+    "title": "出單清杯",
+    "covered": 0
    },
-   "publicSeed": "v1:c:8:756e1c6e:29f68a08",
-   "board": "BgEAAAAIDgT__wREdwR5mQSqVQRXRATJzAT__xTFqg",
-   "optimal": 10,
+   "publicSeed": "v1:c:8:539f35e8:29f68a08",
+   "board": "BgEAAAAIGgSIZgSiiAQiYgTa3QTuqgT__wRt7gT__w",
+   "optimal": 9,
    "thresholds": {
-    "three": 15,
-    "two": 20
+    "three": 12,
+    "two": 17
    },
-   "moveLimit": null
+   "moveLimit": null,
+   "hiddenRatio": 0,
+   "hiddenCells": 0,
+   "units": 24
   },
   {
    "id": 9,
-   "title": "兩張單",
+   "title": "六色奶茶",
    "config": {
     "cups": 8,
-    "colors": 6,
-    "empties": 2,
-    "segments": 15,
-    "frosted": 1,
-    "sealed": 0,
-    "takeaway": 0,
-    "orders": 2,
-    "optimalMin": 9,
-    "optimalMax": 17,
-    "title": "兩張單"
-   },
-   "publicSeed": "v1:c:9:63e16557:27e4c564",
-   "board": "BgIAAAAICAoEhEgEV-4E__8U5E4E__8EeocEqKoEVXU",
-   "optimal": 12,
-   "thresholds": {
-    "three": 17,
-    "two": 22
-   },
-   "moveLimit": null
-  },
-  {
-   "id": 10,
-   "title": "睇唔到嘅底",
-   "config": {
-    "cups": 8,
-    "colors": 6,
-    "empties": 2,
-    "segments": 16,
-    "frosted": 1,
-    "sealed": 0,
-    "takeaway": 0,
-    "orders": 2,
-    "optimalMin": 10,
-    "optimalMax": 18,
-    "title": "睇唔到嘅底"
-   },
-   "publicSeed": "v1:c:10:a9b6ab1c:6190c984",
-   "board": "BgIAAAAIBggE3o0E__8EM4MEd-cE3YcERDQUSO4E__8",
-   "optimal": 11,
-   "thresholds": {
-    "three": 16,
-    "two": 21
-   },
-   "moveLimit": null
-  },
-  {
-   "id": 11,
-   "title": "外帶袋",
-   "config": {
-    "cups": 9,
     "colors": 6,
     "empties": 2,
     "segments": 15,
     "frosted": 0,
     "sealed": 0,
-    "takeaway": 1,
+    "takeaway": 0,
     "orders": 1,
-    "optimalMin": 8,
-    "optimalMax": 16,
-    "title": "外帶袋"
+    "optimalMin": 9,
+    "optimalMax": 17,
+    "title": "六色奶茶",
+    "covered": 0
    },
-   "publicSeed": "v1:c:11:b32ed0ad:cbc17bcf",
-   "board": "BgEAAAAJHDPu_gT__wSkqgSZKQSKSQQi-AT__wRC_wROiA",
+   "publicSeed": "v1:c:9:96c13b1b:27e4c564",
+   "board": "BgEAAAAIDgS5uwRXqgSl5QR7pwT__wTufgSZWQT__w",
    "optimal": 11,
    "thresholds": {
     "three": 14,
     "two": 19
    },
-   "moveLimit": 23
+   "moveLimit": null,
+   "hiddenRatio": 0,
+   "hiddenCells": 0,
+   "units": 24
+  },
+  {
+   "id": 10,
+   "title": "十全十美",
+   "config": {
+    "cups": 8,
+    "colors": 6,
+    "empties": 2,
+    "segments": 16,
+    "frosted": 0,
+    "sealed": 0,
+    "takeaway": 0,
+    "orders": 1,
+    "optimalMin": 10,
+    "optimalMax": 18,
+    "title": "十全十美",
+    "covered": 0
+   },
+   "publicSeed": "v1:c:10:d337a8b9:6190c984",
+   "board": "BgEAAAAIFAStqgRa3QT__wR3VQR71wT__wS7xQTMvA",
+   "optimal": 11,
+   "thresholds": {
+    "three": 14,
+    "two": 19
+   },
+   "moveLimit": null,
+   "hiddenRatio": 0,
+   "hiddenCells": 0,
+   "units": 24
+  },
+  {
+   "id": 11,
+   "title": "磨砂杯？",
+   "config": {
+    "cups": 9,
+    "colors": 6,
+    "empties": 2,
+    "segments": 15,
+    "frosted": 1,
+    "sealed": 0,
+    "takeaway": 1,
+    "orders": 1,
+    "optimalMin": 8,
+    "optimalMax": 16,
+    "title": "磨砂杯？",
+    "covered": 0
+   },
+   "publicSeed": "v1:c:11:96814ec9:cbc17bcf",
+   "board": "BgEAAAAJFBSb-QT__wSp-gSGiARqlhRl9QT__wS4uzNV-g",
+   "optimal": 10,
+   "thresholds": {
+    "three": 17,
+    "two": 22
+   },
+   "moveLimit": 22,
+   "hiddenRatio": 0.158,
+   "hiddenCells": 4,
+   "units": 24
   },
   {
    "id": 12,
-   "title": "袋住先",
+   "title": "外帶袋",
    "config": {
     "cups": 9,
     "colors": 6,
@@ -288,19 +332,23 @@
     "frosted": 1,
     "sealed": 0,
     "takeaway": 1,
-    "orders": 2,
+    "orders": 1,
     "optimalMin": 9,
     "optimalMax": 18,
-    "title": "袋住先"
+    "title": "外帶袋",
+    "covered": 0
    },
-   "publicSeed": "v1:c:12:e00eff77:0060cb57",
-   "board": "BgIAAAAJHAQE7r4EuwsE__8zE_IEIgEE__8UI_8EHjEEAPM",
+   "publicSeed": "v1:c:12:6e86f18d:0060cb57",
+   "board": "BgEAAAAJBATbzAS73RTTETMi8wT__wSy_wT__wQz8gTMEQ",
    "optimal": 12,
    "thresholds": {
     "three": 17,
     "two": 22
    },
-   "moveLimit": 24
+   "moveLimit": 24,
+   "hiddenRatio": 0.16599999999999998,
+   "hiddenCells": 3,
+   "units": 24
   },
   {
    "id": 13,
@@ -310,26 +358,30 @@
     "colors": 7,
     "empties": 2,
     "segments": 17,
-    "frosted": 0,
+    "frosted": 1,
     "sealed": 0,
     "takeaway": 0,
-    "orders": 2,
+    "orders": 1,
     "optimalMin": 10,
     "optimalMax": 19,
-    "title": "七色彩虹"
+    "title": "七色彩虹",
+    "covered": 0
    },
-   "publicSeed": "v1:c:13:d861a084:c39f2be8",
-   "board": "BwIAAAAJAgYEdZkEu8EEOzMEU1UEmRsE__8EzBwEd3EE__8",
+   "publicSeed": "v1:c:13:eb27df41:c39f2be8",
+   "board": "BwEAAAAJFhRRZQQAMAS7VQTuDgQT4QRjZhQxuwT__wT__w",
    "optimal": 12,
    "thresholds": {
-    "three": 15,
-    "two": 20
+    "three": 19,
+    "two": 24
    },
-   "moveLimit": 24
+   "moveLimit": 24,
+   "hiddenRatio": 0.174,
+   "hiddenCells": 6,
+   "units": 28
   },
   {
    "id": 14,
-   "title": "磨砂加單",
+   "title": "摩卡提示",
    "config": {
     "cups": 9,
     "colors": 7,
@@ -338,19 +390,23 @@
     "frosted": 1,
     "sealed": 0,
     "takeaway": 0,
-    "orders": 2,
+    "orders": 1,
     "optimalMin": 11,
     "optimalMax": 20,
-    "title": "磨砂加單"
+    "title": "摩卡提示",
+    "covered": 0
    },
-   "publicSeed": "v1:c:14:f3bb9965:c9df2b6d",
-   "board": "BwIAAAAJBgQEMyME__8UKAAEJOQE3Y0EAN4E7ogE__8EQjQ",
-   "optimal": 13,
+   "publicSeed": "v1:c:14:d482fc6e:c9df2b6d",
+   "board": "BwEAAAAJGgTT7QTd4wRmFgS7GwT__xQeMQT__wQA6xQDYA",
+   "optimal": 14,
    "thresholds": {
-    "three": 18,
-    "two": 23
+    "three": 21,
+    "two": 26
    },
-   "moveLimit": 25
+   "moveLimit": 26,
+   "hiddenRatio": 0.182,
+   "hiddenCells": 6,
+   "units": 28
   },
   {
    "id": 15,
@@ -360,72 +416,84 @@
     "colors": 7,
     "empties": 2,
     "segments": 18,
-    "frosted": 0,
+    "frosted": 1,
     "sealed": 0,
     "takeaway": 1,
-    "orders": 2,
+    "orders": 1,
     "optimalMin": 10,
     "optimalMax": 20,
-    "title": "午後慢活"
+    "title": "午後慢活",
+    "covered": 0
    },
-   "publicSeed": "v1:c:15:a8234b97:6ef76e03",
-   "board": "BwIAAAAKAhoE090EhmgEPbIE__8E__8EIvIzsfMEEWEEtvsEiPM",
-   "optimal": 13,
+   "publicSeed": "v1:c:15:47e9f543:6ef76e03",
+   "board": "BwEAAAAKBgT__zOz-BQGYARl9gTdMwT__wRdVQSI2AQDsBS7_w",
+   "optimal": 12,
    "thresholds": {
-    "three": 16,
-    "two": 21
+    "three": 19,
+    "two": 24
    },
-   "moveLimit": 25
+   "moveLimit": 24,
+   "hiddenRatio": 0.19,
+   "hiddenCells": 4,
+   "units": 28
   },
   {
    "id": 16,
-   "title": "封膜杯",
+   "title": "睇唔到嘅底",
    "config": {
     "cups": 10,
     "colors": 7,
     "empties": 2,
     "segments": 19,
-    "frosted": 0,
-    "sealed": 1,
+    "frosted": 1,
+    "sealed": 0,
     "takeaway": 0,
-    "orders": 2,
+    "orders": 1,
     "optimalMin": 11,
     "optimalMax": 21,
-    "title": "封膜杯"
+    "title": "睇唔到嘅底",
+    "covered": 0
    },
-   "publicSeed": "v1:c:16:54d84e7b:ec9e18f8",
-   "board": "BwIAAAAKFgwEp_kEaXcE__8Ea5gEiPcEVaUspfoEZpgEu_sE__8",
-   "optimal": 15,
+   "publicSeed": "v1:c:16:7177d762:ec9e18f8",
+   "board": "BwEAAAAKDAT__wTq7gQiuwRr_RSN-wSOqBSo3QRmphQi_wT__w",
+   "optimal": 13,
    "thresholds": {
-    "three": 18,
-    "two": 23
+    "three": 22,
+    "two": 27
    },
-   "moveLimit": 27
+   "moveLimit": 25,
+   "hiddenRatio": 0.198,
+   "hiddenCells": 6,
+   "units": 28
   },
   {
    "id": 17,
-   "title": "封膜同磨砂",
+   "title": "兩張單",
    "config": {
     "cups": 10,
     "colors": 7,
     "empties": 2,
     "segments": 20,
     "frosted": 1,
-    "sealed": 1,
+    "sealed": 0,
     "takeaway": 0,
     "orders": 2,
     "optimalMin": 12,
     "optimalMax": 22,
-    "title": "封膜同磨砂"
+    "title": "兩張單",
+    "covered": 0
    },
-   "publicSeed": "v1:c:17:84229711:e8a534d3",
-   "board": "BwIAAAAKCggE__8UXEUsMP8E__8Ed1AE3f0EM0AEQ0AEzHwEdf0",
-   "optimal": 16,
+   "publicSeed": "v1:c:17:becfd0e0:e8a534d3",
+   "board": "BwIAAAAKFgIEd_ME__8UEYsUMYMEZvYE__8Ua_8EF1UEVbsEg3g",
+   "optimal": 13,
    "thresholds": {
-    "three": 21,
-    "two": 26
+    "three": 22,
+    "two": 27
    },
-   "moveLimit": 28
+   "moveLimit": 25,
+   "hiddenRatio": 0.206,
+   "hiddenCells": 7,
+   "units": 28
   },
   {
    "id": 18,
@@ -435,47 +503,55 @@
     "colors": 8,
     "empties": 2,
     "segments": 20,
-    "frosted": 0,
+    "frosted": 1,
     "sealed": 0,
     "takeaway": 1,
     "orders": 2,
     "optimalMin": 11,
     "optimalMax": 22,
-    "title": "八色齊"
+    "title": "八色齊",
+    "covered": 0
    },
-   "publicSeed": "v1:c:18:c680445f:ba09e9d7",
-   "board": "CAIAAAALAAQEEe4EM_MEC_0E7mYE__8zYvYEsdsEIhIE__8ECwAE0_0",
+   "publicSeed": "v1:c:18:9cdb3f48:ba09e9d7",
+   "board": "CAIAAAALEg4E__8U7vMEmfcEMx4zO_4Uu2YUlvkE__8Ed1cEthEEVRU",
    "optimal": 14,
    "thresholds": {
-    "three": 17,
-    "two": 22
+    "three": 23,
+    "two": 28
    },
-   "moveLimit": 26
+   "moveLimit": 26,
+   "hiddenRatio": 0.214,
+   "hiddenCells": 7,
+   "units": 32
   },
   {
    "id": 19,
-   "title": "收工前一輪",
+   "title": "封膜杯",
    "config": {
     "cups": 10,
     "colors": 8,
     "empties": 2,
     "segments": 21,
     "frosted": 1,
-    "sealed": 0,
+    "sealed": 1,
     "takeaway": 0,
     "orders": 2,
     "optimalMin": 12,
     "optimalMax": 23,
-    "title": "收工前一輪"
+    "title": "封膜杯",
+    "covered": 0
    },
-   "publicSeed": "v1:c:19:a981c641:6d323667",
-   "board": "CAIAAAAKDhAEancE624UmWoEdqgEiOgE__8EXlUEt7sElakE__8",
-   "optimal": 15,
+   "publicSeed": "v1:c:19:43f75b17:6d323667",
+   "board": "CAIAAAAKBgAEM4MEACAUiwMEux0EEhEUhmgs3bYE__8E__8E1iI",
+   "optimal": 16,
    "thresholds": {
-    "three": 20,
-    "two": 25
+    "three": 23,
+    "two": 28
    },
-   "moveLimit": 27
+   "moveLimit": 28,
+   "hiddenRatio": 0.222,
+   "hiddenCells": 6,
+   "units": 32
   },
   {
    "id": 20,
@@ -491,20 +567,24 @@
     "orders": 2,
     "optimalMin": 12,
     "optimalMax": 24,
-    "title": "全家福"
+    "title": "全家福",
+    "covered": 0
    },
-   "publicSeed": "v1:c:20:a52c376a:bfd4e194",
-   "board": "CAIAAAALHAIUAfUE__8sAHAENnMz1vEEPfUEN1UE7v4E__8EfmYE3RE",
-   "optimal": 18,
+   "publicSeed": "v1:c:20:fdb21feb:bfd4e194",
+   "board": "CAIAAAALBg4Uc4gEM-ME__8EdYgEQEQE__8sDt0E5H4z8P8U3XAEVfU",
+   "optimal": 15,
    "thresholds": {
-    "three": 23,
-    "two": 28
+    "three": 22,
+    "two": 27
    },
-   "moveLimit": 30
+   "moveLimit": 27,
+   "hiddenRatio": 0.22999999999999998,
+   "hiddenCells": 6,
+   "units": 32
   },
   {
    "id": 21,
-   "title": "三張單",
+   "title": "晚市開始",
    "config": {
     "cups": 11,
     "colors": 8,
@@ -513,19 +593,23 @@
     "frosted": 1,
     "sealed": 0,
     "takeaway": 1,
-    "orders": 3,
+    "orders": 2,
     "optimalMin": 13,
     "optimalMax": 25,
-    "title": "三張單"
+    "title": "晚市開始",
+    "covered": 0
    },
-   "publicSeed": "v1:c:21:89beaf92:0d001ad8",
-   "board": "CAMAAAALFgYYFHcBBFc9BP__BBFxBP__BAD7BFu7BDxTBFPwM93_BMzc",
-   "optimal": 18,
+   "publicSeed": "v1:c:21:4dff6636:0d001ad8",
+   "board": "CAIAAAALDhgEAN0EfFUEEfwUd_wE3QAEEfMUu7ME__8zO_cE__8UPFU",
+   "optimal": 17,
    "thresholds": {
-    "three": 23,
-    "two": 28
+    "three": 26,
+    "two": 31
    },
-   "moveLimit": 28
+   "moveLimit": 27,
+   "hiddenRatio": 0.238,
+   "hiddenCells": 8,
+   "units": 32
   },
   {
    "id": 22,
@@ -541,16 +625,20 @@
     "orders": 2,
     "optimalMin": 14,
     "optimalMax": 26,
-    "title": "兩隻磨砂"
+    "title": "兩隻磨砂",
+    "covered": 0
    },
-   "publicSeed": "v1:c:22:78cdeb07:f8755fca",
-   "board": "CAIAAAALDAYEVWYE6O4EN7sEk5MEhncUtvsEWIcUPv8EWfkE__8E__8",
+   "publicSeed": "v1:c:22:4ba7d8ab:f8755fca",
+   "board": "CAIAAAALDBAU0_0UdwAENxcEAfME__8EU1UEaP8E__8EiFEU3WYEFgg",
    "optimal": 18,
    "thresholds": {
-    "three": 25,
-    "two": 30
+    "three": 27,
+    "two": 32
    },
-   "moveLimit": 28
+   "moveLimit": 28,
+   "hiddenRatio": 0.246,
+   "hiddenCells": 8,
+   "units": 32
   },
   {
    "id": 23,
@@ -560,22 +648,26 @@
     "colors": 8,
     "empties": 2,
     "segments": 24,
-    "frosted": 0,
+    "frosted": 1,
     "sealed": 1,
     "takeaway": 1,
     "orders": 2,
     "optimalMin": 13,
     "optimalMax": 26,
-    "title": "封膜外帶"
+    "title": "封膜外帶",
+    "covered": 0
    },
-   "publicSeed": "v1:c:23:9258fde2:bfe59e7b",
-   "board": "CAIAAAALDBosOPMEMyEE4BAE0f0E__8EGGAEZvYEjigzDf0E4i4E__8",
-   "optimal": 19,
+   "publicSeed": "v1:c:23:a4b426d1:bfe59e7b",
+   "board": "CAIAAAALChwUVeMzjvcURPcUeOgE__8s1w0E3Q4EA1UEMwgE__8URP8",
+   "optimal": 20,
    "thresholds": {
-    "three": 22,
-    "two": 27
+    "three": 31,
+    "two": 36
    },
-   "moveLimit": 29
+   "moveLimit": 30,
+   "hiddenRatio": 0.254,
+   "hiddenCells": 9,
+   "units": 32
   },
   {
    "id": 24,
@@ -588,44 +680,52 @@
     "frosted": 1,
     "sealed": 0,
     "takeaway": 0,
-    "orders": 3,
+    "orders": 2,
     "optimalMin": 13,
     "optimalMax": 26,
-    "title": "九色晚市"
+    "title": "九色晚市",
+    "covered": 0
    },
-   "publicSeed": "v1:c:24:1d7edead:7eb5eb08",
-   "board": "CQMAAAALFgACBBE-BP__BGIRFADmBINmBN2NBLO7BCMiBP__BADoBOvY",
-   "optimal": 19,
+   "publicSeed": "v1:c:24:a33dea93:7eb5eb08",
+   "board": "CQIAAAALDgwU51UEBQAEUBgE__8E7t0EEesE3YcUiGYUZhcE__8Eu3s",
+   "optimal": 17,
    "thresholds": {
-    "three": 24,
-    "two": 29
+    "three": 26,
+    "two": 31
    },
-   "moveLimit": 29
+   "moveLimit": 27,
+   "hiddenRatio": 0.262,
+   "hiddenCells": 9,
+   "units": 36
   },
   {
    "id": 25,
-   "title": "封膜再現",
+   "title": "布遮杯",
    "config": {
     "cups": 11,
     "colors": 9,
     "empties": 2,
     "segments": 25,
     "frosted": 1,
-    "sealed": 1,
+    "sealed": 0,
     "takeaway": 0,
-    "orders": 3,
+    "orders": 2,
     "optimalMin": 14,
     "optimalMax": 27,
-    "title": "封膜再現"
+    "title": "布遮杯",
+    "covered": 1
    },
-   "publicSeed": "v1:c:25:e2d1c9e6:1fedb828",
-   "board": "CQMAAAALHAAQLGB2BAuzBP__BHfXBBGLBGaOBN3tFDMOBP__BOARBIs4",
+   "publicSeed": "v1:c:25:e0991c3d:1fedb828",
+   "board": "CQIAAAALFgQE__8UIiMU7osEEd0EZu4Es4sE__9MCNAEAGgEbbMUMhE",
    "optimal": 19,
    "thresholds": {
-    "three": 24,
-    "two": 29
+    "three": 28,
+    "two": 33
    },
-   "moveLimit": 29
+   "moveLimit": 29,
+   "hiddenRatio": 0.27,
+   "hiddenCells": 9,
+   "units": 36
   },
   {
    "id": 26,
@@ -638,19 +738,23 @@
     "frosted": 1,
     "sealed": 0,
     "takeaway": 1,
-    "orders": 3,
+    "orders": 2,
     "optimalMin": 15,
     "optimalMax": 28,
-    "title": "夜更開始"
+    "title": "夜更開始",
+    "covered": 0
    },
-   "publicSeed": "v1:c:26:1b62f91f:b65a4130",
-   "board": "CQMAAAAMFhwOBLW7BOY-BHaHFGZbBP__BDX4BP__BHk-BD7xMxHxBIj3BJWZ",
-   "optimal": 21,
+   "publicSeed": "v1:c:26:43805233:b65a4130",
+   "board": "CQIAAAAMEAIUNVUU5RYE__8EiDgzef8Eu-kEZvgEt_sE__8E5ncEEZEUM54",
+   "optimal": 19,
    "thresholds": {
-    "three": 26,
-    "two": 31
+    "three": 28,
+    "two": 33
    },
-   "moveLimit": 31
+   "moveLimit": 29,
+   "hiddenRatio": 0.278,
+   "hiddenCells": 9,
+   "units": 36
   },
   {
    "id": 27,
@@ -663,19 +767,23 @@
     "frosted": 2,
     "sealed": 0,
     "takeaway": 0,
-    "orders": 3,
+    "orders": 2,
     "optimalMin": 16,
     "optimalMax": 29,
-    "title": "雙磨砂"
+    "title": "雙磨砂",
+    "covered": 0
    },
-   "publicSeed": "v1:c:27:ddc2a645:857c9b91",
-   "board": "CQMAAAAMDBYSBO4xBFj1BHf_BLP5BHdmBP__BP__BImIBLY7FLVhBFGTFJ7h",
-   "optimal": 21,
+   "publicSeed": "v1:c:27:b0acca36:857c9b91",
+   "board": "CQIAAAAMHAQEA_4EEfAE__8UZt0UGN0EY-YEjogE__8E6_8UIjAEIbIEMLs",
+   "optimal": 18,
    "thresholds": {
-    "three": 28,
-    "two": 33
+    "three": 27,
+    "two": 32
    },
-   "moveLimit": 31
+   "moveLimit": 28,
+   "hiddenRatio": 0.28600000000000003,
+   "hiddenCells": 9,
+   "units": 36
   },
   {
    "id": 28,
@@ -688,19 +796,23 @@
     "frosted": 1,
     "sealed": 1,
     "takeaway": 1,
-    "orders": 3,
+    "orders": 2,
     "optimalMin": 15,
     "optimalMax": 29,
-    "title": "三種杯"
+    "title": "三種杯",
+    "covered": 0
    },
-   "publicSeed": "v1:c:28:1d863018:4d31b676",
-   "board": "CQMAAAAMEBoWBLvbFBNmBIjiBP__LDPmBNAtBP__BGGzBAKIBO7_BAINMxH_",
-   "optimal": 20,
+   "publicSeed": "v1:c:28:41bfdbab:4d31b676",
+   "board": "CQIAAAAMDBIE__8UWZssiPgEUbYUkVcE__8UZoUzM_kE7v4EN-MUe_sEEWc",
+   "optimal": 22,
    "thresholds": {
-    "three": 25,
-    "two": 30
+    "three": 33,
+    "two": 38
    },
-   "moveLimit": 30
+   "moveLimit": 32,
+   "hiddenRatio": 0.29400000000000004,
+   "hiddenCells": 11,
+   "units": 36
   },
   {
    "id": 29,
@@ -713,44 +825,52 @@
     "frosted": 1,
     "sealed": 0,
     "takeaway": 0,
-    "orders": 3,
+    "orders": 2,
     "optimalMin": 16,
     "optimalMax": 30,
-    "title": "三隻空杯"
+    "title": "三隻空杯",
+    "covered": 0
    },
-   "publicSeed": "v1:c:29:5e485f35:9bdd1fa6",
-   "board": "CQMAAAAMDgoMBBARBH1VBP__BGtmFDOABNAzBHXRBLh7BP__BFvWBIcIBP__",
-   "optimal": 20,
+   "publicSeed": "v1:c:29:1ed3cbcc:9bdd1fa6",
+   "board": "CQIAAAAMEAAE220UA4EU0G0E__8E__8UEbYEB3AENTMEVbYUiFcEt4EE__8",
+   "optimal": 21,
    "thresholds": {
-    "three": 25,
-    "two": 30
+    "three": 32,
+    "two": 37
    },
-   "moveLimit": 30
+   "moveLimit": 31,
+   "hiddenRatio": 0.302,
+   "hiddenCells": 12,
+   "units": 36
   },
   {
    "id": 30,
-   "title": "封膜雙磨砂",
+   "title": "布遮雙磨砂",
    "config": {
     "cups": 12,
     "colors": 9,
     "empties": 2,
     "segments": 28,
     "frosted": 2,
-    "sealed": 1,
+    "sealed": 0,
     "takeaway": 0,
-    "orders": 3,
+    "orders": 2,
     "optimalMin": 17,
     "optimalMax": 31,
-    "title": "封膜雙磨砂"
+    "title": "布遮雙磨砂",
+    "covered": 1
    },
-   "publicSeed": "v1:c:30:e3f0d9db:3acb849c",
-   "board": "CQMAAAAMBhYQBBHmBC0iBObeBDP7FNCABLuLBIjzBAYNLBHiFDb_BP__BP__",
+   "publicSeed": "v1:c:30:5a7026c8:3acb849c",
+   "board": "CQIAAAAMGg4UEfcU5_0EM-ME__8UZrgEHhdMu74Ehd0EVXUUOP8UjWYE__8",
    "optimal": 20,
    "thresholds": {
-    "three": 27,
-    "two": 32
+    "three": 33,
+    "two": 38
    },
-   "moveLimit": 30
+   "moveLimit": 30,
+   "hiddenRatio": 0.31,
+   "hiddenCells": 11,
+   "units": 36
   },
   {
    "id": 31,
@@ -760,22 +880,26 @@
     "colors": 10,
     "empties": 2,
     "segments": 28,
-    "frosted": 0,
+    "frosted": 1,
     "sealed": 0,
     "takeaway": 0,
-    "orders": 3,
+    "orders": 2,
     "optimalMin": 16,
     "optimalMax": 30,
-    "title": "十色全開"
+    "title": "十色全開",
+    "covered": 0
    },
-   "publicSeed": "v1:c:31:f00ffa86:00b4d972",
-   "board": "CgMAAAAMHAIMBH1mBBGIBLNVBAN3BAbrBP__BGewBFURBNjdBDsDBP__BI7u",
+   "publicSeed": "v1:c:31:636a3584:00b4d972",
+   "board": "CgIAAAAMFhAU7ogU1j0EUFUE__8EOAcEsd0EhWME__8Ed7cUCxAEETYUa-4",
    "optimal": 21,
    "thresholds": {
-    "three": 24,
-    "two": 29
+    "three": 32,
+    "two": 37
    },
-   "moveLimit": 29
+   "moveLimit": 29,
+   "hiddenRatio": 0.318,
+   "hiddenCells": 12,
+   "units": 40
   },
   {
    "id": 32,
@@ -788,19 +912,23 @@
     "frosted": 1,
     "sealed": 0,
     "takeaway": 0,
-    "orders": 3,
+    "orders": 2,
     "optimalMin": 17,
     "optimalMax": 31,
-    "title": "十色磨砂"
+    "title": "十色磨砂",
+    "covered": 0
    },
-   "publicSeed": "v1:c:32:4e91b2db:64fab357",
-   "board": "CgMAAAAMABwaBLveBP__BIYzBBh-BFtVBN3tBAB4BP__BFcXBAAWBB5mFDOL",
-   "optimal": 24,
+   "publicSeed": "v1:c:32:cd581282:64fab357",
+   "board": "CgIAAAAMGhYUHnEEHe0EABsEZrYEe4gUVTYUje4EuAAEM9ME__8Ud1UE__8",
+   "optimal": 20,
    "thresholds": {
-    "three": 29,
-    "two": 34
+    "three": 31,
+    "two": 36
    },
-   "moveLimit": 32
+   "moveLimit": 28,
+   "hiddenRatio": 0.32599999999999996,
+   "hiddenCells": 12,
+   "units": 40
   },
   {
    "id": 33,
@@ -813,19 +941,23 @@
     "frosted": 1,
     "sealed": 1,
     "takeaway": 0,
-    "orders": 3,
+    "orders": 2,
     "optimalMin": 17,
     "optimalMax": 32,
-    "title": "十三隻杯"
+    "title": "十三隻杯",
+    "covered": 0
    },
-   "publicSeed": "v1:c:33:2625af60:0fba6630",
-   "board": "CgMAAAANAgoaBHjXBFvlBB4ABIjYFGYTBLAdBP__BP__LA5mBF01BDN3BP__BOG7",
-   "optimal": 22,
+   "publicSeed": "v1:c:33:01f5783f:0fba6630",
+   "board": "CgIAAAANDgoE__8Ud2gEawMUXtgEHhEUYO4EAIYUE4UE__8EVXcE__8E3b0sszs",
+   "optimal": 23,
    "thresholds": {
-    "three": 27,
-    "two": 32
+    "three": 34,
+    "two": 39
    },
-   "moveLimit": 30
+   "moveLimit": 31,
+   "hiddenRatio": 0.33399999999999996,
+   "hiddenCells": 12,
+   "units": 40
   },
   {
    "id": 34,
@@ -838,19 +970,23 @@
     "frosted": 1,
     "sealed": 0,
     "takeaway": 1,
-    "orders": 3,
+    "orders": 2,
     "optimalMin": 17,
     "optimalMax": 32,
-    "title": "外帶夜更"
+    "title": "外帶夜更",
+    "covered": 0
    },
-   "publicSeed": "v1:c:34:1a4f98d6:5e12eaf7",
-   "board": "CgMAAAANGgAcBBHuBFd2BLFwBNaGBIb9MwDxBLW7BDDzBP__BFX9BP__FI14BO4z",
-   "optimal": 24,
+   "publicSeed": "v1:c:34:243b98d8:5e12eaf7",
+   "board": "CgIAAAANGhYUVY0z0_AUHvEE__8Eu9gU7jEUF1UEN_YEtgAEgPgE__8UbeYEc7c",
+   "optimal": 23,
    "thresholds": {
-    "three": 29,
-    "two": 34
+    "three": 36,
+    "two": 41
    },
-   "moveLimit": 32
+   "moveLimit": 31,
+   "hiddenRatio": 0.34199999999999997,
+   "hiddenCells": 14,
+   "units": 40
   },
   {
    "id": 35,
@@ -861,21 +997,25 @@
     "empties": 2,
     "segments": 31,
     "frosted": 2,
-    "sealed": 1,
+    "sealed": 0,
     "takeaway": 0,
-    "orders": 3,
+    "orders": 2,
     "optimalMin": 18,
     "optimalMax": 33,
-    "title": "師傅考牌"
+    "title": "師傅考牌",
+    "covered": 1
    },
-   "publicSeed": "v1:c:35:97bfae12:4c32b092",
-   "board": "CgMAAAANEBoKBP__BIgIBP__FO5YFDs3BB3hLGUzBGZeBNf_BH3QBBH2BHXwBLC7",
-   "optimal": 22,
+   "publicSeed": "v1:c:35:9bb9c219:4c32b092",
+   "board": "CgIAAAANEBoUiN0U7lAE__8U2_sUAXAU5Q4EM_hMFxYEW_gENnMEa9YE__8EFfc",
+   "optimal": 24,
    "thresholds": {
-    "three": 29,
-    "two": 34
+    "three": 37,
+    "two": 42
    },
-   "moveLimit": 30
+   "moveLimit": 32,
+   "hiddenRatio": 0.35,
+   "hiddenCells": 14,
+   "units": 40
   },
   {
    "id": 36,
@@ -891,16 +1031,20 @@
     "orders": 3,
     "optimalMin": 19,
     "optimalMax": 34,
-    "title": "店長訓話"
+    "title": "店長訓話",
+    "covered": 0
    },
-   "publicSeed": "v1:c:36:22273ab4:34b5476f",
-   "board": "CgMAAAANHAwGBLsbBBB4BI5YBDAwBP__FI3dBHfnBP__BNUbFOb2BOb1BBXwMzbz",
-   "optimal": 26,
+   "publicSeed": "v1:c:36:5290db37:34b5476f",
+   "board": "CgMAAAANFgAMBG33BP__FIfuFN0BBDezM2v2BP__BLVeBGf1BBOIFBBRFIMAFL79",
+   "optimal": 28,
    "thresholds": {
-    "three": 33,
-    "two": 38
+    "three": 41,
+    "two": 46
    },
-   "moveLimit": 34
+   "moveLimit": 36,
+   "hiddenRatio": 0.358,
+   "hiddenCells": 14,
+   "units": 40
   },
   {
    "id": 37,
@@ -916,16 +1060,20 @@
     "orders": 3,
     "optimalMin": 20,
     "optimalMax": 35,
-    "title": "封膜雙磨砂 II"
+    "title": "封膜雙磨砂 II",
+    "covered": 0
    },
-   "publicSeed": "v1:c:37:c3b20fb9:4988ddd5",
-   "board": "CgMAAAANAAIQBFX_LObwBOiABDNTFB53BN4YFHBXBP__BG1rBLsRBDbwBP__BNvY",
-   "optimal": 25,
+   "publicSeed": "v1:c:37:3bce227f:4988ddd5",
+   "board": "CgMAAAANFhoOBB3mFOhmBP__FHsNBP__FH0RFAjzBLH_FL1VBDMDFIj7LH4HBF5l",
+   "optimal": 26,
    "thresholds": {
-    "three": 32,
-    "two": 37
+    "three": 41,
+    "two": 46
    },
-   "moveLimit": 33
+   "moveLimit": 34,
+   "hiddenRatio": 0.366,
+   "hiddenCells": 16,
+   "units": 40
   },
   {
    "id": 38,
@@ -941,16 +1089,20 @@
     "orders": 3,
     "optimalMin": 20,
     "optimalMax": 36,
-    "title": "全部杯種"
+    "title": "全部杯種",
+    "covered": 0
    },
-   "publicSeed": "v1:c:38:483d4dd0:4254c226",
-   "board": "CgMAAAANCgYaBH7YBGV1BNZdFHiBBP__LNcWM7vwBDPxBOD2BLvwBP__BAjuBFEz",
-   "optimal": 25,
+   "publicSeed": "v1:c:38:b4428f7a:4254c226",
+   "board": "CgMAAAANAgAGFBB3BGiFFDADBIj9FNB2BOb1LLvRFFUxBP__BP__BNE2FO7nM7v_",
+   "optimal": 26,
    "thresholds": {
-    "three": 30,
-    "two": 35
+    "three": 39,
+    "two": 44
    },
-   "moveLimit": 33
+   "moveLimit": 34,
+   "hiddenRatio": 0.374,
+   "hiddenCells": 15,
+   "units": 40
   },
   {
    "id": 39,
@@ -961,21 +1113,25 @@
     "empties": 2,
     "segments": 34,
     "frosted": 2,
-    "sealed": 1,
+    "sealed": 0,
     "takeaway": 1,
     "orders": 3,
     "optimalMin": 21,
     "optimalMax": 37,
-    "title": "最後衝刺"
+    "title": "最後衝刺",
+    "covered": 1
    },
-   "publicSeed": "v1:c:39:455275cb:4f36b995",
-   "board": "CgMAAAANAhwMLAANBLsxBOPRBNP3M-7_FIX7BBNhBGeIFH5nBP__BFi2BP__BNBV",
-   "optimal": 27,
+   "publicSeed": "v1:c:39:1a2bcfe6:4f36b995",
+   "board": "CgMAAAANBgwWTO3xFIvlBBARMz71BP__FA1nBLgLBP__FLVmFDOIBFfzBO3wFHdt",
+   "optimal": 26,
    "thresholds": {
-    "three": 34,
-    "two": 39
+    "three": 39,
+    "two": 44
    },
-   "moveLimit": 35
+   "moveLimit": 34,
+   "hiddenRatio": 0.382,
+   "hiddenCells": 15,
+   "units": 40
   },
   {
    "id": 40,
@@ -986,21 +1142,25 @@
     "empties": 2,
     "segments": 35,
     "frosted": 2,
-    "sealed": 1,
+    "sealed": 0,
     "takeaway": 1,
     "orders": 3,
     "optimalMin": 22,
     "optimalMax": 38,
-    "title": "喵喵茶記之光"
+    "title": "喵喵茶記之光",
+    "covered": 1
    },
-   "publicSeed": "v1:c:40:6a720ad9:1bf410ff",
-   "board": "CgMAAAANBhwWBGb7BP__BP__BBY-FBAOBBF9BOM3FNDoBNX_BIB4Mzf7BNtlLLhV",
-   "optimal": 29,
+   "publicSeed": "v1:c:40:8ccc1179:1bf410ff",
+   "board": "CgMAAAANDgIMTNBWFB3-FLuIFO1eBP__FDNxBGbnBHFTFFNnM_H_BNCLFAC4BP__",
+   "optimal": 28,
    "thresholds": {
-    "three": 36,
-    "two": 41
+    "three": 43,
+    "two": 48
    },
-   "moveLimit": 37
+   "moveLimit": 36,
+   "hiddenRatio": 0.39,
+   "hiddenCells": 17,
+   "units": 40
   }
  ]
 }

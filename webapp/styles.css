@@ -239,6 +239,7 @@ body {
 .act i { font-style: normal; font-size: 19px; line-height: 1; }
 .act:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--brown); }
 .act[disabled] { opacity: .45; pointer-events: none; }
+.act[hidden] { display: none; }   /* 機制登場表：Undo 第 5 關、提示第 14 關先出現 */
 
 /* 階段過渡字卡 */
 .stage-card {

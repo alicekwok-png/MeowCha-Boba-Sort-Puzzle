@@ -92,7 +92,7 @@ export function settleOrders(b, events = null) {
 }
 
 function unlockSealed(b, events) {
-  const ci = b.cups.findIndex(x => x.kind === 'sealed' && x.locked);
+  const ci = b.cups.findIndex(x => (x.kind === 'sealed' || x.kind === 'covered') && x.locked);
   if (ci < 0) return;
   b.cups[ci].locked = false;
   b.cups[ci].kind = 'normal';

@@ -22,7 +22,7 @@ export const CORE_ASSETS = [
 /** 批次 3 — 延後（進入關卡後閒時載） */
 export const DEFERRED_ASSETS = [
   'assets/bg-04.jpg', 'assets/mocha-avatar.webp',
-  'assets/cup-frosted.webp', 'assets/cup-sealed.webp', 'assets/cup-takeaway.webp',
+  'assets/cup-frosted.webp', 'assets/cup-sealed.webp', 'assets/cup-takeaway.webp', 'assets/cup-covered.webp',
 ];
 
 // ---------------- 決策（純函數） ----------------

@@ -131,7 +131,7 @@ const LINES = {
   clear: ['收工！你係最叻嘅茶記店員～', '全部出晒單，勁！'],
   hint: ['試下呢步？', '我會咁倒～'],
   frosted: ['磨砂杯睇唔到入面，倒走頂層先知～'],
-  unlock: ['布揭開咗！可以用呢隻杯喇'],
+  unlock: ['開返喇！可以用呢隻杯～'],
   pour: ['倒緊…'],
 };
 function mocha(state, text) {
@@ -268,6 +268,9 @@ async function startLevel(levelData, { practice = false } = {}) {
   G.adTotal = practice ? 0 : adSlotsFor(levelData.id); G.adUnlocked = 0;
   G.startedAt = performance.now();
   if (!practice) { progress.last = levelData.id; saveProgress(); }   // 續玩：下次直接落返呢關
+  // 機制登場表：Undo 第 5 關起、提示第 14 關起先顯示（練習模式全部開）
+  $('#btn-undo').hidden = !practice && levelData.id < UNLOCK_LEVEL.undo;
+  $('#btn-hint').hidden = !practice && levelData.id < UNLOCK_LEVEL.hint;
   if (!G.view) G.view = new GameView($('#board'), { onCupTap });
   G.view.setBoard(G.board);
   G.view.select(null);
@@ -375,7 +378,7 @@ async function onCupTap(idx) {
 }
 
 async function undo() {
-  if (G.busy || !G.moves.length) return;
+  if (G.busy || !G.moves.length || $('#btn-undo').hidden) return;
   G.moves.pop(); G.ts.pop();
   G.history.pop();
   const r = server.reveal(G.session.sessionId, G.moves);   // 由 server 取回同步後嘅遮罩盤面（已露出嘅格保留）
@@ -388,7 +391,7 @@ async function undo() {
 }
 
 async function hint() {
-  if (G.busy) return;
+  if (G.busy || $('#btn-hint').hidden) return;
   G.busy = true; $('#btn-hint').disabled = true;
   mocha('idle', '等我諗諗…');
   try {
@@ -557,7 +560,8 @@ function showHelp() {
       <div class="cuptypes">
         ${cup('cup-body', '普通杯', '透明，睇晒入面。')}
         ${cup('cup-frosted', '磨砂杯 ?', '只見到最頂一格，倒走先知下面係乜。')}
-        ${cup('cup-sealed', '布遮杯 🧺', '用布包住，完全睇唔到入面；鎖死唔郁得，每交 2 張單揭開一隻。杯上 🧺 N 係仲要交幾多單。')}
+        ${cup('cup-sealed', '封膜杯 🔒', '透膜見到入面，但鎖死唔郁得；每交 2 張單解封一隻。杯上 🔒 N 係仲要交幾多單。')}
+        ${cup('cup-covered', '布遮杯 🧺', '用布袋包住，完全睇唔到入面；鎖死唔郁得，每交 2 張單揭開一隻。')}
         ${cup('cup-takeaway', '外帶袋', '只裝 3 格，永遠裝唔滿一色，係暫存用嘅。最後要清空。')}
       </div>
       <h4>工具</h4>
