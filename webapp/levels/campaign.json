@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-09-04T10:39:45.875Z",
+ "generatedAt": "2026-09-04T10:43:44.558Z",
  "levels": [
   {
    "id": 1,
@@ -716,15 +716,15 @@
     "covered": 1
    },
    "publicSeed": "v1:c:25:e0991c3d:1fedb828",
-   "board": "CQIAAAALFgQE__8UIiMU7osEEd0EZu4Es4sE__9MCNAEAGgEbbMUMhE",
+   "board": "CQIAAAALFgQE__8UIiME7osEEd0EZu4Es4sE__9MCNAEAGgEbbMUMhE",
    "optimal": 19,
    "thresholds": {
-    "three": 28,
-    "two": 33
+    "three": 26,
+    "two": 31
    },
    "moveLimit": 29,
    "hiddenRatio": 0.27,
-   "hiddenCells": 9,
+   "hiddenCells": 10,
    "units": 36
   },
   {
@@ -861,13 +861,13 @@
     "covered": 1
    },
    "publicSeed": "v1:c:30:5a7026c8:3acb849c",
-   "board": "CQIAAAAMGg4UEfcU5_0EM-ME__8UZrgEHhdMu74Ehd0EVXUUOP8UjWYE__8",
-   "optimal": 20,
+   "board": "CQIAAAAMBgAEM4ME__8EFugE2P0UYLgUIhBM7v4UIvEEZv0EuzAE__8E0Qs",
+   "optimal": 19,
    "thresholds": {
-    "three": 33,
-    "two": 38
+    "three": 28,
+    "two": 33
    },
-   "moveLimit": 30,
+   "moveLimit": 29,
    "hiddenRatio": 0.31,
    "hiddenCells": 11,
    "units": 36
@@ -1006,15 +1006,15 @@
     "covered": 1
    },
    "publicSeed": "v1:c:35:9bb9c219:4c32b092",
-   "board": "CgIAAAANEBoUiN0U7lAE__8U2_sUAXAU5Q4EM_hMFxYEW_gENnMEa9YE__8EFfc",
+   "board": "CgIAAAANEBoUiN0U7lAE__8U2_sUAXAE5Q4EM_hMFxYEW_gENnMEa9YE__8EFfc",
    "optimal": 24,
    "thresholds": {
-    "three": 37,
-    "two": 42
+    "three": 35,
+    "two": 40
    },
    "moveLimit": 32,
    "hiddenRatio": 0.35,
-   "hiddenCells": 14,
+   "hiddenCells": 15,
    "units": 40
   },
   {
@@ -1122,11 +1122,11 @@
     "covered": 1
    },
    "publicSeed": "v1:c:39:1a2bcfe6:4f36b995",
-   "board": "CgMAAAANBgwWTO3xFIvlBBARMz71BP__FA1nBLgLBP__FLVmFDOIBFfzBO3wFHdt",
+   "board": "CgMAAAANBgwWTO3xFIvlBBARMz71BP__FA1nBLgLBP__FLVmFDOIBFfzBO3wBHdt",
    "optimal": 26,
    "thresholds": {
-    "three": 39,
-    "two": 44
+    "three": 37,
+    "two": 42
    },
    "moveLimit": 34,
    "hiddenRatio": 0.382,
@@ -1151,15 +1151,15 @@
     "covered": 1
    },
    "publicSeed": "v1:c:40:8ccc1179:1bf410ff",
-   "board": "CgMAAAANDgIMTNBWFB3-FLuIFO1eBP__FDNxBGbnBHFTFFNnM_H_BNCLFAC4BP__",
+   "board": "CgMAAAANDgIMTNBWFB3-FLuIBO1eBP__BDNxBGbnBHFTFFNnM_H_BNCLFAC4BP__",
    "optimal": 28,
    "thresholds": {
-    "three": 43,
-    "two": 48
+    "three": 39,
+    "two": 44
    },
    "moveLimit": 36,
    "hiddenRatio": 0.39,
-   "hiddenCells": 17,
+   "hiddenCells": 15,
    "units": 40
   }
  ]

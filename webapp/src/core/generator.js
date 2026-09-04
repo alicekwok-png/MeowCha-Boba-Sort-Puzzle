@@ -87,7 +87,9 @@ export function randomFill(cfg, rng) {
   // 隱藏密度（工單 #5）：目標隱藏格 = ratio × 有色格總數；每隻磨砂杯隱藏 size−1 格（頂格永遠可見）。
   // 由普通杯（≥2 格）隨機揀做磨砂，直到隱藏格數最接近目標。
   if (cfg.hiddenRatio !== undefined && cfg.hiddenRatio > 0) {
-    const target = Math.round(cfg.hiddenRatio * units);
+    // 布遮杯全部格都係隱藏格，先扣走，餘下先由磨砂杯補
+    const coveredCells = kinds.reduce((a, k, i) => a + (k === 'covered' ? sizes[i] : 0), 0);
+    const target = Math.max(0, Math.round(cfg.hiddenRatio * units) - coveredCells);
     const cand = shuffle(kinds.map((k, i) => (k === 'normal' && sizes[i] >= 2 ? i : -1)).filter(i => i >= 0), rng);
     let hidden = 0;
     for (const i of cand) {
@@ -184,7 +186,7 @@ export function frostedMeaningful(b) {
 
 /** 隱藏格數：磨砂杯除頂格外全部隱藏 */
 export function countHidden(b) {
-  return b.cups.reduce((a, c) => a + (c.kind === 'frosted' ? Math.max(0, c.seg.length - 1) : 0), 0);
+  return b.cups.reduce((a, c) => a + (c.kind === 'frosted' ? Math.max(0, c.seg.length - 1) : c.kind === 'covered' ? c.seg.length : 0), 0);
 }
 
 /** 三星門檻：無 ? 關卡 = 最優 + 3；有 ? 關卡 = 最優 + 3 + (? 杯數 × 2) */

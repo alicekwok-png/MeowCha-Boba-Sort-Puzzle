@@ -8,7 +8,8 @@
     "start": "node server.js",
     "test": "node --test tests/core.test.js tests/background.test.js tests/boot.test.js tests/orders.test.js tests/difficulty.test.js",
     "gen": "node tools/gen.js --out levels/campaign.json",
-    "verify": "node tools/verify-levels.js"
+    "verify": "node tools/verify-levels.js",
+    "stats": "node tools/level-stats.js"
   },
   "engines": { "node": ">=18" }
 }
