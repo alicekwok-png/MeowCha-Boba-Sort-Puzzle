@@ -9,6 +9,7 @@ import { Sfx } from './audio.js';
 import { BackgroundManager, STAGES, stageForLevel, stageTransitionAfter } from './background.js';
 import { BootFlow, decideEntry } from './boot.js';
 import { ads } from './ads.js';
+import { hiddenRatio, UNLOCK_LEVEL } from '../core/difficulty.js';
 
 const $ = (s) => document.querySelector(s);
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
@@ -526,7 +527,8 @@ function pickPractice() {
     modal(`<img class="mascot" src="assets/mocha-pouring.webp"><h3>Mocha 整緊飲品…</h3><div class="spinner"></div><p style="font-size:13px">生成緊隨機關卡，稍等一陣</p>`);
     try {
       const seed = `v1:p:${b.dataset.d}:${Date.now().toString(36)}:${Math.random().toString(36).slice(2, 8)}`;
-      const lvl = await server.generatePractice(cfg, seed);
+      const pseudo = { easy: 8, medium: 15, hard: 25 }[b.dataset.d];   // 練習難度對應假關卡號：隱藏密度照公式
+      const lvl = await server.generatePractice({ ...cfg, hiddenRatio: hiddenRatio(pseudo) }, seed);
       closeModal();
       if (!lvl) { toast('生成失敗，再試一次'); return; }
       await startLevel(lvl, { practice: true });

@@ -21,8 +21,9 @@ export function validateConfig(cfg) {
   if (filled < cfg.colors) throw new Error('filled cups < colors');
   if (capacity < units) throw new Error(`capacity ${capacity} < units ${units}`);
   if (capacity - units > filled * 2) throw new Error('too much slack: cups would be nearly empty');
-  if (cfg.frosted + cfg.sealed + cfg.takeaway > filled) throw new Error('special cups exceed filled cups');
-  if (cfg.sealed > 0 && cfg.orders < 2 * cfg.sealed) throw new Error('sealed cups need >= 2 orders each');
+  const lockedCups = cfg.sealed + (cfg.covered || 0);
+  if (cfg.frosted + lockedCups + cfg.takeaway > filled) throw new Error('special cups exceed filled cups');
+  if (lockedCups > 0 && cfg.orders < 2 * lockedCups) throw new Error('sealed/covered cups need >= 2 orders each');
   if (cfg.orders > cfg.colors) throw new Error('orders > colors');
   if (cfg.segments < cfg.colors || cfg.segments > units) throw new Error('segments out of range');
   if (cfg.cups > 16) throw new Error('max 16 cups (4-bit move encoding)');
@@ -60,11 +61,13 @@ export function randomFill(cfg, rng) {
   if (!colors) return null;
   const filled = cfg.cups - cfg.empties;
 
-  // 杯種分配
+  // 杯種分配：外帶 / 封膜 / 布遮先，磨砂杯之後按隱藏密度決定
   const kinds = [];
   for (let i = 0; i < cfg.takeaway; i++) kinds.push('takeaway');
   for (let i = 0; i < cfg.sealed; i++) kinds.push('sealed');
-  for (let i = 0; i < cfg.frosted; i++) kinds.push('frosted');
+  for (let i = 0; i < (cfg.covered || 0); i++) kinds.push('covered');
+  const fixedFrosted = cfg.hiddenRatio === undefined ? cfg.frosted : 0;
+  for (let i = 0; i < fixedFrosted; i++) kinds.push('frosted');
   while (kinds.length < filled) kinds.push('normal');
   shuffle(kinds, rng);
 
@@ -72,13 +75,28 @@ export function randomFill(cfg, rng) {
   const caps = kinds.map(k => (k === 'takeaway' ? CAP_TAKEAWAY : CAP_NORMAL));
   const sizes = caps.slice();
   const minSize = kinds.map(k => (k === 'frosted' ? 2 : 1));
-  let slack = sizes.reduce((a, b) => a + b, 0) - cfg.colors * CAP_NORMAL;
+  const units = cfg.colors * CAP_NORMAL;
+  let slack = sizes.reduce((a, b) => a + b, 0) - units;
   let guard = 0;
   while (slack > 0 && guard++ < 1000) {
     const i = randInt(rng, 0, sizes.length - 1);
     if (sizes[i] > minSize[i]) { sizes[i]--; slack--; }
   }
   if (slack > 0) return null;
+
+  // 隱藏密度（工單 #5）：目標隱藏格 = ratio × 有色格總數；每隻磨砂杯隱藏 size−1 格（頂格永遠可見）。
+  // 由普通杯（≥2 格）隨機揀做磨砂，直到隱藏格數最接近目標。
+  if (cfg.hiddenRatio !== undefined && cfg.hiddenRatio > 0) {
+    const target = Math.round(cfg.hiddenRatio * units);
+    const cand = shuffle(kinds.map((k, i) => (k === 'normal' && sizes[i] >= 2 ? i : -1)).filter(i => i >= 0), rng);
+    let hidden = 0;
+    for (const i of cand) {
+      const add = sizes[i] - 1;
+      if (hidden >= target) break;
+      if (hidden + add - target > target - hidden) break;   // 加咗會離目標更遠就停
+      kinds[i] = 'frosted'; hidden += add;
+    }
+  }
 
   // 段數控制：先決定每色分成幾多段（總數 = 目標段數），再隨機組合
   const runsPerColor = new Array(cfg.colors).fill(1);
@@ -113,7 +131,7 @@ export function randomFill(cfg, rng) {
     }
   }
 
-  const cups = kinds.map((k, i) => makeCup(k, segs[i], k === 'sealed'));
+  const cups = kinds.map((k, i) => makeCup(k, segs[i], k === 'sealed' || k === 'covered'));
   for (let i = 0; i < cfg.empties; i++) cups.push(makeCup('normal', []));
   shuffle(cups, rng);
 
@@ -146,6 +164,7 @@ export function ordersReachable(b) {
   const visible = new Set();
   for (const c of b.cups) {
     if (c.kind === 'frosted') { if (c.seg.length) visible.add(topColor(c)); }
+    else if (c.kind === 'covered') { /* 布遮杯：完全睇唔到 */ }
     else c.seg.forEach(v => visible.add(v));
   }
   return b.orders.every(o => visible.has(o.color));
@@ -161,6 +180,11 @@ export function frostedMeaningful(b) {
     }
     return true;
   });
+}
+
+/** 隱藏格數：磨砂杯除頂格外全部隱藏 */
+export function countHidden(b) {
+  return b.cups.reduce((a, c) => a + (c.kind === 'frosted' ? Math.max(0, c.seg.length - 1) : 0), 0);
 }
 
 /** 三星門檻：無 ? 關卡 = 最優 + 3；有 ? 關卡 = 最優 + 3 + (? 杯數 × 2) */
@@ -206,7 +230,7 @@ export function generateLevelEx(cfg, seed, opts = {}) {
     const K = cfg.cups <= 8 ? 3 : 2;
     if (!safeOpening(b, K, sol.length + 4)) { rejects.opening++; continue; }
 
-    return { board: b, optimal: sol.length, solution: sol, thresholds: starThresholds(sol.length, b), attempts: attempt, rejects };
+    return { board: b, optimal: sol.length, solution: sol, thresholds: starThresholds(sol.length, b), attempts: attempt, rejects, hiddenCells: countHidden(b), units: cfg.colors * CAP_NORMAL };
   }
   return null;
 }

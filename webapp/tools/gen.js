@@ -12,7 +12,7 @@ import { CAMPAIGN } from '../src/core/levels.js';
 import { generateLevelEx } from '../src/core/generator.js';
 import { encodeBoard } from '../src/core/board.js';
 import { hash32 } from '../src/core/prng.js';
-import { computeMoveLimit } from '../src/core/difficulty.js';
+import { computeMoveLimit, hiddenRatio } from '../src/core/difficulty.js';
 
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : d; };
@@ -42,7 +42,7 @@ for (let i = 0; i < CAMPAIGN.length; i++) {
   const t1 = Date.now();
   let res = null;
   try {
-    res = generateLevelEx(cfg, hash32(publicSeed), { maxAttempts: MAX_ATTEMPTS });
+    res = generateLevelEx({ ...cfg, hiddenRatio: hiddenRatio(id) }, hash32(publicSeed), { maxAttempts: MAX_ATTEMPTS });
   } catch (e) {
     console.error(`L${id} config error: ${e.message}`);
     failed.push(id);
@@ -55,13 +55,14 @@ for (let i = 0; i < CAMPAIGN.length; i++) {
     continue;
   }
   const rj = Object.entries(res.rejects).filter(([, v]) => v).map(([k, v]) => `${k}:${v}`).join(' ');
-  console.log(`L${id.toString().padStart(2)} ${cfg.title.padEnd(10)} opt=${res.optimal} 3★≤${res.thresholds.three} attempts=${res.attempts} ${ms}ms  [${rj}]`);
+  console.log(`L${id.toString().padStart(2)} ${cfg.title.padEnd(10)} opt=${res.optimal} 3★≤${res.thresholds.three} hidden=${res.hiddenCells}/${res.units} (${Math.round(hiddenRatio(id) * 100)}%) attempts=${res.attempts} ${ms}ms  [${rj}]`);
   out.push({
     id, title: cfg.title, config: cfg, publicSeed,
     board: encodeBoard(res.board),
     optimal: res.optimal,
     thresholds: res.thresholds,
     moveLimit: computeMoveLimit(id, res.optimal),   // 工單 #5：步數上限（≤10 關 null）
+    hiddenRatio: hiddenRatio(id), hiddenCells: res.hiddenCells, units: res.units,   // 工單 #5：隱藏密度（目標 / 實際）
   });
 }
 
