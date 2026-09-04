@@ -168,7 +168,7 @@ body {
   z-index: 35; overflow: visible;
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 0 8px; align-items: end;
 }
-.slot { position: relative; height: 100%; min-width: 0; --label-h: max(14px, 1.33vh); }
+.slot { position: relative; height: 100%; min-width: 0; --label-h: max(28px, 3.2vh); }   /* 托盤加大：玩家係睇顏色玩 */
 .slot:nth-child(1) { z-index: 1 } .slot:nth-child(2) { z-index: 2 } .slot:nth-child(3) { z-index: 3 } .slot:nth-child(4) { z-index: 4 }
 /* 客人半身圖：畫布 560 高、身體 480 → 22vh 畫布 ≈ 身體 18.9% 畫面高；底邊釘喺標籤 / 托盤頂 */
 .slot img.body {
@@ -181,17 +181,17 @@ body {
 /* 色塊托盤（工單 #4 任務 1）：闊度 = 槽位闊度，高 32/2400 畫面，顏色 = 液體 hex，邊框 ×0.82，頂部內陰影 ×0.9 */
 .slot .tray {
   position: absolute; left: 0; right: 0; bottom: 0; height: var(--label-h); box-sizing: border-box;
-  background: var(--c); border: 2px solid var(--cd); border-radius: 8px;
-  box-shadow: inset 0 3px 0 var(--ci), 0 2px 4px rgba(80,50,20,0.18);
+  background: var(--c); border: 2.5px solid var(--cd); border-radius: 10px;
+  box-shadow: inset 0 4px 0 var(--ci), 0 3px 6px rgba(80,50,20,0.22);
   display: flex; align-items: center; justify-content: center;
-  font-size: max(11px, 1.67vw); font-weight: 800; line-height: 1; white-space: nowrap; overflow: hidden;
+  font-size: max(13px, 1.9vw); font-weight: 800; line-height: 1; white-space: nowrap; overflow: hidden;
   transition: opacity .3s;
 }
 .slot .tray .name { color: var(--ct); }
 .slot.done .tray { opacity: .35; }
-.slot.done .tray::after { content: "✓"; position: absolute; color: #fff; font-size: max(13px, 1.9vw); font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,.35); }
+.slot.done .tray::after { content: "✓"; position: absolute; color: #fff; font-size: max(18px, 2.4vw); font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,.35); }
 /* 廣告槽（未解鎖）：灰托盤 + 白色 ▶，撳落去播 rewarded video */
-.slot .tray.ad { background: #B4B2A9; border-color: #8F8D85; color: #fff; font-size: max(12px, 1.8vw); cursor: pointer; padding: 0; font-family: inherit; box-shadow: inset 0 3px 0 #A29F96, 0 2px 4px rgba(80,50,20,0.18); }
+.slot .tray.ad { background: #B4B2A9; border-color: #8F8D85; color: #fff; font-size: max(16px, 2.2vw); cursor: pointer; padding: 0; font-family: inherit; box-shadow: inset 0 3px 0 #A29F96, 0 2px 4px rgba(80,50,20,0.18); }
 .slot .tray.ad:active { transform: translateY(1px); }
 /* 客人入場：由頂部滑落 + 托盤淡入 */
 .slot.enter img.body { animation: enterDrop .5s cubic-bezier(.34,1.4,.64,1) both; }
