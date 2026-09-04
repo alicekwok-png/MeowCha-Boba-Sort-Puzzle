@@ -8,6 +8,7 @@ import { GameView } from './game.js';
 import { Sfx } from './audio.js';
 import { BackgroundManager, STAGES, stageForLevel, stageTransitionAfter } from './background.js';
 import { BootFlow, decideEntry } from './boot.js';
+import { ads } from './ads.js';
 
 const $ = (s) => document.querySelector(s);
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
@@ -33,6 +34,12 @@ async function loadConfig() {
 function orderTextOn() {
   try { const v = localStorage.getItem('mc_order_text'); if (v !== null) return v === '1'; } catch { /* ignore */ }
   return !!CONFIG.orderText;
+}
+/** 廣告解鎖訂單槽數量（遠端參數 config.orderSlots.ad；第 1–10 關永遠 0） */
+function adSlotsFor(levelId) {
+  if (!levelId || levelId <= 10) return 0;
+  const r = (CONFIG.orderSlots?.ad || []).find(x => levelId >= x.from && levelId <= x.to);
+  return r ? r.count : 0;
 }
 const hexScale = (hex, k) => '#' + [1, 3, 5].map(i => Math.round(parseInt(hex.slice(i, i + 2), 16) * k).toString(16).padStart(2, '0')).join('');
 
@@ -147,31 +154,37 @@ function chairSvg() {
 
 const SLOT_COUNT = 4;   // 客人區固定四個槽位；空位用空椅剪影
 
-function renderCustomers(popColor = null) {
+function renderCustomers(popColor = null, enterIndex = -1) {
   const el = $('#customers');
   const orders = G.board.orders;
   el.innerHTML = '';
   // 四位食客（貓 / 兔 / 柴犬 / 熊）× 三表情：等待 wait · 出單 happy · 步數超三星門檻仍未出單 angry
   const late = G.session && G.moves.length > G.session.starThresholds.three;
+  const lockedAds = Math.max(0, G.adTotal - G.adUnlocked);
   for (let i = 0; i < SLOT_COUNT; i++) {
     const o = orders[i];
     const slot = document.createElement('div');
-    if (!o) {
-      slot.className = 'slot empty';
-      slot.innerHTML = chairSvg();
-    } else {
+    if (o) {
       const p = PALETTE[o.color];
       const who = ((G.seatSeed + i) % 4) + 1;
       const mood = o.filled ? 'happy' : late ? 'angry' : 'wait';
-      slot.className = 'slot' + (o.filled ? ' done' : '') + (popColor === o.color ? ' pop' : '');
+      slot.className = 'slot' + (o.filled ? ' done' : '') + (popColor === o.color ? ' pop' : '') + (enterIndex === i ? ' enter' : '');
       // 色塊托盤：顏色 = 板面液體同一個 hex；文字預設唔顯示（L* > 55 用深啡，否則白）
       const textColor = p.L > 55 ? '#5C3A14' : '#FFFFFF';
       slot.innerHTML = `<img class="body" src="${new URL(`../../assets/customer-${who}-${mood}-body.webp`, import.meta.url).href}" alt="">
         <div class="tray" style="--c:${p.hex};--cd:${hexScale(p.hex, 0.82)};--ci:${hexScale(p.hex, 0.9)};--ct:${textColor}" title="${p.zh}" aria-label="${p.zh}">${orderTextOn() && !o.filled ? `<span class="name">${p.zh}</span>` : ''}</div>`;
+    } else if (i - orders.length < lockedAds) {
+      // 廣告槽（未解鎖）：空椅 + 灰托盤 + ▶
+      slot.className = 'slot ad-locked';
+      slot.innerHTML = `${chairSvg()}<button class="tray ad" type="button" aria-label="睇廣告解鎖訂單槽">▶</button>`;
+      slot.querySelector('button').onclick = () => unlockOrderSlot();
+    } else {
+      slot.className = 'slot empty';
+      slot.innerHTML = chairSvg();
     }
     el.appendChild(slot);
   }
-  if (!orders.length) {
+  if (!orders.length && !lockedAds) {
     const s = document.createElement('span'); s.className = 'customers-note'; s.textContent = '今日冇客人落單 · 每種飲品裝滿一杯就收工';
     el.appendChild(s);
   }
@@ -183,10 +196,34 @@ function renderCustomers(popColor = null) {
   }
 }
 
+/** 廣告解鎖訂單槽（工單 #4 任務 3）：睇 rewarded video → server 由未完成顏色揀一隻加單 → 客人入場 */
+async function unlockOrderSlot() {
+  if (G.busy || G.adUnlocked >= G.adTotal) return;
+  G.busy = true;
+  sfx.click();
+  modal(`<img class="mascot" src="assets/mocha-serve.webp"><h3>廣告播放中</h3><div class="spinner"></div><p id="ad-count" style="font-size:13px">睇完即刻多一位客人～</p>`);
+  const ok = await ads.showRewarded(CONFIG.adUnits.extraOrderSlot, { ui: { tick: (n) => { const c = $('#ad-count'); if (c) c.textContent = `仲有 ${n} 秒…`; } } });
+  closeModal();
+  if (!ok) { G.busy = false; toast('暫時攞唔到廣告，遲啲再試'); return; }   // 廣告失敗：唔扣任何嘢
+  let r;
+  try { r = server.addOrder(G.session.sessionId, G.moves); } catch (e) { r = { ok: false, reason: e.message }; }
+  if (!r.ok) { G.busy = false; toast('而家冇未完成嘅飲品可以加單'); return; }
+  G.adUnlocked++;
+  G.board = r.maskedBoard;
+  G.view.setBoard(G.board);
+  sfx.deliver();
+  mocha('serve', '多咗位客人！佢想飲' + PALETTE[r.color].zh + '～');
+  renderCustomers(null, G.board.orders.length - 1);   // 入場動畫：由頂部滑落 + 托盤淡入
+  await sleep(600);
+  G.busy = false;
+  updatePace();
+}
+
 // ---------- 遊戲狀態 ----------
 const G = {
   view: null, level: null, session: null, board: null, moves: [], ts: [], history: [],
   selected: null, busy: false, startedAt: 0, practice: false, hints: 0, seatSeed: 0, stage: null,
+  adTotal: 0, adUnlocked: 0,   // 廣告訂單槽：當關有效，重來 / 過關重置
 };
 
 function updatePace() {
@@ -209,6 +246,7 @@ async function startLevel(levelData, { practice = false } = {}) {
   G.board = st.maskedBoard;
   G.moves = []; G.ts = []; G.history = []; G.selected = null; G.busy = false; G.hints = 0;
   G.seatSeed = Math.floor(Math.random() * 4);
+  G.adTotal = practice ? 0 : adSlotsFor(levelData.id); G.adUnlocked = 0;
   G.startedAt = performance.now();
   if (!practice) { progress.last = levelData.id; saveProgress(); }   // 續玩：下次直接落返呢關
   if (!G.view) G.view = new GameView($('#board'), { onCupTap });
@@ -585,5 +623,5 @@ async function startApp() {
 }
 
 // 除錯 / 自動化測試用（正式版可移除）
-window.meowcha = { G, server, bg, STAGES, playCampaign, playStageTransition, onCupTap, undo, hint, restart, progress, enterCafe };
+window.meowcha = { G, server, bg, STAGES, CONFIG, playCampaign, playStageTransition, onCupTap, undo, hint, restart, progress, enterCafe, unlockOrderSlot };
 startApp();

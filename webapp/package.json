@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "start": "node server.js",
-    "test": "node --test tests/core.test.js tests/background.test.js tests/boot.test.js",
+    "test": "node --test tests/core.test.js tests/background.test.js tests/boot.test.js tests/orders.test.js",
     "gen": "node tools/gen.js --out levels/campaign.json"
   },
   "engines": { "node": ">=18" }

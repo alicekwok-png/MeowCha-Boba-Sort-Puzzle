@@ -190,6 +190,14 @@ body {
 .slot .tray .name { color: var(--ct); }
 .slot.done .tray { opacity: .35; }
 .slot.done .tray::after { content: "✓"; position: absolute; color: #fff; font-size: max(13px, 1.9vw); font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,.35); }
+/* 廣告槽（未解鎖）：灰托盤 + 白色 ▶，撳落去播 rewarded video */
+.slot .tray.ad { background: #B4B2A9; border-color: #8F8D85; color: #fff; font-size: max(12px, 1.8vw); cursor: pointer; padding: 0; font-family: inherit; box-shadow: inset 0 3px 0 #A29F96, 0 2px 4px rgba(80,50,20,0.18); }
+.slot .tray.ad:active { transform: translateY(1px); }
+/* 客人入場：由頂部滑落 + 托盤淡入 */
+.slot.enter img.body { animation: enterDrop .5s cubic-bezier(.34,1.4,.64,1) both; }
+.slot.enter .tray { animation: fadeIn .5s .2s ease both; }
+@keyframes enterDrop { from { transform: translateX(-50%) translateY(-40%); opacity: 0 } to { transform: translateX(-50%) translateY(0); opacity: 1 } }
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
 .slot .sw { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.15); flex: 0 0 auto; }
 .slot.pop img.body { animation: pop .5s ease; }
 @keyframes pop { 0% { transform: translateX(-50%) scale(1) } 40% { transform: translateX(-50%) scale(1.12) } 100% { transform: translateX(-50%) scale(1) } }

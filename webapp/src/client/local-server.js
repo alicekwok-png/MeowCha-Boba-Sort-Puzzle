@@ -3,7 +3,7 @@
 // 換成真 server 時，只需要將呢啲方法改成 fetch('/v1/level/...')。
 
 import { decodeBoard, encodeBoard, mask, decodeMoves, cloneBoard } from '../core/board.js';
-import { canPour, applyMove, isSolved, topColor, pourAmount } from '../core/rules.js';
+import { canPour, applyMove, isSolved, topColor, pourAmount, isComplete, settleOrders } from '../core/rules.js';
 import { starThresholds } from '../core/generator.js';
 import { hash32 } from '../core/prng.js';
 
@@ -87,6 +87,7 @@ export class LocalServer {
       thresholds: level.thresholds || starThresholds(level.optimal, trueBoard),
       startedAt: Date.now(),
       revealCalls: 0, hintCalls: 0,
+      extraOrders: [],          // 廣告解鎖嘅額外訂單 {atMove, color}，重放時喺同一步插入
     };
     this.sessions.set(s.id, s);
     return {
@@ -104,6 +105,15 @@ export class LocalServer {
     return s;
   }
 
+  /** 額外訂單：喺第 atMove 步之後（即已套用 atMove 步時）插入盤面 */
+  static _insertExtraOrders(board, extra, applied) {
+    for (const o of extra) if (o.atMove === applied && !o.inserted) {
+      board.orders.push({ color: o.color, filled: false });
+      o.inserted = true;
+      settleOrders(board);   // 板面已有該色純色滿杯就即刻出單
+    }
+  }
+
   /** 將 client 嘅走步序列同步到 session（共同前綴只補新步；撤銷就由頭重放） */
   _sync(s, moves) {
     let prefix = 0;
@@ -113,6 +123,9 @@ export class LocalServer {
       s.board = decodeBoard(s.trueBoard);
       s.applied = [];
       prefix = 0;
+      // 撤銷到解鎖之前：額外訂單改為由而家開始生效（解鎖當關有效，唔會因撤銷消失）
+      for (const o of s.extraOrders) { if (o.atMove > moves.length) o.atMove = moves.length; o.inserted = false; }
+      LocalServer._insertExtraOrders(s.board, s.extraOrders, 0);
     }
     let last = null;
     for (let i = prefix; i < moves.length; i++) {
@@ -123,12 +136,33 @@ export class LocalServer {
       const poured = pourAmount(s.board, m.from, m.to);
       s.board = applyMove(s.board, m, events);
       s.applied.push(m);
+      LocalServer._insertExtraOrders(s.board, s.extraOrders, s.applied.length);
       // 磨砂杯倒走頂格 → 露出新頂格
       const after = s.board.cups[m.from];
       if (src.kind === 'frosted' && after.seg.length > 0) s.revealed.add(m.from + ':' + (after.seg.length - 1));
       last = { poured, events };
     }
     return last;
+  }
+
+  // ---------- 廣告解鎖訂單槽（工單 #4 任務 3）----------
+  /**
+   * 由當前真實盤面剩餘「未完成」嘅顏色中隨機揀一隻加做新訂單：
+   * 排除已有訂單嘅色、已經係純色滿杯嘅色。回傳 { ok, color, maskedBoard }。
+   */
+  addOrder(sessionId, moves, rng = Math.random) {
+    const s = this._session(sessionId);
+    this._sync(s, moves);
+    const b = s.board;
+    const ordered = new Set(b.orders.map(o => o.color));
+    const complete = new Set(b.cups.filter(isComplete).map(c => c.seg[0]));
+    const present = new Set(b.cups.flatMap(c => c.seg));
+    const candidates = [...present].filter(c => !ordered.has(c) && !complete.has(c));
+    if (!candidates.length) return { ok: false, reason: 'NO_UNFULFILLED_COLOR' };
+    const color = candidates[Math.floor(rng() * candidates.length)];
+    s.extraOrders.push({ atMove: s.applied.length, color, inserted: false });
+    LocalServer._insertExtraOrders(s.board, s.extraOrders, s.applied.length);
+    return { ok: true, color, maskedBoard: mask(s.board, s.revealed) };
   }
 
   // ---------- POST /v1/level/reveal ----------
@@ -164,9 +198,13 @@ export class LocalServer {
 
     // 1. 由 server 存嘅真實盤面重放全部走步（唔信 client 任何盤面狀態）
     let b = decodeBoard(s.trueBoard);
-    for (const m of moves) {
+    const extra = s.extraOrders.map(o => ({ atMove: Math.min(o.atMove, moves.length), color: o.color, inserted: false }));
+    LocalServer._insertExtraOrders(b, extra, 0);
+    for (let i = 0; i < moves.length; i++) {
+      const m = moves[i];
       if (!canPour(b, m.from, m.to)) return { verified: false, reason: 'ILLEGAL_MOVE' };
       b = applyMove(b, m);
+      LocalServer._insertExtraOrders(b, extra, i + 1);
     }
     if (!isSolved(b)) return { verified: false, reason: 'NOT_SOLVED' };
 
