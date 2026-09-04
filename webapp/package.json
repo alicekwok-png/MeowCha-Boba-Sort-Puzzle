@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node server.js",
     "test": "node --test tests/core.test.js tests/background.test.js tests/boot.test.js tests/orders.test.js",
-    "gen": "node tools/gen.js --out levels/campaign.json"
+    "gen": "node tools/gen.js --out levels/campaign.json",
+    "verify": "node tools/verify-levels.js"
   },
   "engines": { "node": ">=18" }
 }
