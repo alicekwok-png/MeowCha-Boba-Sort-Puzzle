@@ -130,7 +130,7 @@ const LINES = {
   clear: ['收工！你係最叻嘅茶記店員～', '全部出晒單，勁！'],
   hint: ['試下呢步？', '我會咁倒～'],
   frosted: ['磨砂杯睇唔到入面，倒走頂層先知～'],
-  unlock: ['封膜開咗！可以用呢隻杯喇'],
+  unlock: ['布揭開咗！可以用呢隻杯喇'],
   pour: ['倒緊…'],
 };
 function mocha(state, text) {
@@ -187,12 +187,6 @@ function renderCustomers(popColor = null, enterIndex = -1) {
   if (!orders.length && !lockedAds) {
     const s = document.createElement('span'); s.className = 'customers-note'; s.textContent = '今日冇客人落單 · 每種飲品裝滿一杯就收工';
     el.appendChild(s);
-  }
-  const sealed = G.board.cups.filter(c => c.locked).length;
-  if (sealed) {
-    const n = document.createElement('span'); n.className = 'customers-note lock';
-    n.textContent = `🔒 再交 ${2 - (G.board.delivered % 2)} 單解封`;
-    el.appendChild(n);
   }
 }
 
@@ -283,7 +277,7 @@ async function onCupTap(idx) {
 
   if (G.selected === null) {
     if (canBeSource(cup)) { G.selected = idx; G.view.select(idx); sfx.select(); }
-    else { G.view.shake(idx); sfx.shake(); if (cup.locked) toast('封膜杯：交 2 單先解封'); }
+    else { G.view.shake(idx); sfx.shake(); }   // 布遮杯：冇反應，只輕微震動
     return;
   }
   if (G.selected === idx) { G.selected = null; G.view.select(null); sfx.deselect(); return; }
@@ -535,7 +529,7 @@ function showHelp() {
       <div class="cuptypes">
         ${cup('cup-body', '普通杯', '透明，睇晒入面。')}
         ${cup('cup-frosted', '磨砂杯 ?', '只見到最頂一格，倒走先知下面係乜。')}
-        ${cup('cup-sealed', '封膜杯 🔒', '鎖住唔郁得，每交 2 張單解封一隻。')}
+        ${cup('cup-sealed', '布遮杯 🧺', '用布包住，完全睇唔到入面；鎖死唔郁得，每交 2 張單揭開一隻。杯上 🧺 N 係仲要交幾多單。')}
         ${cup('cup-takeaway', '外帶袋', '只裝 3 格，永遠裝唔滿一色，係暫存用嘅。最後要清空。')}
       </div>
       <h4>工具</h4>

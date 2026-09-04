@@ -36,6 +36,12 @@ export class GameView {
     img.onload = () => { this.sprite = img; this.layout(); };
     img.src = new URL('cup-body.webp', base).href;
     fetch(new URL('cup-geom.json', base)).then(r => r.json()).then(g => { this.geom = g; this.layout(); }).catch(() => {});
+    // 布遮杯素材（工單 #4 任務 4）：有就用，冇就程式畫布料佔位（唔會報錯 / 空白）
+    this.covered = null;
+    const cov = new Image();
+    cov.onload = () => { this.covered = cov; };
+    cov.onerror = () => { console.warn('[assets] cup-covered.webp 未有，布遮杯用程式畫嘅布料佔位'); };
+    cov.src = new URL('cup-covered.webp', base).href;
     this.frame = this.frame.bind(this);
     this._raf = requestAnimationFrame(this.frame);
     this._onPointer = (e) => {
@@ -103,9 +109,13 @@ export class GameView {
 
   setBoard(board) {
     const prev = this.cups;
+    let lockedIdx = 0;
     this.cups = board.cups.map((c, i) => {
       const old = prev[i] || {};
+      // 布遮杯：第 k 隻鎖住嘅杯喺交付第 2(k+1) 單時揭開 → 仲要交幾多單
+      const unlockIn = c.locked ? Math.max(1, 2 * (++lockedIdx) - (board.delivered || 0)) : 0;
       return {
+        unlockIn,
         kind: c.kind, cap: c.cap, locked: c.locked, seg: c.seg.slice(),
         x: old.x ?? 0, y: old.y ?? 0, hx: old.hx ?? 0, hy: old.hy ?? 0, w: old.w ?? 60, h: old.h ?? 90,
         lift: old.lift ?? 0, rot: 0, scale: 1, alpha: 1, anim: null,
@@ -337,6 +347,18 @@ export class GameView {
       ctx.shadowColor = 'rgba(80,50,20,0.18)'; ctx.shadowBlur = 8; ctx.shadowOffsetY = 3;
     }
 
+    if (c.locked) {
+      // 布遮杯：完全睇唔到入面（包括頂格）、冇刻度線；揭開動畫時先畫返底下嘅杯再畫布升起
+      const lifting = (c.lidOffset || 0) !== 0 || (c.lidAlpha ?? 1) < 1;
+      if (lifting && this._useSprite(c)) { ctx.drawImage(this.sprite, 0, 0, w, h); ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; this.drawLayers(c, w, h, now); }
+      ctx.save();
+      ctx.translate(0, c.lidOffset || 0); ctx.globalAlpha *= (c.lidAlpha ?? 1);
+      this.drawCovered(c, w, h);
+      ctx.restore();
+      ctx.restore();
+      return;
+    }
+
     if (this._useSprite(c)) {
       // 美術杯貼圖：杯身實色，液體用 multiply 畫喺杯內（反光留光、珍珠留深）
       ctx.drawImage(this.sprite, 0, 0, w, h);
@@ -396,6 +418,54 @@ export class GameView {
     ctx.clip();
     ctx.drawImage(this.sprite, 0, 0.66 * ih, iw, 0.12 * ih, 0, y1, w, y2 - y1);
     ctx.restore();
+  }
+
+  /**
+   * 布遮杯（工單 #4 任務 4）：有摺痕嘅布包住成隻杯，冇刻度、冇內容；頂部 🧺 N 計數。
+   * 有 cup-covered.webp 就直接畫貼圖；冇就程式畫（磨砂白 × 60% 灰 + 摺痕）。
+   */
+  drawCovered(c, w, h) {
+    const ctx = this.ctx;
+    if (this.covered) {
+      ctx.drawImage(this.covered, 0, 0, w, h);
+    } else {
+      // 布身：比杯闊少少嘅梯形，底部圓角
+      const base = '#B9B3A8', dark = '#9C958A', light = '#D2CCC1';
+      ctx.beginPath();
+      ctx.moveTo(-3, 6); ctx.lineTo(w + 3, 6);
+      ctx.lineTo(w * 0.86, h - 8); ctx.quadraticCurveTo(w * 0.85, h, w * 0.78, h);
+      ctx.lineTo(w * 0.22, h); ctx.quadraticCurveTo(w * 0.15, h, w * 0.14, h - 8);
+      ctx.closePath();
+      const g = ctx.createLinearGradient(0, 0, w, 0);
+      g.addColorStop(0, dark); g.addColorStop(0.35, light); g.addColorStop(0.6, base); g.addColorStop(1, dark);
+      ctx.fillStyle = g; ctx.fill();
+      ctx.strokeStyle = 'rgba(80,70,60,0.55)'; ctx.lineWidth = 1.6; ctx.stroke();
+      ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+      // 摺痕：由頂部束口垂落嘅弧線
+      ctx.strokeStyle = 'rgba(80,70,60,0.28)'; ctx.lineWidth = 1.2;
+      for (let i = 0; i < 5; i++) {
+        const t = (i + 1) / 6;
+        const x0 = w * (0.3 + 0.4 * t), x1 = w * (0.18 + 0.64 * t);
+        ctx.beginPath(); ctx.moveTo(x0, 10); ctx.quadraticCurveTo(x0 + (x1 - x0) * 0.3, h * 0.55, x1, h - 6); ctx.stroke();
+      }
+      // 頂部束口：橢圓 + 繩結
+      ctx.beginPath(); ctx.ellipse(w / 2, 6, w / 2 + 3, 7, 0, 0, Math.PI * 2);
+      ctx.fillStyle = light; ctx.fill(); ctx.strokeStyle = 'rgba(80,70,60,0.55)'; ctx.lineWidth = 1.4; ctx.stroke();
+      ctx.strokeStyle = '#8A5A2B'; ctx.lineWidth = 2.5;
+      ctx.beginPath(); ctx.ellipse(w / 2, 6, w / 2 - 2, 5, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(w * 0.62, 8); ctx.quadraticCurveTo(w * 0.72, 18, w * 0.66, 30); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(w * 0.62, 8); ctx.quadraticCurveTo(w * 0.52, 20, w * 0.58, 32); ctx.stroke();
+    }
+    // 🧺 N：仲要交幾多單先揭開
+    const label = `🧺 ${c.unlockIn || 1}`;
+    ctx.font = `bold ${Math.max(11, w * 0.17)}px "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const tw = ctx.measureText(label).width + 12;
+    ctx.beginPath(); ctx.roundRect(w / 2 - tw / 2, h * 0.42 - 11, tw, 22, 11);
+    ctx.fillStyle = 'rgba(255,250,240,0.92)'; ctx.fill();
+    ctx.strokeStyle = 'rgba(122,78,30,0.6)'; ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.fillStyle = '#5C3A14'; ctx.fillText(label, w / 2, h * 0.42 + 1);
+    ctx.textBaseline = 'alphabetic';
   }
 
   /** 封膜：平面膠膜 + 鎖 */
@@ -463,7 +533,10 @@ export class GameView {
     ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.fill();
 
     if (c.kind === 'frosted') {
-      // 磨砂杯：貼紙 + 肉球
+      // 磨砂杯：光滑白色塑膠，有刻度線（同布遮杯區分）
+      ctx.strokeStyle = 'rgba(160,120,80,0.45)'; ctx.lineWidth = 1.2;
+      for (let i = 1; i <= 4; i++) { const yy = h - 5 - i * this.slotH; const xr = w - this._xAt(w, h, yy) - 4; ctx.beginPath(); ctx.moveTo(xr - w * 0.12, yy); ctx.lineTo(xr, yy); ctx.stroke(); }
+      // 貼紙 + 肉球
       ctx.fillStyle = 'rgba(200,150,100,0.35)';
       const px = w / 2, py = h * 0.5, r = w * 0.07;
       ctx.beginPath(); ctx.ellipse(px, py + r * 0.9, r * 1.35, r * 1.05, 0, 0, Math.PI * 2); ctx.fill();
