@@ -5,7 +5,7 @@
 //   node tools/gen.js --salt mysalt      改 server salt（seed 會全變）
 // 生成失敗嘅 config 會 log 出嚟，唔會靜靜跳過。
 
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { createHash } from 'node:crypto';
 import { CAMPAIGN } from '../src/core/levels.js';
@@ -18,6 +18,7 @@ const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : d; };
 const OUT = opt('--out', 'levels/campaign.json');
 const ONLY = opt('--only', null);
+const MERGE = args.includes('--merge');   // --only N --merge：只重生第 N 關並寫入現有檔案
 const SALT = opt('--salt', 'meowcha-dev-salt');   // 正式環境用環境變數，永不下發 client
 const MAX_ATTEMPTS = Number(opt('--attempts', 400));
 
@@ -74,5 +75,12 @@ if (!ONLY) {
   mkdirSync(dirname(OUT), { recursive: true });
   writeFileSync(OUT, JSON.stringify({ version: 1, generatedAt: new Date().toISOString(), levels: out }, null, 1));
   console.log(`wrote ${OUT}`);
+} else if (MERGE && out.length) {
+  const cur = JSON.parse(readFileSync(OUT, 'utf8'));
+  for (const l of out) { const i = cur.levels.findIndex(x => x.id === l.id); if (i >= 0) cur.levels[i] = l; else cur.levels.push(l); }
+  cur.levels.sort((a, b) => a.id - b.id);
+  cur.generatedAt = new Date().toISOString();
+  writeFileSync(OUT, JSON.stringify(cur, null, 1));
+  console.log(`merged ${out.map(l => 'L' + l.id).join(',')} into ${OUT}`);
 }
 process.exit(failed.length ? 1 : 0);
