@@ -8,6 +8,8 @@ import { heuristic, solve, solveEx, canonical } from '../src/core/solver.js';
 import { generateLevelEx, colorSafe, randomFill, pickColors } from '../src/core/generator.js';
 import { CAMPAIGN, PRACTICE } from '../src/core/levels.js';
 import { mulberry32 } from '../src/core/prng.js';
+import { PALETTE } from '../src/core/palette.js';
+import { readFileSync } from 'node:fs';
 import { LocalServer, rhythmRisk, MIN_MS_PER_MOVE } from '../src/client/local-server.js';
 
 const B = (cups, colors, orders = []) => makeBoard(cups, colors, orders);
@@ -82,6 +84,18 @@ describe('rules', () => {
   test('已完成純色滿杯唔准再動', () => {
     const b = B([N([1, 1, 1, 1]), N([])], 1);
     assert.equal(canPour(b, 0, 1), false);
+  });
+});
+
+describe('palette', () => {
+  test('色板 id 連續、hex 全部有效、campaign 所有格都有對應顏色（冇 undefined）', () => {
+    PALETTE.forEach((p, i) => { assert.equal(p.id, i); assert.match(p.hex, /^#[0-9A-F]{6}$/); assert.ok(p.L > 0 && p.L < 100); });
+    const d = JSON.parse(readFileSync(new URL('../levels/campaign.json', import.meta.url), 'utf8'));
+    for (const l of d.levels) for (const c of decodeBoard(l.board).cups) for (const v of c.seg) assert.ok(PALETTE[v] && PALETTE[v].hex, `L${l.id} colour id ${v} has no hex`);
+  });
+  test('主梯 10 色任兩色 L* 差 ≥ MIN_LSTAR_GAP', () => {
+    const rng = mulberry32(11);
+    for (let i = 0; i < 10; i++) { const cs = pickColors(10, rng); assert.ok(cs && cs.length === 10); assert.ok(colorSafe(B(cs.map(c => N([c])), 10))); }
   });
 });
 

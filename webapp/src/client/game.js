@@ -626,7 +626,8 @@ export class GameView {
       ctx.beginPath();
       ctx.moveTo(L.xl(top), top); ctx.lineTo(L.xr(top), top); ctx.lineTo(L.xr(bottom), bottom); ctx.lineTo(L.xl(bottom), bottom); ctx.closePath();
       ctx.clip();
-      ctx.globalCompositeOperation = 'multiply';   // 液體 × 膠杯：反光留光、珍珠留深
+      // 液體用正常疊色實填（唔可以用 multiply：白色 × 杯身 = 杯身，椰奶白會變「透明」），
+      // 畫完液體再淡淡蓋返一層杯貼圖，令反光同珍珠透出嚟
     } else if (isBag) { ctx.beginPath(); ctx.roundRect(inset, bottom - 3 * sh - 1, w - inset * 2, 3 * sh + 1, 3); ctx.clip(); }
     else { this._bodyPath(w, h, 1.2); ctx.clip(); }
     ctx.globalAlpha *= c.layerAlpha;
@@ -675,7 +676,20 @@ export class GameView {
     // 正在倒入嘅新層
     if (c.extraUnits > 0 && c.extraColor !== null) drawBand(level, level + c.extraUnits, HEX[c.extraColor], false);
 
-    if (L.sprite) { ctx.restore(); return; }   // 貼圖杯：珍珠 / 反光 / 封膜白紗都喺貼圖或封膜蓋度
+    if (L.sprite) {
+      // 杯貼圖以 20% 透明度蓋返液體區：反光留光、珍珠留深；空格（冇液體）唔受影響
+      if (level > 0 || c.extraUnits > 0) {
+        const top = bottom - (level + (c.extraUnits || 0)) * sh;
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(L.xl(top), top); ctx.lineTo(L.xr(top), top); ctx.lineTo(L.xr(bottom), bottom); ctx.lineTo(L.xl(bottom), bottom); ctx.closePath();
+        ctx.clip();
+        ctx.globalAlpha = 0.2 * c.layerAlpha;
+        ctx.drawImage(this.sprite, 0, 0, w, h);
+        ctx.restore();
+      }
+      ctx.restore(); return;
+    }
     // 珍珠（底層）
     if (n > 0 && c.seg[0] !== null) {
       ctx.fillStyle = 'rgba(40,25,15,0.35)';
