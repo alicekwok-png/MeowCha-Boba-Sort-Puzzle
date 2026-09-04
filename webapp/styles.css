@@ -156,7 +156,12 @@ body {
 }
 .pace-stars { font-size: 14px; letter-spacing: 1px; color: var(--gold); text-shadow: 0 1px 0 rgba(0,0,0,.15); }
 .pace-stars .off { color: #D9CDB8; text-shadow: none; }
-.pace-moves { font-size: 10px; font-weight: 800; color: #9A7B58; }
+.pace-moves { font-size: 10px; font-weight: 800; color: #9A7B58; white-space: nowrap; }
+.pace.warn { border-color: #E0A030; background: #FFF3DC; }
+.pace.warn .pace-moves { color: #B8741A; }
+.pace.danger { border-color: #D84A3A; background: #FFE4DF; animation: pulse .9s ease-in-out infinite; }
+.pace.danger .pace-moves { color: #C0392B; }
+@keyframes pulse { 0%, 100% { transform: scale(1) } 50% { transform: scale(1.08) } }
 
 /* 客人區（工單 #4 任務 2）：四個訂單槽水平均分；客人半身圖貼頂，高度 ≈ 畫面 19%，由頂邊出（可被頂欄少量遮住） */
 .zone-top { z-index: 60; grid-row: 1; }

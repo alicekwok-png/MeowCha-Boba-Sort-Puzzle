@@ -12,6 +12,7 @@ import { CAMPAIGN } from '../src/core/levels.js';
 import { generateLevelEx } from '../src/core/generator.js';
 import { encodeBoard } from '../src/core/board.js';
 import { hash32 } from '../src/core/prng.js';
+import { computeMoveLimit } from '../src/core/difficulty.js';
 
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : d; };
@@ -60,6 +61,7 @@ for (let i = 0; i < CAMPAIGN.length; i++) {
     board: encodeBoard(res.board),
     optimal: res.optimal,
     thresholds: res.thresholds,
+    moveLimit: computeMoveLimit(id, res.optimal),   // 工單 #5：步數上限（≤10 關 null）
   });
 }
 

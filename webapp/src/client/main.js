@@ -221,12 +221,36 @@ const G = {
 };
 
 function updatePace() {
-  const n = G.moves.length, th = G.session.starThresholds;
+  const n = G.moves.length, th = G.session.starThresholds, limit = G.session.moveLimit;
   const lit = n <= th.three ? 3 : n <= th.two ? 2 : 1;
   $('#pace-stars').innerHTML = '★'.repeat(lit) + `<span class="off">${'★'.repeat(3 - lit)}</span>`;
-  $('#pace-moves').textContent = `${n} 步`;
-  $('#pace').title = `步數 ${n} · 三星 ≤ ${th.three} · 最優 ${G.session.optimalMoves}`;
+  const pace = $('#pace');
+  pace.classList.remove('warn', 'danger');
+  if (limit === null || limit === undefined) {
+    $('#pace-moves').textContent = `${n} 步`;
+  } else {
+    // 步數上限（工單 #5）：剩 5 步變琥珀，剩 2 步變紅 + 脈動；Undo 會扣返（n = G.moves.length）
+    const left = limit - n;
+    $('#pace-moves').textContent = `步數 ${n} / ${limit}`;
+    if (left <= 2) pace.classList.add('danger'); else if (left <= 5) pace.classList.add('warn');
+  }
+  pace.title = `步數 ${n}${limit ? ` / 上限 ${limit}` : ''} · 三星 ≤ ${th.three} · 最優 ${G.session.optimalMoves}`;
   $('#btn-undo').disabled = G.moves.length === 0 || G.busy;
+}
+
+/** 步數用晒（未過關）：只可以撤銷或重來 */
+function showOutOfMoves() {
+  modal(`
+    <img class="mascot" src="assets/mocha-stuck.webp">
+    <h3>步數用晒喇…</h3>
+    <p>呢關上限 ${G.session.moveLimit} 步。撤銷幾步再諗，或者重新嚟過？</p>
+    <div class="row">
+      <button class="btn" id="m-undo">↶ 撤銷</button>
+      <button class="btn primary" id="m-restart">↻ 重來</button>
+    </div>
+  `);
+  $('#m-undo').onclick = () => { closeModal(); undo(); };
+  $('#m-restart').onclick = () => { closeModal(); restart(); };
 }
 
 function canBeSource(cup) {
@@ -283,6 +307,7 @@ async function onCupTap(idx) {
   if (G.selected === idx) { G.selected = null; G.view.select(null); sfx.deselect(); return; }
 
   const m = { from: G.selected, to: idx };
+  if (G.session.moveLimit !== null && G.moves.length >= G.session.moveLimit) { showOutOfMoves(); return; }
   if (!canPour(G.board, m.from, m.to)) {
     if (canBeSource(cup)) { G.selected = idx; G.view.select(idx); sfx.select(); }
     else { G.view.shake(idx); sfx.shake(); }
@@ -339,6 +364,7 @@ async function onCupTap(idx) {
 
   if (isSolved(G.board)) { await onSolved(); return; }
   if (isDead(G.board)) { mocha('stuck'); sfx.stuck(); await sleep(350); showStuck(); return; }
+  if (G.session.moveLimit !== null && G.moves.length >= G.session.moveLimit) { mocha('stuck', '步數用晒喇…'); sfx.stuck(); await sleep(350); showOutOfMoves(); return; }
   if (!served) {
     const left = G.board.orders.filter(o => !o.filled).length;
     const segsLeft = G.board.cups.reduce((a, c) => a + c.seg.filter((v, i) => i === 0 || v !== c.seg[i - 1]).length, 0);

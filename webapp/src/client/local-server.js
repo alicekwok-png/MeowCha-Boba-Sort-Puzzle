@@ -6,6 +6,7 @@ import { decodeBoard, encodeBoard, mask, decodeMoves, cloneBoard } from '../core
 import { canPour, applyMove, isSolved, topColor, pourAmount, isComplete, settleOrders } from '../core/rules.js';
 import { starThresholds } from '../core/generator.js';
 import { hash32 } from '../core/prng.js';
+import { computeMoveLimit } from '../core/difficulty.js';
 
 export const MIN_MS_PER_MOVE = 180;   // 含倒液動畫最短時長
 
@@ -85,6 +86,7 @@ export class LocalServer {
       revealed: new Set(),
       optimalMoves: level.optimal,
       thresholds: level.thresholds || starThresholds(level.optimal, trueBoard),
+      moveLimit: level.moveLimit !== undefined ? level.moveLimit : computeMoveLimit(typeof level.id === 'number' ? level.id : 0, level.optimal),
       startedAt: Date.now(),
       revealCalls: 0, hintCalls: 0,
       extraOrders: [],          // 廣告解鎖嘅額外訂單 {atMove, color}，重放時喺同一步插入
@@ -96,6 +98,7 @@ export class LocalServer {
       publicSeed: level.publicSeed,
       optimalMoves: s.optimalMoves,
       starThresholds: s.thresholds,
+      moveLimit: s.moveLimit,
     };
   }
 
@@ -195,6 +198,7 @@ export class LocalServer {
     const s = this._session(sessionId);
     const moves = typeof req.moves === 'string' ? decodeMoves(req.moves) : req.moves;
     if (moves.length > s.optimalMoves + 60) return { verified: false, reason: 'MOVE_FLOOD' };
+    if (s.moveLimit !== null && moves.length > s.moveLimit) return { verified: false, reason: 'MOVE_LIMIT' };   // 步數上限（server 亦驗）
 
     // 1. 由 server 存嘅真實盤面重放全部走步（唔信 client 任何盤面狀態）
     let b = decodeBoard(s.trueBoard);
