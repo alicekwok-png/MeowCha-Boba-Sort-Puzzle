@@ -66,6 +66,7 @@
   "client_owlFeetY": 750,
   "client_ravenFeetY": 751,
   "client_badgerFeetY": 706,
-  "client_hareFeetY": 751
+  "client_hareFeetY": 751,
+  "iconSource": "ICON_app_v2.png"
  }
 }

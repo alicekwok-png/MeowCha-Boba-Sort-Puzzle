@@ -214,11 +214,56 @@ for n in UI:
     save_webp(im, key + '.webp', None, q=86)
 
 # ---------- App Icon ----------
-icon = Image.open(src('ICON_app_v1.png')).convert('RGB')
+# 用戶 2026-09-05 換咗 icon（assets-raw/v2/ICON_app_v2.png：貓煉金師舉起發光燒瓶，交付係 1254² RGB + 黑色圓角底）。
+# App Store 規格要 1024² 無 alpha 無圓角：裁走黑邊，角位用最近嘅畫面像素向外補（唔會有黑角 / 硬邊）。
+def square_icon(path):
+    im = Image.open(path).convert('RGB')
+    a = np.asarray(im).astype(np.int32)
+    H, W = a.shape[:2]
+    inside = a.max(2) >= 14                                   # 非黑 = 畫面
+    ys, xs = np.where(inside)
+    x0, y0, x1, y1 = int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1
+    a = a[y0:y1, x0:x1]; inside = inside[y0:y1, x0:x1]
+    # 只當「由四角 flood 到嘅黑」係外面（畫面入面嘅深色唔會被填）
+    from collections import deque
+    Hc, Wc = inside.shape
+    outside = np.zeros_like(inside)
+    q = deque([(0, 0), (0, Wc - 1), (Hc - 1, 0), (Hc - 1, Wc - 1)])
+    for sy, sx in list(q): outside[sy, sx] = not inside[sy, sx]
+    q = deque([(sy, sx) for sy, sx in q if outside[sy, sx]])
+    while q:
+        y, x = q.popleft()
+        for ny, nx in ((y - 1, x), (y + 1, x), (y, x - 1), (y, x + 1)):
+            if 0 <= ny < Hc and 0 <= nx < Wc and not outside[ny, nx] and not inside[ny, nx]:
+                outside[ny, nx] = True; q.append((ny, nx))
+    # 向外補色：逐圈將已知像素複製去相鄰未知像素（角位半徑約 20%，最多幾百圈）
+    known = ~outside
+    img = a.copy()
+    for _ in range(max(Hc, Wc)):
+        if known.all(): break
+        grown = known.copy()
+        for dy, dx in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+            src_k = np.roll(known, (dy, dx), axis=(0, 1))
+            src_v = np.roll(img, (dy, dx), axis=(0, 1))
+            fill = src_k & ~grown
+            img[fill] = src_v[fill]; grown |= fill
+        known = grown
+    out = Image.fromarray(img.astype(np.uint8), 'RGB').resize((1024, 1024), Image.LANCZOS)
+    # 角位補色再輕微模糊，避免拉絲
+    corner = Image.new('L', (1024, 1024), 0)
+    from PIL import ImageDraw as _ID, ImageFilter as _IF
+    d = _ID.Draw(corner); d.rectangle([0, 0, 1023, 1023], fill=255); d.rounded_rectangle([0, 0, 1023, 1023], radius=round(1024 * 0.22), fill=0)
+    corner = corner.filter(_IF.GaussianBlur(6))
+    blurred = out.filter(_IF.GaussianBlur(10))
+    return Image.composite(blurred, out, corner)
+
+icon_src = src('ICON_app_v2.png') if os.path.exists(os.path.join(RAW, 'ICON_app_v2.png')) else src('ICON_app_v1.png')
+icon = square_icon(icon_src) if icon_src.endswith('v2.png') else Image.open(icon_src).convert('RGB').resize((1024, 1024), Image.LANCZOS)
 icon.save(os.path.join(ICONS, 'icon-1024.png'))
 for size, name in ((512, 'icon-512.png'), (192, 'icon-192.png'), (180, 'apple-touch-icon.png'), (64, 'favicon-64.png'), (32, 'favicon-32.png')):
     icon.resize((size, size), Image.LANCZOS).save(os.path.join(ICONS, name))
 m = Image.new('RGB', (512, 512), (0x12, 0x10, 0x0D)); m.paste(icon.resize((410, 410), Image.LANCZOS), (51, 51)); m.save(os.path.join(ICONS, 'icon-512-maskable.png'))
+report['checks']['iconSource'] = os.path.basename(icon_src)
 
 with open(os.path.join(OUT, 'asset-check.json'), 'w', encoding='utf-8') as f:
     json.dump(report, f, ensure_ascii=False, indent=1)
