@@ -1,3 +1,4 @@
+# [已廢棄 2026-09-05] 珍奶杯貼圖幾何已由 vessels.json（tools/build-assets-v2.py 自動量度）取代。
 # tools/extract-cup.py — 由真透明 PNG 出遊戲杯貼圖 + 液體區域幾何。
 #   python tools/extract-cup.py
 # 來源：assets-raw/cup-transparent.png（美術已去背，膠身半透明）

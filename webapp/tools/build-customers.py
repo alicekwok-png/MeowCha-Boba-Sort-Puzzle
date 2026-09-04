@@ -1,3 +1,4 @@
+# [已廢棄 2026-09-05] 食客半身圖已由 Spec v2 四位委託人（CHR_client_*）取代：見 tools/build-assets-v2.py。
 # tools/build-customers.py — 工單 #4 任務 2：四位食客 × 三表情嘅「原始半身圖」（唔要圓形裁切）。
 #   python tools/build-customers.py
 # 來源：assets-raw/ 白底 JPG（三個表情同一構圖：坐喺櫃檯線後面、只露上半身、正面）。

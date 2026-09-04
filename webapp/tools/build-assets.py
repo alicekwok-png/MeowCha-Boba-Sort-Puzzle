@@ -1,3 +1,5 @@
+# [已廢棄 2026-09-05] 珍奶主題素材（摩卡 / 食客 / 杯種）已由 Spec v2 實驗室主題取代：改用 tools/build-assets-v2.py。
+# 呢個腳本只保留 company-logo / meowcha-wordmark 兩個仍然用緊嘅輸出，其餘輸出檔已刪。
 # tools/build-assets.py — 由 assets-raw/ 生成全部遊戲素材（WebP）。
 #   python tools/build-assets.py
 # 包括：公司 logo、字標、摩卡六姿勢 + 待機三幀、四位食客 × 三表情頭像、杯種、背景（另見 build-bg.py）。
