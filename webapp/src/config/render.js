@@ -15,6 +15,16 @@ export const RENDER = Object.freeze({
   patternLumShift: -0.28,      // 配料圖案 = 該層色 −28% 明度
 
   frostedRevealMs: 160,        // 磨砂瓶逐格 fade in
+
+  // 發光三件套（用戶 2026-09-05）：冇呢三樣，再鮮嘅色都係一塊平色
+  glow: Object.freeze({
+    surfaceLineL: 0.35,        // 液面高光線：該層色 +35% 明度
+    surfaceLinePx: 2,          //   2px，layer 頂邊
+    rimAlpha: 0.40,            // 液體外緣 rim glow：該層色 @ 40%
+    rimPx: 2,                  //   2px
+    backAlpha: 0.12,           // 整瓶背後柔光：該色 @ 12%
+    backBlurPx: 12,            //   blur 12px
+  }),
   clothReveal: Object.freeze({ ropeMs: 60, slideMs: 160, dustMs: 400, dustCount: [6, 8], fadeMs: 160 }),
 });
 

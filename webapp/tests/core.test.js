@@ -98,7 +98,7 @@ describe('palette', () => {
     for (const [x, y] of [['A', 'B'], ['C', 'D'], ['E', 'F'], ['G', 'H'], ['B', 'D']]) assert.ok(isExclusive(K[x], K[y]), `${x}↔${y}`);
     assert.ok(!isExclusive(K.F, K.H), 'F↔H 係慎用，唔係禁止');
     for (const p of PALETTE) if (p.key !== 'J') assert.ok(!isExclusive(K.J, p.id), 'J vs ' + p.key);
-    assert.equal(hueDist(K.A, K.B), 19); assert.equal(hueDist(K.C, K.D), 17); assert.equal(hueDist(K.F, K.H), 29);
+    assert.equal(hueDist(K.A, K.B), 19); assert.equal(hueDist(K.C, K.D), 21); assert.equal(hueDist(K.F, K.H), 27);
   });
   test('F×H 只可以喺 ≤4 色關同關', () => {
     const K = BY_KEY;

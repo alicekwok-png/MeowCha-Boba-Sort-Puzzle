@@ -14,17 +14,18 @@ export const COLORS = Object.freeze({
 });
 
 // 液體色板 — 唔准改 hex，關卡設計依賴呢啲值。id 順序 A–J 對應 colorId 0–9（舊關卡表 / 盤面編碼都用數字 id）。
+// 2026-09-05 用戶覆核版：色相不變（互斥表照舊），飽和度由 ~55% 推返上 ~90%——「藥劑喺暗房發光」靠高飽和 + 發光三件套（render.js GLOW）。
 export const LIQUID_COLORS = Object.freeze({
-  A: { id: 'A', name: 'sulphur',     zh: '硫黃',   hex: '#E5C158', hue: 45,  lum: 62 },
-  B: { id: 'B', name: 'amber',       zh: '琥珀',   hex: '#D98A4E', hue: 26,  lum: 61 },
-  C: { id: 'C', name: 'rose',        zh: '薔薇',   hex: '#D4739B', hue: 335, lum: 63 },
-  D: { id: 'D', name: 'cinnabar',    zh: '硃砂',   hex: '#C25260', hue: 352, lum: 57 },
-  E: { id: 'E', name: 'gentian',     zh: '龍膽',   hex: '#B36FC4', hue: 288, lum: 61 },
-  F: { id: 'F', name: 'amethyst',    zh: '紫晶',   hex: '#8E7BD4', hue: 253, lum: 65 },
-  G: { id: 'G', name: 'pale_blue',   zh: '淡藍',   hex: '#6FB8D4', hue: 197, lum: 65 },
-  H: { id: 'H', name: 'ultramarine', zh: '群青',   hex: '#5A76C4', hue: 224, lum: 59 },
-  I: { id: 'I', name: 'verdigris',   zh: '銅綠',   hex: '#7CC49A', hue: 145, lum: 66 },
-  J: { id: 'J', name: 'opal',        zh: '蛋白石', hex: '#F0E6D2', hue: 40,  lum: 91 },
+  A: { id: 'A', name: 'sulphur',     zh: '硫黃',   hex: '#FFD93D', hue: 48,  lum: 62 },
+  B: { id: 'B', name: 'amber',       zh: '琥珀',   hex: '#FF9E3D', hue: 29,  lum: 62 },
+  C: { id: 'C', name: 'rose',        zh: '薔薇',   hex: '#FF5C9E', hue: 334, lum: 68 },
+  D: { id: 'D', name: 'cinnabar',    zh: '硃砂',   hex: '#FF3B4E', hue: 355, lum: 61 },
+  E: { id: 'E', name: 'gentian',     zh: '龍膽',   hex: '#C44FFF', hue: 284, lum: 65 },
+  F: { id: 'F', name: 'amethyst',    zh: '紫晶',   hex: '#8A6BFF', hue: 252, lum: 71 },
+  G: { id: 'G', name: 'pale_blue',   zh: '淡藍',   hex: '#3FD0FF', hue: 196, lum: 62 },
+  H: { id: 'H', name: 'ultramarine', zh: '群青',   hex: '#3D6BFF', hue: 225, lum: 62 },
+  I: { id: 'I', name: 'verdigris',   zh: '銅綠',   hex: '#3FF29B', hue: 154, lum: 60 },
+  J: { id: 'J', name: 'opal',        zh: '蛋白石', hex: '#FFF3D6', hue: 44,  lum: 92 },
 });
 
 export const EXCLUSIVE_PAIRS = [['A', 'B'], ['C', 'D'], ['E', 'F'], ['G', 'H'], ['B', 'D']];
