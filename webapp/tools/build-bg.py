@@ -1,4 +1,9 @@
-# tools/build-bg.py — 由 style anchor 合成五個階段嘅遠景圖（背景規格 §2 / §4）。
+# tools/build-bg.py — ⚠ 已廢棄（Spec v2 §7）：背景改用單張 BG_lab_full_v2（assets/v2/bg_lab_full.webp），
+# 由 tools/build-assets-v2.py 產生；五階段遠景 / 三層視差 / 階段橫移過渡全部取消。
+# 呢個 script 而家一執行就即刻 exit 0（唔會再改寫 assets/bg/）。舊輸出 assets/bg/*.webp + manifest.json 保留唔刪，
+# 但 client / tests 已無引用。下面舊碼只作歷史參考。
+#
+# （舊說明）由 style anchor 合成五個階段嘅遠景圖（背景規格 §2 / §4）。
 #   python tools/build-bg.py
 # 輸出：assets/bg/bg{N}_far.webp（1080 × 2800，上下各 200px 出血，q75，無 alpha）
 #       assets/bg/manifest.json（每階段安全區平均 L*，供對比度自動測試用）
@@ -6,7 +11,13 @@
 # 美術端預處理照規格做喺呢度：far 層高斯 10px、飽和 −30%、亮度 −10%。
 # Y 600–1750（+200 出血 → 800–1950）保持單一平坦表面（工單 #4 起）。
 
-import json, os, sys
+import sys
+print('[build-bg.py] 已廢棄：Spec v2 背景係單張 assets/v2/bg_lab_full.webp，請改用 python tools/build-assets-v2.py。'
+      '（assets/bg/ 舊檔保留，唔會改寫。）')
+sys.exit(0)
+
+# ---------------- 以下為舊碼，唔會執行 ----------------
+import json, os
 from PIL import Image, ImageFilter, ImageEnhance, ImageDraw
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

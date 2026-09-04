@@ -1,21 +1,35 @@
 :root {
-  /* 夜市奶茶 brief A1：背景 / 面板全部低飽和深色，畫面入面唯一高飽和只可以係杯入面嘅液體 */
-  --night-top: #171029;
-  --night-bot: #2A1B47;
-  --lantern: #FFB84D;
-  --wood: #3A2A1C;
-  --panel: rgba(31, 22, 56, 0.85);
-  --panel-solid: #1F1638;
-  --panel-2: #2C2150;
-  --panel-border: #6B5CA5;
-  --ink: #F3ECFF;
-  --ink-2: #C9BEE6;
-  --ink-3: #8F82B8;
-  --accent: #D9A24C;      /* 主按鈕：燈籠暖色壓低飽和 */
-  --accent-2: #A97A32;
-  --gold: #F6C453;
-  --shadow: 0 8px 20px rgba(13, 8, 32, 0.45);
-  /* 舊 token 對應到夜市面板（保留名稱，免得逐條改） */
+  /* Spec v2 §1.1 COLORS（src/config/theme.js）：煉金工房 — 深木 / 黃銅 / 燭光；畫面入面唯一高飽和只可以係瓶入面嘅液體 */
+  --bg-top: #12100D;
+  --bg-bottom: #1B2420;
+  --wood-dark: #2A1F16;
+  --brass-light: #D4A85C;
+  --brass-main: #B8873F;
+  --brass-dark: #6B4E24;
+  --candle: #FFA94D;
+  --text-1: #E8DCC4;
+  --text-2: #9A8B6F;
+  --shadow-c: #0A0806;
+
+  --panel: rgba(42, 31, 22, 0.88);                 /* woodDark @ 0.88 */
+  --panel-solid: #2A1F16;
+  --panel-2: #3A2C1F;
+  --panel-border: var(--brass-dark);
+  --panel-inset: inset 0 1px 0 rgba(212, 168, 92, 0.28);   /* brassLight 內高光 */
+  --accent: var(--brass-main);
+  --accent-2: var(--brass-dark);
+  --gold: var(--brass-light);
+  --ink: var(--text-1);
+  --ink-2: var(--text-2);
+  --ink-3: #6F634E;
+  --shadow: 0 8px 20px rgba(10, 8, 6, 0.55);
+  --glow: 0 0 18px rgba(255, 169, 77, 0.28);       /* 燭光 */
+
+  /* 舊 token 全部映射（--cream / --tan / --brown / --orange / --dark / --lantern / --night …），免得有嘢冇樣式 */
+  --night-top: var(--bg-top);
+  --night-bot: var(--bg-bottom);
+  --lantern: var(--candle);
+  --wood: var(--wood-dark);
   --cream: var(--panel-solid);
   --cream-2: var(--panel-2);
   --tan: var(--panel-border);
@@ -32,7 +46,7 @@
 html, body { margin: 0; height: 100%; }
 body {
   font-family: var(--font);
-  background: var(--night-top);
+  background: var(--bg-top);
   color: var(--ink);
   overflow: hidden;
   touch-action: manipulation;
@@ -45,95 +59,106 @@ body {
   position: absolute; inset: 0;
   display: none; flex-direction: column;
   background:
-    radial-gradient(ellipse 70% 32% at 50% 12%, rgba(255,184,77,0.12), transparent 70%),
-    linear-gradient(180deg, var(--night-top) 0%, var(--night-bot) 100%);
+    radial-gradient(ellipse 70% 32% at 50% 10%, rgba(255,169,77,0.10), transparent 70%),
+    linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
 }
 .screen.active { display: flex; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* ---------- 共用 ---------- */
 .btn {
   font: inherit; font-weight: 700; font-size: 17px;
-  padding: 13px 28px; border-radius: 999px; border: 1px solid var(--panel-border);
-  background: var(--panel); color: var(--ink); box-shadow: 0 4px 0 #3E2F6B;
+  padding: 13px 28px; border-radius: 14px; border: 1px solid var(--panel-border);
+  background: var(--panel); color: var(--ink); box-shadow: var(--panel-inset), 0 4px 0 var(--brass-dark);
   cursor: pointer; transition: transform .08s, box-shadow .08s; min-width: 200px;
 }
-.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #3E2F6B; }
-.btn.primary { background: var(--accent); color: #2A1B47; border-color: var(--accent-2); box-shadow: 0 4px 0 var(--accent-2); }
-.btn.primary:active { box-shadow: 0 1px 0 var(--accent-2); }
-.btn.ghost { background: transparent; box-shadow: none; border-color: transparent; text-decoration: underline; text-underline-offset: 4px; }
+.btn:active { transform: translateY(3px); box-shadow: var(--panel-inset), 0 1px 0 var(--brass-dark); }
+/* 主按鈕：UI_btn_primary 貼圖做底（唔使 9-slice，直接拉滿）。
+   貼圖 512×160 入面黃銅框只佔 x 23–76% / y 14–83%，兩側係不透明黑邊，所以用 background-size 放大裁走黑邊，令框邊貼住按鈕邊。
+   面板係深綠，深色字讀唔到 → 用淺字 + 深影。 */
+.btn.primary {
+  background: url("assets/v2/ui_btn_primary.webp") center / 190% 147% no-repeat, var(--brass-main);
+  color: #F3E6C8; border-color: transparent; min-height: 56px; border-radius: 6px;
+  text-shadow: 0 1px 2px rgba(10,8,6,0.9), 0 0 8px rgba(10,8,6,0.6); box-shadow: 0 4px 0 var(--brass-dark), var(--glow);
+}
+.btn.primary:active { box-shadow: 0 1px 0 var(--brass-dark); }
+.btn.ghost { background: transparent; box-shadow: none; border-color: transparent; text-decoration: underline; text-underline-offset: 4px; color: var(--ink-2); }
 .btn.ghost:active { transform: none; }
 .btn[disabled] { opacity: .5; pointer-events: none; }
 
 .icon-btn {
   width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--panel-border);
   background: var(--panel); color: var(--ink); font-size: 22px; font-weight: 800; line-height: 1;
-  cursor: pointer; display: grid; place-items: center; flex: 0 0 auto;
+  cursor: pointer; display: grid; place-items: center; flex: 0 0 auto; box-shadow: var(--panel-inset);
 }
 .icon-btn:active { transform: scale(.94); }
+.icon-btn.img { padding: 0; background: transparent; border-color: transparent; box-shadow: none; width: 44px; height: 44px; }
+.icon-btn.img img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(10,8,6,0.6)); }
+.ico { width: 18px; height: 18px; vertical-align: -4px; object-fit: contain; }
 
 .bar {
   display: flex; align-items: center; gap: 10px;
   padding: max(10px, env(safe-area-inset-top)) 14px 8px;
 }
 .bar h2 { flex: 1; margin: 0; font-size: 20px; text-align: center; color: var(--ink); }
-.coins { font-weight: 800; color: var(--ink); background: var(--panel); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--panel-border); white-space: nowrap; }
+.coins { font-weight: 800; color: var(--ink); background: var(--panel); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--panel-border); white-space: nowrap; box-shadow: var(--panel-inset); }
 
-/* ---------- 主畫面 ---------- */
+/* ---------- 主畫面（工房）---------- */
 #screen-title { align-items: center; justify-content: center; }
 .title-bg {
   position: absolute; inset: 0;
-  background: url("assets/bg/bg1_far.webp") center 20% / cover no-repeat;
-  opacity: .9; transform: scale(1.04);
+  background: url("assets/v2/bg_lab_full_small.webp") center 30% / cover no-repeat;
+  transform: scale(1.03);
 }
-.title-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(23,16,41,0.1), rgba(42,27,71,0.85) 70%); }
+.title-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(18,16,13,0.15), rgba(18,16,13,0.88) 72%); }
 .title-content { position: relative; display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 20px; width: 100%; max-width: 420px; }
-.title-mascot { width: min(46vw, 230px); filter: drop-shadow(0 10px 18px rgba(13,8,32,0.55)); animation: bob 3s ease-in-out infinite; }
+.title-mascot { width: min(46vw, 230px); filter: drop-shadow(0 10px 18px rgba(10,8,6,0.65)); animation: bob 3s ease-in-out infinite; }
 @keyframes bob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-8px) } }
 .logo { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .logo-main {
-  font-size: clamp(38px, 11vw, 56px); font-weight: 900; letter-spacing: 2px; color: var(--ink);
-  text-shadow: 0 0 18px rgba(255,184,77,0.35), 0 4px 0 #3E2F6B, 0 10px 18px rgba(13,8,32,0.5);
+  font-size: clamp(38px, 11vw, 56px); font-weight: 900; letter-spacing: 2px; color: var(--brass-light);
+  text-shadow: 0 0 18px rgba(255,169,77,0.35), 0 4px 0 var(--brass-dark), 0 10px 18px rgba(10,8,6,0.6);
 }
-.logo-sub { font-size: 14px; font-weight: 700; color: var(--lantern); letter-spacing: 1px; }
+.logo-sub { font-size: 14px; font-weight: 700; color: var(--candle); letter-spacing: 1px; }
 .menu { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
 .title-foot { display: flex; gap: 12px; margin-top: 6px; }
-.stars-total { font-weight: 800; color: var(--ink); background: var(--panel); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--panel-border); }
+.stars-total { font-weight: 800; color: var(--ink); background: var(--panel); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--panel-border); box-shadow: var(--panel-inset); }
 
 /* ---------- 關卡選擇 ---------- */
 .level-grid { flex: 1; overflow-y: auto; padding: 8px 16px 32px; }
-.chapter { margin: 16px 0 8px; font-weight: 800; color: var(--ink-2); display: flex; align-items: center; gap: 8px; }
-.chapter::after { content: ""; flex: 1; height: 1px; background: var(--panel-border); border-radius: 2px; }
+.chapter { margin: 16px 0 8px; font-weight: 800; color: var(--brass-light); display: flex; align-items: center; gap: 8px; }
+.chapter::after { content: ""; flex: 1; height: 1px; background: var(--brass-dark); border-radius: 2px; }
 .chapter-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
 .lv {
   aspect-ratio: 1; border-radius: 16px; border: 1px solid var(--panel-border);
-  background: var(--panel); box-shadow: 0 4px 0 #3E2F6B; cursor: pointer;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  background: var(--panel); box-shadow: var(--panel-inset), 0 4px 0 var(--brass-dark); cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
   font: inherit; color: var(--ink); font-weight: 800; font-size: 18px;
 }
-.lv:active { transform: translateY(3px); box-shadow: 0 1px 0 #3E2F6B; }
-.lv .st { font-size: 11px; letter-spacing: 1px; color: var(--gold); text-shadow: 0 1px 0 rgba(0,0,0,.35); }
-.lv .st .off { color: #4A3F73; }
-.lv.locked { background: rgba(31,22,56,0.5); color: var(--ink-3); border-color: #3E2F6B; box-shadow: 0 4px 0 #2A2050; pointer-events: none; }
-.lv.current { background: var(--accent); color: #2A1B47; border-color: var(--accent-2); box-shadow: 0 4px 0 var(--accent-2); }
-.lv.current .st .off { color: rgba(42,27,71,0.4); }
+.lv:active { transform: translateY(3px); box-shadow: var(--panel-inset), 0 1px 0 var(--brass-dark); }
+.lv .st { display: flex; gap: 1px; height: 12px; }
+.lv .st img { width: 12px; height: 12px; object-fit: contain; }
+.lv.locked { background: rgba(42,31,22,0.5); color: var(--ink-3); border-color: #3E2F1E; box-shadow: 0 4px 0 #1E160F; pointer-events: none; }
+.lv.locked .st img { opacity: .5; }
+.lv.current { background: var(--brass-main); color: #2A1B0C; border-color: var(--brass-dark); box-shadow: 0 4px 0 var(--brass-dark), var(--glow); }
 @media (min-width: 860px) {
   .level-grid { max-width: 720px; width: 100%; margin: 0 auto; }
   .chapter-grid { grid-template-columns: repeat(10, 1fr); }
 }
 
 /* ==================================================
-   遊戲：五層結構 + 9:20 安全區版面
+   遊戲：單張背景（Spec v2 §7 BG_lab_full，無視差 / 無階段 / 無氛圍粒子）+ 9:20 版面欄
    ================================================== */
-#screen-game { background: var(--night-bot); align-items: center; }
+#screen-game { background: url("assets/v2/bg_lab_full.webp") center / cover no-repeat, var(--bg-bottom); align-items: center; }
 
-/* z 0–30 */
+/* z 0–30：BackgroundManager 嘅容器（而家只係單張圖；其餘層留空做 no-op） */
 .bg-layers { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .bg-far {
   position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; object-position: center;      /* cover 式：裁走上下出血，唔會有黑邊 */
-  z-index: 0; will-change: transform;
+  object-fit: cover; object-position: center;
+  z-index: 0;
 }
-.bg-mid { position: absolute; inset: 0; z-index: 10; will-change: transform; }
+.bg-mid { position: absolute; inset: 0; z-index: 10; }
 .bg-ambient { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 20; }
 .bg-mask { position: absolute; inset: 0; z-index: 30; }
 
@@ -142,7 +167,7 @@ body {
   position: relative; z-index: 40;
   height: 100%; width: 100%;
   display: grid;
-  /* 工單 #4 版面（1080 × 2400）：頂欄 0–160 · 客人區 160–560（含托盤）· 間隔 560–600 · 杯陣安全區 600–1750 · 摩卡 1750–2100 · 按鈕 2100–2400 */
+  /* 工單 #4 版面（1080 × 2400）：頂欄 0–160 · 委託人區 160–560（含托盤）· 間隔 560–600 · 瓶陣安全區 600–1750 · 導師 1750–2100 · 按鈕 2100–2400 */
   grid-template-rows: 6.67% 16.67% 1.67% 47.92% 14.58% 12.49%;
 }
 @media (min-aspect-ratio: 3/4) {
@@ -155,30 +180,29 @@ body {
   display: flex; align-items: center; gap: 8px;
   padding: max(8px, env(safe-area-inset-top)) 12px 4px;
 }
-/* 標題落喺場景圖上面，要有底板先讀得清（背景規格：頂欄可以有內容，但文字要有可讀性） */
 .level-title {
   flex: 0 1 auto; margin: 0 auto; max-width: 58%; min-width: 0;
   text-align: center; display: flex; flex-direction: column; line-height: 1.15;
   background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px;
   padding: 3px 14px; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-  box-shadow: 0 2px 8px rgba(13,8,32,0.4);
+  box-shadow: var(--panel-inset), 0 2px 8px rgba(10,8,6,0.5);
 }
 .level-title b { font-size: 16px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.level-title span { font-size: 11px; color: var(--lantern); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.level-title span { font-size: 11px; color: var(--brass-light); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pace {
   display: flex; flex-direction: column; align-items: center; line-height: 1.05;
-  background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; padding: 3px 9px; flex: 0 0 auto;
+  background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; padding: 3px 9px; flex: 0 0 auto; box-shadow: var(--panel-inset);
 }
-.pace-stars { font-size: 14px; letter-spacing: 1px; color: var(--gold); text-shadow: 0 1px 0 rgba(0,0,0,.35); }
-.pace-stars .off { color: #4A3F73; text-shadow: none; }
+.pace-stars { display: flex; gap: 1px; height: 14px; }
+.pace-stars img { width: 14px; height: 14px; object-fit: contain; }
 .pace-moves { font-size: 10px; font-weight: 800; color: var(--ink-2); white-space: nowrap; }
-.pace.warn { border-color: var(--lantern); background: rgba(90,60,20,0.85); }
-.pace.warn .pace-moves { color: var(--lantern); }
-.pace.danger { border-color: #FF6B5A; background: rgba(110,30,30,0.85); animation: pulse .9s ease-in-out infinite; }
+.pace.warn { border-color: var(--candle); background: rgba(90,60,20,0.88); }
+.pace.warn .pace-moves { color: var(--candle); }
+.pace.danger { border-color: #FF6B5A; background: rgba(110,30,30,0.88); animation: pulse .9s ease-in-out infinite; }
 .pace.danger .pace-moves { color: #FFB3A8; }
 @keyframes pulse { 0%, 100% { transform: scale(1) } 50% { transform: scale(1.08) } }
 
-/* 客人區（工單 #4 任務 2）：四個訂單槽水平均分；客人半身圖貼頂，高度 ≈ 畫面 19%，由頂邊出（可被頂欄少量遮住） */
+/* 委託人區（Spec v2 §6）：四位委託人固定顯示（raven → badger → owl → hare）；有委託 = 全彩，未解鎖 = 灰態；紋章只出喺下一個可解鎖嗰位 */
 .zone-top { z-index: 60; grid-row: 1; }
 .zone-customers { grid-row: 2; }
 .zone-board { grid-row: 4; }
@@ -190,124 +214,134 @@ body {
 }
 .slot { position: relative; height: 100%; min-width: 0; --label-h: max(28px, 3.2vh); }   /* 托盤加大：玩家係睇顏色玩 */
 .slot:nth-child(1) { z-index: 1 } .slot:nth-child(2) { z-index: 2 } .slot:nth-child(3) { z-index: 3 } .slot:nth-child(4) { z-index: 4 }
-/* 客人半身圖：畫布 560 高、身體 480 → 22vh 畫布 ≈ 身體 18.9% 畫面高；底邊釘喺標籤 / 托盤頂 */
+/* 委託人半身圖（512 方格）：底邊釘喺托盤頂 */
 .slot img.body {
   position: absolute; bottom: var(--label-h); left: 50%; transform: translateX(-50%);
-  max-width: 100%; height: auto; max-height: 22vh;   /* 一個一個企：唔會闊過自己個槽位 */
-  filter: drop-shadow(0 4px 8px rgba(13,8,32,0.5)); transition: filter .3s;
+  max-width: 100%; height: auto; max-height: 22vh;
+  filter: drop-shadow(0 4px 8px rgba(10,8,6,0.6)); transition: filter .3s;
 }
-.slot.done img.body { filter: drop-shadow(0 4px 8px rgba(13,8,32,0.5)) saturate(.85); }
-.slot svg.chair { position: absolute; bottom: calc(var(--label-h) + 4px); left: 50%; transform: translateX(-50%); height: 9vh; width: auto; opacity: .3; }
-/* 色塊托盤（工單 #4 任務 1）：闊度 = 槽位闊度，高 32/2400 畫面，顏色 = 液體 hex，邊框 ×0.82，頂部內陰影 ×0.9 */
+.slot.done img.body { filter: drop-shadow(0 4px 8px rgba(10,8,6,0.6)) saturate(.7); }
+/* 灰態：runtime 去飽和 + 亮度 −55%（Spec §6） */
+.slot.grey img.body { filter: saturate(0) brightness(0.45); }
+/* 色塊托盤（工單 #4 任務 1）：闊度 = 槽位闊度，顏色 = 液體 hex，邊框 ×0.82，頂部內陰影 ×0.9 */
 .slot .tray {
   position: absolute; left: 0; right: 0; bottom: 0; height: var(--label-h); box-sizing: border-box;
   background: var(--c); border: 2.5px solid var(--cd); border-radius: 10px;
-  box-shadow: inset 0 4px 0 var(--ci), 0 3px 8px rgba(13,8,32,0.45);
+  box-shadow: inset 0 4px 0 var(--ci), 0 3px 8px rgba(10,8,6,0.55);
   display: flex; align-items: center; justify-content: center;
   font-size: max(13px, 1.9vw); font-weight: 800; line-height: 1; white-space: nowrap; overflow: hidden;
   transition: opacity .3s;
 }
 .slot .tray .name { color: var(--ct); }
 .slot.done .tray { opacity: .35; }
-.slot.done .tray::after { content: "✓"; position: absolute; color: #fff; font-size: max(18px, 2.4vw); font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,.35); }
-/* 廣告槽（未解鎖）：灰托盤 + 白色 ▶，撳落去播 rewarded video */
-.slot .tray.ad { background: var(--panel-2); border-color: var(--panel-border); color: var(--ink-2); font-size: max(16px, 2.2vw); cursor: pointer; padding: 0; font-family: inherit; box-shadow: inset 0 3px 0 #3E2F6B, 0 2px 6px rgba(13,8,32,0.4); }
-.slot .tray.ad:active { transform: translateY(1px); }
-/* 客人入場：由頂部滑落 + 托盤淡入 */
+.slot.done .tray::after { content: "✓"; position: absolute; color: #fff; font-size: max(18px, 2.4vw); font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,.4); }
+/* 灰態槽嘅底座：空木牌（冇按鈕） */
+.slot .tray.blank { background: rgba(42,31,22,0.55); border-color: #3E2F1E; box-shadow: none; }
+/* 廣告紋章（UI_ad_crest）：只出現喺下一個可解鎖嘅委託人；tap target ≥ 44px */
+.crest-btn {
+  border: 0; background: transparent; padding: 0; cursor: pointer; font: inherit;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+  min-width: 44px; min-height: 44px;
+  animation: crestPulse 2.2s ease-in-out infinite;
+}
+.crest-btn img { width: 48px; height: 48px; object-fit: contain; }
+.crest-btn span { font-size: 10px; font-weight: 800; color: var(--brass-light); text-shadow: 0 1px 2px rgba(0,0,0,.6); line-height: 1; margin-top: -2px; }
+.crest-btn:active { transform: scale(.94); }
+@keyframes crestPulse { 0%, 100% { filter: drop-shadow(0 0 6px rgba(255,169,77,0.3)) drop-shadow(0 3px 6px rgba(10,8,6,0.6)) } 50% { filter: drop-shadow(0 0 14px rgba(255,169,77,0.65)) drop-shadow(0 3px 6px rgba(10,8,6,0.6)) } }
+.slot .crest-btn { position: absolute; left: 50%; bottom: calc(var(--label-h) + 2px); transform: translateX(-50%); z-index: 5; }
+.slot .crest-btn:active { transform: translateX(-50%) scale(.94); }
+/* 委託人入場：由頂部滑落 + 托盤淡入 */
 .slot.enter img.body { animation: enterDrop .5s cubic-bezier(.34,1.4,.64,1) both; }
 .slot.enter .tray { animation: fadeIn .5s .2s ease both; }
 @keyframes enterDrop { from { transform: translateX(-50%) translateY(-40%); opacity: 0 } to { transform: translateX(-50%) translateY(0); opacity: 1 } }
 @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-.slot .sw { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid rgba(0,0,0,0.15); flex: 0 0 auto; }
 .slot.pop img.body { animation: pop .5s ease; }
 @keyframes pop { 0% { transform: translateX(-50%) scale(1) } 40% { transform: translateX(-50%) scale(1.12) } 100% { transform: translateX(-50%) scale(1) } }
 .customers-note {
   position: absolute; left: 50%; bottom: 2px; transform: translateX(-50%); z-index: 6;
   font-size: 12px; font-weight: 700; color: var(--ink-2); background: var(--panel); border: 1px solid var(--panel-border); padding: 4px 10px; border-radius: 999px; white-space: nowrap;
 }
-.customers-note.lock { left: auto; right: 8px; transform: none; color: var(--ink); bottom: auto; top: 4px; }
 
-/* 杯陣安全區 */
-.zone-board { }
+/* 瓶陣安全區 */
 #board { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: manipulation; z-index: 40; }
+/* 玩區廣告入口（Spec §6 addEmptyBottle）：右下角固定 56px 紋章 */
+#btn-add-cup { position: absolute; right: 6px; bottom: 6px; z-index: 45; width: 56px; height: 56px; }
+#btn-add-cup img { width: 56px; height: 56px; }
+#btn-add-cup[hidden] { display: none; }
 
-/* 摩卡 + 對話（z 50） */
+/* 導師貓 + 對話（z 50） */
 .zone-mocha { display: flex; align-items: flex-end; gap: 8px; padding: 0 12px 2px; z-index: 50; }
-.zone-mocha img { height: 100%; max-height: 120px; width: auto; filter: drop-shadow(0 4px 10px rgba(13,8,32,0.55)); transition: transform .2s; }
+.zone-mocha img { height: 100%; max-height: 120px; width: auto; filter: drop-shadow(0 4px 10px rgba(10,8,6,0.65)); transition: transform .2s; }
 .zone-mocha img.hop { animation: hop .5s ease; }
 @keyframes hop { 0%,100% { transform: translateY(0) } 40% { transform: translateY(-12px) } }
+/* cheer 係跳起姿勢（Spec §7 註）：向上位移 24px + 彈跳 easing */
+.zone-mocha img.cheer { animation: cheer .7s cubic-bezier(.34,1.56,.64,1) both; }
+@keyframes cheer { 0% { transform: translateY(0) } 45% { transform: translateY(-24px) } 70% { transform: translateY(-6px) } 100% { transform: translateY(-24px) } }
 .bubble {
   position: relative; flex: 0 1 auto; background: var(--panel); border: 1px solid var(--panel-border); border-radius: 14px;
   padding: 7px 12px; font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 16%;
-  max-width: 100%; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  max-width: 100%; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); box-shadow: var(--panel-inset);
 }
 .bubble::before { content: ""; position: absolute; left: -8px; bottom: 10px; border: 7px solid transparent; border-right-color: var(--panel-border); border-left: 0; }
 .bubble::after { content: ""; position: absolute; left: -6px; bottom: 11px; border: 6px solid transparent; border-right-color: var(--panel-solid); border-left: 0; }
 
-/* 按鈕區（z 60） */
+/* 按鈕區（z 60）：道具用 UI_item_undo / UI_item_hint 貼圖，重來保留字形 */
 .zone-actions { display: flex; justify-content: center; align-items: center; gap: 14px; padding: 4px 14px max(6px, env(safe-area-inset-bottom)); z-index: 60; }
 .act {
-  font: inherit; width: 84px; max-height: 100%; padding: 7px 0 5px; border-radius: 16px; border: 1px solid var(--panel-border);
-  background: var(--panel); color: var(--ink); box-shadow: 0 4px 0 #3E2F6B; cursor: pointer;
+  font: inherit; width: 84px; max-height: 100%; padding: 6px 0 5px; border-radius: 16px; border: 1px solid var(--panel-border);
+  background: var(--panel); color: var(--ink); box-shadow: var(--panel-inset), 0 4px 0 var(--brass-dark); cursor: pointer;
   display: flex; flex-direction: column; align-items: center; gap: 1px; font-weight: 800; font-size: 12px;
 }
-.act i { font-style: normal; font-size: 19px; line-height: 1; }
-.act:active { transform: translateY(3px); box-shadow: 0 1px 0 #3E2F6B; }
+.act i { font-style: normal; font-size: 19px; line-height: 1; height: 26px; display: grid; place-items: center; color: var(--brass-light); }
+.act img { width: 26px; height: 26px; object-fit: contain; }
+.act:active { transform: translateY(3px); box-shadow: var(--panel-inset), 0 1px 0 var(--brass-dark); }
 .act[disabled] { opacity: .45; pointer-events: none; }
 .act[hidden] { display: none; }   /* 機制登場表：Undo 第 5 關、提示第 14 關先出現 */
 
-/* 階段過渡字卡 */
-.stage-card {
-  position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%) scale(.9); z-index: 70;
-  background: rgba(31,22,56,0.95); border: 1px solid var(--panel-border); border-radius: 22px; padding: 16px 28px; text-align: center;
-  box-shadow: var(--shadow); animation: cardIn .4s ease both;
-}
-.stage-card.hidden { display: none; }
-.stage-card small { display: block; font-size: 12px; font-weight: 800; color: var(--lantern); letter-spacing: 2px; }
-.stage-card b { display: block; font-size: 26px; color: var(--ink); margin-top: 2px; }
-.game-col.dim { transition: opacity .6s; opacity: .25; }
-
 /* ---------- Modal ---------- */
-.modal { position: absolute; inset: 0; background: rgba(13,8,32,0.6); display: grid; place-items: center; padding: 20px; z-index: 80; backdrop-filter: blur(2px); }
+.modal { position: absolute; inset: 0; background: rgba(10,8,6,0.62); display: grid; place-items: center; padding: 20px; z-index: 80; backdrop-filter: blur(2px); }
 .modal.hidden, .toast.hidden { display: none; }
 .card {
-  background: var(--panel-solid); border-radius: 22px; border: 1px solid var(--panel-border); box-shadow: var(--shadow); color: var(--ink);
+  background: var(--panel-solid); border-radius: 22px; border: 1px solid var(--panel-border); box-shadow: var(--panel-inset), var(--shadow); color: var(--ink);
   width: min(420px, 100%); max-height: 90vh; overflow-y: auto; padding: 22px 20px; text-align: center;
   animation: cardIn .25s ease;
 }
 @keyframes cardIn { from { transform: scale(.9) translateY(10px); opacity: 0 } to { transform: none; opacity: 1 } }
-.stage-card { animation-name: stageIn; }
-@keyframes stageIn { from { transform: translate(-50%, -50%) scale(.7); opacity: 0 } to { transform: translate(-50%, -50%) scale(1); opacity: 1 } }
-.card h3 { margin: 0 0 6px; font-size: 24px; color: var(--ink); }
+.card h3 { margin: 0 0 6px; font-size: 24px; color: var(--brass-light); }
 .card p { margin: 6px 0; color: var(--ink-2); font-weight: 600; }
 .card .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
 .card .row .btn { min-width: 0; flex: 1; }
 .card img.mascot { width: 150px; margin: -6px auto 4px; display: block; }
-.stars { font-size: 40px; letter-spacing: 6px; margin: 4px 0; }
-.stars .s { display: inline-block; color: #4A3F73; }
-.stars .s.on { color: var(--gold); text-shadow: 0 2px 0 #C8901E; animation: starIn .5s ease both; }
-.stars .s:nth-child(2).on { animation-delay: .2s } .stars .s:nth-child(3).on { animation-delay: .4s }
+.card img.mascot.cheer { animation: cheer .7s cubic-bezier(.34,1.56,.64,1) both; }
+.stars { display: flex; justify-content: center; gap: 6px; margin: 6px 0; }
+.stars img { width: 40px; height: 40px; object-fit: contain; }
+.stars img.on { animation: starIn .5s ease both; filter: drop-shadow(0 0 8px rgba(255,169,77,0.5)); }
+.stars img:nth-child(2).on { animation-delay: .2s } .stars img:nth-child(3).on { animation-delay: .4s }
 @keyframes starIn { 0% { transform: scale(0) rotate(-30deg) } 60% { transform: scale(1.3) } 100% { transform: scale(1) } }
 .result { display: flex; justify-content: center; gap: 18px; margin: 8px 0; }
 .result div { display: flex; flex-direction: column; line-height: 1.15; }
 .result .lbl { font-size: 11px; color: var(--ink-3); font-weight: 700; }
 .result b { font-size: 20px; color: var(--ink); }
 .help { text-align: left; }
-.help h4 { margin: 12px 0 4px; color: var(--lantern); font-size: 15px; }
+.help h4 { margin: 12px 0 4px; color: var(--candle); font-size: 15px; }
 .help ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.5; }
 .cuptypes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px; }
-.cuptype { background: var(--panel-2); border: 1px solid var(--panel-border); border-radius: 12px; padding: 8px; display: flex; gap: 8px; align-items: center; }
-.cuptype img { width: 40px; height: 64px; object-fit: contain; }
+.cuptype { background: var(--panel-2); border: 1px solid var(--panel-border); border-radius: 12px; padding: 8px; display: flex; gap: 8px; align-items: center; box-shadow: var(--panel-inset); }
+.cuptype .pic { position: relative; width: 52px; height: 52px; flex: 0 0 auto; }
+.cuptype .pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.cuptype .pic img.cloth { transform: scale(1.34) translateY(-4%); }
+.cuptype .pic img.wax { width: 34%; height: 34%; left: 33%; top: 30%; }
 .cuptype b { display: block; font-size: 13px; color: var(--ink); }
 .cuptype span { font-size: 11px; color: var(--ink-2); line-height: 1.3; display: block; }
 .diff { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
 .diff .btn { min-width: 0; }
 .diff small { display: block; font-weight: 600; font-size: 12px; opacity: .8; }
-.spinner { width: 34px; height: 34px; border: 4px solid var(--panel-border); border-top-color: var(--lantern); border-radius: 50%; margin: 10px auto; animation: spin .8s linear infinite; }
+.spinner { width: 34px; height: 34px; border: 4px solid var(--panel-border); border-top-color: var(--candle); border-radius: 50%; margin: 10px auto; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg) } }
+.card img.crest { width: 72px; height: 72px; margin: 0 auto 4px; display: block; }
 
 /* ==================================================
-   開場流程：公司 Logo（純白）→ Loading（奶白）
+   開場流程：公司 Logo（純白）→ Loading（深色工房）
    ================================================== */
 .boot-logo { background: #FFFFFF; align-items: center; justify-content: center; z-index: 100; transition: opacity .2s; }
 .boot-logo img { width: 60%; max-width: 420px; opacity: 0; transform: scale(.94); transition: opacity .4s cubic-bezier(.33,1,.68,1), transform .4s cubic-bezier(.33,1,.68,1); }
@@ -316,35 +350,36 @@ body {
 .boot-logo.fade { opacity: 0; }
 
 .boot-loading {
-  background: linear-gradient(180deg, var(--night-top), var(--night-bot)); z-index: 100; opacity: 0; transition: opacity .2s;
+  background: radial-gradient(ellipse 70% 32% at 50% 12%, rgba(255,169,77,0.14), transparent 70%), linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+  z-index: 100; opacity: 0; transition: opacity .2s;
   display: none; align-items: center;
 }
 .boot-loading.active { display: flex; }
 .boot-loading.in { opacity: 1; }
 .boot-loading.fade { opacity: 0; }
 .boot-wordmark { position: absolute; top: 28%; left: 50%; width: 55%; max-width: 380px; transform: translate(-50%, -50%); }
-.boot-mocha { position: absolute; top: 50%; left: 50%; height: 32%; width: auto; transform: translate(-50%, -50%); filter: drop-shadow(0 8px 16px rgba(13,8,32,0.6)); }
+.boot-mocha { position: absolute; top: 50%; left: 50%; height: 32%; width: auto; transform: translate(-50%, -50%); filter: drop-shadow(0 8px 16px rgba(10,8,6,0.7)); animation: bootBob 2.4s ease-in-out infinite; }
+@keyframes bootBob { 0%, 100% { transform: translate(-50%, -50%) } 50% { transform: translate(-50%, calc(-50% - 8px)) } }
 .boot-bar {
   position: absolute; top: 74%; left: 50%; transform: translate(-50%, -50%);
   width: 62%; max-width: 420px; height: 44px; border-radius: 22px;
-  background: var(--panel-2); border: 1px solid var(--panel-border); overflow: visible;
+  background: var(--panel-2); border: 1px solid var(--panel-border); overflow: visible; box-shadow: var(--panel-inset);
 }
-.boot-fill { height: 100%; width: 0; min-width: 38px; border-radius: 22px; transition: width .12s linear; box-shadow: inset 0 -6px 0 rgba(0,0,0,0.08), inset 0 4px 0 rgba(255,255,255,0.25); }
-.boot-straw { position: absolute; right: 26px; top: -22px; width: 10px; height: 40px; background: var(--accent); border-radius: 5px; transform: rotate(14deg); border: 2px solid var(--panel-border); }
+.boot-fill { height: 100%; width: 0; min-width: 38px; border-radius: 22px; transition: width .12s linear; box-shadow: inset 0 -6px 0 rgba(0,0,0,0.12), inset 0 4px 0 rgba(255,255,255,0.22); }
+.boot-straw { position: absolute; right: 26px; top: -22px; width: 10px; height: 40px; background: var(--brass-main); border-radius: 5px; transform: rotate(14deg); border: 2px solid var(--brass-dark); }
 .boot-tip { position: absolute; top: 80%; left: 0; right: 0; text-align: center; font-size: 15px; font-weight: 700; color: var(--ink-2); transition: opacity .2s; }
 .boot-tip.hide { opacity: 0; }
 .boot-retry { position: absolute; top: 80%; left: 0; right: 0; text-align: center; font-size: 17px; font-weight: 800; color: var(--ink); }
 
-/* 主畫面（咖啡店）例外橫幅 */
+/* 主畫面例外橫幅 */
 .cafe-banner {
-  background: var(--panel); border: 1px solid var(--lantern); color: var(--ink); border-radius: 14px; padding: 8px 16px;
-  font-weight: 800; font-size: 14px; box-shadow: var(--shadow); animation: cardIn .3s ease;
+  background: var(--panel); border: 1px solid var(--candle); color: var(--ink); border-radius: 14px; padding: 8px 16px;
+  font-weight: 800; font-size: 14px; box-shadow: var(--shadow), var(--glow); animation: cardIn .3s ease;
 }
-.icon-btn.shop { font-size: 20px; }
 
 .toast {
   position: absolute; left: 50%; top: 14%; transform: translateX(-50%);
-  background: rgba(31,22,56,0.95); border: 1px solid var(--panel-border); color: var(--ink); padding: 10px 18px; border-radius: 999px; font-weight: 700; font-size: 14px; z-index: 90;
-  animation: toastIn .2s ease;
+  background: rgba(42,31,22,0.96); border: 1px solid var(--panel-border); color: var(--ink); padding: 10px 18px; border-radius: 999px; font-weight: 700; font-size: 14px; z-index: 90;
+  box-shadow: var(--panel-inset), var(--shadow); animation: toastIn .2s ease;
 }
 @keyframes toastIn { from { opacity: 0; transform: translate(-50%, -8px) } to { opacity: 1; transform: translate(-50%, 0) } }

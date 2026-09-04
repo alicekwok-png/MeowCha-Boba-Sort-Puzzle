@@ -127,10 +127,17 @@ with open(os.path.join(OUT, 'vessels.json'), 'w', encoding='utf-8') as f:
 
 # ---------- 遮蓋 ----------
 cloth = Image.open(src('VES_cloth_cover_v3.png')).convert('RGBA')
+# 交付嘅布係不透明黑底（唔係透明）：近黑 key 走（max(rgb) < 40 → 透明；40–90 漸變），布本身係米白，唔會誤傷
+ca = np.asarray(cloth).astype(np.int32).copy()
+mx = ca[..., :3].max(2)
+ramp = np.clip((mx - 40) / 50, 0, 1)
+ca[..., 3] = np.round(ca[..., 3] * ramp).astype(np.int32)
+cloth = Image.fromarray(ca.astype(np.uint8), 'RGBA')
 a = np.asarray(cloth); ys, xs = np.where(a[..., 3] > 20)
 cloth_bbox = [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1]
 report['checks']['clothBboxPx'] = cloth_bbox
 report['checks']['clothBottomRowContinuous'] = bool((a[cloth_bbox[3] - 2, cloth_bbox[0]:cloth_bbox[2], 3] > 200).mean() > 0.98)
+report['checks']['clothTransparentFrac'] = round(float((a[..., 3] < 20).mean()), 3)
 save_webp(cloth, 'cloth_cover.webp', (512, 512), q=88)
 for n, fn in (('wax_seal', 'VES_wax_seal_v2.png'), ('wax_ring', 'VES_wax_ring_v2.png')):
     Image.open(src(fn)).convert('RGBA').save(os.path.join(OUT, n + '.png'))
@@ -158,6 +165,18 @@ report['checks']['patSmallQuadInk'] = quad_ink(os.path.join(OUT, 'pat_small.png'
 # ---------- 背景（單張）----------
 bg = Image.open(src('BG_lab_full_v2.png')).convert('RGB')
 report['checks']['bgSize'] = list(bg.size)
+# 瓶區安全帶（y 25%–73%，同 client/background.js 嘅 SAFE_TOP / SAFE_BOTTOM 一致）平均 L* 同平均 RGB，
+# 供 tests/background.test.js 灰階對比測試（液體色板平均 L* − 背景帶 L* ≥ 25）
+def lstar_mean(rgb):
+    c = rgb.astype(np.float64) / 255.0
+    lin = np.where(c <= 0.04045, c / 12.92, ((c + 0.055) / 1.055) ** 2.4)
+    y = 0.2126 * lin[..., 0] + 0.7152 * lin[..., 1] + 0.0722 * lin[..., 2]
+    return float((116 * np.where(y > 0.008856, np.cbrt(y), 7.787 * y + 16 / 116) - 16).mean())
+bga = np.asarray(bg)
+band = bga[int(bga.shape[0] * 0.25):int(bga.shape[0] * 0.73)]
+report['checks']['bgBandL'] = round(lstar_mean(band), 2)
+report['checks']['bgBandRgb'] = [int(round(v)) for v in band.reshape(-1, 3).mean(0)]
+report['checks']['bgFullL'] = round(lstar_mean(bga), 2)
 save_webp(bg, 'bg_lab_full.webp', None, q=82)
 save_webp(bg, 'bg_lab_full_small.webp', (585, 1266), q=80)   # 標題 / loading 畫面用
 

@@ -28,12 +28,13 @@
  },
  "checks": {
   "clothBboxPx": [
-   15,
-   15,
-   752,
-   752
+   265,
+   199,
+   548,
+   620
   ],
-  "clothBottomRowContinuous": true,
+  "clothBottomRowContinuous": false,
+  "clothTransparentFrac": 0.861,
   "waxSealCenterSaturation": 0.029,
   "liqBaseCenterSaturation": 0.0,
   "patLargeQuadInk": [
@@ -52,6 +53,13 @@
    1170,
    2532
   ],
+  "bgBandL": 6.15,
+  "bgBandRgb": [
+   18,
+   20,
+   16
+  ],
+  "bgFullL": 8.73,
   "cat_idleFeetY": 751,
   "cat_happyFeetY": 751,
   "cat_cheerFeetY": 751,

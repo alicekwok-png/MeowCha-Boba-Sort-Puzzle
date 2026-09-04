@@ -2,13 +2,14 @@
 // 真實盤面（含磨砂杯隱藏層）只存喺呢個 class 嘅 session 入面；client 只攞到遮罩視圖。
 // 換成真 server 時，只需要將呢啲方法改成 fetch('/v1/level/...')。
 
-import { decodeBoard, encodeBoard, mask, decodeMoves, cloneBoard, hiddenCount } from '../core/board.js';
+import { decodeBoard, encodeBoard, mask, decodeMoves, cloneBoard, hiddenCount, makeCup } from '../core/board.js';
 import { canPour, applyMove, isSolved, topColor, pourAmount, isComplete, settleOrders } from '../core/rules.js';
 import { starThresholds } from '../core/generator.js';
 import { hash32 } from '../core/prng.js';
 import { computeMoveLimit } from '../core/difficulty.js';
 
 export const MIN_MS_PER_MOVE = 180;   // 含倒液動畫最短時長
+export const MAX_CUPS = 16;           // 走步編碼 from/to 各 4 bit → 最多 16 隻瓶（含廣告加嘅空瓶）
 
 /** 節奏風險評分（0–100）。人類 CV 通常 > 0.35；bot 固定 delay 接近 0。 */
 export function rhythmRisk(ts) {
@@ -89,7 +90,8 @@ export class LocalServer {
       moveLimit: level.moveLimit !== undefined ? level.moveLimit : computeMoveLimit(typeof level.id === 'number' ? level.id : 0, level.optimal),
       startedAt: Date.now(),
       revealCalls: 0, hintCalls: 0,
-      extraOrders: [],          // 廣告解鎖嘅額外訂單 {atMove, color}，重放時喺同一步插入
+      extraOrders: [],          // 廣告解鎖嘅額外委託 {atMove, color}，重放時喺同一步插入
+      extraCups: [],            // 廣告加嘅空燒瓶 {atMove}，重放時喺同一步 append（Spec v2 §6 addEmptyBottle）
     };
     this.sessions.set(s.id, s);
     return {
@@ -117,6 +119,14 @@ export class LocalServer {
     }
   }
 
+  /** 額外空燒瓶：喺第 atMove 步之後 append 一隻 normal 空瓶（cap 4）；append 唔會郁到現有瓶嘅 index，之前嘅走步照樣合法 */
+  static _insertExtraCups(board, extra, applied) {
+    for (const c of extra) if (c.atMove === applied && !c.inserted) {
+      board.cups.push(makeCup('normal'));
+      c.inserted = true;
+    }
+  }
+
   /** 將 client 嘅走步序列同步到 session（共同前綴只補新步；撤銷就由頭重放） */
   _sync(s, moves) {
     let prefix = 0;
@@ -128,6 +138,8 @@ export class LocalServer {
       prefix = 0;
       // 撤銷到解鎖之前：額外訂單改為由而家開始生效（解鎖當關有效，唔會因撤銷消失）
       for (const o of s.extraOrders) { if (o.atMove > moves.length) o.atMove = moves.length; o.inserted = false; }
+      for (const c of s.extraCups) { if (c.atMove > moves.length) c.atMove = moves.length; c.inserted = false; }
+      LocalServer._insertExtraCups(s.board, s.extraCups, 0);
       LocalServer._insertExtraOrders(s.board, s.extraOrders, 0);
     }
     let last = null;
@@ -139,6 +151,7 @@ export class LocalServer {
       const poured = pourAmount(s.board, m.from, m.to);
       s.board = applyMove(s.board, m, events);
       s.applied.push(m);
+      LocalServer._insertExtraCups(s.board, s.extraCups, s.applied.length);
       LocalServer._insertExtraOrders(s.board, s.extraOrders, s.applied.length);
       // 磨砂杯 / 隱藏層倒走頂格 → 露出新頂格（永久）；被倒走嘅格玩家已經見到係乜色，撤銷後亦唔再遮
       const after = s.board.cups[m.from];
@@ -169,6 +182,21 @@ export class LocalServer {
     s.extraOrders.push({ atMove: s.applied.length, color, inserted: false });
     LocalServer._insertExtraOrders(s.board, s.extraOrders, s.applied.length);
     return { ok: true, color, maskedBoard: mask(s.board, s.revealed) };
+  }
+
+  // ---------- 廣告加空燒瓶（Spec v2 §6 addEmptyBottle，第 11 關起）----------
+  /**
+   * 喺真實盤面尾端 append 一隻空燒瓶（kind normal，cap 4），同 extraOrders 一樣記低 atMove，
+   * 撤銷 / 過關重放時喺同一步 append，驗證先會一致。瓶數上限 16（走步編碼 4 bit index）。
+   * 回傳 { ok, cup(index), maskedBoard }。
+   */
+  addEmptyCup(sessionId, moves) {
+    const s = this._session(sessionId);
+    this._sync(s, moves);
+    if (s.board.cups.length >= MAX_CUPS) return { ok: false, reason: 'MAX_CUPS' };
+    s.extraCups.push({ atMove: s.applied.length, inserted: false });
+    LocalServer._insertExtraCups(s.board, s.extraCups, s.applied.length);
+    return { ok: true, cup: s.board.cups.length - 1, maskedBoard: mask(s.board, s.revealed) };
   }
 
   // ---------- POST /v1/level/reveal ----------
@@ -206,11 +234,14 @@ export class LocalServer {
     // 1. 由 server 存嘅真實盤面重放全部走步（唔信 client 任何盤面狀態）
     let b = decodeBoard(s.trueBoard);
     const extra = s.extraOrders.map(o => ({ atMove: Math.min(o.atMove, moves.length), color: o.color, inserted: false }));
+    const extraCups = s.extraCups.map(c => ({ atMove: Math.min(c.atMove, moves.length), inserted: false }));
+    LocalServer._insertExtraCups(b, extraCups, 0);
     LocalServer._insertExtraOrders(b, extra, 0);
     for (let i = 0; i < moves.length; i++) {
       const m = moves[i];
       if (!canPour(b, m.from, m.to)) return { verified: false, reason: 'ILLEGAL_MOVE' };
       b = applyMove(b, m);
+      LocalServer._insertExtraCups(b, extraCups, i + 1);
       LocalServer._insertExtraOrders(b, extra, i + 1);
     }
     if (!isSolved(b)) return { verified: false, reason: 'NOT_SOLVED' };

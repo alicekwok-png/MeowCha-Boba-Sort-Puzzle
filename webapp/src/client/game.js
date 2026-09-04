@@ -1,23 +1,38 @@
-// client/game.js — Canvas 渲染 + 輸入 + 倒液動畫。只負責「畫」同「接觸控」，規則全部喺 core/。
+// client/game.js — Canvas 渲染 + 輸入 + 倒液動畫（Spec v2 煉金工房版）。只負責「畫」同「接觸控」，規則全部喺 core/。
+//
+// 層序（Spec §3.2）：瓶身陰影 → 瓶身 sprite → 液體（multiply 混入 sprite 內壁）→ 配料圖案（該層色 −28% L）
+//                    → cover（磨砂 sprite / 布）→ 蠟封（tint）→ 黃銅框（原色）→ 徽章
+// 版面：core/layout.js safeLayout()（seed = levelId，R2 永不遮液體）；?jitter=0 強制純網格（Spec §9 步驟 6）。
+// 遮蓋（使用者決定，蓋過 Spec）：
+//   frosted  只畫可見格（頂格 + 露出過嘅格），隱藏格唔畫；新露出嘅格 160 ms 淡入
+//   covered  布全遮 + 蠟封顯示頂格色 + 「N 單」徽章；鎖死；解鎖 → animateUnlock 布揭開動畫
 
 import { PALETTE } from '../core/palette.js';
+import { unitColor, unitPattern } from '../core/board.js';
+import { COLORS, FROSTED_GLASS } from '../config/theme.js';
+import { LAYOUT, CLOTH } from '../config/layout.js';
+import { RENDER, patternUV } from '../config/render.js';
+import { safeLayout, computeLayout } from '../core/layout.js';
+import { renderAssets, preloadRenderAssets, geomFor, spriteKey, extentsAt, bandPolygon } from './render-assets.js';
 
-const HEX = PALETTE.map(p => p.hex);
 const cubicInOut = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const cubicOut = t => 1 - Math.pow(1 - t, 3);
 const backOut = t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
 const clamp01 = t => Math.max(0, Math.min(1, t));
 const lerp = (a, b, t) => a + (b - a) * t;
+const DEG = Math.PI / 180;
+const FONT = '"Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif';
 
-function shade(hex, amt) {   // amt −1..1
+/** unit key → 液體 hex（colour 可能係 unit key，亦兼容純 colorId） */
+const hexOf = (u) => (PALETTE[unitColor(u)] || PALETTE[0]).hex;
+
+/** hex → rgba(…, alpha) */
+function rgba(hex, alpha) {
   const n = parseInt(hex.slice(1), 16);
-  let r = n >> 16, g = (n >> 8) & 255, b = n & 255;
-  const f = (c) => Math.round(amt < 0 ? c * (1 + amt) : c + (255 - c) * amt);
-  r = f(r); g = f(g); b = f(b);
-  return `rgb(${r},${g},${b})`;
+  return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${alpha})`;
 }
 
-/** HSL 明度偏移（夜市 brief A5：上緣高光 = 該層色 +20% L；下緣暗邊 = −18% L），回傳 rgba 字串 */
+/** HSL 明度偏移（配料墨 = 該層色 −28% L；下緣暗邊 −18% L），回傳 rgba 字串 */
 function shiftL(hex, dL, alpha = 1) {
   const n = parseInt(hex.slice(1), 16);
   const r = (n >> 16) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
@@ -39,10 +54,17 @@ function shiftL(hex, dL, alpha = 1) {
   return `rgba(${Math.round(R * 255)},${Math.round(G * 255)},${Math.round(B * 255)},${alpha})`;
 }
 
-// 夜市 brief A1 / A5 常數
-const NIGHT = { lantern: '#FFB84D', shadow: 'rgba(13,8,32,0.45)', panel: 'rgba(31,22,56,0.85)', panelBorder: '#6B5CA5', ink: '#F3ECFF', inkDim: '#C9BEE6' };
+const PARAMS = typeof location !== 'undefined' ? new URLSearchParams(location.search) : new URLSearchParams();
+const FORCE_GRID = PARAMS.get('jitter') === '0';
+const LIFT_PX = 16;                 // 選中提起高度
+const HOLD_TIMEOUT_MS = 2500;       // setBoard 後等唔到 animateUnlock → 自動補播揭開（防止卡住舊畫面）
+const PENDING_TIMEOUT_MS = 1500;    // setBoard 後等唔到 animateDeliver → 直接放棄保留嘅液體
+const PAT_NAMES = ['P0', 'P1', 'P2', 'P3', 'P4'];
 
 export class GameView {
+  /** 預載全部渲染素材（main 可以喺 boot 時先 call） */
+  static preload() { return preloadRenderAssets(); }
+
   constructor(canvas, { onCupTap } = {}) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
@@ -50,23 +72,16 @@ export class GameView {
     this.cups = [];
     this.selected = null;
     this.interactive = true;
+    this.levelId = 1;
     this.particles = [];
     this.floaters = [];
     this.streams = [];
     this.hintArrow = null;
-    // 杯貼圖（美術透明 PNG）+ 杯內液體幾何；未載入時用程式畫嘅杯
-    this.sprite = null; this.geom = null;
-    const base = new URL('../../assets/', import.meta.url);
-    const img = new Image();
-    img.onload = () => { this.sprite = img; this.layout(); };
-    img.src = new URL('cup-body.webp', base).href;
-    fetch(new URL('cup-geom.json', base)).then(r => r.json()).then(g => { this.geom = g; this.layout(); }).catch(() => {});
-    // 布遮杯素材（工單 #4 任務 4）：有就用，冇就程式畫布料佔位（唔會報錯 / 空白）
-    this.covered = null;
-    const cov = new Image();
-    cov.onload = () => { this.covered = cov; };
-    cov.onerror = () => { console.warn('[assets] cup-covered.webp 未有，布遮杯用程式畫嘅布料佔位'); };
-    cov.src = new URL('cup-covered.webp', base).href;
+    this.drawOrder = [];
+    this._sealCache = new Map();    // `${colorId}:${size}` → tinted 蠟封 canvas
+    this._scratch = document.createElement('canvas');   // 配料墨 / 染色用
+    this.W = 1; this.H = 1;
+    preloadRenderAssets().then(() => { this._sealCache.clear(); this.layout(); });
     this.frame = this.frame.bind(this);
     this._raf = requestAnimationFrame(this.frame);
     this._onPointer = (e) => {
@@ -98,70 +113,109 @@ export class GameView {
     this.layout();
   }
 
+  /** main.js 喺 setBoard 之前 call；同關 seed 一致（R1）。換關會清走所有等待中嘅揭開 / 交貨保留狀態 */
+  setLevelId(id) {
+    this.levelId = Number(id) || 1;
+    this.cups = []; this.drawOrder = []; this.streams = []; this.hintArrow = null;
+  }
+
   /**
-   * 交錯網格（工單 #5）：偶數行（0-based）放 cols 個，奇數行放 cols−1 個並向右偏移半格。
-   * 揀令杯最大嘅 cols；杯闊上限 118px。
+   * 瓶尺寸：先揀令 4 欄（+ 半格偏移）放得落、rows 行高度都夠嘅瓶闊，再交畀 safeLayout（seed = levelId）。
+   * bottleHeight = 內容高度（frame 0.0299–0.9701），瓶闊 = 該關最闊器皿嘅 maxWidth（磨砂瓶比燒瓶闊）。
    */
   layout() {
     const n = this.cups.length;
-    if (!n) return;
-    const padX = 10, padTop = 30, padBottom = 12, gapX = 8, gapY = 34;
-    const aspect = this.geom ? this.geom.aspect : 1 / 1.5;
-    const rowsFor = (cols) => { let rows = 0, placed = 0; while (placed < n) { placed += rows % 2 === 0 ? cols : cols - 1; rows++; } return rows; };
-    let best = null;
-    for (let cols = 2; cols <= 8; cols++) {
-      const rows = rowsFor(cols);
-      const cellW = (this.W - padX * 2) / cols;
-      const byW = cellW - gapX;
-      const byH = ((this.H - padTop - padBottom - gapY * (rows - 1)) / rows) * aspect;
-      const cupW = Math.min(118, byW, byH);
-      if (!best || cupW > best.cupW + 0.5) best = { cols, rows, cupW };
+    if (!n || this.W < 40 || this.H < 40) return;
+    const padX = 6, padTop = 26, padBottom = 8;
+    const areaWidth = Math.max(60, this.W - padX * 2), areaHeight = Math.max(60, this.H - padTop - padBottom);
+    const flask = geomFor('normal');
+    const contentSpan = flask.content.bottom - flask.content.top;
+    let widthRatio = flask.maxWidth;
+    for (const c of this.cups) widthRatio = Math.max(widthRatio, geomFor(c.kind).maxWidth);
+    const aspect = contentSpan / widthRatio;                 // 內容高 / 最闊器皿闊
+    const rows = Math.max(1, Math.ceil(n / LAYOUT.columns));
+    const byW = (areaWidth / (LAYOUT.columns + (rows > 1 ? LAYOUT.rowOffsetRatio : 0))) * 0.86;
+    const byH = ((areaHeight / rows) * 0.72) / aspect;   // 每行 72% 高度畀瓶，其餘留畀 jitter（R2 由 safeLayout 把關）
+    let bottleWidth = Math.min(byW, byH, 230 / aspect);
+    let bottleHeight = bottleWidth * aspect;
+    const input = { levelId: this.levelId, bottleCount: n, areaWidth, areaHeight, bottleWidth, bottleHeight };
+    let placed;
+    try {
+      if (FORCE_GRID) placed = { layout: computeLayout(input, { jitterX: 0, jitterY: 0, rotationMaxDeg: 0 }), bottleWidth, bottleHeight, fallback: 0 };
+      else placed = safeLayout(input, (m) => console.warn(m));
+    } catch (e) {
+      console.warn('[layout] safeLayout 失敗，退回純網格', e);
+      placed = { layout: computeLayout(input, { jitterX: 0, jitterY: 0, rotationMaxDeg: 0 }), bottleWidth, bottleHeight, fallback: 9 };
     }
-    const { cols, rows } = best;
-    const w = Math.max(28, best.cupW), h = w / aspect;
-    const cellW = w + gapX, cellH = h + gapY;
-    const totalH = rows * cellH - gapY;
-    const originY = padTop + Math.max(0, (this.H - padTop - padBottom - totalH) / 2);
-    const originX = (this.W - cols * cellW) / 2 + gapX / 2;
-    this.gridLayout = { cols, cellW, cellH, originX, originY };
-    for (let i = 0; i < n; i++) {
-      const pos = this.cupPosition(i, this.gridLayout);
-      const cup = this.cups[i];
-      cup.w = w; cup.h = h;
-      cup.hx = pos.x; cup.hy = pos.y;
-      if (!cup.anim) { cup.x = cup.hx; cup.y = cup.hy; }
+    this.bottleWidth = placed.bottleWidth; this.bottleHeight = placed.bottleHeight;
+    this.frameScale = placed.bottleHeight / contentSpan;   // 768 frame → px
+    this.flaskWidth = flask.maxWidth * this.frameScale;
+    this._sealCache.clear();
+    for (const p of placed.layout) {
+      const cup = this.cups[p.index];
+      if (!cup) continue;
+      cup.w = placed.bottleWidth; cup.h = placed.bottleHeight;
+      cup.hx = padX + p.position.x; cup.hy = padTop + p.position.y;
+      cup.rot0 = p.rotation * DEG; cup.z = p.zIndex;
+      if (!cup.placed) { cup.x = cup.hx; cup.y = cup.hy; cup.placed = true; }
     }
-    this.slotH = (h - 10) / 4;
+    this._sortDrawOrder();
   }
 
-  /** 第 index 隻杯喺交錯網格嘅位置 */
-  cupPosition(index, layout) {
-    const { cols, cellW, cellH, originX, originY } = layout;
-    let row = 0, remaining = index;
-    for (;;) {
-      const inThisRow = row % 2 === 0 ? cols : cols - 1;
-      if (remaining < inThisRow) break;
-      remaining -= inThisRow;
-      row++;
-    }
-    const offsetX = row % 2 === 1 ? cellW / 2 : 0;
-    return { x: originX + remaining * cellW + offsetX, y: originY + row * cellH };
+  _sortDrawOrder() {
+    this.drawOrder = this.cups.map((_, i) => i).sort((a, b) => {
+      const A = this.cups[a], B = this.cups[b];
+      const pa = A.anim === 'pour' ? 1 : 0, pb = B.anim === 'pour' ? 1 : 0;
+      return (pa - pb) || ((A.z ?? a) - (B.z ?? b));
+    });
   }
 
+  /**
+   * 接收遮罩盤面（隱藏格 = null）。保留舊杯嘅動畫 / 位置狀態；記低：
+   *  - 磨砂瓶新露出嘅格（null → 值）→ 160 ms 淡入
+   *  - 布遮瓶由 locked 變 normal → clothHold：繼續畫布，等 animateUnlock 播揭開
+   *  - 滿瓶變空瓶（交貨）→ pendingSeg：繼續畫液體，等 animateDeliver 播消失
+   */
   setBoard(board) {
     const prev = this.cups;
+    const now = performance.now();
     let lockedIdx = 0;
     this.cups = board.cups.map((c, i) => {
-      const old = prev[i] || {};
-      // 布遮杯：第 k 隻鎖住嘅杯喺交付第 2(k+1) 單時揭開 → 仲要交幾多單
-      const unlockIn = c.locked ? Math.max(1, 2 * (++lockedIdx) - (board.delivered || 0)) : 0;
-      return {
-        unlockIn,
-        kind: c.kind, cap: c.cap, locked: c.locked, seg: c.seg.slice(),
-        x: old.x ?? 0, y: old.y ?? 0, hx: old.hx ?? 0, hy: old.hy ?? 0, w: old.w ?? 60, h: old.h ?? 90,
-        lift: old.lift ?? 0, rot: 0, scale: 1, alpha: 1, anim: null,
-        extraUnits: 0, extraColor: null, removedUnits: 0, glow: 0, layerAlpha: 1, lidOffset: 0, lidAlpha: 1,
+      const old = prev[i] || null;
+      // 布遮瓶：第 k 隻鎖住嘅瓶喺交付第 2(k+1) 單時揭開 → 仲要交幾多單（main.js 有畀 unlockIn 就用佢）
+      const isLocked = c.kind === 'covered' && c.locked;
+      const unlockIn = c.unlockIn ?? (isLocked ? Math.max(1, 2 * (++lockedIdx) - (board.delivered || 0)) : 0);
+      const seg = c.seg.slice();
+      const cup = {
+        kind: c.kind, cap: c.cap, locked: !!c.locked, seg, unlockIn: Math.max(1, unlockIn || 1),
+        x: old?.x ?? 0, y: old?.y ?? 0, hx: old?.hx ?? 0, hy: old?.hy ?? 0, w: old?.w ?? 60, h: old?.h ?? 120,
+        rot0: old?.rot0 ?? 0, rotA: old?.rotA ?? 0, z: old?.z ?? i, placed: old?.placed ?? false,
+        lift: old?.lift ?? 0, scale: 1, alpha: 1, glow: 0, anim: null,
+        extraUnits: 0, extraColor: null, removedUnits: 0, layerAlpha: 1, settle: null,
+        fade: old?.fade ? old.fade.slice() : [],
+        reveal: old?.reveal && old.reveal.fade < 1 ? old.reveal : null, clothHold: null, pendingSeg: null,
       };
+      if (old) {
+        // 磨砂瓶逐格露出
+        for (let k = 0; k < seg.length; k++) {
+          if (seg[k] !== null && old.seg[k] === null) cup.fade[k] = now;
+          else if (seg[k] === null) cup.fade[k] = undefined;
+        }
+        // 布遮 → 解鎖：先保留布，等 animateUnlock
+        const wasCloth = (old.kind === 'covered' && old.locked) || old.clothHold;
+        if (wasCloth && !isLocked && !old.reveal) {
+          const hintUnit = old.clothHold?.hint ?? old.seg[old.seg.length - 1] ?? seg[seg.length - 1] ?? null;
+          cup.clothHold = { t0: old.clothHold?.t0 ?? now, hint: hintUnit };
+        }
+        // 滿 → 空（交貨）：先保留液體，等 animateDeliver
+        const oldSeg = old.pendingSeg?.seg ?? old.seg;
+        if (seg.length === 0 && oldSeg.length >= old.cap && oldSeg.every(v => v !== null && v === oldSeg[0]) && !old.anim) {
+          cup.pendingSeg = { t0: old.pendingSeg?.t0 ?? now, seg: oldSeg.slice(), kind: old.kind };
+        }
+      } else {
+        for (let k = 0; k < seg.length; k++) if (seg[k] === null) cup.fade[k] = undefined;
+      }
+      return cup;
     });
     this.layout();
   }
@@ -170,10 +224,20 @@ export class GameView {
 
   select(idx) { this.selected = idx; }
 
+  /** 點擊測試：由最前（zIndex 大）到最後，旋轉矩形（內容框 + 6px 鬆動；布遮瓶用布闊）。鎖住嘅布遮瓶都會回傳（由 main.js 決定 shake） */
   cupAt(px, py) {
-    for (let i = 0; i < this.cups.length; i++) {
+    const order = [...this.drawOrder].reverse();
+    for (const i of order) {
       const c = this.cups[i];
-      if (px >= c.hx - 6 && px <= c.hx + c.w + 6 && py >= c.hy - 30 && py <= c.hy + c.h + 8) return i;
+      const cx = c.x, cy = c.y - c.lift * LIFT_PX;
+      const rot = c.rot0 + c.rotA;
+      const dx = px - cx, dy = py - cy;
+      const cos = Math.cos(-rot), sin = Math.sin(-rot);
+      const lx = dx * cos - dy * sin, ly = dx * sin + dy * cos;
+      const cloth = this._showsCloth(c);
+      const halfW = (cloth ? this._clothRect(c).w : c.w) / 2 + 6;
+      const top = -c.h / 2 - (cloth ? c.h * CLOTH.topOffsetRatio : 0) - 10, bottom = c.h / 2 + 6;
+      if (lx >= -halfW && lx <= halfW && ly >= top && ly <= bottom) return i;
     }
     return -1;
   }
@@ -207,21 +271,43 @@ export class GameView {
 
   clearHint() { this.hintArrow = null; }
 
-  /** 倒液：來源移到目標上方傾斜 → 液柱 + 液面升 → 回位。呼叫前 view 仍係舊盤面。 */
+  /** 瓶內 local 座標（以瓶中心為原點、未旋轉）→ 世界座標 */
+  _toWorld(c, lx, ly) {
+    const rot = c.rot0 + c.rotA, cos = Math.cos(rot), sin = Math.sin(rot);
+    return { x: c.x + lx * cos - ly * sin, y: c.y - c.lift * LIFT_PX + lx * sin + ly * cos };
+  }
+
+  /** frame 幾何：frame 原點（local px）同比例 */
+  _frame(c) {
+    const g = geomFor(c.kind === 'covered' ? 'normal' : c.kind);
+    const S = c.h / (g.content.bottom - g.content.top);
+    return { g, S, fx: -S / 2, fy: -c.h / 2 - g.content.top * S };
+  }
+
+  /** 液面（local）：第 level 格頂嘅 y */
+  _surfaceY(c, level) {
+    const { g, S, fy } = this._frame(c);
+    const slot = (g.liquid.bottom - g.liquid.top) / c.cap;
+    return fy + (g.liquid.bottom - level * slot) * S;
+  }
+
+  /** 倒液：來源移到目標上方傾斜 → 液柱 + 液面升 → 回位。呼叫前 view 仍係舊盤面。colour = unit key */
   async animatePour(from, to, n, color) {
     const S = this.cups[from], T = this.cups[to];
     S.anim = 'pour';
-    const side = S.hx + S.w / 2 <= T.hx + T.w / 2 ? -1 : 1;           // 由左邊倒 → 順時針傾
-    const px = T.hx + T.w / 2 + side * (S.w * 0.62) - S.w / 2;
-    const py = T.hy - S.h * 0.78;
-    const sx = S.x, sy = S.y - S.lift * 16;
+    this._sortDrawOrder();
+    const side = S.hx <= T.hx ? -1 : 1;                      // 由左邊倒 → 順時針傾
+    const ang = -side * 35 * DEG;
+    // 傾斜後瓶口去到目標瓶口斜上方
+    const px = T.hx + side * (Math.sin(35 * DEG) * S.h / 2 + S.w * 0.12);
+    const py = T.hy - T.h / 2 - 10 + Math.cos(35 * DEG) * S.h / 2 - S.h * 0.08;
+    const sx = S.x, sy = S.y;
     S.lift = 0;
-    const ang = -side * 35 * Math.PI / 180;
 
     // A. 移動 + 傾斜（Cubic.easeInOut，180 ms）
     await this._tween(180, t => {
       const e = cubicInOut(t);
-      S.x = lerp(sx, px, e); S.y = lerp(sy, py, e); S.rot = ang * e;
+      S.x = lerp(sx, px, e); S.y = lerp(sy, py, e); S.rotA = ang * e;
     });
 
     // B. 液柱 + 液面上升
@@ -234,7 +320,7 @@ export class GameView {
       const e = cubicOut(t);
       T.extraUnits = n * e;
       S.removedUnits = n * e;
-      if (!splashed && t > 0.18) { splashed = true; this._splash(T, color, 6 + n * 2); }
+      if (!splashed && t > 0.18) { splashed = true; this._splash(T, hexOf(color), 6 + n * 2); }
       if (t > 0.6) stream.alpha = 1 - (t - 0.6) / 0.4;
     });
     this.streams = this.streams.filter(s => s !== stream);
@@ -247,38 +333,39 @@ export class GameView {
     T.settle = { t0: performance.now(), dur: 120, units: n };
     await this._tween(180, t => {
       const e = cubicInOut(t);
-      S.x = lerp(px, S.hx, e); S.y = lerp(py, S.hy, e); S.rot = ang * (1 - e);
+      S.x = lerp(px, S.hx, e); S.y = lerp(py, S.hy, e); S.rotA = ang * (1 - e);
     });
-    S.x = S.hx; S.y = S.hy; S.rot = 0; S.anim = null;
+    S.x = S.hx; S.y = S.hy; S.rotA = 0; S.anim = null;
+    this._sortDrawOrder();
   }
 
-  _splash(T, color, count) {
-    const cx = T.x + T.w / 2;
+  _splash(T, hex, count) {
     const level = T.seg.length + T.extraUnits;
-    const L = this._liquid(T);
-    const cy = T.y + L.bottom - level * L.slotH;
+    const p = this._toWorld(T, 0, this._surfaceY(T, level));
     for (let i = 0; i < count; i++) {
       this.particles.push({
-        x: cx + (Math.random() - 0.5) * T.w * 0.5, y: cy,
+        x: p.x + (Math.random() - 0.5) * T.w * 0.5, y: p.y,
         vx: (Math.random() - 0.5) * 140, vy: -60 - Math.random() * 120,
-        life: 0, dur: 200 + Math.random() * 80, r: 1.5 + Math.random() * 2, color,
+        life: 0, dur: 200 + Math.random() * 80, r: 1.5 + Math.random() * 2, color: hex,
       });
     }
   }
 
-  /** 交付：金光 + 液體升起消失 + 浮字 */
-  async animateDeliver(idx, label = '✓ 出單') {
+  /** 交貨：金光 + 液體升起消失 + 浮字 */
+  async animateDeliver(idx, label = '✓ 交貨') {
     const c = this.cups[idx];
+    if (!c) return;
     c.anim = 'deliver';
-    const cx = c.hx + c.w / 2;
+    if (c.pendingSeg) { c.seg = c.pendingSeg.seg.slice(); c.pendingSeg = null; }
+    const top = this._toWorld(c, 0, -c.h / 2);
     for (let i = 0; i < 14; i++) {
       this.particles.push({
-        x: cx + (Math.random() - 0.5) * c.w, y: c.hy + c.h * (0.2 + Math.random() * 0.7),
+        x: c.x + (Math.random() - 0.5) * c.w, y: c.y + c.h * (Math.random() * 0.7 - 0.3),
         vx: (Math.random() - 0.5) * 80, vy: -90 - Math.random() * 90,
-        life: 0, dur: 420 + Math.random() * 200, r: 2 + Math.random() * 2, color: '#F6C453', star: true,
+        life: 0, dur: 420 + Math.random() * 200, r: 2 + Math.random() * 2, color: COLORS.brassLight, star: true,
       });
     }
-    this.floaters.push({ x: cx, y: c.hy - 6, text: label, t0: performance.now(), dur: 900, color: '#B5651D' });
+    this.floaters.push({ x: top.x, y: top.y - 6, text: label, t0: performance.now(), dur: 900, color: COLORS.brassMain });
     await this._tween(380, t => {
       c.glow = 1 - t;
       c.scale = 1 + Math.sin(t * Math.PI) * 0.1;
@@ -288,22 +375,47 @@ export class GameView {
     if (c.kind === 'frosted') c.kind = 'normal';
   }
 
-  /** 解封：封膜飛走 */
+  /**
+   * 布揭開（使用者決定 1）：繩鬆脫 60 ms → 布向上滑出 160 ms ease-out → 6–8 粒塵飄散 400 ms，
+   * 顏色同圖案一齊 160 ms 淡入（塵開始時即淡入）。呼叫時盤面已經係 normal（setBoard 用 clothHold 保留住布）。
+   */
   async animateUnlock(idx) {
     const c = this.cups[idx];
-    this.floaters.push({ x: c.hx + c.w / 2, y: c.hy - 10, text: '🔓 解封！', t0: performance.now(), dur: 1000, color: '#7A4E1E' });
-    await this._tween(420, t => { c.lidOffset = -60 * cubicOut(t); c.lidAlpha = 1 - t; c.glow = 1 - t; });
-    c.locked = false; c.kind = 'normal'; c.lidOffset = 0; c.lidAlpha = 1; c.glow = 0;
+    if (!c) return;
+    const R = RENDER.clothReveal;
+    const hint = c.clothHold?.hint ?? c.seg[c.seg.length - 1] ?? null;
+    c.clothHold = null; c.locked = false; if (c.kind === 'covered') c.kind = 'normal';
+    c.reveal = { hint, rope: 0, slide: 0, fade: 0 };
+    const top = this._toWorld(c, 0, -c.h / 2);
+    this.floaters.push({ x: top.x, y: top.y - 10, text: '揭開！', t0: performance.now(), dur: 1000, color: COLORS.brassLight });
+    await this._tween(R.ropeMs, t => { c.reveal.rope = t; });
+    await this._tween(R.slideMs, t => { c.reveal.slide = cubicOut(t); });
+    // 塵粒：由布底散開向上飄
+    const cloth = this._clothRect(c);
+    const count = R.dustCount[0] + Math.floor(Math.random() * (R.dustCount[1] - R.dustCount[0] + 1));
+    for (let i = 0; i < count; i++) {
+      const p = this._toWorld(c, (Math.random() - 0.5) * cloth.w * 0.8, cloth.y + cloth.h * (0.3 + Math.random() * 0.6));
+      this.particles.push({
+        x: p.x, y: p.y, vx: (Math.random() - 0.5) * 50, vy: -20 - Math.random() * 40,
+        life: 0, dur: R.dustMs * (0.7 + Math.random() * 0.3), r: 2 + Math.random() * 2.5, color: '#D8CBB0', dust: true, gravity: -25,
+      });
+    }
+    await Promise.all([
+      this._tween(R.fadeMs, t => { c.reveal.fade = t; }),
+      this._tween(R.dustMs, () => {}),
+    ]);
+    c.reveal = null; c.glow = 0;
   }
 
   async animateWin() {
+    const colors = [COLORS.brassLight, PALETTE[0].hex, PALETTE[9].hex, COLORS.candleGlow, PALETTE[6].hex];
     for (let k = 0; k < 3; k++) {
       for (let i = 0; i < 26; i++) {
         this.particles.push({
           x: Math.random() * this.W, y: this.H + 10,
           vx: (Math.random() - 0.5) * 160, vy: -260 - Math.random() * 260,
           life: 0, dur: 1100 + Math.random() * 500, r: 3 + Math.random() * 3,
-          color: ['#F6C453', '#E88D5A', '#F2A6B8', '#8DD3B4', '#B9A0E0'][i % 5], star: i % 3 === 0, gravity: 220,
+          color: colors[i % 5], star: i % 3 === 0, gravity: 220,
         });
       }
       await new Promise(r => setTimeout(r, 180));
@@ -318,16 +430,20 @@ export class GameView {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.W, this.H);
 
-    // 選中提起
     for (let i = 0; i < this.cups.length; i++) {
       const c = this.cups[i];
       const target = (this.selected === i && !c.anim) ? 1 : 0;
       c.lift += (target - c.lift) * Math.min(1, dt * 14);
       if (c.settle && now - c.settle.t0 > c.settle.dur) c.settle = null;
+      // 唔係動畫中：滑向 home（換版面 / 加空瓶 / resize 時順滑移位）
+      if (!c.anim) { const k = Math.min(1, dt * 12); c.x += (c.hx - c.x) * k; c.y += (c.hy - c.y) * k; if (Math.abs(c.hx - c.x) < 0.2) c.x = c.hx; if (Math.abs(c.hy - c.y) < 0.2) c.y = c.hy; }
+      // 保留狀態等唔到動畫 → 自動補播 / 放棄
+      if (c.clothHold && now - c.clothHold.t0 > HOLD_TIMEOUT_MS) this.animateUnlock(i);
+      if (c.pendingSeg && now - c.pendingSeg.t0 > PENDING_TIMEOUT_MS) c.pendingSeg = null;
     }
 
-    const order = this.cups.map((_, i) => i).sort((a, b) => (this.cups[a].anim === 'pour') - (this.cups[b].anim === 'pour'));
-    for (const i of order) this.drawCup(this.cups[i], i, now);
+    if (this.drawOrder.length !== this.cups.length) this._sortDrawOrder();
+    for (const i of this.drawOrder) this.drawCup(this.cups[i], i, now);
     this.drawStreams();
     this.drawHint(now);
 
@@ -336,9 +452,10 @@ export class GameView {
     for (const p of this.particles) {
       p.vy += (p.gravity ?? 520) * dt; p.x += p.vx * dt; p.y += p.vy * dt;
       const a = 1 - p.life / p.dur;
-      ctx.globalAlpha = a;
+      ctx.globalAlpha = p.dust ? a * 0.7 : a;
       ctx.fillStyle = p.color;
-      if (p.star) { this._star(p.x, p.y, p.r * 1.6); } else { ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); }
+      if (p.star) this._star(p.x, p.y, p.r * 1.6);
+      else { ctx.beginPath(); ctx.arc(p.x, p.y, p.dust ? p.r * (1 + (1 - a) * 0.8) : p.r, 0, Math.PI * 2); ctx.fill(); }
     }
     ctx.globalAlpha = 1;
 
@@ -347,12 +464,11 @@ export class GameView {
     for (const f of this.floaters) {
       const t = (now - f.t0) / f.dur;
       ctx.globalAlpha = 1 - t * t;
-      ctx.font = 'bold 15px "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif';
+      ctx.font = `bold 15px ${FONT}`;
       ctx.textAlign = 'center';
-      ctx.fillStyle = '#fff';
-      ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 4; ctx.lineJoin = 'round';
+      ctx.strokeStyle = rgba(COLORS.woodDark, 0.9); ctx.lineWidth = 4; ctx.lineJoin = 'round';
       ctx.strokeText(f.text, f.x, f.y - t * 34);
-      ctx.fillStyle = f.color;
+      ctx.fillStyle = f.color === COLORS.brassMain ? COLORS.brassLight : f.color;
       ctx.fillText(f.text, f.x, f.y - t * 34);
     }
     ctx.globalAlpha = 1;
@@ -368,414 +484,378 @@ export class GameView {
     ctx.closePath(); ctx.fill();
   }
 
-  // ---------- 畫杯 ----------
+  // ---------- 畫瓶 ----------
+  /** 而家係咪要畫布（鎖住 / 等揭開 / 揭開中） */
+  _showsCloth(c) { return (c.kind === 'covered' && c.locked) || !!c.clothHold || !!c.reveal; }
+
+  /** 布矩形（local px）：闊 = 1.34 × 燒瓶闊；頂高過瓶頂 7%；底貼瓶底 */
+  _clothRect(c) {
+    const w = CLOTH.fixedWidthRatio * (this.flaskWidth || c.w);
+    const top = -c.h / 2 - c.h * CLOTH.topOffsetRatio;
+    return { x: -w / 2, y: top, w, h: c.h / 2 - top };
+  }
+
   drawCup(c, idx, now) {
     const ctx = this.ctx;
-    const w = c.w, h = c.h;
-    const x = c.x, y = c.y - c.lift * 16;
     ctx.save();
-    ctx.translate(x + w / 2, y + h);            // 以杯底中心為原點（旋轉軸）
-    ctx.rotate(c.rot);
+    ctx.translate(c.x, c.y - c.lift * LIFT_PX);
+    ctx.rotate(c.rot0 + c.rotA);
     ctx.scale(c.scale, c.scale);
-    ctx.translate(-w / 2, -h);
     ctx.globalAlpha = c.alpha;
 
-    if (c.glow > 0) {
-      ctx.shadowColor = `rgba(255,184,77,${c.glow})`; ctx.shadowBlur = 24 * c.glow;
-    } else if (this.selected === idx) {
-      ctx.shadowColor = 'rgba(255,184,77,0.7)'; ctx.shadowBlur = 18;
-    } else {
-      ctx.shadowColor = NIGHT.shadow; ctx.shadowBlur = 8; ctx.shadowOffsetY = 4;   // 杯底投影 #0D0820 45% blur 8px（brief A5）
-    }
-
-    if (c.kind === 'covered' || (c.locked && !this._useSprite(c) && c.kind !== 'sealed')) {
-      // 布遮杯（covered）：完全睇唔到入面（包括頂格）、冇刻度線；揭開動畫時先畫返底下嘅杯再畫布升起
-      const lifting = (c.lidOffset || 0) !== 0 || (c.lidAlpha ?? 1) < 1;
-      if (lifting && this._useSprite(c)) { ctx.drawImage(this.sprite, 0, 0, w, h); ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; this.drawLayers(c, w, h, now); }
-      ctx.save();
-      ctx.translate(0, c.lidOffset || 0); ctx.globalAlpha *= (c.lidAlpha ?? 1);
-      this.drawCovered(c, w, h);
-      ctx.restore();
-      ctx.restore();
-      return;
-    }
-
-    if (this._useSprite(c)) {
-      // 美術杯貼圖：杯身實色，液體正常疊色畫喺杯內，再淡淡蓋返貼圖（反光留光、珍珠留深）
-      ctx.drawImage(this.sprite, 0, 0, w, h);
-      ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-      if (c.seg.length === 0 && !(c.extraUnits > 0)) this.coverPearls(c, w, h);   // 空杯唔應該見到珍珠
-      this.drawLayers(c, w, h, now);
-      this.drawCupLight(c, w, h);
-      if (c.locked) {
-        // 封膜杯（sealed）：透膜見到入面，鎖死；🔒 N = 仲要交幾多單先解封
-        const g = this.geom;
-        ctx.save(); ctx.translate(0, c.lidOffset || 0); ctx.globalAlpha *= (c.lidAlpha ?? 1);
-        this.drawFilmLid(w, g.rimY * h, g.rimRx * w, g.rimRy * h * 1.15);
-        ctx.restore();
-        this.drawBadge(`🔒 ${c.unlockIn || 1}`, w, h * 0.62);
-      }
-      ctx.restore();
-      return;
-    }
-
-    if (c.kind === 'takeaway') this.drawBag(c, w, h);
-    else this.drawPlasticBody(c, w, h);
-    ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-
-    this.drawLayers(c, w, h, now);
-    if (c.kind === 'takeaway') this.drawBagFront(c, w, h);
-    else this.drawPlasticFront(c, w, h);
-    ctx.restore();
-  }
-
-  /** 普通杯 / 封膜杯（cap 4、非磨砂）用貼圖；磨砂、外帶維持程式畫 */
-  _useSprite(c) {
-    return !!(this.sprite && this.geom) && c.cap === 4 && c.kind !== 'frosted' && c.kind !== 'takeaway';
-  }
-
-  /** 液體區域幾何：bottom（液面 y=0 基準）、slotH、左右邊界函數 */
-  _liquid(c) {
-    const w = c.w, h = c.h;
-    if (this._useSprite(c)) {
-      const g = this.geom.inner;
-      const top = g.topY * h, bottom = g.botY * h, span = bottom - top;
-      const lerpX = (y, a, b) => (a + (b - a) * ((bottom - y) / span)) * w;   // y 由底向上
-      return { bottom, slotH: span / c.cap, xl: y => lerpX(y, g.botL, g.topL), xr: y => lerpX(y, g.botR, g.topR), sprite: true };
-    }
-    const bottom = h - 5, slotH = (h - 10) / 4;
-    const isBag = c.kind === 'takeaway', inset = isBag ? 7 : 0;
-    return { bottom, slotH, xl: y => (isBag ? inset : this._xAt(w, h, y)), xr: y => (isBag ? w - inset : w - this._xAt(w, h, y)), sprite: false };
-  }
-
-  /**
-   * 空杯遮走貼圖底部內置嘅珍珠：用貼圖上面一段乾淨膠身拉長蓋住珍珠帶（裁喺杯內多邊形）。
-   * 有液體時珍珠透過 multiply 露出，似真係沉喺杯底。
-   */
-  coverPearls(c, w, h) {
-    const ctx = this.ctx, L = this._liquid(c), g = this.geom.inner;
-    const iw = this.sprite.naturalWidth, ih = this.sprite.naturalHeight;
-    const y1 = 0.80 * h, y2 = Math.min(h, (g.botY + 0.03) * h);
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(L.xl(y1), y1); ctx.lineTo(L.xr(y1), y1); ctx.lineTo(L.xr(y2) + 1, y2); ctx.lineTo(L.xl(y2) - 1, y2); ctx.closePath();
-    ctx.clip();
-    ctx.drawImage(this.sprite, 0, 0.66 * ih, iw, 0.12 * ih, 0, y1, w, y2 - y1);
-    ctx.restore();
-  }
-
-  /**
-   * 布遮杯（工單 #4 任務 4）：有摺痕嘅布包住成隻杯，冇刻度、冇內容；頂部 🧺 N 計數。
-   * 有 cup-covered.webp 就直接畫貼圖；冇就程式畫（磨砂白 × 60% 灰 + 摺痕）。
-   */
-  drawCovered(c, w, h) {
-    const ctx = this.ctx;
-    if (this.covered) {
-      // 布袋素材比杯窄長：保持比例、底邊對齊、置中，束口可以高過杯口
-      const img = this.covered, bh = h * 1.06, bw = bh * (img.naturalWidth / img.naturalHeight);
-      ctx.drawImage(img, (w - bw) / 2, h - bh, bw, bh);
-    } else {
-      // 布身：比杯闊少少嘅梯形，底部圓角
-      const base = '#B9B3A8', dark = '#9C958A', light = '#D2CCC1';
-      ctx.beginPath();
-      ctx.moveTo(-3, 6); ctx.lineTo(w + 3, 6);
-      ctx.lineTo(w * 0.86, h - 8); ctx.quadraticCurveTo(w * 0.85, h, w * 0.78, h);
-      ctx.lineTo(w * 0.22, h); ctx.quadraticCurveTo(w * 0.15, h, w * 0.14, h - 8);
-      ctx.closePath();
-      const g = ctx.createLinearGradient(0, 0, w, 0);
-      g.addColorStop(0, dark); g.addColorStop(0.35, light); g.addColorStop(0.6, base); g.addColorStop(1, dark);
-      ctx.fillStyle = g; ctx.fill();
-      ctx.strokeStyle = 'rgba(80,70,60,0.55)'; ctx.lineWidth = 1.6; ctx.stroke();
-      ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-      // 摺痕：由頂部束口垂落嘅弧線
-      ctx.strokeStyle = 'rgba(80,70,60,0.28)'; ctx.lineWidth = 1.2;
-      for (let i = 0; i < 5; i++) {
-        const t = (i + 1) / 6;
-        const x0 = w * (0.3 + 0.4 * t), x1 = w * (0.18 + 0.64 * t);
-        ctx.beginPath(); ctx.moveTo(x0, 10); ctx.quadraticCurveTo(x0 + (x1 - x0) * 0.3, h * 0.55, x1, h - 6); ctx.stroke();
-      }
-      // 頂部束口：橢圓 + 繩結
-      ctx.beginPath(); ctx.ellipse(w / 2, 6, w / 2 + 3, 7, 0, 0, Math.PI * 2);
-      ctx.fillStyle = light; ctx.fill(); ctx.strokeStyle = 'rgba(80,70,60,0.55)'; ctx.lineWidth = 1.4; ctx.stroke();
-      ctx.strokeStyle = '#8A5A2B'; ctx.lineWidth = 2.5;
-      ctx.beginPath(); ctx.ellipse(w / 2, 6, w / 2 - 2, 5, 0, 0, Math.PI * 2); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(w * 0.62, 8); ctx.quadraticCurveTo(w * 0.72, 18, w * 0.66, 30); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(w * 0.62, 8); ctx.quadraticCurveTo(w * 0.52, 20, w * 0.58, 32); ctx.stroke();
-    }
-    // 🧺 N：仲要交幾多單先揭開
-    this.drawBadge(`🧺 ${c.unlockIn || 1}`, w, h * 0.42);
-  }
-
-  /**
-   * 杯身光效（夜市 brief A5）：
-   *  - 杯口橢圓 rim light：#FFFFFF 60%
-   *  - 杯身右下角環境暖光反射：#FFB84D 15%
-   */
-  drawCupLight(c, w, h) {
-    const ctx = this.ctx, g = this.geom, L = this._liquid(c);
-    ctx.save();
-    ctx.globalAlpha *= (c.lidAlpha ?? 1);
-    // 暖光反射：裁喺杯內多邊形，右下角徑向漸變
-    const top = g.inner.topY * h, bottom = L.bottom;
-    ctx.beginPath();
-    ctx.moveTo(L.xl(top), top); ctx.lineTo(L.xr(top), top); ctx.lineTo(L.xr(bottom), bottom); ctx.lineTo(L.xl(bottom), bottom); ctx.closePath();
-    ctx.clip();
-    const rg = ctx.createRadialGradient(w * 0.92, h * 0.96, 0, w * 0.92, h * 0.96, h * 0.7);
-    rg.addColorStop(0, 'rgba(255,184,77,0.15)'); rg.addColorStop(1, 'rgba(255,184,77,0)');
-    ctx.fillStyle = rg; ctx.fillRect(0, 0, w, h);
-    ctx.restore();
-    // rim light：杯口橢圓前半（受光嘅前唇），唔畫成浮喺杯上嘅環
-    ctx.save();
-    ctx.beginPath(); ctx.ellipse(w / 2, g.rimY * h, g.rimRx * w, g.rimRy * h, 0, 0.08 * Math.PI, 0.92 * Math.PI);
-    ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = Math.max(1, w * 0.012); ctx.lineCap = 'round'; ctx.stroke();
-    ctx.restore();
-  }
-
-  /** 杯上嘅小徽章（🧺 N / 🔒 N） */
-  drawBadge(label, w, cy) {
-    const ctx = this.ctx;
-    ctx.save();
-    ctx.shadowColor = 'transparent';
-    ctx.font = `bold ${Math.max(11, w * 0.17)}px "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif`;
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    const tw = ctx.measureText(label).width + 12;
-    ctx.beginPath(); ctx.roundRect(w / 2 - tw / 2, cy - 11, tw, 22, 11);
-    ctx.fillStyle = NIGHT.panel; ctx.fill();
-    ctx.strokeStyle = NIGHT.panelBorder; ctx.lineWidth = 1.2; ctx.stroke();
-    ctx.fillStyle = NIGHT.ink; ctx.fillText(label, w / 2, cy + 1);
-    ctx.restore();
-  }
-
-  /** 封膜：平面膠膜 + 鎖 */
-  drawFilmLid(w, cy, rx, ry) {
-    const ctx = this.ctx;
-    ctx.beginPath(); ctx.ellipse(w / 2, cy, rx, ry, 0, 0, Math.PI * 2);
-    ctx.fillStyle = '#F3D9B1'; ctx.fill();
-    ctx.strokeStyle = 'rgba(140,95,50,0.7)'; ctx.lineWidth = 1.4; ctx.stroke();
-    ctx.beginPath(); ctx.ellipse(w / 2, cy, rx * 0.86, ry * 0.55, 0, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.fill();
-    const lx = w / 2, ly = cy - 13;
-    ctx.fillStyle = '#8A5A2B';
-    ctx.beginPath(); ctx.roundRect(lx - 7, ly, 14, 10, 2); ctx.fill();
-    ctx.strokeStyle = '#8A5A2B'; ctx.lineWidth = 2.2;
-    ctx.beginPath(); ctx.arc(lx, ly, 4.5, Math.PI, 0); ctx.stroke();
-    ctx.fillStyle = '#F6E7CF'; ctx.beginPath(); ctx.arc(lx, ly + 5, 1.6, 0, Math.PI * 2); ctx.fill();
-  }
-
-  // 杯身梯形：頂闊 w，底闊 0.84w
-  _bodyPath(w, h, inset = 0) {
-    const ctx = this.ctx;
-    const bw = w * 0.84;
-    const l = (w - bw) / 2;
-    const r = 7;
-    ctx.beginPath();
-    ctx.moveTo(inset, inset);
-    ctx.lineTo(w - inset, inset);
-    ctx.lineTo(w - l - inset, h - r - inset);
-    ctx.quadraticCurveTo(w - l - inset, h - inset, w - l - r - inset, h - inset);
-    ctx.lineTo(l + r + inset, h - inset);
-    ctx.quadraticCurveTo(l + inset, h - inset, l + inset, h - r - inset);
-    ctx.closePath();
-  }
-
-  _xAt(w, h, yy) {   // 該高度嘅左邊界 x（0 = 頂）
-    const bw = w * 0.84;
-    return ((w - bw) / 2) * (yy / h);
-  }
-
-  drawPlasticBody(c, w, h) {
-    const ctx = this.ctx;
-    this._bodyPath(w, h);
-    if (c.kind === 'frosted') {
-      ctx.fillStyle = '#FBF5EA';
-    } else {
-      const g = ctx.createLinearGradient(0, 0, w, 0);
-      g.addColorStop(0, 'rgba(255,255,255,0.55)'); g.addColorStop(0.5, 'rgba(255,255,255,0.28)'); g.addColorStop(1, 'rgba(255,255,255,0.5)');
-      ctx.fillStyle = g;
-    }
-    ctx.fill();
-  }
-
-  drawPlasticFront(c, w, h) {
-    const ctx = this.ctx;
-    // 杯身外框
-    this._bodyPath(w, h);
-    ctx.strokeStyle = c.kind === 'frosted' ? 'rgba(210,190,170,0.7)' : 'rgba(255,255,255,0.45)';
-    ctx.lineWidth = 1.6;
-    ctx.stroke();
-    // 反光
-    ctx.beginPath();
-    ctx.moveTo(w * 0.16, h * 0.12); ctx.lineTo(w * 0.16 + w * 0.05, h * 0.12);
-    ctx.lineTo(w * 0.16 + w * 0.03 + w * 0.05, h * 0.75); ctx.lineTo(w * 0.16 + w * 0.03, h * 0.75);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.fill();
-
-    if (c.kind === 'frosted') {
-      // 磨砂杯：光滑白色塑膠，有刻度線（同布遮杯區分）
-      ctx.strokeStyle = 'rgba(160,120,80,0.45)'; ctx.lineWidth = 1.2;
-      for (let i = 1; i <= 4; i++) { const yy = h - 5 - i * this.slotH; const xr = w - this._xAt(w, h, yy) - 4; ctx.beginPath(); ctx.moveTo(xr - w * 0.12, yy); ctx.lineTo(xr, yy); ctx.stroke(); }
-      // 貼紙 + 肉球
-      ctx.fillStyle = 'rgba(200,150,100,0.35)';
-      const px = w / 2, py = h * 0.5, r = w * 0.07;
-      ctx.beginPath(); ctx.ellipse(px, py + r * 0.9, r * 1.35, r * 1.05, 0, 0, Math.PI * 2); ctx.fill();
-      for (const [dx, dy] of [[-1.4, -0.6], [-0.5, -1.4], [0.5, -1.4], [1.4, -0.6]]) {
-        ctx.beginPath(); ctx.arc(px + dx * r, py + dy * r, r * 0.5, 0, Math.PI * 2); ctx.fill();
-      }
-    }
-
-    // 頂：圓頂蓋 / 封膜
-    ctx.save();
-    ctx.translate(0, c.lidOffset || 0);
-    ctx.globalAlpha *= (c.lidAlpha ?? 1);
-    if (c.locked) {
-      this.drawFilmLid(w, 0, w / 2 + 3, 6);
-    } else {
-      // 開口杯：只有一個薄杯沿（背景規格 §8：拿走杯頂圓拱，令杯陣區更平靜）
-      ctx.beginPath(); ctx.ellipse(w / 2, 0, w / 2 + 2, 4.5, 0, 0, Math.PI * 2);
-      ctx.fillStyle = c.kind === 'frosted' ? 'rgba(255,253,248,0.95)' : 'rgba(255,255,255,0.55)'; ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1.6; ctx.stroke();   // rim light（brief A5）
-    }
-    ctx.restore();
-  }
-
-  drawBag(c, w, h) {
-    const ctx = this.ctx;
-    ctx.beginPath(); ctx.roundRect(0, 0, w, h, [4, 4, 8, 8]);
-    const g = ctx.createLinearGradient(0, 0, w, 0);
-    g.addColorStop(0, '#D9B27E'); g.addColorStop(0.5, '#E8C79A'); g.addColorStop(1, '#D3A971');
-    ctx.fillStyle = g; ctx.fill();
-  }
-
-  drawBagFront(c, w, h) {
-    const ctx = this.ctx;
-    ctx.beginPath(); ctx.roundRect(0, 0, w, h, [4, 4, 8, 8]);
-    ctx.strokeStyle = 'rgba(110,70,30,0.7)'; ctx.lineWidth = 1.6; ctx.stroke();
-    // 手挽
-    ctx.beginPath(); ctx.roundRect(w * 0.3, h * 0.045, w * 0.4, h * 0.05, 4);
-    ctx.fillStyle = 'rgba(110,70,30,0.55)'; ctx.fill();
-    // 窗口框
-    const top = h - 5 - 3 * this.slotH - 2;
-    ctx.beginPath(); ctx.roundRect(5, top, w - 10, 3 * this.slotH + 4, 4);
-    ctx.strokeStyle = 'rgba(110,70,30,0.6)'; ctx.lineWidth = 1.2; ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fill();
-    // 「外帶」字樣
-    ctx.fillStyle = 'rgba(110,70,30,0.7)';
-    ctx.font = `bold ${Math.max(9, w * 0.16)}px "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.fillText('外帶', w / 2, top - 5);
-  }
-
-  drawLayers(c, w, h, now) {
-    const ctx = this.ctx;
-    const L = this._liquid(c);
-    const sh = L.slotH, bottom = L.bottom;
-    const isBag = c.kind === 'takeaway';
-    const inset = isBag ? 7 : 0;
-    ctx.save();
-    if (L.sprite) {
-      const top = bottom - (c.cap + 0.08) * sh;   // 留 8% 位畀滿杯落定時嘅回彈
-      ctx.beginPath();
-      ctx.moveTo(L.xl(top), top); ctx.lineTo(L.xr(top), top); ctx.lineTo(L.xr(bottom), bottom); ctx.lineTo(L.xl(bottom), bottom); ctx.closePath();
-      ctx.clip();
-      // 液體用正常疊色實填（唔可以用 multiply：白色 × 杯身 = 杯身，椰奶白會變「透明」），
-      // 畫完液體再淡淡蓋返一層杯貼圖，令反光同珍珠透出嚟
-    } else if (isBag) { ctx.beginPath(); ctx.roundRect(inset, bottom - 3 * sh - 1, w - inset * 2, 3 * sh + 1, 3); ctx.clip(); }
-    else { this._bodyPath(w, h, 1.2); ctx.clip(); }
-    ctx.globalAlpha *= c.layerAlpha;
-
-    const n = c.seg.length;
-    // settle overshoot
-    let settleScale = 1;
-    if (c.settle) {
-      const t = clamp01((now - c.settle.t0) / c.settle.dur);
-      settleScale = 1 + 0.08 * (1 - backOut(t));
-    }
-    // 每層液體三件套（夜市 brief A5）：上緣高光線（+20% L，80%）、下緣暗邊（−18% L，1px）；左側高光柱畫完所有層先加
-    const lineW = Math.max(1, Math.min(2, w * 0.03));
-    const drawBand = (from, to, color, hidden) => {
-      const y1 = bottom - to * sh, y2 = bottom - from * sh;
-      ctx.beginPath();
-      ctx.moveTo(L.xl(y1), y1); ctx.lineTo(L.xr(y1), y1); ctx.lineTo(L.xr(y2), y2); ctx.lineTo(L.xl(y2), y2); ctx.closePath();
-      if (hidden) {
-        // 隱藏層 ?：深色半透明格 + 虛線邊，唔可以似任何一隻飲品色
-        ctx.fillStyle = 'rgba(31,22,56,0.88)'; ctx.fill();
-        ctx.save(); ctx.setLineDash([3, 3]); ctx.strokeStyle = 'rgba(201,190,230,0.55)'; ctx.lineWidth = 1; ctx.stroke(); ctx.restore();
-        ctx.fillStyle = NIGHT.inkDim;
-        ctx.font = `bold ${Math.max(11, sh * 0.62)}px "Segoe UI", sans-serif`;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('?', w / 2, (y1 + y2) / 2 + 1);
-        ctx.textBaseline = 'alphabetic';
-        return;
-      }
-      if (L.sprite) {
-        ctx.fillStyle = color; ctx.fill();
-      } else {
-        const g = ctx.createLinearGradient(0, 0, w, 0);
-        g.addColorStop(0, shade(color, -0.12)); g.addColorStop(0.45, shade(color, 0.08)); g.addColorStop(1, shade(color, -0.15));
-        ctx.fillStyle = g; ctx.fill();
-      }
-      if (y2 - y1 < lineW * 2) return;
-      // 下緣暗邊：模擬液體厚度
-      ctx.fillStyle = shiftL(color, -0.18, 1);
-      ctx.beginPath(); ctx.moveTo(L.xl(y2 - 1), y2 - 1); ctx.lineTo(L.xr(y2 - 1), y2 - 1); ctx.lineTo(L.xr(y2), y2); ctx.lineTo(L.xl(y2), y2); ctx.closePath(); ctx.fill();
-      // 上緣高光線：液面位置
-      ctx.fillStyle = shiftL(color, 0.20, 0.8);
-      ctx.beginPath(); ctx.moveTo(L.xl(y1), y1); ctx.lineTo(L.xr(y1), y1); ctx.lineTo(L.xr(y1 + lineW), y1 + lineW); ctx.lineTo(L.xl(y1 + lineW), y1 + lineW); ctx.closePath(); ctx.fill();
+    const selected = this.selected === idx;
+    // 瓶身陰影：平時畫瓶底軟橢圓（平，唔使每幀 blur 成張 sprite）；選中 / 交貨先用燭光 shadowBlur
+    const glow = c.glow > 0 ? c.glow : (selected ? 0.75 : 0);
+    const shadowOn = () => {
+      if (glow > 0) { ctx.shadowColor = rgba(COLORS.candleGlow, glow); ctx.shadowBlur = 18 + 8 * glow; ctx.shadowOffsetY = 0; }
     };
-    // 左側垂直高光柱：杯身左邊 8–12% 闊，白色 25% → 0%
-    const drawHighlightColumn = (levelTop) => {
-      if (levelTop <= 0) return;
-      const yTop = bottom - levelTop * sh;
-      const x0 = L.xl(yTop) + w * 0.06, x1 = x0 + w * 0.11;
-      const g = ctx.createLinearGradient(x0, 0, x1, 0);
-      g.addColorStop(0, 'rgba(255,255,255,0.25)'); g.addColorStop(1, 'rgba(255,255,255,0)');
-      ctx.fillStyle = g;
-      ctx.beginPath(); ctx.moveTo(x0, yTop); ctx.lineTo(x1, yTop); ctx.lineTo(x1, bottom); ctx.lineTo(x0, bottom); ctx.closePath(); ctx.fill();
+    const shadowOff = () => { ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; };
+    this.drawGroundShadow(c);
+
+    const cloth = this._showsCloth(c);
+    const revealing = !!c.reveal;
+    if (!cloth || revealing) {
+      // 瓶身 + 液體（揭開中：液體 / 圖案跟 reveal.fade 一齊淡入）
+      const liquidAlpha = revealing ? c.reveal.fade : 1;
+      if (liquidAlpha > 0) this.drawBackGlow(c, liquidAlpha);   // 發光三件套 ③：整瓶背後柔光（畫喺瓶身之下）
+      shadowOn();
+      this.drawVessel(c);
+      shadowOff();
+      if (liquidAlpha > 0) {
+        ctx.save(); ctx.globalAlpha *= liquidAlpha;
+        this.drawLiquid(c, now);
+        ctx.restore();
+      }
+      if (c.kind === 'cracked') this.drawBadge('只出', 0, c.h * 0.36, { text: COLORS.brassMain });
+    }
+    if (cloth) {
+      ctx.save();
+      const r = c.reveal;
+      if (r) {
+        // 繩鬆脫：布輕微晃；滑出：向上移 + 尾段淡出
+        const wob = r.rope > 0 && r.slide === 0 ? Math.sin(r.rope * Math.PI * 3) * 2 : 0;
+        ctx.translate(wob, -r.slide * (this._clothRect(c).h + 24));
+        ctx.globalAlpha *= 1 - clamp01((r.slide - 0.6) / 0.4);
+      }
+      shadowOn();
+      this.drawCloth(c);
+      shadowOff();
+      const hint = r ? r.hint : (c.clothHold ? c.clothHold.hint : (c.seg[c.seg.length - 1] ?? null));
+      this.drawSeal(c, hint, r ? 1 - r.rope * 0.6 : 1);
+      if (!r) this.drawBadge(`${c.unlockIn || 1} 單`, 0, this._clothRect(c).y + this._clothRect(c).h * 0.55 + this._clothRect(c).w * 0.36 + 12);
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+
+  /**
+   * 發光三件套 ③：整瓶背後柔光 = 每層色 @ 12%，blur 12px。
+   * 畫喺瓶身 sprite 之下：多邊形本身會被玻璃蓋住，只剩 shadowBlur 嘅光暈溢出瓶外——「藥劑喺暗房發光」。
+   */
+  drawBackGlow(c, alphaMul = 1) {
+    const ctx = this.ctx;
+    const { g, S, fx, fy } = this._frame(c);
+    const seg = c.pendingSeg ? c.pendingSeg.seg : c.seg;
+    if (!seg.length) return;
+    const slot = (g.liquid.bottom - g.liquid.top) / c.cap;
+    const yAt = (level) => g.liquid.bottom - level * slot;
+    const dpr = window.devicePixelRatio || 1;
+    ctx.save();
+    ctx.globalAlpha *= c.layerAlpha * alphaMul;
+    let level = 0;
+    for (let i = 0; i < seg.length; i++) {
+      const u = seg[i];
+      let units = 1;
+      if (c.removedUnits > 0 && i >= seg.length - Math.ceil(c.removedUnits)) units = Math.max(0, Math.min(1, (seg.length - c.removedUnits) - i));
+      if (units <= 0) { continue; }
+      if (u !== null) {
+        const hex = hexOf(u);
+        this._bandPath(g, S, fx, fy, yAt(level + units), yAt(level));
+        ctx.fillStyle = rgba(hex, RENDER.glow.backAlpha);
+        ctx.shadowColor = rgba(hex, 0.55); ctx.shadowBlur = RENDER.glow.backBlurPx * dpr; ctx.shadowOffsetY = 0;
+        ctx.fill();
+        // 第二層：更闊更淡嘅暈（blur ×2），令光落到背景牆
+        ctx.shadowBlur = RENDER.glow.backBlurPx * 2 * dpr; ctx.shadowColor = rgba(hex, 0.3);
+        ctx.fill();
+      }
+      level += units;
+    }
+    if (c.extraUnits > 0 && c.extraColor !== null) {
+      const hex = hexOf(c.extraColor);
+      this._bandPath(g, S, fx, fy, yAt(level + c.extraUnits), yAt(level));
+      ctx.fillStyle = rgba(hex, RENDER.glow.backAlpha);
+      ctx.shadowColor = rgba(hex, 0.55); ctx.shadowBlur = RENDER.glow.backBlurPx * dpr;
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  /** 瓶底投影：COLORS.shadow 50%，向下偏 6px，柔邊 ≈ blur 10 */
+  drawGroundShadow(c) {
+    const ctx = this.ctx;
+    const cloth = this._showsCloth(c) && !c.reveal;
+    const w = cloth ? this._clothRect(c).w : c.w;
+    const cy = c.h / 2 + 6 - c.lift * 2, rx = w * 0.5, ry = Math.max(4, w * 0.13);
+    const gr = ctx.createRadialGradient(0, cy, 0, 0, cy, rx);
+    gr.addColorStop(0, rgba(COLORS.shadow, 0.5)); gr.addColorStop(0.55, rgba(COLORS.shadow, 0.35)); gr.addColorStop(1, rgba(COLORS.shadow, 0));
+    ctx.save();
+    ctx.translate(0, cy); ctx.scale(1, ry / rx); ctx.translate(0, -cy);
+    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(0, cy, rx, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
+
+  /** 瓶身 sprite（未載入 → 程式畫佔位） */
+  drawVessel(c) {
+    const ctx = this.ctx;
+    const { g, S, fx, fy } = this._frame(c);
+    const kind = c.kind === 'covered' ? 'normal' : c.kind;
+    const img = renderAssets.img[spriteKey(kind)];
+    if (img) { ctx.drawImage(img, fx, fy, S, S); return; }
+    // 佔位：內壁多邊形 + 頸 + 口
+    const poly = bandPolygon(g, g.liquid.top, g.liquid.bottom);
+    ctx.beginPath();
+    poly.forEach(([u, v], i) => (i ? ctx.lineTo(fx + u * S, fy + v * S) : ctx.moveTo(fx + u * S, fy + v * S)));
+    ctx.closePath();
+    ctx.fillStyle = kind === 'frosted' ? FROSTED_GLASS : 'rgba(245,245,240,0.92)'; ctx.fill();
+    ctx.strokeStyle = COLORS.brassDark; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.beginPath(); ctx.rect(fx + g.neck.l * S, fy + g.rim.y * S, (g.neck.r - g.neck.l) * S, (g.liquid.top - g.rim.y) * S);
+    ctx.fillStyle = 'rgba(245,245,240,0.8)'; ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(fx + g.rim.cx * S, fy + g.rim.y * S, g.rim.rx * S, g.rim.ry * S, 0, 0, Math.PI * 2);
+    ctx.fillStyle = COLORS.brassMain; ctx.fill();
+  }
+
+  /** 內壁多邊形 path（frame 單位 → local px） */
+  _bandPath(g, S, fx, fy, yTop, yBot) {
+    const ctx = this.ctx;
+    const poly = bandPolygon(g, yTop, yBot);
+    ctx.beginPath();
+    for (let i = 0; i < poly.length; i++) { const [u, v] = poly[i]; if (i) ctx.lineTo(fx + u * S, fy + v * S); else ctx.moveTo(fx + u * S, fy + v * S); }
+    ctx.closePath();
+  }
+
+  /**
+   * 液體：第 i 格 = 內壁 liquid.bottom 向上第 i 個 slot。
+   *  normal / cracked / takeaway：multiply 混入 sprite（玻璃近白 → 顏色保住，蝕刻線透出）
+   *  frosted：只畫可見格，opaque（磨砂玻璃太灰，multiply 會變泥）；新露出格 160 ms 淡入
+   */
+  drawLiquid(c, now) {
+    const ctx = this.ctx;
+    const { g, S, fx, fy } = this._frame(c);
+    const slot = (g.liquid.bottom - g.liquid.top) / c.cap;
+    const yAt = (level) => g.liquid.bottom - level * slot;           // frame 單位
+    const frosted = c.kind === 'frosted' || c.pendingSeg?.kind === 'frosted';
+    const seg = c.pendingSeg ? c.pendingSeg.seg : c.seg;
+    const n = seg.length;
+    let settleScale = 1;
+    if (c.settle) settleScale = 1 + 0.08 * (1 - backOut(clamp01((now - c.settle.t0) / c.settle.dur)));
+    const baseAlpha = ctx.globalAlpha * c.layerAlpha;
+    const lineW = Math.max(1, Math.min(2, c.w * 0.03));
+    const liqBase = renderAssets.img.LIQ_base;
+
+    const drawBand = (from, to, unit, alpha) => {
+      if (to - from <= 0.001) return;
+      const yTop = yAt(to), yBot = yAt(from);
+      const hex = hexOf(unit);
+      const y1 = fy + yTop * S, y2 = fy + yBot * S;
+      const ext = extentsAt(g, (yTop + yBot) / 2);
+      const bx0 = fx + ext.l * S, bx1 = fx + ext.r * S;
+      ctx.save();
+      ctx.globalAlpha = baseAlpha * alpha;
+      this._bandPath(g, S, fx, fy, yTop, yBot);
+      ctx.clip();
+      if (frosted) {
+        // 已經 clip 住內壁多邊形 → 全闊填色（用層中段闊度會喺圓肚彎位露出灰玻璃楔形）
+        ctx.fillStyle = hex; ctx.globalAlpha = baseAlpha * alpha * 0.92;
+        ctx.fillRect(fx, y1, S, y2 - y1);
+        ctx.globalAlpha = baseAlpha * alpha;
+      } else {
+        ctx.globalCompositeOperation = RENDER.liquidBlend;
+        ctx.fillStyle = hex;
+        ctx.fillRect(fx, y1, S, y2 - y1);
+        // 液體底圖（白色圓角帶，multiply → 只留淡淡厚度感）
+        if (liqBase && y2 - y1 > 6) {
+          const b = liqBase.bbox || { x: 0, y: 0, w: liqBase.naturalWidth, h: liqBase.naturalHeight };
+          ctx.drawImage(liqBase, b.x, b.y, b.w, b.h, fx + (ext.l - 0.02) * S, y1 - (y2 - y1) * 0.08, (ext.r - ext.l + 0.04) * S, (y2 - y1) * 1.16);
+        }
+        // 下緣暗邊：模擬液體厚度
+        ctx.fillStyle = shiftL(hex, -0.18, 1);
+        ctx.fillRect(fx, y2 - Math.max(1, lineW * 0.7), S, Math.max(1, lineW * 0.7));
+        ctx.globalCompositeOperation = 'source-over';
+      }
+      if (y2 - y1 > lineW * 2) {
+        // 發光三件套 ①：液面高光線 = 該層色 +35% 明度，2px，layer 頂邊
+        ctx.fillStyle = shiftL(hex, RENDER.glow.surfaceLineL, 0.95);
+        ctx.fillRect(fx, y1, S, RENDER.glow.surfaceLinePx);
+      }
+      ctx.restore();
+      // 發光三件套 ②：液體外緣 rim glow = 該層色 @ 40%，2px（沿內壁多邊形描邊，唔受 clip 限制 → 光暈微微溢出玻璃）
+      ctx.save();
+      ctx.globalAlpha = baseAlpha * alpha;
+      this._bandPath(g, S, fx, fy, yTop, yBot);
+      ctx.strokeStyle = rgba(hex, RENDER.glow.rimAlpha); ctx.lineWidth = RENDER.glow.rimPx; ctx.lineJoin = 'round';
+      ctx.stroke();
+      ctx.restore();
+      // 配料圖案（該層色 −28% L）
+      const p = unitPattern(unit);
+      if (p > 0) this.drawPattern(c, p, hex, bx0, y1, bx1 - bx0, y2 - y1, baseAlpha * alpha, g, S, fx, fy, yTop, yBot);
+    };
+    const drawHidden = (from, to) => {
+      // 隱藏格（normal 杯有 null：理論上冇，保險起見畫「?」深格）
+      const yTop = yAt(to), yBot = yAt(from);
+      ctx.save();
+      ctx.globalAlpha = baseAlpha;
+      this._bandPath(g, S, fx, fy, yTop, yBot); ctx.clip();
+      ctx.fillStyle = rgba(FROSTED_GLASS, 0.85); ctx.fillRect(fx, fy + yTop * S, S, (yBot - yTop) * S);
+      ctx.fillStyle = COLORS.textPrimary; ctx.font = `bold ${Math.max(10, slot * S * 0.55)}px ${FONT}`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('?', 0, fy + ((yTop + yBot) / 2) * S);
+      ctx.restore();
     };
 
     // 已有層（來源正在倒出：頂層縮短）
     let level = 0;
     for (let i = 0; i < n; i++) {
-      const col = c.seg[i];
+      const u = seg[i];
       let units = 1;
-      if (c.removedUnits > 0 && i >= n - Math.ceil(c.removedUnits)) {
-        units = Math.max(0, Math.min(1, (n - c.removedUnits) - i));
-      }
+      if (c.removedUnits > 0 && i >= n - Math.ceil(c.removedUnits)) units = Math.max(0, Math.min(1, (n - c.removedUnits) - i));
       if (units <= 0) continue;
       const top = i === n - 1 && !c.extraUnits ? level + units * settleScale : level + units;
-      drawBand(level, top, col === null ? null : HEX[col], col === null);
+      if (u === null) { if (!frosted) drawHidden(level, top); }
+      else {
+        const t0 = c.fade[i];
+        const alpha = t0 ? clamp01((now - t0) / RENDER.frostedRevealMs) : 1;
+        drawBand(level, top, u, alpha);
+      }
       level += units;
     }
     // 正在倒入嘅新層
-    if (c.extraUnits > 0 && c.extraColor !== null) drawBand(level, level + c.extraUnits, HEX[c.extraColor], false);
-    drawHighlightColumn(level + (c.extraUnits || 0));
+    if (c.extraUnits > 0 && c.extraColor !== null) drawBand(level, level + c.extraUnits, c.extraColor, 1);
+    const fill = level + (c.extraUnits || 0);
+    // 左側垂直高光柱（只喺有液體時）
+    if (fill > 0 && !frosted) {
+      const yTop = yAt(Math.min(c.cap, fill)), yBot = g.liquid.bottom;
+      ctx.save();
+      ctx.globalAlpha = baseAlpha;
+      this._bandPath(g, S, fx, fy, yTop, yBot); ctx.clip();
+      const ext = extentsAt(g, (yTop + yBot) / 2);
+      const x0 = fx + ext.l * S + c.w * 0.05, x1 = x0 + c.w * 0.10;
+      const gr = ctx.createLinearGradient(x0, 0, x1, 0);
+      gr.addColorStop(0, 'rgba(255,255,255,0.22)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = gr; ctx.fillRect(x0, fy + yTop * S, x1 - x0, (yBot - yTop) * S);
+      ctx.restore();
+    }
+  }
 
-    if (L.sprite) {
-      // 杯貼圖以 20% 透明度蓋返液體區：反光留光、珍珠留深；空格（冇液體）唔受影響
-      if (level > 0 || c.extraUnits > 0) {
-        const top = bottom - (level + (c.extraUnits || 0)) * sh;
-        ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(L.xl(top), top); ctx.lineTo(L.xr(top), top); ctx.lineTo(L.xr(bottom), bottom); ctx.lineTo(L.xl(bottom), bottom); ctx.closePath();
-        ctx.clip();
-        ctx.globalAlpha = 0.2 * c.layerAlpha;
-        ctx.drawImage(this.sprite, 0, 0, w, h);
-        ctx.restore();
+  /**
+   * 配料圖案（決定 8）：層高 ≥48px 用 PAT_tile_large，<48px 用 PAT_tile_small；<32px 只畫層中央單一 icon。
+   * 取樣象限 = patternUV(p)（含 inset）；圖案按層高等比縮放置中，P3 橫向 repeat 鋪滿，其餘 clamp（單一象限）。
+   * tile 係灰階 L 遮罩（黑 = 墨）→ 已轉成 alpha 遮罩，source-in 染成該層色 −28% L。
+   */
+  drawPattern(c, p, hex, bx, by, bw, bh, alpha, g, S, fx, fy, yTop, yBot) {
+    const ctx = this.ctx;
+    const uv = patternUV(PAT_NAMES[p]);
+    if (!uv || bh < 4) return;
+    const mask = bh >= RENDER.patternLargeMinPx ? renderAssets.patMask.large : renderAssets.patMask.small;
+    if (!mask) return;
+    const atlas = RENDER.patternAtlasSize;
+    const sx = uv.u0 * atlas, sy = uv.v0 * atlas, sw = (uv.u1 - uv.u0) * atlas, sh = (uv.v1 - uv.v0) * atlas;
+    const sc = this._scratch, dpr = window.devicePixelRatio || 1;
+    const W = Math.max(2, Math.ceil(bw * dpr)), H = Math.max(2, Math.ceil(bh * dpr));
+    if (sc.width !== W || sc.height !== H) { sc.width = W; sc.height = H; }
+    const sctx = sc.getContext('2d');
+    sctx.setTransform(1, 0, 0, 1, 0, 0);
+    sctx.globalCompositeOperation = 'source-over';
+    sctx.clearRect(0, 0, W, H);
+    const iconOnly = bh < RENDER.patternIconOnlyBelowPx;
+    if (iconOnly) {
+      // 單一 icon：取象限中央 45% 區域，縮到層高 80%
+      const side = H * 0.8, cx = sx + sw / 2, cy = sy + sh / 2, half = sw * 0.225;
+      sctx.drawImage(mask, cx - half, cy - half, half * 2, half * 2, (W - side) / 2, (H - side) / 2, side, side);
+    } else {
+      const inset = H * 0.08, side = H - inset * 2;
+      if (RENDER.patternWrap[PAT_NAMES[p]] === 'repeat') {
+        const count = Math.ceil(W / side) + 1, start = (W - count * side) / 2;
+        for (let i = 0; i < count; i++) sctx.drawImage(mask, sx, sy, sw, sh, start + i * side, inset, side, side);
+      } else {
+        sctx.drawImage(mask, sx, sy, sw, sh, (W - side) / 2, inset, side, side);
       }
-      ctx.restore(); return;
     }
-    // 珍珠（底層）
-    if (n > 0 && c.seg[0] !== null) {
-      ctx.fillStyle = 'rgba(40,25,15,0.35)';
-      const py = bottom - sh * 0.32;
-      const cnt = 4;
-      for (let i = 0; i < cnt; i++) {
-        const px = w * (0.28 + 0.44 * (i / (cnt - 1))) + (i % 2 ? -1 : 1);
-        ctx.beginPath(); ctx.arc(px, py + (i % 2) * 2, Math.max(1.8, sh * 0.13), 0, Math.PI * 2); ctx.fill();
-      }
+    sctx.globalCompositeOperation = 'source-in';
+    sctx.fillStyle = shiftL(hex, RENDER.patternLumShift, 1);
+    sctx.fillRect(0, 0, W, H);
+    sctx.globalCompositeOperation = 'source-over';
+    ctx.save();
+    ctx.globalAlpha = alpha * 0.9;
+    this._bandPath(g, S, fx, fy, yTop, yBot); ctx.clip();
+    ctx.drawImage(sc, 0, 0, W, H, bx, by, W / dpr, H / dpr);
+    ctx.restore();
+  }
+
+  /** 布遮：固定尺寸拉伸至 _clothRect（素材已 runtime key 走黑底）；未載入 → 程式畫布 */
+  drawCloth(c) {
+    const ctx = this.ctx;
+    const r = this._clothRect(c);
+    const img = renderAssets.img.VES_cloth_cover;
+    if (img) {
+      const b = img.bbox || { x: 0, y: 0, w: img.width, h: img.height };
+      ctx.drawImage(img, b.x, b.y, b.w, b.h, r.x, r.y, r.w, r.h);
+      return;
     }
-    // 封膜杯：加層白紗
-    if (c.locked) { ctx.fillStyle = 'rgba(255,255,255,0.28)'; ctx.fillRect(0, 0, w, h); }
+    ctx.beginPath();
+    ctx.moveTo(r.x + r.w * 0.3, r.y); ctx.lineTo(r.x + r.w * 0.7, r.y);
+    ctx.lineTo(r.x + r.w, r.y + r.h); ctx.lineTo(r.x, r.y + r.h); ctx.closePath();
+    ctx.fillStyle = '#E6DCC4'; ctx.fill();
+    ctx.strokeStyle = COLORS.brassDark; ctx.lineWidth = 1.5; ctx.stroke();
+  }
+
+  /** 蠟封（tint = 提示色）→ 黃銅框（永不 tint），置中喺布 55% 高度 */
+  drawSeal(c, hintUnit, alpha = 1) {
+    const ctx = this.ctx;
+    const r = this._clothRect(c);
+    const side = r.w * 0.72;
+    const cx = 0, cy = r.y + r.h * 0.55;
+    const seal = renderAssets.img.VES_wax_seal, ring = renderAssets.img.VES_wax_ring;
+    const hex = hintUnit === null || hintUnit === undefined ? '#9A8B6F' : hexOf(hintUnit);
+    ctx.save();
+    ctx.globalAlpha *= alpha;
+    ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+    if (seal) ctx.drawImage(this._tintedSeal(seal, hex, side), cx - side / 2, cy - side / 2, side, side);
+    else { ctx.beginPath(); ctx.arc(cx, cy, side * 0.36, 0, Math.PI * 2); ctx.fillStyle = hex; ctx.fill(); }
+    if (ring) ctx.drawImage(ring, cx - side / 2, cy - side / 2, side, side);
+    else { ctx.beginPath(); ctx.arc(cx, cy, side * 0.42, 0, Math.PI * 2); ctx.strokeStyle = COLORS.brassMain; ctx.lineWidth = 3; ctx.stroke(); }
+    ctx.restore();
+  }
+
+  /** 蠟餅染色（快取）：source-atop 上色保住形狀，再 multiply 原圖攞返陰影 */
+  _tintedSeal(seal, hex, side) {
+    const px = Math.max(16, Math.round(side * (window.devicePixelRatio || 1)));
+    const key = hex + ':' + px;
+    let cv = this._sealCache.get(key);
+    if (cv) return cv;
+    cv = document.createElement('canvas'); cv.width = px; cv.height = px;
+    const x = cv.getContext('2d');
+    x.drawImage(seal, 0, 0, px, px);
+    x.globalCompositeOperation = 'source-atop';
+    x.fillStyle = rgba(hex, 0.82); x.fillRect(0, 0, px, px);
+    x.globalCompositeOperation = 'multiply';
+    x.globalAlpha = 0.65; x.drawImage(seal, 0, 0, px, px);
+    x.globalAlpha = 1; x.globalCompositeOperation = 'source-over';
+    this._sealCache.set(key, cv);
+    return cv;
+  }
+
+  /** 瓶上小徽章（「N 單」/「只出」）：woodDark 90% 底、brassMain 邊、textPrimary 字 */
+  drawBadge(label, cx, cy, opt = {}) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+    ctx.font = `bold ${Math.max(10, Math.min(14, this.bottleWidth ? this.bottleWidth * 0.2 : 12))}px ${FONT}`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const tw = ctx.measureText(label).width + 12, th = 20;
+    ctx.beginPath(); ctx.roundRect(cx - tw / 2, cy - th / 2, tw, th, th / 2);
+    ctx.fillStyle = rgba(COLORS.woodDark, 0.9); ctx.fill();
+    ctx.strokeStyle = COLORS.brassMain; ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.fillStyle = opt.text || COLORS.textPrimary; ctx.fillText(label, cx, cy + 1);
     ctx.restore();
   }
 
@@ -784,24 +864,20 @@ export class GameView {
     const ctx = this.ctx;
     for (const s of this.streams) {
       const S = this.cups[s.from], T = this.cups[s.to];
-      // 壺嘴：來源杯頂邊靠目標嗰一角（經旋轉）
-      const cornerX = s.side < 0 ? S.w : 0;
-      const ox = S.x + S.w / 2, oy = S.y + S.h;
-      const lx = cornerX - S.w / 2, ly = -S.h;
-      const cos = Math.cos(S.rot), sin = Math.sin(S.rot);
-      const spx = ox + lx * cos - ly * sin, spy = oy + lx * sin + ly * cos;
+      if (!S || !T) continue;
+      // 壺嘴：來源瓶口靠目標嗰一邊（經旋轉）
+      const { g, S: fs, fx, fy } = this._frame(S);
+      const lipU = g.rim.cx + (s.side < 0 ? g.rim.rx : -g.rim.rx);
+      const lip = this._toWorld(S, fx + lipU * fs, fy + g.rim.y * fs);
       const level = T.seg.length + T.extraUnits;
-      const LT = this._liquid(T);
-      const tx = T.x + T.w / 2, ty = T.y + LT.bottom - level * LT.slotH;
+      const tgt = this._toWorld(T, 0, this._surfaceY(T, level));
+      const hex = hexOf(s.color);
       ctx.save();
       ctx.globalAlpha = s.alpha;
       ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.moveTo(spx, spy);
-      ctx.quadraticCurveTo(spx + (tx - spx) * 0.15, spy + (ty - spy) * 0.55, tx, ty);
-      ctx.strokeStyle = HEX[s.color]; ctx.lineWidth = s.width; ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(spx, spy);
-      ctx.quadraticCurveTo(spx + (tx - spx) * 0.15, spy + (ty - spy) * 0.55, tx, ty);
-      ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = s.width * 0.35; ctx.stroke();
+      const curve = () => { ctx.beginPath(); ctx.moveTo(lip.x, lip.y); ctx.quadraticCurveTo(lip.x + (tgt.x - lip.x) * 0.15, lip.y + (tgt.y - lip.y) * 0.55, tgt.x, tgt.y); };
+      curve(); ctx.strokeStyle = hex; ctx.lineWidth = s.width; ctx.stroke();
+      curve(); ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = s.width * 0.35; ctx.stroke();
       ctx.restore();
     }
   }
@@ -818,19 +894,22 @@ export class GameView {
     ctx.save();
     ctx.globalAlpha = Math.min(1, (1 - t) * 3) * pulse;
     for (const c of [A, B]) {
-      ctx.beginPath(); ctx.roundRect(c.hx - 5, c.hy - 26, c.w + 10, c.h + 32, 12);
-      ctx.strokeStyle = '#E88D5A'; ctx.lineWidth = 3; ctx.setLineDash([6, 5]); ctx.stroke();
+      ctx.save();
+      ctx.translate(c.hx, c.hy); ctx.rotate(c.rot0);
+      ctx.beginPath(); ctx.roundRect(-c.w / 2 - 6, -c.h / 2 - 8, c.w + 12, c.h + 14, 12);
+      ctx.strokeStyle = COLORS.brassLight; ctx.lineWidth = 3; ctx.setLineDash([6, 5]); ctx.stroke();
+      ctx.restore();
     }
     ctx.setLineDash([]);
-    const ax = A.hx + A.w / 2, ay = A.hy - 30, bx = B.hx + B.w / 2, by = B.hy - 30;
+    const ax = A.hx, ay = A.hy - A.h / 2 - 12, bx = B.hx, by = B.hy - B.h / 2 - 12;
     const mx = (ax + bx) / 2, my = Math.min(ay, by) - 34;
     ctx.beginPath(); ctx.moveTo(ax, ay); ctx.quadraticCurveTo(mx, my, bx, by);
-    ctx.strokeStyle = '#E88D5A'; ctx.lineWidth = 3.5; ctx.stroke();
+    ctx.strokeStyle = COLORS.brassLight; ctx.lineWidth = 3.5; ctx.stroke();
     const ang = Math.atan2(by - my, bx - mx);
     ctx.beginPath(); ctx.moveTo(bx, by);
     ctx.lineTo(bx - 12 * Math.cos(ang - 0.5), by - 12 * Math.sin(ang - 0.5));
     ctx.lineTo(bx - 12 * Math.cos(ang + 0.5), by - 12 * Math.sin(ang + 0.5));
-    ctx.closePath(); ctx.fillStyle = '#E88D5A'; ctx.fill();
+    ctx.closePath(); ctx.fillStyle = COLORS.brassLight; ctx.fill();
     ctx.restore();
   }
 }

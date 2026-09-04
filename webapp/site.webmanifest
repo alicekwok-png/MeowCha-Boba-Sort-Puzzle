@@ -1,12 +1,12 @@
 {
   "name": "喵喵茶記 Boba Cat",
   "short_name": "喵喵茶記",
-  "description": "珍珠奶茶分類解謎",
+  "description": "煉金工房試劑分類解謎",
   "start_url": "./?host=app",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#171029",
-  "theme_color": "#171029",
+  "background_color": "#12100D",
+  "theme_color": "#12100D",
   "lang": "zh-Hant",
   "icons": [
     { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },

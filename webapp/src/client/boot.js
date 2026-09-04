@@ -1,5 +1,7 @@
-// client/boot.js — 開場流程（開場規格）：Boot → 公司 Logo → Loading → 關卡。
+// client/boot.js — 開場流程（開場規格）：Boot → 公司 Logo → Loading → 關卡。Spec v2：資源清單全部經 ASSET_MAP。
 // 核心原則：資源下載同 Logo 播放並行。純函數（決策 / 載入）同 DOM 流程分開，方便測試。
+
+import { ASSET_MAP } from '../config/assets.js';
 
 export const LOGO_FIRST_MS = 2000;
 export const LOGO_REPEAT_MS = 1200;
@@ -7,23 +9,31 @@ export const LOADING_MIN_MS = 800;
 export const ASSET_TIMEOUT_MS = 15000;
 export const ASSET_RETRIES = 1;
 
-export const TIPS = ['正在煮珍珠…', '正在搖勻…', '摩卡準備緊…', '今日客人快到喇…', '正在洗杯…'];
+export const TIPS = ['正在點蠟燭…', '正在磨試劑…', '導師擦緊燒瓶…', '委託人快到工房喇…', '正在封蠟…'];
 
-/** 批次 2 — 遊戲核心（阻塞 GameLoading）。bytes 係估算，用嚟加權進度。 */
+/** 批次 2 — 遊戲核心（阻塞 GameLoading）。全部由 ASSET_MAP（Spec v2 §7）出；bytes 係估算，用嚟加權進度。 */
+const A = (key, bytes) => ({ url: ASSET_MAP[key], bytes });
 export const CORE_ASSETS = [
   { url: 'levels/campaign.json', bytes: 20_000 },
-  { url: 'assets/bg/bg1_far.webp', bytes: 44_000 },
-  { url: 'assets/cup-body.webp', bytes: 27_000 },
-  { url: 'assets/cup-geom.json', bytes: 400 },
-  ...['idle', 'pouring', 'serve', 'stuck', 'almost', 'clear'].map(k => ({ url: `assets/mocha-${k}.webp`, bytes: 42_000 })),
-  ...[1, 2, 3, 4].flatMap(c => ['wait', 'happy', 'angry'].map(m => ({ url: `assets/customer-${c}-${m}-body.webp`, bytes: 27_000 }))),
+  A('BG_lab_full', 206_000),
+  A('VES_geometry', 11_000),
+  A('VES_flask_empty', 28_000), A('VES_flask_frosted', 41_000), A('VES_flask_cracked', 36_000),
+  A('VES_retort_empty', 23_000), A('VES_retort_frosted', 29_000),
+  A('VES_cloth_cover', 12_000), A('VES_wax_seal', 123_000), A('VES_wax_ring', 133_000),
+  A('LIQ_base', 23_000), A('PAT_tile_large', 18_000), A('PAT_tile_small', 23_000),
+  A('CHR_cat_idle', 53_000), A('CHR_cat_happy', 48_000), A('CHR_cat_cheer', 62_000),
+  A('CHR_client_raven', 65_000), A('CHR_client_badger', 88_000), A('CHR_client_owl', 83_000), A('CHR_client_hare', 44_000),
+  // 首屏要用嘅 UI：道具 / 系統鍵 / 星 / 金幣 / 主按鈕 / 紋章
+  A('UI_item_undo', 30_000), A('UI_item_hint', 30_000), A('UI_sys_back', 27_000), A('UI_sys_shop', 28_000),
+  A('UI_star', 17_000), A('UI_star_dim', 15_000), A('UI_coin', 34_000), A('UI_btn_primary', 9_000), A('UI_ad_crest', 15_000),
 ];
 
-/** 批次 3 — 延後（進入關卡後閒時載） */
+/** 批次 3 — 延後（進入關卡後閒時載）：主畫面細背景、博士剪影、其餘 UI */
 export const DEFERRED_ASSETS = [
-  'assets/bg-04.jpg', 'assets/mocha-avatar.webp',
-  'assets/cup-frosted.webp', 'assets/cup-sealed.webp', 'assets/cup-takeaway.webp', 'assets/cup-covered.webp',
-];
+  'BG_lab_full_small', 'CHR_doctor_silhouette',
+  'UI_btn_secondary', 'UI_btn_danger', 'UI_btn_disabled', 'UI_panel_dialog', 'UI_panel_info',
+  'UI_item_addflask', 'UI_item_swap', 'UI_sys_settings', 'UI_sys_daily', 'UI_sys_codex', 'UI_progressbar',
+].map(k => ASSET_MAP[k]);
 
 // ---------------- 決策（純函數） ----------------
 
@@ -164,7 +174,7 @@ export class BootFlow {
     });
   }
 
-  /** 奶白底：字標 + 摩卡三幀 loop + 注液進度條 + 文案輪播；最少 0.8s；失敗顯示重試 */
+  /** 深色工房底：字標 + 導師貓待機圖（CSS 浮動）+ 注液進度條 + 文案輪播；最少 0.8s；失敗顯示重試 */
   async showLoading(corePromise) {
     const s = this.loadingScreen;
     const shown = performance.now();
@@ -179,10 +189,9 @@ export class BootFlow {
     s.classList.add('active');
     requestAnimationFrame(() => s.classList.add('in'));
 
-    // 摩卡待機 loop：1-2-3-2，4 fps
-    const frames = ['01', '02', '03', '02'];
-    let fi = 0;
-    const anim = setInterval(() => { fi = (fi + 1) % frames.length; mocha.src = `${this.base}assets/mocha-idle-${frames[fi]}.webp`; }, 250);
+    // 導師貓：單張 CHR_cat_idle（浮動由 CSS .boot-mocha 做，唔再逐幀換圖）
+    const idleSrc = `${this.base}${ASSET_MAP.CHR_cat_idle}`;
+    if (!mocha.src.endsWith(ASSET_MAP.CHR_cat_idle)) mocha.src = idleSrc;
     // 進度條
     const bar = setInterval(() => { fill.style.width = `${Math.max(8, this.progress * 100).toFixed(1)}%`; }, 50);
     // 文案輪播 1.4s
@@ -200,7 +209,6 @@ export class BootFlow {
       retry.hidden = false;
       // 撳一下由頭嚟過（logo flag 已寫 → 會跳過 / 縮短 logo）
       await new Promise(r => { s.onpointerdown = r; });
-      clearInterval(anim);
       s.onpointerdown = null; s.classList.remove('active', 'in');
       this.progress = 0;
       return this.run().then(t => !!t);
@@ -210,7 +218,7 @@ export class BootFlow {
     await sleep(wait);
     this.progress = 1; fill.style.width = '100%';
     await sleep(120);
-    clearInterval(anim); clearInterval(bar); clearInterval(tips);
+    clearInterval(bar); clearInterval(tips);
     s.classList.add('fade');
     await sleep(200);
     s.classList.remove('active', 'in', 'fade');

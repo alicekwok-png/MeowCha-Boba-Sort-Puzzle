@@ -3,23 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-  <meta name="theme-color" content="#171029">
+  <meta name="theme-color" content="#12100D">
   <title>喵喵茶記 Boba Cat</title>
   <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
   <link rel="icon" type="image/png" sizes="64x64" href="assets/icons/favicon-64.png">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="喵喵茶記">
-  <!-- 批次 1：開場必需，喺 HTML 層 preload，唔經遊戲 loader -->
+  <!-- 批次 1：開場必需，喺 HTML 層 preload，唔經遊戲 loader（Spec v2：導師貓單張 CHR_cat_idle） -->
   <link rel="preload" as="image" href="assets/company-logo.webp">
   <link rel="preload" as="image" href="assets/meowcha-wordmark.webp">
-  <link rel="preload" as="image" href="assets/mocha-idle-01.webp">
-  <link rel="preload" as="image" href="assets/mocha-idle-02.webp">
-  <link rel="preload" as="image" href="assets/mocha-idle-03.webp">
-  <link rel="modulepreload" href="src/client/main.js?v=5">
-  <link rel="stylesheet" href="styles.css?v=5">
+  <link rel="preload" as="image" href="assets/v2/cat_idle.webp">
+  <link rel="modulepreload" href="src/client/main.js?v=6">
+  <link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
 <div id="app">
@@ -29,22 +27,22 @@
     <img src="assets/company-logo.webp" alt="">
   </section>
 
-  <!-- ===== 開場：遊戲 Loading（奶白）===== -->
+  <!-- ===== 開場：遊戲 Loading（深色工房）===== -->
   <section id="screen-loading" class="screen boot-loading">
     <img class="boot-wordmark" src="assets/meowcha-wordmark.webp" alt="喵喵茶記">
-    <img id="boot-mocha" class="boot-mocha" src="assets/mocha-idle-01.webp" alt="">
+    <img id="boot-mocha" class="boot-mocha" src="assets/v2/cat_idle.webp" alt="">
     <div class="boot-bar"><div id="boot-fill" class="boot-fill"></div><span class="boot-straw"></span></div>
-    <div id="boot-tip" class="boot-tip">正在煮珍珠…</div>
+    <div id="boot-tip" class="boot-tip">正在點蠟燭…</div>
     <div id="boot-retry" class="boot-retry" hidden>載入唔到，撳一下重試</div>
   </section>
 
-  <!-- ===== 主畫面（咖啡店）===== -->
+  <!-- ===== 主畫面（煉金工房）===== -->
   <section id="screen-title" class="screen">
     <div class="title-bg"></div>
     <div class="title-content">
       <div id="cafe-banner" class="cafe-banner" hidden></div>
-      <img class="title-mascot" src="assets/mocha-serve.webp" alt="Mocha">
-      <h1 class="logo"><span class="logo-main">喵喵茶記</span><span class="logo-sub">Boba Cat · 珍珠奶茶分類</span></h1>
+      <img class="title-mascot" src="assets/v2/cat_idle.webp" alt="導師">
+      <h1 class="logo"><span class="logo-main">喵喵茶記</span><span class="logo-sub">Boba Cat · 煉金工房試劑分類</span></h1>
       <div class="menu">
         <button id="btn-continue" class="btn primary">開始</button>
         <button id="btn-levels" class="btn">關卡選擇</button>
@@ -52,8 +50,8 @@
         <button id="btn-help" class="btn ghost">點樣玩？</button>
       </div>
       <div class="title-foot">
-        <span class="coins">🪙 <b id="coins-title">0</b></span>
-        <span class="stars-total">⭐ <b id="stars-title">0</b>/120</span>
+        <span class="coins"><img class="ico" src="assets/v2/ui_coin.webp" alt="金幣"> <b id="coins-title">0</b></span>
+        <span class="stars-total"><img class="ico" src="assets/v2/ui_star.webp" alt="星"> <b id="stars-title">0</b>/120</span>
       </div>
     </div>
   </section>
@@ -61,14 +59,14 @@
   <!-- ===== 關卡選擇 ===== -->
   <section id="screen-levels" class="screen">
     <header class="bar">
-      <button class="icon-btn" id="btn-levels-back" aria-label="返回">‹</button>
+      <button class="icon-btn img" id="btn-levels-back" aria-label="返回"><img src="assets/v2/ui_sys_back.webp" alt=""></button>
       <h2>關卡</h2>
-      <span class="coins">🪙 <b id="coins-levels">0</b></span>
+      <span class="coins"><img class="ico" src="assets/v2/ui_coin.webp" alt="金幣"> <b id="coins-levels">0</b></span>
     </header>
     <div id="level-grid" class="level-grid"></div>
   </section>
 
-  <!-- ===== 遊戲（五層結構）===== -->
+  <!-- ===== 遊戲（單張背景 + 版面欄）===== -->
   <section id="screen-game" class="screen">
     <div id="bg-layers" class="bg-layers" aria-hidden="true">
       <img id="bg-far" class="bg-far" alt="">
@@ -80,31 +78,33 @@
 
     <div class="game-col">
       <header class="zone zone-top">
-        <button class="icon-btn shop" id="btn-game-back" aria-label="返回店舖" title="返回店舖">🏪</button>
+        <button class="icon-btn img shop" id="btn-game-back" aria-label="返回工房" title="返回工房"><img src="assets/v2/ui_sys_shop.webp" alt=""></button>
         <div class="level-title"><b id="game-level-no">第 1 關</b><span id="game-level-title"></span></div>
-        <div class="pace" id="pace" title="步數 / 三星門檻"><span class="pace-stars" id="pace-stars">★★★</span><span class="pace-moves" id="pace-moves">0 步</span></div>
+        <div class="pace" id="pace" title="步數 / 三星門檻"><span class="pace-stars" id="pace-stars"></span><span class="pace-moves" id="pace-moves">0 步</span></div>
         <button class="icon-btn" id="btn-mute" aria-label="音效">🔊</button>
       </header>
       <div class="zone zone-customers" id="customers"></div>
-      <div class="zone zone-board"><canvas id="board"></canvas></div>
+      <div class="zone zone-board">
+        <canvas id="board"></canvas>
+        <!-- Spec v2 §6 addEmptyBottle：黃銅紋章廣告入口（第 11 關起、冇空瓶時先出現；第 1–10 關永遠冇） -->
+        <button id="btn-add-cup" class="crest-btn" type="button" hidden aria-label="睇廣告加一隻空燒瓶" title="睇廣告加一隻空燒瓶"><img src="assets/v2/ui_ad_crest.webp" alt=""><span>+瓶</span></button>
+      </div>
       <div class="zone zone-mocha">
-        <img id="mocha-img" src="assets/mocha-idle.webp" alt="Mocha">
-        <div id="mocha-bubble" class="bubble">揀一隻杯，再揀倒去邊隻～</div>
+        <img id="mocha-img" src="assets/v2/cat_idle.webp" alt="導師">
+        <div id="mocha-bubble" class="bubble">揀一隻瓶，再揀倒去邊隻～</div>
       </div>
       <footer class="zone zone-actions">
-        <button class="act" id="btn-undo"><i>↶</i><span>撤銷</span></button>
-        <button class="act" id="btn-hint"><i>💡</i><span>提示</span></button>
+        <button class="act" id="btn-undo"><img src="assets/v2/ui_item_undo.webp" alt=""><span>撤銷</span></button>
+        <button class="act" id="btn-hint"><img src="assets/v2/ui_item_hint.webp" alt=""><span>提示</span></button>
         <button class="act" id="btn-restart"><i>↻</i><span>重來</span></button>
       </footer>
     </div>
-
-    <div id="stage-card" class="stage-card hidden"></div>
   </section>
 
   <!-- ===== Modal / Toast ===== -->
   <div id="modal" class="modal hidden"><div class="card" id="modal-card"></div></div>
   <div id="toast" class="toast hidden"></div>
 </div>
-<script type="module" src="src/client/main.js?v=5"></script>
+<script type="module" src="src/client/main.js?v=6"></script>
 </body>
 </html>
