@@ -41,7 +41,7 @@ webapp/
     solver.js            IDA*（可採納 heuristic、正規化、剪枝）、countOptimalPaths、safeOpening
     generator.js         randomFill + 7 項質量檢查、starThresholds
     prng.js              mulberry32 確定性亂數
-    palette.js           15 種飲品顏色 + L* 值 + 高危組合
+    palette.js           夜市 10 色液體色板 + 色相/明度互斥規則（純色最多 6 色同關）
     levels.js            Campaign 1–40 關 LevelConfig 表、練習模式 config
   src/client/
     local-server.js      §5 權威協定嘅瀏覽器內模擬：session、reveal、hint、complete、rhythmRisk
