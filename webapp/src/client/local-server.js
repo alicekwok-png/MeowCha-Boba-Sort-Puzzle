@@ -140,9 +140,12 @@ export class LocalServer {
       s.board = applyMove(s.board, m, events);
       s.applied.push(m);
       LocalServer._insertExtraOrders(s.board, s.extraOrders, s.applied.length);
-      // 磨砂杯 / 隱藏層倒走頂格 → 露出新頂格（永久）
+      // 磨砂杯 / 隱藏層倒走頂格 → 露出新頂格（永久）；被倒走嘅格玩家已經見到係乜色，撤銷後亦唔再遮
       const after = s.board.cups[m.from];
-      if (hiddenCount(src) > 0 && after.seg.length > 0) s.revealed.add(m.from + ':' + (after.seg.length - 1));
+      if (hiddenCount(src) > 0) {
+        if (after.seg.length > 0) s.revealed.add(m.from + ':' + (after.seg.length - 1));
+        for (let i = after.seg.length; i < src.seg.length; i++) s.revealed.add(m.from + ':' + i);
+      }
       last = { poured, events };
     }
     return last;

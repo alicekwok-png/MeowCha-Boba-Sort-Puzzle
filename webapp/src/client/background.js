@@ -9,20 +9,20 @@ export const FADE = 0.042;          // 100 / 2400
 /** @typedef {{id:number, name:string, levelFrom:number, levelTo:number, maskColor:string, maskAlpha:number, ambient:{key:string,count:number,drift:string}[], line:string}} StageConfig */
 
 export const STAGES = [
-  // 規格值 0.45；對真實街車圖跑灰階對比測試差 0.2 未達 25，按 §3 驗收流程 +0.05
-  { id: 1, name: '街邊木頭車', levelFrom: 1, levelTo: 40, maskColor: '#FAF4E8', maskAlpha: 0.50,
-    ambient: [{ key: 'leaf', count: 3, drift: 'slow-diagonal' }, { key: 'sunspot', count: 2, drift: 'slow-float' }],
-    line: '開張喇！今日要好好招呼客人～' },
-  { id: 2, name: '樓梯底小店', levelFrom: 41, levelTo: 120, maskColor: '#FAF4E8', maskAlpha: 0.60,
+  // 夜市奶茶 brief A1：夜空 #171029→#2A1B47、燈籠暖光暈、深木檯面；遮罩改用 UI 面板色 #1F1638 壓平安全區（深底令液體「發光」）
+  { id: 1, name: '夜市攤車', levelFrom: 1, levelTo: 40, maskColor: '#1F1638', maskAlpha: 0.35, theme: 'night',
+    ambient: [{ key: 'warmbokeh', count: 4, drift: 'slow-float' }],
+    line: '夜市開檔喇！今晚要好好招呼客人～' },
+  { id: 2, name: '樓梯底小店', levelFrom: 41, levelTo: 120, maskColor: '#141C30', maskAlpha: 0.35, theme: 'night',
     ambient: [{ key: 'rain', count: 1, drift: 'tile-scroll' }, { key: 'signflicker', count: 1, drift: 'flicker' }],
     line: '落雨喇，我哋搬入舖頭！' },
-  { id: 3, name: '商場店面', levelFrom: 121, levelTo: 250, maskColor: '#FDFAF4', maskAlpha: 0.40,
+  { id: 3, name: '商場店面', levelFrom: 121, levelTo: 250, maskColor: '#1A2036', maskAlpha: 0.35, theme: 'night',
     ambient: [{ key: 'crowd', count: 1, drift: 'tile-scroll-slow' }],
     line: '我哋開到入商場喇！' },
-  { id: 4, name: '夜市旗艦店', levelFrom: 251, levelTo: 450, maskColor: '#FAF4E8', maskAlpha: 0.72,
+  { id: 4, name: '夜市旗艦店', levelFrom: 251, levelTo: 450, maskColor: '#221238', maskAlpha: 0.35, theme: 'night',
     ambient: [{ key: 'lantern', count: 3, drift: 'sway' }, { key: 'bokeh', count: 5, drift: 'slow-float' }],
     line: '夜市旗艦店開張！' },
-  { id: 5, name: '雲頂總店', levelFrom: 451, levelTo: 9999, maskColor: '#FDF8FA', maskAlpha: 0.50,
+  { id: 5, name: '雲頂總店', levelFrom: 451, levelTo: 9999, maskColor: '#261A44', maskAlpha: 0.35, theme: 'night',
     ambient: [{ key: 'pearl', count: 6, drift: 'slow-float' }],
     line: '⋯⋯我哋開到上天上面？' },
 ];
@@ -192,6 +192,7 @@ export class BackgroundManager {
           case 'crowd': p.blobs = Array.from({ length: 7 }, (_, k) => ({ x: (k / 7) * W * 1.4, y: H * rand(0.09, 0.13), w: rand(30, 50), h: rand(70, 110) })); p.v = rand(6, 10); break;
           case 'lantern': p.x = W * (0.15 + 0.35 * i); p.y = H * 0.06; p.size = rand(18, 26); break;
           case 'bokeh': p.size = rand(18, 46); p.y = rand(0, H * 0.4); p.alpha = 0.28; break;
+          case 'warmbokeh': p.size = rand(30, 70); p.y = rand(0, H * 0.33); p.alpha = 0.10; break;   // 燈籠暖光 #FFB84D，極淡
           case 'pearl': p.size = rand(10, 20); p.alpha = 0.45; break;
         }
         this.particles.push(p);
@@ -224,10 +225,11 @@ export class BackgroundManager {
           ctx.beginPath(); ctx.ellipse(0, 0, p.size, p.size * 0.5, 0, 0, Math.PI * 2); ctx.fill();
           break;
         }
-        case 'sunspot': case 'bokeh': {
+        case 'sunspot': case 'bokeh': case 'warmbokeh': {
           const y = p.y + Math.sin(p.t * 0.5 + p.seed * 6) * 40, x = p.x + Math.cos(p.t * 0.35 + p.seed * 6) * 25;
           const g = ctx.createRadialGradient(x, y, 0, x, y, p.size);
-          g.addColorStop(0, `rgba(255,250,235,${p.alpha})`); g.addColorStop(1, 'rgba(255,250,235,0)');
+          const rgb = p.key === 'warmbokeh' ? '255,184,77' : '255,250,235';
+          g.addColorStop(0, `rgba(${rgb},${p.alpha})`); g.addColorStop(1, `rgba(${rgb},0)`);
           ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, p.size, 0, Math.PI * 2); ctx.fill();
           break;
         }

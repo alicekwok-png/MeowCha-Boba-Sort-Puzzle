@@ -6,63 +6,82 @@
   {
    "id": 1,
    "file": "bg1_far.webp",
-   "bytes": 48054,
+   "bytes": 12146,
    "safeZoneRgb": [
-    238,
-    227,
-    199
+    32,
+    21,
+    56
    ],
-   "safeZoneL": 90.43,
-   "desc": "街邊木頭車（日光）",
+   "safeZoneL": 10.02,
+   "desc": "夜市攤車（夜）",
+   "theme": "night",
+   "maxChromaSafe": 27.8,
+   "maxChromaTop": 27.2,
    "source": "stage1.jpg"
   },
   {
    "id": 2,
    "file": "bg2_far.webp",
-   "bytes": 11164,
+   "bytes": 8668,
    "safeZoneRgb": [
-    244,
-    242,
-    238
+    21,
+    29,
+    55
    ],
-   "safeZoneL": 95.54,
-   "desc": "樓梯底小店（雨夜）"
+   "safeZoneL": 11.37,
+   "desc": "樓梯底小店（雨夜）",
+   "theme": "night",
+   "maxChromaSafe": 20.2,
+   "maxChromaTop": 23.6,
+   "source": null
   },
   {
    "id": 3,
    "file": "bg3_far.webp",
-   "bytes": 15618,
+   "bytes": 8720,
    "safeZoneRgb": [
-    249,
-    246,
-    242
+    29,
+    34,
+    58
    ],
-   "safeZoneL": 97.01,
-   "desc": "商場店面（冷光）"
+   "safeZoneL": 13.89,
+   "desc": "商場店面（冷光夜）",
+   "theme": "night",
+   "maxChromaSafe": 19.0,
+   "maxChromaTop": 17.5,
+   "source": null
   },
   {
    "id": 4,
    "file": "bg4_far.webp",
-   "bytes": 11628,
+   "bytes": 10306,
    "safeZoneRgb": [
-    246,
-    240,
-    235
+    37,
+    21,
+    56
    ],
-   "safeZoneL": 95.12,
-   "desc": "夜市旗艦店（夜）"
+   "safeZoneL": 10.67,
+   "desc": "夜市旗艦店（夜）",
+   "theme": "night",
+   "maxChromaSafe": 28.1,
+   "maxChromaTop": 27.2,
+   "source": null
   },
   {
    "id": 5,
    "file": "bg5_far.webp",
-   "bytes": 13680,
+   "bytes": 8770,
    "safeZoneRgb": [
-    249,
-    246,
-    242
+    40,
+    31,
+    66
    ],
-   "safeZoneL": 97.01,
-   "desc": "雲頂總店（夢幻）"
+   "safeZoneL": 14.54,
+   "desc": "雲頂總店（星夜）",
+   "theme": "night",
+   "maxChromaSafe": 26.8,
+   "maxChromaTop": 27.7,
+   "source": null
   }
  ]
 }

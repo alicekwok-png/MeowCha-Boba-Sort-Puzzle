@@ -336,7 +336,11 @@ describe('server', () => {
     const r = srv.reveal(st.sessionId, [{ from: 0, to: 1 }]);
     assert.deepEqual(r.maskedBoard.cups[0].seg, [1]);
     const back = srv.reveal(st.sessionId, []);          // 撤銷
-    assert.deepEqual(back.maskedBoard.cups[0].seg, [1, null, 2]);   // 第 0 格曾經做過頂格 → 永久露出；第 1 格仍然隱藏
+    assert.deepEqual(back.maskedBoard.cups[0].seg, [1, 2, 2]);   // 第 0 格曾經做過頂格、第 1 格已經倒出過（玩家見到係 2）→ 全部永久露出
+    const b2 = B([makeCup('normal', [1, 3, 2], false, 2), N([2]), N([])], 3);
+    const st2 = srv.start({ id: 't', board: encodeBoard(b2), optimal: 3, thresholds: { three: 6, two: 11 } });
+    srv.reveal(st2.sessionId, [{ from: 0, to: 1 }]);
+    assert.deepEqual(srv.reveal(st2.sessionId, []).maskedBoard.cups[0].seg, [null, 3, 2]);   // 只倒走 1 格 → 第 1 格露出，第 0 格仍然隱藏
   });
   test('reveal 只露出磨砂杯新頂格，唔會下發隱藏層', () => {
     const b = B([makeCup('frosted', [1, 2, 2]), N([2]), N([])], 2);

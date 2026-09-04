@@ -17,6 +17,31 @@ function shade(hex, amt) {   // amt −1..1
   return `rgb(${r},${g},${b})`;
 }
 
+/** HSL 明度偏移（夜市 brief A5：上緣高光 = 該層色 +20% L；下緣暗邊 = −18% L），回傳 rgba 字串 */
+function shiftL(hex, dL, alpha = 1) {
+  const n = parseInt(hex.slice(1), 16);
+  const r = (n >> 16) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0, sat = 0; const l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    sat = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+    else if (max === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    h /= 6;
+  }
+  const L = clamp01(l + dL);
+  const hue2rgb = (p, q, t) => { if (t < 0) t += 1; if (t > 1) t -= 1; if (t < 1 / 6) return p + (q - p) * 6 * t; if (t < 1 / 2) return q; if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6; return p; };
+  let R, G, B;
+  if (sat === 0) R = G = B = L;
+  else { const q = L < 0.5 ? L * (1 + sat) : L + sat - L * sat, pp = 2 * L - q; R = hue2rgb(pp, q, h + 1 / 3); G = hue2rgb(pp, q, h); B = hue2rgb(pp, q, h - 1 / 3); }
+  return `rgba(${Math.round(R * 255)},${Math.round(G * 255)},${Math.round(B * 255)},${alpha})`;
+}
+
+// 夜市 brief A1 / A5 常數
+const NIGHT = { lantern: '#FFB84D', shadow: 'rgba(13,8,32,0.45)', panel: 'rgba(31,22,56,0.85)', panelBorder: '#6B5CA5', ink: '#F3ECFF', inkDim: '#C9BEE6' };
+
 export class GameView {
   constructor(canvas, { onCupTap } = {}) {
     this.canvas = canvas;
@@ -356,11 +381,11 @@ export class GameView {
     ctx.globalAlpha = c.alpha;
 
     if (c.glow > 0) {
-      ctx.shadowColor = `rgba(246,196,83,${c.glow})`; ctx.shadowBlur = 24 * c.glow;
+      ctx.shadowColor = `rgba(255,184,77,${c.glow})`; ctx.shadowBlur = 24 * c.glow;
     } else if (this.selected === idx) {
-      ctx.shadowColor = 'rgba(232,141,90,0.55)'; ctx.shadowBlur = 16;
+      ctx.shadowColor = 'rgba(255,184,77,0.7)'; ctx.shadowBlur = 18;
     } else {
-      ctx.shadowColor = 'rgba(80,50,20,0.18)'; ctx.shadowBlur = 8; ctx.shadowOffsetY = 3;
+      ctx.shadowColor = NIGHT.shadow; ctx.shadowBlur = 8; ctx.shadowOffsetY = 4;   // 杯底投影 #0D0820 45% blur 8px（brief A5）
     }
 
     if (c.kind === 'covered' || (c.locked && !this._useSprite(c) && c.kind !== 'sealed')) {
@@ -376,11 +401,12 @@ export class GameView {
     }
 
     if (this._useSprite(c)) {
-      // 美術杯貼圖：杯身實色，液體用 multiply 畫喺杯內（反光留光、珍珠留深）
+      // 美術杯貼圖：杯身實色，液體正常疊色畫喺杯內，再淡淡蓋返貼圖（反光留光、珍珠留深）
       ctx.drawImage(this.sprite, 0, 0, w, h);
       ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
       if (c.seg.length === 0 && !(c.extraUnits > 0)) this.coverPearls(c, w, h);   // 空杯唔應該見到珍珠
       this.drawLayers(c, w, h, now);
+      this.drawCupLight(c, w, h);
       if (c.locked) {
         // 封膜杯（sealed）：透膜見到入面，鎖死；🔒 N = 仲要交幾多單先解封
         const g = this.geom;
@@ -480,6 +506,31 @@ export class GameView {
     this.drawBadge(`🧺 ${c.unlockIn || 1}`, w, h * 0.42);
   }
 
+  /**
+   * 杯身光效（夜市 brief A5）：
+   *  - 杯口橢圓 rim light：#FFFFFF 60%
+   *  - 杯身右下角環境暖光反射：#FFB84D 15%
+   */
+  drawCupLight(c, w, h) {
+    const ctx = this.ctx, g = this.geom, L = this._liquid(c);
+    ctx.save();
+    ctx.globalAlpha *= (c.lidAlpha ?? 1);
+    // 暖光反射：裁喺杯內多邊形，右下角徑向漸變
+    const top = g.inner.topY * h, bottom = L.bottom;
+    ctx.beginPath();
+    ctx.moveTo(L.xl(top), top); ctx.lineTo(L.xr(top), top); ctx.lineTo(L.xr(bottom), bottom); ctx.lineTo(L.xl(bottom), bottom); ctx.closePath();
+    ctx.clip();
+    const rg = ctx.createRadialGradient(w * 0.92, h * 0.96, 0, w * 0.92, h * 0.96, h * 0.7);
+    rg.addColorStop(0, 'rgba(255,184,77,0.15)'); rg.addColorStop(1, 'rgba(255,184,77,0)');
+    ctx.fillStyle = rg; ctx.fillRect(0, 0, w, h);
+    ctx.restore();
+    // rim light：杯口橢圓前半（受光嘅前唇），唔畫成浮喺杯上嘅環
+    ctx.save();
+    ctx.beginPath(); ctx.ellipse(w / 2, g.rimY * h, g.rimRx * w, g.rimRy * h, 0, 0.08 * Math.PI, 0.92 * Math.PI);
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = Math.max(1, w * 0.012); ctx.lineCap = 'round'; ctx.stroke();
+    ctx.restore();
+  }
+
   /** 杯上嘅小徽章（🧺 N / 🔒 N） */
   drawBadge(label, w, cy) {
     const ctx = this.ctx;
@@ -489,9 +540,9 @@ export class GameView {
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     const tw = ctx.measureText(label).width + 12;
     ctx.beginPath(); ctx.roundRect(w / 2 - tw / 2, cy - 11, tw, 22, 11);
-    ctx.fillStyle = 'rgba(255,250,240,0.92)'; ctx.fill();
-    ctx.strokeStyle = 'rgba(122,78,30,0.6)'; ctx.lineWidth = 1.2; ctx.stroke();
-    ctx.fillStyle = '#5C3A14'; ctx.fillText(label, w / 2, cy + 1);
+    ctx.fillStyle = NIGHT.panel; ctx.fill();
+    ctx.strokeStyle = NIGHT.panelBorder; ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.fillStyle = NIGHT.ink; ctx.fillText(label, w / 2, cy + 1);
     ctx.restore();
   }
 
@@ -549,7 +600,7 @@ export class GameView {
     const ctx = this.ctx;
     // 杯身外框
     this._bodyPath(w, h);
-    ctx.strokeStyle = c.kind === 'frosted' ? 'rgba(160,120,80,0.55)' : 'rgba(120,85,50,0.5)';
+    ctx.strokeStyle = c.kind === 'frosted' ? 'rgba(210,190,170,0.7)' : 'rgba(255,255,255,0.45)';
     ctx.lineWidth = 1.6;
     ctx.stroke();
     // 反光
@@ -582,7 +633,7 @@ export class GameView {
       // 開口杯：只有一個薄杯沿（背景規格 §8：拿走杯頂圓拱，令杯陣區更平靜）
       ctx.beginPath(); ctx.ellipse(w / 2, 0, w / 2 + 2, 4.5, 0, 0, Math.PI * 2);
       ctx.fillStyle = c.kind === 'frosted' ? 'rgba(255,253,248,0.95)' : 'rgba(255,255,255,0.55)'; ctx.fill();
-      ctx.strokeStyle = c.kind === 'frosted' ? 'rgba(160,120,80,0.55)' : 'rgba(120,85,50,0.55)'; ctx.lineWidth = 1.6; ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1.6; ctx.stroke();   // rim light（brief A5）
     }
     ctx.restore();
   }
@@ -639,25 +690,47 @@ export class GameView {
       const t = clamp01((now - c.settle.t0) / c.settle.dur);
       settleScale = 1 + 0.08 * (1 - backOut(t));
     }
+    // 每層液體三件套（夜市 brief A5）：上緣高光線（+20% L，80%）、下緣暗邊（−18% L，1px）；左側高光柱畫完所有層先加
+    const lineW = Math.max(1, Math.min(2, w * 0.03));
     const drawBand = (from, to, color, hidden) => {
       const y1 = bottom - to * sh, y2 = bottom - from * sh;
       ctx.beginPath();
       ctx.moveTo(L.xl(y1), y1); ctx.lineTo(L.xr(y1), y1); ctx.lineTo(L.xr(y2), y2); ctx.lineTo(L.xl(y2), y2); ctx.closePath();
       if (hidden) {
-        ctx.fillStyle = '#E9E1D4'; ctx.fill();
-        ctx.strokeStyle = 'rgba(160,130,100,0.35)'; ctx.lineWidth = 1; ctx.stroke();
-        ctx.fillStyle = '#A88A6B';
+        // 隱藏層 ?：深色半透明格 + 虛線邊，唔可以似任何一隻飲品色
+        ctx.fillStyle = 'rgba(31,22,56,0.88)'; ctx.fill();
+        ctx.save(); ctx.setLineDash([3, 3]); ctx.strokeStyle = 'rgba(201,190,230,0.55)'; ctx.lineWidth = 1; ctx.stroke(); ctx.restore();
+        ctx.fillStyle = NIGHT.inkDim;
         ctx.font = `bold ${Math.max(11, sh * 0.62)}px "Segoe UI", sans-serif`;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText('?', w / 2, (y1 + y2) / 2 + 1);
         ctx.textBaseline = 'alphabetic';
-      } else if (L.sprite) {
+        return;
+      }
+      if (L.sprite) {
         ctx.fillStyle = color; ctx.fill();
       } else {
         const g = ctx.createLinearGradient(0, 0, w, 0);
         g.addColorStop(0, shade(color, -0.12)); g.addColorStop(0.45, shade(color, 0.08)); g.addColorStop(1, shade(color, -0.15));
         ctx.fillStyle = g; ctx.fill();
       }
+      if (y2 - y1 < lineW * 2) return;
+      // 下緣暗邊：模擬液體厚度
+      ctx.fillStyle = shiftL(color, -0.18, 1);
+      ctx.beginPath(); ctx.moveTo(L.xl(y2 - 1), y2 - 1); ctx.lineTo(L.xr(y2 - 1), y2 - 1); ctx.lineTo(L.xr(y2), y2); ctx.lineTo(L.xl(y2), y2); ctx.closePath(); ctx.fill();
+      // 上緣高光線：液面位置
+      ctx.fillStyle = shiftL(color, 0.20, 0.8);
+      ctx.beginPath(); ctx.moveTo(L.xl(y1), y1); ctx.lineTo(L.xr(y1), y1); ctx.lineTo(L.xr(y1 + lineW), y1 + lineW); ctx.lineTo(L.xl(y1 + lineW), y1 + lineW); ctx.closePath(); ctx.fill();
+    };
+    // 左側垂直高光柱：杯身左邊 8–12% 闊，白色 25% → 0%
+    const drawHighlightColumn = (levelTop) => {
+      if (levelTop <= 0) return;
+      const yTop = bottom - levelTop * sh;
+      const x0 = L.xl(yTop) + w * 0.06, x1 = x0 + w * 0.11;
+      const g = ctx.createLinearGradient(x0, 0, x1, 0);
+      g.addColorStop(0, 'rgba(255,255,255,0.25)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.moveTo(x0, yTop); ctx.lineTo(x1, yTop); ctx.lineTo(x1, bottom); ctx.lineTo(x0, bottom); ctx.closePath(); ctx.fill();
     };
 
     // 已有層（來源正在倒出：頂層縮短）
@@ -675,6 +748,7 @@ export class GameView {
     }
     // 正在倒入嘅新層
     if (c.extraUnits > 0 && c.extraColor !== null) drawBand(level, level + c.extraUnits, HEX[c.extraColor], false);
+    drawHighlightColumn(level + (c.extraUnits || 0));
 
     if (L.sprite) {
       // 杯貼圖以 20% 透明度蓋返液體區：反光留光、珍珠留深；空格（冇液體）唔受影響
@@ -699,12 +773,6 @@ export class GameView {
         const px = w * (0.28 + 0.44 * (i / (cnt - 1))) + (i % 2 ? -1 : 1);
         ctx.beginPath(); ctx.arc(px, py + (i % 2) * 2, Math.max(1.8, sh * 0.13), 0, Math.PI * 2); ctx.fill();
       }
-    }
-    // 液面反光
-    if (level > 0) {
-      const y = bottom - level * sh;
-      ctx.beginPath(); ctx.moveTo(w * 0.22, y + 2); ctx.lineTo(w * 0.78, y + 2);
-      ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1.5; ctx.stroke();
     }
     // 封膜杯：加層白紗
     if (c.locked) { ctx.fillStyle = 'rgba(255,255,255,0.28)'; ctx.fillRect(0, 0, w, h); }

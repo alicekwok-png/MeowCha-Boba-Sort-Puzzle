@@ -21,7 +21,7 @@ const over = (bgRgb, fgRgb, a) => bgRgb.map((c, i) => unlin(lin(c) * (1 - a) + l
 
 const CUP_BODY = [255, 255, 255], CUP_ALPHA = 0.42;   // game.js 杯身：白色漸變 ~0.28–0.55
 // 杯陣截圖入面一隻典型杯：約 70% 面積係飲品（取 15 色平均明度），30% 係杯身 / 空格
-const LIQUID_L = PALETTE.reduce((a, p) => a + p.L, 0) / PALETTE.length;
+const LIQUID_L = PALETTE.reduce((a, p) => a + lstar(hex(p.hex)), 0) / PALETTE.length;   // 由 hex 計真正 L*（palette 嘅 L 欄係 HSL 明度）
 const LIQUID_SHARE = 0.7;
 
 describe('background', () => {

@@ -20,11 +20,11 @@ SAFE_TOP, SAFE_BOT = 600 + BLEED, 1750 + BLEED   # 工單 #4：安全區上界 4
 
 # 階段：來源圖、色調（乘法）、亮度倍率、場景描述
 STAGES = [
-    (1, 'boba-cat-style-anchor-04.png', (255, 248, 236), 1.00, '街邊木頭車（日光）'),
+    (1, 'boba-cat-style-anchor-04.png', (255, 248, 236), 1.00, '夜市攤車（夜）'),   # 夜市 brief A1：由 build_night 生成
     (2, 'boba-cat-style-anchor-01.png', (150, 165, 200), 0.62, '樓梯底小店（雨夜）'),
-    (3, 'boba-cat-style-anchor-02.png', (232, 240, 252), 1.08, '商場店面（冷光）'),
+    (3, 'boba-cat-style-anchor-02.png', (232, 240, 252), 1.08, '商場店面（冷光夜）'),
     (4, 'boba-cat-style-anchor-04.png', (215, 140, 90),  0.55, '夜市旗艦店（夜）'),
-    (5, 'boba-cat-style-anchor-05.png', (250, 228, 245), 1.06, '雲頂總店（夢幻）'),
+    (5, 'boba-cat-style-anchor-05.png', (250, 228, 245), 1.06, '雲頂總店（星夜）'),
 ]
 
 def lstar(rgb):
@@ -170,6 +170,113 @@ def build_full(stage, path, desc):
         print('  WARNING: over 200 KB budget', file=sys.stderr)
     return {'id': stage, 'file': f'bg{stage}_far.webp', 'bytes': size, 'safeZoneRgb': list(safe), 'safeZoneL': round(L, 2), 'desc': desc, 'source': os.path.basename(path)}
 
+# ---------- 夜市 brief A1：第一階段改為夜市 ----------
+NIGHT_TOP, NIGHT_BOT = (0x17, 0x10, 0x29), (0x2A, 0x1B, 0x47)   # 夜空 → 底部垂直漸變
+LANTERN = (0xFF, 0xB8, 0x4D)                                     # 燈籠暖光暈 @12%
+WOOD = (0x3A, 0x2A, 0x1C)                                        # 檯面 / 攤車：低飽和深木色
+
+def lab_chroma(rgb):
+    """CIE Lab 彩度 C*（brief「飽和度 30% 以下」以 C* ≤ 30 判定：brief 自己嘅夜空色 #171029 / #2A1B47 分別約 21 / 30）"""
+    def lin(c):
+        c /= 255
+        return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+    r, g, b = (lin(c) for c in rgb)
+    x = (0.4124 * r + 0.3576 * g + 0.1805 * b) / 0.95047
+    y = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 1.0
+    z = (0.0193 * r + 0.1192 * g + 0.9505 * b) / 1.08883
+    f = lambda t: t ** (1 / 3) if t > 0.008856 else 7.787 * t + 16 / 116
+    fx, fy, fz = f(x), f(y), f(z)
+    a, bb = 500 * (fx - fy), 200 * (fy - fz)
+    return (a * a + bb * bb) ** 0.5
+
+# 五個階段全部轉夜間（brief：畫面唯一高飽和只可以係液體，淺色背景會令發光感消失）：夜空頂 / 底、光暈色、檯面色
+NIGHT_STAGES = {
+    1: (NIGHT_TOP, NIGHT_BOT, LANTERN, WOOD),
+    2: ((0x0F, 0x14, 0x2A), (0x1C, 0x26, 0x44), (0x9F, 0xC4, 0xFF), (0x2E, 0x2A, 0x30)),   # 樓梯底小店（雨夜）：冷藍
+    3: ((0x14, 0x18, 0x2B), (0x26, 0x2C, 0x4A), (0xCF, 0xE6, 0xFF), (0x33, 0x30, 0x3A)),   # 商場店面（冷光）
+    4: ((0x1A, 0x10, 0x2A), (0x30, 0x1A, 0x46), (0xFF, 0xB8, 0x4D), (0x3A, 0x2A, 0x1C)),   # 夜市旗艦店：暖光更多
+    5: ((0x1B, 0x14, 0x30), (0x36, 0x2A, 0x54), (0xF0, 0xC8, 0xFF), (0x3A, 0x30, 0x4A)),   # 雲頂總店：夢幻紫
+}
+
+def build_night(stage, desc, cart=None):
+    """程式合成夜市遠景：夜空漸變 + 上方 1/3 燈籠暖光暈 + 攤車剪影（可選：美術攤車圖壓暗做剪影）+ 深木檯面。
+    背景所有元素飽和度壓喺 30% 以下；唯一高飽和只可以係杯入面嘅液體。"""
+    top_c, bot_c, glow_c, wood_c = NIGHT_STAGES.get(stage, NIGHT_STAGES[1])
+    canvas = vgrad(W, H, top_c, bot_c)
+
+    # 攤車剪影：美術圖壓暗 + 去飽和，融入夜空（只落喺頂區 0–SAFE_TOP，安全區保持平坦）
+    if cart:
+        art = Image.open(cart).convert('RGB')
+        sc = W / art.width
+        art = art.resize((W, round(art.height * sc)), Image.LANCZOS)
+        scene_h = min(SAFE_TOP, art.height)
+        scene = art.crop((0, 0, W, scene_h))
+        scene = ImageEnhance.Color(scene).enhance(0.25)
+        scene = ImageEnhance.Brightness(scene).enhance(0.30)
+        scene = tint_image(scene, (150, 120, 200), 1.0)          # 推向夜空紫，唔好變灰
+        # 同夜空漸變混合，並向下淡出到安全區
+        base = canvas.crop((0, 0, W, scene_h))
+        scene = Image.blend(base, scene, 0.6)
+        mask = Image.new('L', (W, scene_h), 255)
+        md = ImageDraw.Draw(mask)
+        fade = 220
+        for y in range(fade):
+            md.line([(0, scene_h - fade + y), (W, scene_h - fade + y)], fill=round(255 * (1 - y / fade)))
+        canvas.paste(scene, (0, 0), mask)
+
+    # 燈籠暖光暈：畫面上方 1/3，三個徑向光暈（合成後 12%）
+    glow = Image.new('RGB', (W, H), (0, 0, 0))
+    gd = ImageDraw.Draw(glow)
+    for cx, cy, r in ((W * 0.22, 560, 330), (W * 0.55, 460, 380), (W * 0.84, 600, 300)):
+        for i in range(24, 0, -1):
+            rr = r * i / 24
+            a = (1 - i / 24) ** 1.6
+            col = tuple(round(glow_c[k] * a) for k in range(3))
+            gd.ellipse([cx - rr, cy - rr * 0.8, cx + rr, cy + rr * 0.8], fill=col)
+    glow = glow.filter(ImageFilter.GaussianBlur(40))
+    # additive：canvas + glow × 0.30（光暈本身由中心向外衰減，中心合成後約 12%）
+    from PIL import ImageChops
+    glow = glow.point(lambda v: min(255, round(v * 0.30)))
+    canvas = ImageChops.add(canvas, glow)
+
+    # 燈籠本體：小圓燈 ×3（低飽和暖色，剪影感）— 只有第 1 / 4 階段（夜市）先有
+    d = ImageDraw.Draw(canvas)
+    for cx, cy, r in ([] if stage not in (1, 4) else ((W * 0.22, 560, 46), (W * 0.55, 460, 54), (W * 0.84, 600, 42))):
+        d.line([(cx, cy - r - 120), (cx, cy - r)], fill=(62, 50, 44), width=4)
+        d.ellipse([cx - r, cy - r * 1.15, cx + r, cy + r * 1.15], fill=(158, 118, 84), outline=(104, 78, 58), width=3)
+        d.ellipse([cx - r * 0.45, cy - r * 0.7, cx + r * 0.45, cy - r * 0.05], fill=(190, 154, 118))
+        d.line([(cx, cy + r * 1.15), (cx, cy + r * 1.15 + 34)], fill=(104, 78, 58), width=4)
+
+    # 檯面（設計 Y 2100–2400 → 含出血 2300–2800）：深木色，唔可以搶色
+    counter = vgrad(W, H - 2300, tuple(round(c * 1.12) for c in wood_c), tuple(round(c * 0.8) for c in wood_c))
+    canvas.paste(counter, (0, 2300))
+    d = ImageDraw.Draw(canvas)
+    d.line([(0, 2300), (W, 2300)], fill=tuple(min(255, round(c * 1.4)) for c in wood_c), width=5)
+    # 檯面木紋：幾條極淡橫線
+    for y in range(2340, H, 64):
+        d.line([(0, y), (W, y)], fill=tuple(round(c * 0.92) for c in wood_c), width=2)
+
+    canvas = canvas.filter(ImageFilter.GaussianBlur(4))
+
+    # 驗收：背景所有元素彩度 C* ≤ 30（安全區 / 頂區分開量，8×8 px 平均後取最大值）
+    safe_img = canvas.crop((0, SAFE_TOP, W, SAFE_BOT)).resize((64, 64), Image.BOX)
+    max_sat = max(lab_chroma(safe_img.getpixel((x, y))) for x in range(64) for y in range(64))
+    top_img = canvas.crop((0, 0, W, SAFE_TOP)).resize((64, 32), Image.BOX)
+    top_sat = max(lab_chroma(top_img.getpixel((x, y))) for x in range(64) for y in range(32))
+
+    out = os.path.join(OUT, f'bg{stage}_far.webp')
+    canvas.save(out, 'WEBP', quality=78, method=6)
+    size = os.path.getsize(out)
+    safe = canvas.crop((0, SAFE_TOP, W, SAFE_BOT)).resize((1, 1), Image.BOX).getpixel((0, 0))
+    L = lstar(safe)
+    print(f'stage {stage} {desc} [night]: {size // 1024} KB  safeZone rgb={safe} L*={L:.1f}  chroma(safe)={max_sat:.1f} chroma(top)={top_sat:.1f}')
+    if max_sat > 30 or top_sat > 30:
+        print('  WARNING: background chroma > 30 (brief A1: 背景飽和度壓喺 30% 以下)', file=sys.stderr)
+    if size > 200 * 1024:
+        print('  WARNING: over 200 KB budget', file=sys.stderr)
+    return {'id': stage, 'file': f'bg{stage}_far.webp', 'bytes': size, 'safeZoneRgb': list(safe), 'safeZoneL': round(L, 2), 'desc': desc,
+            'theme': 'night', 'maxChromaSafe': round(max_sat, 1), 'maxChromaTop': round(top_sat, 1), 'source': os.path.basename(cart) if cart else None}
+
 def find_full_art(stage):
     """美術交付嘅整張圖放喺 assets/bg/src/stage{N}.jpg|png，有就優先用。"""
     for ext in ('png', 'jpg', 'jpeg', 'webp'):
@@ -180,7 +287,7 @@ def find_full_art(stage):
 manifest = []
 for s in STAGES:
     full = find_full_art(s[0])
-    manifest.append(build_full(s[0], full, s[4]) if full else build(*s))
+    manifest.append(build_night(s[0], s[4], full if s[0] == 1 else None))   # 夜市 brief A1：全部階段夜間版（第 1 階段攤車圖做剪影）
 with open(os.path.join(OUT, 'manifest.json'), 'w', encoding='utf-8') as f:
     json.dump({'width': W, 'height': H, 'bleed': BLEED, 'stages': manifest}, f, ensure_ascii=False, indent=1)
 print('wrote manifest.json')
