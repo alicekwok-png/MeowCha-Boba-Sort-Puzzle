@@ -128,8 +128,7 @@ export function minCenterDistance(layout) {
 }
 
 /**
- * 安全版面（Spec §4.3 fallback 順序）：
- *  1. 正常 jitter → 2. jitterY × 0.7 → 3. 瓶尺寸 × 0.92 → 4. 純網格（jitter 0、rotation 0）+ warn
+ * 安全版面（fallback 順序見下面 attempts）：
  * 永遠唔會放行有 violation 嘅版面（純網格由構造保證：同列瓶垂直間距 = cellH ≥ bottleHeight 時無遮擋；
  * 若連純網格都遮擋，代表區域太細，會再縮瓶直到通過）。
  * 回傳 { layout, bottleWidth, bottleHeight, fallback: 0..3+ }
@@ -142,19 +141,23 @@ export function safeLayout(input, warn = null, opts = {}) {
   // 先統一縮到放得落（行數 × 樽高、R3 格闊）；再做 R2 fallback 鏈
   const fit = fitScale(input, columns);
   let bw = input.bottleWidth * fit, bh = input.bottleHeight * fit;
+  // Fallback 鏈（用戶 2026-09-05）：視覺「唔整齊」主要來自水平錯位（磚牆偏移本身就係橫向），垂直抖動貢獻細，優先犧牲；縮尺寸排後
+  //  0. 正常 jitter → 1. jitterY 歸零（保留 jitterX + 旋轉 + 磚牆錯位）→ 2. 尺寸 × 0.96 → 3. jitterX 歸零（純網格）→ 4. 尺寸 × 0.92 → 再縮
   const attempts = [
     { jitterY: LAYOUT.jitterY },
-    { jitterY: LAYOUT.jitterY * 0.7 },
-    { jitterY: LAYOUT.jitterY * 0.7, scale: 0.92 },
+    { jitterY: 0 },
+    { jitterY: 0, scale: 0.96 },
+    { jitterY: 0, jitterX: 0, rotationMaxDeg: 0, scale: 0.96 },
+    { jitterY: 0, jitterX: 0, rotationMaxDeg: 0, scale: 0.92 },
   ];
   for (let k = 0; k < attempts.length; k++) {
-    const a = attempts[k];
-    const w = bw * (a.scale || 1), h = bh * (a.scale || 1);
-    const layout = computeLayout({ ...input, bottleWidth: w, bottleHeight: h }, { columns, jitterY: a.jitterY, ...(opts.force || {}) });
+    const { scale = 1, ...a } = attempts[k];
+    const w = bw * scale, h = bh * scale;
+    const layout = computeLayout({ ...input, bottleWidth: w, bottleHeight: h }, { columns, ...a, ...(opts.force || {}) });
     if (validateNoLiquidOcclusion(layout, w, h, ltr, overhang).ok) return { layout, bottleWidth: w, bottleHeight: h, fallback: k, columns, fit };
   }
   // 純網格：逐步縮瓶直到冇遮擋
-  let scale = 0.92, k = 3;
+  let scale = 0.92 * 0.92, k = attempts.length;
   for (let tries = 0; tries < 12; tries++, k++) {
     const w = bw * scale, h = bh * scale;
     const layout = computeLayout({ ...input, bottleWidth: w, bottleHeight: h }, { columns, jitterX: 0, jitterY: 0, rotationMaxDeg: 0 });
@@ -181,6 +184,6 @@ export function chooseColumns(input, warn = null, opts = {}) {
     if (!best || r.bottleHeight > best.bottleHeight + 1e-6) best = r;
     else if (Math.abs(r.bottleHeight - best.bottleHeight) <= 1e-6 && columns < best.columns) best = r;
   }
-  if (warn && best.fallback >= 3) warn(`BottleLayout: level ${input.levelId} fell back to plain grid (${best.columns} cols)`);
+  if (warn && best.fallback >= 3) warn(`BottleLayout: level ${input.levelId} fell back to plain grid (${best.columns} cols, fallback ${best.fallback})`);
   return best;
 }
