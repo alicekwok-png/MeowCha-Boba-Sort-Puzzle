@@ -991,16 +991,20 @@ export class GameView {
       }
     };
     const drawHidden = (from, to) => {
-      // `?` 隱藏格（v4 §5）：唔填色，喺深色玻璃上畫襯線 ?，大小 ≈ 55% slot 高
+      // `?` 隱藏格：實色黑層（圓柱，上下弧邊同液層一致，最底層底邊平），中央畫淺色襯線 ?，大小 ≈ 55% slot 高
+      const HG = RENDER.hiddenGlyph;
       const yTop = yAt(to), yBot = yAt(from);
       const ext = extentsAt(g, (yTop + yBot) / 2);
+      const ryTop = Math.min(ryF, (yBot - yTop) / 2), ryBot = from <= 0.001 ? 0 : ryTop;
       ctx.save();
       ctx.globalAlpha = baseAlpha;
-      this._bandPath(g, S, fx, fy, yTop, yBot); ctx.clip();
-      ctx.fillStyle = RENDER.hiddenGlyph.color;
-      ctx.font = `bold ${Math.max(10, slot * S * 0.55)}px ${FONT}`;
+      this._layerPath(g, S, fx, fy, yTop, yBot, ryTop, ryBot); ctx.clip();
+      ctx.fillStyle = HG.fill;
+      ctx.fillRect(fx, fy + yTop * S, S, (yBot - yTop + ryTop) * S);
+      ctx.fillStyle = HG.glyph;
+      ctx.font = `bold ${Math.max(10, slot * S * HG.sizeRatio)}px ${FONT}`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('?', fx + ((ext.l + ext.r) / 2) * S, fy + ((yTop + yBot) / 2) * S);
+      ctx.fillText('?', fx + ((ext.l + ext.r) / 2) * S, fy + ((yTop + yBot) / 2 + ryTop / 2) * S);
       ctx.restore();
     };
 

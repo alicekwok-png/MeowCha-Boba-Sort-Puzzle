@@ -5,7 +5,8 @@ export const RENDER = Object.freeze({
   liquidBlend: 'source-over',
   glassHighlight: Object.freeze({ lumaThreshold: 215, lumaRange: 40, strength: 0.55 }),
   verticalHighlight: Object.freeze({ from: 0.16, to: 0.24, blur: 3, strength: 0.35 }),
-  hiddenGlyph: Object.freeze({ color: '#9A8B6F' }),          // `?` 隱藏層：襯線體
+  // `?` 隱藏層（用戶 2026-09-06，參考同類遊戲）：實色黑層（唔係透明玻璃），同液層一樣係圓柱（弧邊），上面畫淺色襯線 ?
+  hiddenGlyph: Object.freeze({ fill: '#151219', glyph: '#D9D2DC', sizeRatio: 0.55 }),
   sealedBottle: Object.freeze({ desaturate: 0.25, overlay: '#0A0806', overlayAlpha: 0.18 }),   // 已封樽
   // v4.1 §6 第 11 步：交貨動畫時序（ms）+ 木塞疊放
   cork: Object.freeze({ widthRatio: 0.61, topOffset: 0.035 }),
