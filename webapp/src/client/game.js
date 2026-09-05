@@ -186,12 +186,17 @@ export class GameView {
     const input = { levelId: this.levelId, bottleCount: n, areaWidth, areaHeight, bottleWidth, bottleHeight };
     // R2 容差由器皿幾何推：允許重疊 = 底座（液體底 → 內容底）高度；bottle_std 液體去到 98.5%，幾乎唔准疊
     const liquidTopRatio = Math.min(0.995, Math.max(0.5, 1 - (g.content.bottom - g.liquid.bottom) / contentSpan));
+    // 前面瓶頂以上：已封樽木塞凸出瓶口（drawCork：塞高 × 0.55 − topOffset），以瓶高比例計，一齊入 R2 驗證
+    const corkImg = renderAssets.img.VES_cork;
+    const corkAspect = corkImg ? corkImg.naturalHeight / corkImg.naturalWidth : 1;
+    const corkH = g.maxWidth * RENDER.cork.widthRatio * corkAspect;     // 相對瓶高（contentSpan = 1）
+    const frontOverhangRatio = Math.max(0, corkH * 0.55 - RENDER.cork.topOffset);
     let placed;
     try {
       // 欄數：≤6 → 3、≤9 → 4、10+ → 5（5 欄保唔住樽高就退回 4 欄）；統一縮樽 + R2 fallback 都喺 core/layout.js
       placed = FORCE_GRID
-        ? safeLayout(input, null, { liquidTopRatio, force: { jitterX: 0, jitterY: 0, rotationMaxDeg: 0 } })
-        : chooseColumns(input, (m) => console.warn(m), { liquidTopRatio });
+        ? safeLayout(input, null, { liquidTopRatio, frontOverhangRatio, force: { jitterX: 0, jitterY: 0, rotationMaxDeg: 0 } })
+        : chooseColumns(input, (m) => console.warn(m), { liquidTopRatio, frontOverhangRatio });
       if (placed.fit < 0.999) console.warn(`[layout] ${n} 隻樽（${placed.columns} 欄）放唔落畫布 ${Math.round(areaWidth)}×${Math.round(areaHeight)} → 統一縮至 ${placed.fit.toFixed(2)}`);
       if (placed.bottleHeight < bottleHeight * 0.999) console.warn(`[layout] 樽高 ${(placed.bottleHeight / screenH).toFixed(3)} × 螢幕（目標 ${LAYOUT.bottleHeightRatio}），${placed.columns} 欄，fallback ${placed.fallback}`);
     } catch (e) {

@@ -64,6 +64,21 @@ describe('BottleLayout', () => {
     assert.ok(l.every(p => p.rotation === 0));
     assert.equal(new Set(l.map(p => Math.round(p.position.y))).size, 2);
   });
+  test('R2 木塞凸出：前瓶頂以上 7.5% 瓶高都算遮擋（frontOverhangRatio）；平線 = 液帶頂（橢圓畫喺帶入面）', () => {
+    // 兩隻瓶同 x，前瓶頂剛好貼住後瓶底座（1.5% 底座）→ 冇塞通過、有塞（+7.5%）違規
+    const h = 100, w = 42;
+    const mk = (yBack, yFront) => [{ index: 0, position: { x: 50, y: yBack }, rotation: 0, zIndex: 0 }, { index: 1, position: { x: 50, y: yFront }, rotation: 0, zIndex: 1 }];
+    const touching = mk(50, 50 + h - 1.4);          // 前瓶頂喺後瓶底 1.4px 以上（< 1.5% 底座）
+    assert.equal(validateNoLiquidOcclusion(touching, w, h, 0.985).ok, true);
+    assert.equal(validateNoLiquidOcclusion(touching, w, h, 0.985, 0.075).ok, false);
+    const spaced = mk(50, 50 + h + 7);               // 隔開 7px：有塞（7.5px − 1.5px 底座 = 6px）都通過
+    assert.equal(validateNoLiquidOcclusion(spaced, w, h, 0.985, 0.075).ok, true);
+    // safeLayout 帶 overhang 永遠唔放行
+    for (const n of [9, 10, 11]) {
+      const r = safeLayout({ ...input, levelId: 20, bottleCount: n }, null, { liquidTopRatio: 0.985, frontOverhangRatio: 0.075 });
+      assert.equal(validateNoLiquidOcclusion(r.layout, r.bottleWidth, r.bottleHeight, 0.985, 0.075).ok, true, `n=${n}`);
+    }
+  });
   test('常數：jitter 唔超過「凌亂」門檻；布固定尺寸 1.34 / 頂 7%', () => {
     assert.ok(LAYOUT.jitterX <= 0.10 && LAYOUT.jitterY <= 0.15);
     assert.equal(CLOTH.fixedWidthRatio, 1.34); assert.equal(CLOTH.topOffsetRatio, 0.07);

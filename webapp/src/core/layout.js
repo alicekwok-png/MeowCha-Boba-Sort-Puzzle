@@ -89,8 +89,15 @@ export function computeLayout(input, opts = {}) {
   return pts.map(p => ({ index: p.i, position: { x: p.x, y: p.y }, rotation: p.rotation, zIndex: z.get(p.i) }));
 }
 
-/** Spec §4.3 R2 驗證：前面嘅瓶只可以遮住後面嘅瓶底（液體層以下），永不遮液體層 */
-export function validateNoLiquidOcclusion(layout, bottleWidth, bottleHeight, liquidTopRatio = 0.88) {
+/**
+ * Spec §4.3 R2 驗證：前面嘅瓶只可以遮住後面嘅瓶底（液體層以下），永不遮液體層。
+ *  - liquidTopRatio：由瓶頂數落嚟、必須保持可見嘅比例（bottle_std 液體底喺 98.5% → 只准遮最底 1.5% 底座）。
+ *    液面用平線計係準確嘅：渲染時頂面橢圓（圓筒明暗）係畫喺液帶*入面*（由帶頂向下 2×ry 漸變），
+ *    液帶係 rows 多邊形 clip 嘅平頂矩形，冇任何液體 pixel 高過帶頂，所以唔會低估。
+ *  - frontOverhangRatio：前面瓶頂以上仲有嘢會遮（已封樽木塞凸出瓶口 ≈ 7.5% 瓶高），以瓶高比例計；
+ *    0 = 只計瓶身。
+ */
+export function validateNoLiquidOcclusion(layout, bottleWidth, bottleHeight, liquidTopRatio = 0.88, frontOverhangRatio = 0) {
   const liquidTopFromBottom = bottleHeight * liquidTopRatio;
   const violations = [];
   const byZ = [...layout].sort((a, b) => a.zIndex - b.zIndex);
@@ -98,7 +105,7 @@ export function validateNoLiquidOcclusion(layout, bottleWidth, bottleHeight, liq
     for (let j = i + 1; j < byZ.length; j++) {
       const back = byZ[i], front = byZ[j];
       if (Math.abs(front.position.x - back.position.x) >= bottleWidth) continue;
-      const frontTop = front.position.y - bottleHeight / 2;
+      const frontTop = front.position.y - bottleHeight / 2 - bottleHeight * frontOverhangRatio;
       const backBottom = back.position.y + bottleHeight / 2;
       if (backBottom - frontTop > bottleHeight - liquidTopFromBottom) violations.push([back.index, front.index]);
     }
@@ -130,6 +137,7 @@ export function minCenterDistance(layout) {
 export function safeLayout(input, warn = null, opts = {}) {
   // liquidTopRatio：液體頂佔瓶高比例（由器皿幾何推：允許重疊 = 底座高度）。bottle_std 液體去到 98.5% → 幾乎唔准重疊
   const ltr = opts.liquidTopRatio ?? 0.88;
+  const overhang = opts.frontOverhangRatio ?? 0;   // 木塞凸出瓶口嘅高度（瓶高比例）
   const columns = opts.columns ?? columnsFor(input.bottleCount);
   // 先統一縮到放得落（行數 × 樽高、R3 格闊）；再做 R2 fallback 鏈
   const fit = fitScale(input, columns);
@@ -143,14 +151,14 @@ export function safeLayout(input, warn = null, opts = {}) {
     const a = attempts[k];
     const w = bw * (a.scale || 1), h = bh * (a.scale || 1);
     const layout = computeLayout({ ...input, bottleWidth: w, bottleHeight: h }, { columns, jitterY: a.jitterY, ...(opts.force || {}) });
-    if (validateNoLiquidOcclusion(layout, w, h, ltr).ok) return { layout, bottleWidth: w, bottleHeight: h, fallback: k, columns, fit };
+    if (validateNoLiquidOcclusion(layout, w, h, ltr, overhang).ok) return { layout, bottleWidth: w, bottleHeight: h, fallback: k, columns, fit };
   }
   // 純網格：逐步縮瓶直到冇遮擋
   let scale = 0.92, k = 3;
   for (let tries = 0; tries < 12; tries++, k++) {
     const w = bw * scale, h = bh * scale;
     const layout = computeLayout({ ...input, bottleWidth: w, bottleHeight: h }, { columns, jitterX: 0, jitterY: 0, rotationMaxDeg: 0 });
-    if (validateNoLiquidOcclusion(layout, w, h, ltr).ok) {
+    if (validateNoLiquidOcclusion(layout, w, h, ltr, overhang).ok) {
       if (warn) warn(`BottleLayout: level ${input.levelId} fell back to plain grid (scale ${scale.toFixed(2)})`);
       return { layout, bottleWidth: w, bottleHeight: h, fallback: k, columns, fit };
     }
