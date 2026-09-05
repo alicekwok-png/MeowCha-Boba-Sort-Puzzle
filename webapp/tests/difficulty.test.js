@@ -37,8 +37,9 @@ describe('步數上限', () => {
 });
 
 describe('隱藏密度', () => {
-  test('公式：≤5 為 0；第 6 關 12%（brief 隱藏層登場）；第 10 關 15%；第 11 關 15.8%；第 30 關 31%；上限 65%', () => {
-    assert.equal(hiddenRatio(5), 0);
+  test('公式：L1 0；L2–5 10%（v4 `?` L2 登場）；第 6 關 12%；第 10 關 15%；第 11 關 15.8%；第 30 關 31%；上限 65%', () => {
+    assert.equal(hiddenRatio(1), 0);
+    assert.ok(Math.abs(hiddenRatio(2) - 0.10) < 1e-9); assert.ok(Math.abs(hiddenRatio(5) - 0.10) < 1e-9);
     assert.ok(Math.abs(hiddenRatio(6) - 0.12) < 1e-9);
     assert.ok(Math.abs(hiddenRatio(10) - 0.15) < 1e-9);
     assert.ok(Math.abs(hiddenRatio(11) - 0.158) < 1e-9);
@@ -59,24 +60,25 @@ describe('機制登場表', () => {
     });
   });
   test('登場表數值', () => {
-    assert.deepEqual(UNLOCK_LEVEL, { undo: 5, frosted: 6, orders: 7, takeaway: 6, adEmptyCup: 11, moveLimit: 12, hint: 14, cracked: 15, secondOrder: 17, adOrderSlot: 17, covered: 19, thirdOrder: 36 });
+    assert.deepEqual(UNLOCK_LEVEL, { hidden: 2, adBottle: 2, undo: 5, orders: 7, adEmptyCup: 11, moveLimit: 12, hint: 14, secondOrder: 17, adOrderSlot: 17, covered: 19, thirdOrder: 36 });
   });
-  test('登場：L1–3 教學 2 隻空瓶、L4 起 1 隻；第 6 關首次磨砂 + 曲頸瓶；第 12 關首次限步；第 15 關裂瓶；第 19 關布遮瓶（campaign.json 實際盤面）', () => {
+  test('登場（v4）：L1–3 教學 2 隻空樽、L4 起 1 隻；L2 起 `?` 樽 + 廣告樽（L2 兩隻）；全部 capacity 4；第 12 關限步；第 19 關布遮樽（campaign.json 實際盤面）', () => {
     const d = JSON.parse(readFileSync(new URL('../levels/campaign.json', import.meta.url), 'utf8'));
     const { decodeBoard } = decodeMod;
     const board = id => decodeBoard(d.levels[id - 1].board);
     const kinds = id => board(id).cups.map(c => c.kind);
     const empties = id => board(id).cups.filter(c => c.seg.length === 0).length;
-    for (let id = 1; id <= 3; id++) assert.equal(empties(id), 2, `L${id} empties`);
-    for (let id = 4; id <= 40; id++) assert.equal(empties(id), 1, `L${id} empties`);
-    for (let id = 1; id <= 5; id++) { assert.ok(!kinds(id).includes('frosted'), `L${id} frosted`); assert.ok(!kinds(id).includes('takeaway'), `L${id} takeaway`); assert.equal(d.levels[id - 1].hiddenCells, 0); }
-    assert.ok(kinds(6).includes('frosted')); assert.ok(kinds(6).includes('takeaway'));
+    const empties2 = id => board(id).cups.filter(c => c.seg.length === 0 && c.kind === 'normal').length;
+    const ads = id => board(id).cups.filter(c => c.kind === 'ad').length;
+    for (let id = 1; id <= 3; id++) assert.equal(empties2(id), 2, `L${id} empties`);
+    for (let id = 4; id <= 40; id++) assert.equal(empties2(id), 1, `L${id} empties`);
+    assert.equal(kinds(1).includes('hidden'), false); assert.equal(ads(1), 0); assert.equal(d.levels[0].hiddenCells, 0);
+    assert.ok(kinds(2).includes('hidden'), 'L2 `?`'); assert.equal(ads(2), 2, 'L2 兩隻廣告樽');
+    for (let id = 2; id <= 40; id++) assert.ok(ads(id) >= 1, `L${id} ad`);
     for (let id = 1; id <= 11; id++) assert.equal(d.levels[id - 1].moveLimit, null, `L${id} limit`);
     assert.ok(d.levels[11].moveLimit > 0);
-    for (let id = 1; id <= 14; id++) assert.ok(!kinds(id).includes('cracked'), `L${id} cracked`);
-    assert.ok(kinds(15).includes('cracked'));
     for (let id = 1; id <= 18; id++) assert.ok(!kinds(id).includes('covered'), `L${id} covered`);
     assert.ok(kinds(19).includes('covered'));
-    for (const l of d.levels) for (const c of decodeBoard(l.board).cups) { assert.ok(c.kind !== 'sealed'); assert.equal(c.hidden, undefined); }
+    for (const l of d.levels) for (const c of decodeBoard(l.board).cups) { assert.equal(c.cap, 4, `L${l.id} capacity 4`); assert.ok(!['takeaway', 'cracked', 'frosted', 'sealed'].includes(c.kind), `L${l.id} ${c.kind}`); }
   });
 });

@@ -91,7 +91,8 @@ describe('LevelValidation', () => {
     }
   });
   test('液體 hex 同 Spec v2 一致（唔准改）', () => {
-    assert.equal(LIQUID_COLORS.A.hex, '#FFD93D'); assert.equal(LIQUID_COLORS.F.hex, '#8A6BFF'); assert.equal(LIQUID_COLORS.J.hex, '#FFF3D6');
+    assert.equal(LIQUID_COLORS.A.hex, '#E8BD13'); assert.equal(LIQUID_COLORS.F.hex, '#4A3FD4'); assert.equal(LIQUID_COLORS.J.hex, '#E8DCC0');   // v4 §1.1
+    for (const k of Object.keys(LIQUID_COLORS)) if (k !== 'J') assert.ok(LIQUID_COLORS[k].lum >= 42 && LIQUID_COLORS[k].lum <= 54, k + ' 中明度');
     for (const [x, y] of EXCLUSIVE_PAIRS) assert.ok(x !== y);   // 色相冇郁過 → 互斥表照舊
     assert.equal(FROSTED_GLASS, '#9AA59B');
     assert.equal(PALETTE.length, 10);

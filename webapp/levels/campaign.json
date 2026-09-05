@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-09-04T20:52:36.837Z",
+ "generatedAt": "2026-09-05T13:16:11.191Z",
  "levels": [
   {
    "id": 1,
@@ -10,10 +10,9 @@
     "colors": 2,
     "empties": 2,
     "segments": 5,
-    "frosted": 0,
+    "hidden": 0,
     "covered": 0,
-    "takeaway": 0,
-    "cracked": 0,
+    "ad": 0,
     "orders": 0,
     "optimalMin": 3,
     "optimalMax": 11,
@@ -27,8 +26,8 @@
      0
     ]
    },
-   "publicSeed": "v1:c:1:9c708a3c:c4e1c796",
-   "board": "AgIAAAAABQD_____AAYGAAYAAAAA_wD_____AAb___8",
+   "publicSeed": "v1:c:1:e4be145f:c4e1c796",
+   "board": "AgIAAAAABQAGBgAAAAAABv8A_____wAG____AP____8",
    "optimal": 3,
    "thresholds": {
     "three": 6,
@@ -47,10 +46,9 @@
     "colors": 3,
     "empties": 2,
     "segments": 7,
-    "frosted": 0,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 0,
-    "cracked": 0,
+    "ad": 2,
     "orders": 0,
     "optimalMin": 3,
     "optimalMax": 13,
@@ -66,16 +64,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:2:d280ca25:61df1f14",
-   "board": "AgMAAAAABgACAgAAAP____8AAAYAAgAGBgb_AP____8AAv___w",
-   "optimal": 6,
+   "publicSeed": "v1:c:2:62caf7b8:61df1f14",
+   "board": "AgMAAAAACMD_____AAYG__-gAAYG_wACAgL_AAIAAAAA_____wD_____wP____8",
+   "optimal": 3,
    "thresholds": {
-    "three": 9,
-    "two": 14
+    "three": 8,
+    "two": 13
    },
    "moveLimit": null,
-   "hiddenRatio": 0,
-   "hiddenCells": 0,
+   "hiddenRatio": 0.1,
+   "hiddenCells": 2,
    "units": 12
   },
   {
@@ -86,10 +84,9 @@
     "colors": 3,
     "empties": 2,
     "segments": 8,
-    "frosted": 0,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 0,
-    "cracked": 0,
+    "ad": 1,
     "orders": 0,
     "optimalMin": 3,
     "optimalMax": 14,
@@ -105,16 +102,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:3:515cec0c:4561d6b1",
-   "board": "AgMAAAAABgAECP__AP____8A_____wABBAT_AAgIAQEAAQgE_w",
-   "optimal": 6,
+   "publicSeed": "v1:c:3:7568af4f:4561d6b1",
+   "board": "AgMAAAAABwD_____AP____8ABAj__6ABAf__AAEEBAQACAgIAcD_____",
+   "optimal": 4,
    "thresholds": {
     "three": 9,
     "two": 14
    },
    "moveLimit": null,
-   "hiddenRatio": 0,
-   "hiddenCells": 0,
+   "hiddenRatio": 0.1,
+   "hiddenCells": 1,
    "units": 12
   },
   {
@@ -125,13 +122,12 @@
     "colors": 4,
     "empties": 1,
     "segments": 10,
-    "frosted": 0,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 0,
-    "cracked": 0,
+    "ad": 2,
     "orders": 0,
     "optimalMin": 4,
-    "optimalMax": 16,
+    "optimalMax": 18,
     "title": "熟手",
     "palette": [
      0,
@@ -146,16 +142,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:4:ec408f34:6e39c52f",
-   "board": "AgQAAAAABgAICAICAP____8AAAj__wAAAAACAAYGCP8ABgYC_w",
-   "optimal": 7,
+   "publicSeed": "v1:c:4:ed814cec:6e39c52f",
+   "board": "AgQAAAAACAAGBggIwP____-gAAD__8D_____AAIAAP8A_____wAICAL_AAYCAgY",
+   "optimal": 6,
    "thresholds": {
-    "three": 10,
-    "two": 15
+    "three": 11,
+    "two": 16
    },
    "moveLimit": null,
-   "hiddenRatio": 0,
-   "hiddenCells": 0,
+   "hiddenRatio": 0.1,
+   "hiddenCells": 1,
    "units": 16
   },
   {
@@ -166,13 +162,12 @@
     "colors": 4,
     "empties": 1,
     "segments": 11,
-    "frosted": 0,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 0,
-    "cracked": 0,
+    "ad": 1,
     "orders": 0,
     "optimalMin": 5,
-    "optimalMax": 17,
+    "optimalMax": 19,
     "title": "晚更",
     "palette": [
      1,
@@ -187,16 +182,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:5:749d1c6e:b17c09f0",
-   "board": "AgQAAAAABgAJBwT_AAEH__8AAQkJCQAEBAQBAAcHAf8A_____w",
+   "publicSeed": "v1:c:5:78ea6b77:b17c09f0",
+   "board": "AgQAAAAABwD_____wP____8ACQkE_wAEBAkBoAQJAQcAAQH__wAHBwf_",
    "optimal": 7,
    "thresholds": {
-    "three": 10,
-    "two": 15
+    "three": 12,
+    "two": 17
    },
    "moveLimit": null,
-   "hiddenRatio": 0,
-   "hiddenCells": 0,
+   "hiddenRatio": 0.1,
+   "hiddenCells": 3,
    "units": 16
   },
   {
@@ -207,13 +202,12 @@
     "colors": 4,
     "empties": 1,
     "segments": 12,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 1,
-    "cracked": 0,
+    "ad": 2,
     "orders": 0,
     "optimalMin": 7,
-    "optimalMax": 18,
+    "optimalMax": 20,
     "title": "蓋住咗",
     "palette": [
      0,
@@ -228,8 +222,8 @@
      0
     ]
    },
-   "publicSeed": "v1:c:6:2cddaab3:d7c55cca",
-   "board": "AgQAAAAAB2EICP8ABv___wADAwj_AP____8ABgAI_yAGBgD_AAMAAAM",
+   "publicSeed": "v1:c:6:0389e598:d7c55cca",
+   "board": "AgQAAAAACQAGAP__wP____8AAwMDAKAGBgj_AAgGAP8ACP___8D_____AP____8ACAAD_w",
    "optimal": 10,
    "thresholds": {
     "three": 15,
@@ -248,13 +242,12 @@
     "colors": 5,
     "empties": 1,
     "segments": 14,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 0,
-    "cracked": 0,
+    "ad": 1,
     "orders": 1,
     "optimalMin": 9,
-    "optimalMax": 20,
+    "optimalMax": 22,
     "title": "排隊",
     "palette": [
      0,
@@ -271,16 +264,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:7:48f46fbe:3f5ab324",
-   "board": "AgUBAAAABxAgAgUC_wAICAj_AAAABf8A_____wAGAAAIAAUGBgUABgIC_w",
+   "publicSeed": "v1:c:7:24d269fc:3f5ab324",
+   "board": "AgUBAAAACAwAAgYGCAAFAAAAoAgFAgLA_____wAGCAj_AP____8AAAUF_6AGAv__",
    "optimal": 9,
    "thresholds": {
-    "three": 14,
-    "two": 19
+    "three": 16,
+    "two": 21
    },
    "moveLimit": null,
    "hiddenRatio": 0.1275,
-   "hiddenCells": 2,
+   "hiddenCells": 4,
    "units": 20
   },
   {
@@ -291,13 +284,12 @@
     "colors": 5,
     "empties": 1,
     "segments": 15,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 1,
-    "cracked": 0,
+    "ad": 2,
     "orders": 1,
     "optimalMin": 10,
-    "optimalMax": 21,
+    "optimalMax": 23,
     "title": "打烊前",
     "palette": [
      1,
@@ -314,16 +306,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:8:a63768ef:29f68a08",
-   "board": "AgUBAAAABwIgCAEIBwAJCQH_AAcJBwQABAkICGEEBP8ABwEB_wD_____",
-   "optimal": 13,
+   "publicSeed": "v1:c:8:10e5fd0e:29f68a08",
+   "board": "AgUBAAAACRLA_____wAICAkEAAgIBwkA_____wAHCQn_oAcHBAGgAQH__wAEBAH_wP____8",
+   "optimal": 10,
    "thresholds": {
-    "three": 18,
-    "two": 23
+    "three": 17,
+    "two": 22
    },
    "moveLimit": null,
    "hiddenRatio": 0.135,
-   "hiddenCells": 3,
+   "hiddenCells": 4,
    "units": 20
   },
   {
@@ -334,13 +326,12 @@
     "colors": 5,
     "empties": 1,
     "segments": 16,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 0,
-    "cracked": 0,
+    "ad": 1,
     "orders": 1,
     "optimalMin": 12,
-    "optimalMax": 22,
+    "optimalMax": 24,
     "title": "磨砂瓶",
     "palette": [
      0,
@@ -357,8 +348,8 @@
      0
     ]
    },
-   "publicSeed": "v1:c:9:7619a92f:27e4c564",
-   "board": "AgUBAAAABwAABQgGAwAFBgYIAAAACAAAAwP__wAGBf__AP____8gCAMFAA",
+   "publicSeed": "v1:c:9:493c7e49:27e4c564",
+   "board": "AgUBAAAACBAAAwgFBQAACAgGwP____8ABQb__wD_____AAYDAAWgAwAA_wAIAwb_",
    "optimal": 13,
    "thresholds": {
     "three": 18,
@@ -366,7 +357,7 @@
    },
    "moveLimit": null,
    "hiddenRatio": 0.1425,
-   "hiddenCells": 3,
+   "hiddenCells": 2,
    "units": 20
   },
   {
@@ -377,13 +368,12 @@
     "colors": 5,
     "empties": 1,
     "segments": 17,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 1,
-    "cracked": 0,
+    "ad": 2,
     "orders": 1,
     "optimalMin": 13,
-    "optimalMax": 23,
+    "optimalMax": 25,
     "title": "曲頸瓶",
     "palette": [
      1,
@@ -400,12 +390,12 @@
      0
     ]
    },
-   "publicSeed": "v1:c:10:1a56ac95:6190c984",
-   "board": "AgUBAAAACBAgAQIIAQD_____AAEC__8ACQkICGEJB_8ABwgC_wABB___AAcJAv8",
-   "optimal": 15,
+   "publicSeed": "v1:c:10:4afa8582:6190c984",
+   "board": "AgUBAAAACgQACf___8D_____AAIHAf8ACQj__8D_____AP____8ACAL__wAHAQcJoAEBCQgABwgCAg",
+   "optimal": 13,
    "thresholds": {
-    "three": 20,
-    "two": 25
+    "three": 18,
+    "two": 23
    },
    "moveLimit": null,
    "hiddenRatio": 0.15,
@@ -420,13 +410,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 18,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 0,
-    "cracked": 0,
+    "ad": 1,
     "orders": 1,
     "optimalMin": 14,
-    "optimalMax": 24,
+    "optimalMax": 26,
     "title": "爆單",
     "palette": [
      0,
@@ -445,8 +434,8 @@
      0
     ]
    },
-   "publicSeed": "v1:c:11:e5fc8c15:cbc17bcf",
-   "board": "AgYBAAAACAwAAAAI_wAGBQgGAP____8ABgYAAAAJCAX_IAIFBQggCQIC_wAJCQL_",
+   "publicSeed": "v1:c:11:d6c40a86:cbc17bcf",
+   "board": "AgYBAAAACQqgBgAFBQAGAAgCoAkACP8AAgL__wD_____AAIICP_A_____wAFBQAGAAYJCQk",
    "optimal": 14,
    "thresholds": {
     "three": 21,
@@ -465,13 +454,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 19,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 1,
-    "cracked": 0,
+    "ad": 2,
     "orders": 1,
     "optimalMin": 15,
-    "optimalMax": 25,
+    "optimalMax": 27,
     "title": "實驗室高峰",
     "palette": [
      1,
@@ -490,8 +478,8 @@
      0
     ]
    },
-   "publicSeed": "v1:c:12:13b8947a:0060cb57",
-   "board": "AgYBAAAACA4ACAgHCWEHAgIA_____wABCQcBAAgIAf8gAQQHAiAJCQT_AAIEBP8",
+   "publicSeed": "v1:c:12:0753100b:0060cb57",
+   "board": "AgYBAAAAChIA_____8D_____oAgHAf-gAQQJAgAJBAj_AAkHCP8AAgIC_wAHCQQEwP____8ABwgBAQ",
    "optimal": 15,
    "thresholds": {
     "three": 22,
@@ -510,13 +498,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 18,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 1,
-    "cracked": 0,
+    "ad": 1,
     "orders": 1,
     "optimalMin": 10,
-    "optimalMax": 24,
+    "optimalMax": 26,
     "title": "開爐",
     "palette": null,
     "patterns": [
@@ -528,16 +515,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:13:27c8fcb1:c39f2be8",
-   "board": "AgYBAAAACQgA_____wAECf__AAgAAAJhAgL_AAgAB_8gBwT__yAABwf_AAkEBAIACQkICA",
-   "optimal": 13,
+   "publicSeed": "v1:c:13:7dd24cdd:c39f2be8",
+   "board": "AgYBAAAACg4A_____6ACBAIEwP____8ABwcICAAICAf_AAEB__8ABAIB_wACCQkEoAcBCf8ACf___w",
+   "optimal": 14,
    "thresholds": {
-    "three": 20,
-    "two": 25
+    "three": 21,
+    "two": 26
    },
-   "moveLimit": 25,
+   "moveLimit": 26,
    "hiddenRatio": 0.174,
-   "hiddenCells": 3,
+   "hiddenCells": 5,
    "units": 24
   },
   {
@@ -548,13 +535,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 19,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 0,
-    "cracked": 0,
+    "ad": 2,
     "orders": 1,
     "optimalMin": 11,
-    "optimalMax": 25,
+    "optimalMax": 27,
     "title": "導師提示",
     "palette": null,
     "patterns": [
@@ -566,14 +552,14 @@
      0
     ]
    },
-   "publicSeed": "v1:c:14:9643b647:c9df2b6d",
-   "board": "AgYBAAAACRIABwkJCQD_____IAkEAwgACAP__wAECAMDAAAAB_8gBwj__wAHAAD_AAQE__8",
-   "optimal": 13,
+   "publicSeed": "v1:c:14:117c73dc:c9df2b6d",
+   "board": "AgYBAAAACwgABAT__wAECAgIAAP___-gAAn__wAGAwAEoAYIAwAABgAGCQD_____AAkJA__A_____8D_____",
+   "optimal": 15,
    "thresholds": {
-    "three": 20,
-    "two": 25
+    "three": 22,
+    "two": 27
    },
-   "moveLimit": 25,
+   "moveLimit": 27,
    "hiddenRatio": 0.182,
    "hiddenCells": 4,
    "units": 24
@@ -586,13 +572,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 19,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 1,
-    "cracked": 1,
+    "ad": 1,
     "orders": 1,
     "optimalMin": 11,
-    "optimalMax": 25,
+    "optimalMax": 27,
     "title": "裂瓶",
     "palette": null,
     "patterns": [
@@ -604,16 +589,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:15:90d1ac77:6ef76e03",
-   "board": "AgYBAAAACQIgBgEF_yABAgYIAAkJCP8ABv___4AIAQEJYQIFCAAJAgIGIAUF__8A_____w",
-   "optimal": 16,
+   "publicSeed": "v1:c:15:81430736:6ef76e03",
+   "board": "AgYBAAAACgwAAAUAAAACCf__oAIABv8ABQgG_wAFBQn_wP____8ACAgIAqAGAv__oAkJBv8A_____w",
+   "optimal": 13,
    "thresholds": {
-    "three": 25,
-    "two": 30
+    "three": 22,
+    "two": 27
    },
-   "moveLimit": 28,
+   "moveLimit": 25,
    "hiddenRatio": 0.19,
-   "hiddenCells": 6,
+   "hiddenCells": 5,
    "units": 24
   },
   {
@@ -624,13 +609,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 19,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 0,
-    "cracked": 0,
+    "ad": 2,
     "orders": 1,
     "optimalMin": 11,
-    "optimalMax": 25,
+    "optimalMax": 27,
     "title": "睇唔到嘅底",
     "palette": null,
     "patterns": [
@@ -642,8 +626,8 @@
      0
     ]
    },
-   "publicSeed": "v1:c:16:9643b647:ec9e18f8",
-   "board": "AgYBAAAACRAAAQUC_wABBgYIAAIICP8gCQEG_yAIBgX_AAkJCQUgAgL__wD_____AAUB__8",
+   "publicSeed": "v1:c:16:117c73dc:ec9e18f8",
+   "board": "AgYBAAAACwigBwIJBAAJCQn_AAEBB_8A_____6AEAgf_AAEI___A_____8D_____oAgB__8ABAgI_wAEAgIH",
    "optimal": 14,
    "thresholds": {
     "three": 23,
@@ -651,7 +635,7 @@
    },
    "moveLimit": 26,
    "hiddenRatio": 0.198,
-   "hiddenCells": 5,
+   "hiddenCells": 6,
    "units": 24
   },
   {
@@ -662,13 +646,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 19,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 0,
-    "cracked": 0,
+    "ad": 1,
     "orders": 2,
     "optimalMin": 11,
-    "optimalMax": 25,
+    "optimalMax": 27,
     "title": "兩張委託",
     "palette": null,
     "patterns": [
@@ -680,16 +663,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:17:a794676a:e8a534d3",
-   "board": "AgYCAAAACRIGAAMECQcAB____wAH____AAMJCf8gBAMEACAJAwAAAAAICP8ACAgHBAD_____",
-   "optimal": 14,
+   "publicSeed": "v1:c:17:a36aa9f5:e8a534d3",
+   "board": "AgYCAAAACgIEoAcEBwEACAQCAqAEBAj_AAIC___A_____wAIBwgBAAn___8A_____wAJCf__AAEHAQk",
+   "optimal": 15,
    "thresholds": {
-    "three": 21,
-    "two": 26
+    "three": 22,
+    "two": 27
    },
-   "moveLimit": 26,
+   "moveLimit": 27,
    "hiddenRatio": 0.206,
-   "hiddenCells": 6,
+   "hiddenCells": 5,
    "units": 24
   },
   {
@@ -700,13 +683,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 19,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 1,
-    "cracked": 1,
+    "ad": 2,
     "orders": 2,
     "optimalMin": 11,
-    "optimalMax": 25,
+    "optimalMax": 27,
     "title": "排長龍",
     "palette": null,
     "patterns": [
@@ -718,16 +700,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:18:5dd157ca:ba09e9d7",
-   "board": "AgYCAAAACQwAIAMICAYABQD__2EAAwYACQn__4AGAwkJAP____8AAAAG_wAFBQX_IAgDCP8",
-   "optimal": 13,
+   "publicSeed": "v1:c:18:b99e87e7:ba09e9d7",
+   "board": "AgYCAAAACwoMwP____8ABv___wAGBgYJAAUB__-gAQUB_wD_____AAkJCP_A_____wACCAgFoAkBAv8ABQICCA",
+   "optimal": 14,
    "thresholds": {
-    "three": 20,
-    "two": 25
+    "three": 21,
+    "two": 26
    },
-   "moveLimit": 25,
+   "moveLimit": 26,
    "hiddenRatio": 0.214,
-   "hiddenCells": 5,
+   "hiddenCells": 4,
    "units": 24
   },
   {
@@ -738,13 +720,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 19,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 1,
-    "takeaway": 0,
-    "cracked": 0,
+    "ad": 1,
     "orders": 2,
     "optimalMin": 11,
-    "optimalMax": 25,
+    "optimalMax": 27,
     "title": "布遮瓶",
     "palette": null,
     "patterns": [
@@ -756,14 +737,14 @@
      0
     ]
    },
-   "publicSeed": "v1:c:19:6c545589:6d323667",
-   "board": "AgYCAAAACRIAAAn___8AAgIJCAAJAAX_AAAAAv8A_____wAFBQb_AAgGCf8gBQYABkQCCAj_",
-   "optimal": 15,
+   "publicSeed": "v1:c:19:88c2cd64:6d323667",
+   "board": "AgYCAAAACgAIAAgDBP8ABwcHAKAACAgJAP____8ABAf__6AEBAn_RAj___8ACQMJA8D_____AAAAA_8",
+   "optimal": 14,
    "thresholds": {
-    "three": 20,
-    "two": 25
+    "three": 21,
+    "two": 26
    },
-   "moveLimit": 27,
+   "moveLimit": 26,
    "hiddenRatio": 0.222,
    "hiddenCells": 5,
    "units": 24
@@ -776,13 +757,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 20,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 1,
-    "takeaway": 1,
-    "cracked": 0,
+    "ad": 2,
     "orders": 2,
     "optimalMin": 12,
-    "optimalMax": 26,
+    "optimalMax": 28,
     "title": "全家福",
     "palette": null,
     "patterns": [
@@ -794,14 +774,14 @@
      0
     ]
    },
-   "publicSeed": "v1:c:20:68ba2656:bfd4e194",
-   "board": "AgYCAAAACRAEAAgEBgZEAQkE_wAJAgL_IAkGAgFhAf__IAYCCP8ACAgE_wD_____AAQBCf8",
-   "optimal": 16,
+   "publicSeed": "v1:c:20:e8ccdd20:bfd4e194",
+   "board": "AgYCAAAACxIQAAn___8A_____wADAAn_wP____8ABwcI_6AICQf_wP____8ABAQE_6AICAMARAQHAP8AAAMDCQ",
+   "optimal": 14,
    "thresholds": {
-    "three": 23,
-    "two": 28
+    "three": 21,
+    "two": 26
    },
-   "moveLimit": 28,
+   "moveLimit": 26,
    "hiddenRatio": 0.22999999999999998,
    "hiddenCells": 7,
    "units": 24
@@ -814,13 +794,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 20,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 1,
-    "cracked": 1,
+    "ad": 1,
     "orders": 2,
     "optimalMin": 12,
-    "optimalMax": 26,
+    "optimalMax": 28,
     "title": "夜更開始",
     "palette": null,
     "patterns": [
@@ -832,12 +811,12 @@
      0
     ]
    },
-   "publicSeed": "v1:c:21:68d2a060:0d001ad8",
-   "board": "AgYCAAAACRIKIAMFCf8ACQkJ_yAICAP_gAAIAwNhBgj_IAAGBf8AAAYFBgD_____AAAF__8",
+   "publicSeed": "v1:c:21:616fcda6:0d001ad8",
+   "board": "AgYCAAAAChASAAkHAP_A_____wAA____AAkECP8AAAcA_wD_____AAgECP-gAwMEBwAECQn_oAgHAwM",
    "optimal": 16,
    "thresholds": {
-    "three": 25,
-    "two": 30
+    "three": 23,
+    "two": 28
    },
    "moveLimit": 26,
    "hiddenRatio": 0.238,
@@ -852,13 +831,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 20,
-    "frosted": 2,
+    "hidden": 2,
     "covered": 0,
-    "takeaway": 0,
-    "cracked": 0,
+    "ad": 2,
     "orders": 2,
     "optimalMin": 12,
-    "optimalMax": 26,
+    "optimalMax": 28,
     "title": "兩隻磨砂",
     "palette": null,
     "patterns": [
@@ -870,8 +848,8 @@
      0
     ]
    },
-   "publicSeed": "v1:c:22:b56e2168:f8755fca",
-   "board": "AgYCAAAACRAEAAkJ__8ACQQEAiAGBgH_AAEGBP8gBAII_wAIAgn_AAEBCP8A_____yAGAgj_",
+   "publicSeed": "v1:c:22:c589c482:f8755fca",
+   "board": "AgYCAAAACwYQoAAJBgnA_____6AJBQX_AAYD__8A_____wAACQUAwP____-gBQD__wAIAwMDAAj___8ABggIBg",
    "optimal": 15,
    "thresholds": {
     "three": 24,
@@ -890,13 +868,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 20,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 1,
-    "takeaway": 1,
-    "cracked": 0,
+    "ad": 1,
     "orders": 2,
     "optimalMin": 12,
-    "optimalMax": 26,
+    "optimalMax": 28,
     "title": "布遮曲頸",
     "palette": null,
     "patterns": [
@@ -908,16 +885,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:23:68ba2656:bfe59e7b",
-   "board": "AgYCAAAACRIIYQMEBAAJAAAHAP____8gCAMD_wAEBwf_IAkACP8ABwn__wAAAwQJRAgI__8",
-   "optimal": 14,
+   "publicSeed": "v1:c:23:a3a5a92b:bfe59e7b",
+   "board": "AgYCAAAACggSAAkGAggAAgEG_0QBAQb_AAb___8A_____8D_____oAIEBP8ACQgI_6AIBAH_AAkECQI",
+   "optimal": 16,
    "thresholds": {
-    "three": 21,
-    "two": 26
+    "three": 23,
+    "two": 28
    },
-   "moveLimit": 24,
+   "moveLimit": 26,
    "hiddenRatio": 0.254,
-   "hiddenCells": 5,
+   "hiddenCells": 6,
    "units": 24
   },
   {
@@ -928,13 +905,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 20,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 0,
-    "cracked": 1,
+    "ad": 2,
     "orders": 2,
     "optimalMin": 12,
-    "optimalMax": 26,
+    "optimalMax": 28,
     "title": "裂瓶再現",
     "palette": null,
     "patterns": [
@@ -946,16 +922,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:24:44ea4841:7eb5eb08",
-   "board": "AgYCAAAACRIGAAAFCQkgCAUI_wAABgj_AAYJCf8gAwUAA4ADBgb_AAgD__8gBQD__wD_____",
-   "optimal": 16,
+   "publicSeed": "v1:c:24:41d40585:7eb5eb08",
+   "board": "AgYCAAAACwISoAgCBP_A_____6AGBv__wP____8A_____6ABCAH_AAkCAv8ABAIGBgAEBAgBAAEJCQgACf___w",
+   "optimal": 14,
    "thresholds": {
-    "three": 25,
-    "two": 30
+    "three": 23,
+    "two": 28
    },
-   "moveLimit": 26,
+   "moveLimit": 24,
    "hiddenRatio": 0.262,
-   "hiddenCells": 6,
+   "hiddenCells": 5,
    "units": 24
   },
   {
@@ -966,13 +942,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 21,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 1,
-    "takeaway": 0,
-    "cracked": 0,
+    "ad": 1,
     "orders": 2,
     "optimalMin": 13,
-    "optimalMax": 27,
+    "optimalMax": 29,
     "title": "蠟封",
     "palette": null,
     "patterns": [
@@ -984,12 +959,12 @@
      0
     ]
    },
-   "publicSeed": "v1:c:25:8ca836f0:1fedb828",
-   "board": "AgYCAAAACRACIAkJBgQACAQB_0QGBv__AAEJBv8gBAgB_wD_____AAECAv8AAgQJCAACCP__",
+   "publicSeed": "v1:c:25:5e6a5268:1fedb828",
+   "board": "AgYCAAAACgoARAMJCAgAAAkFBQAGCQMAAAAD__-gAwYGCQD_____wP____8AAP___wAFBQj_AAgG__8",
    "optimal": 15,
    "thresholds": {
-    "three": 22,
-    "two": 27
+    "three": 20,
+    "two": 25
    },
    "moveLimit": 25,
    "hiddenRatio": 0.27,
@@ -1004,13 +979,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 21,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 1,
-    "cracked": 0,
+    "ad": 2,
     "orders": 2,
     "optimalMin": 13,
-    "optimalMax": 27,
+    "optimalMax": 29,
     "title": "夜更深",
     "palette": null,
     "patterns": [
@@ -1022,16 +996,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:26:aad0e140:b65a4130",
-   "board": "AgYCAAAACRIGIAAAA_8gBgYFCQAJAwn_YQD__yAAAwUJAAgICP8A_____wAGBQj_AAMFBv8",
-   "optimal": 16,
+   "publicSeed": "v1:c:26:29093dd4:b65a4130",
+   "board": "AgYCAAAACwAMoAMJCQPA_____wAJBAYEwP____8ABP___wAJBgj_AP____-gCAP__6AAAAYGAAgAAP8ABAgD_w",
+   "optimal": 15,
    "thresholds": {
-    "three": 25,
-    "two": 30
+    "three": 24,
+    "two": 29
    },
-   "moveLimit": 26,
+   "moveLimit": 25,
    "hiddenRatio": 0.278,
-   "hiddenCells": 8,
+   "hiddenCells": 7,
    "units": 24
   },
   {
@@ -1042,13 +1016,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 21,
-    "frosted": 2,
+    "hidden": 2,
     "covered": 0,
-    "takeaway": 0,
-    "cracked": 1,
+    "ad": 1,
     "orders": 2,
     "optimalMin": 13,
-    "optimalMax": 27,
+    "optimalMax": 29,
     "title": "雙磨砂",
     "palette": null,
     "patterns": [
@@ -1060,16 +1033,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:27:ecf55f46:857c9b91",
-   "board": "AgYCAAAACRAMIAgI__8A_____wAGAgkJIAIABv8ABAIA_yAICf__AAAABv-ABgQJ_yAIAgQE",
-   "optimal": 15,
+   "publicSeed": "v1:c:27:6b613c4b:857c9b91",
+   "board": "AgYCAAAACgwKAAn___8AAgYAAKAJCAkAoAgFBv_A_____wAGAv__AP____-gBQIFBQAACAb_AAIJCP8",
+   "optimal": 16,
    "thresholds": {
-    "three": 26,
-    "two": 31
+    "three": 25,
+    "two": 30
    },
-   "moveLimit": 25,
+   "moveLimit": 26,
    "hiddenRatio": 0.28600000000000003,
-   "hiddenCells": 7,
+   "hiddenCells": 8,
    "units": 24
   },
   {
@@ -1080,13 +1053,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 21,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 1,
-    "takeaway": 1,
-    "cracked": 0,
+    "ad": 2,
     "orders": 2,
     "optimalMin": 13,
-    "optimalMax": 27,
+    "optimalMax": 29,
     "title": "三種瓶",
     "palette": null,
     "patterns": [
@@ -1098,16 +1070,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:28:e2c7e0ad:4d31b676",
-   "board": "AgYCAAAACQ4SRAIBCAQABwkJCCACB___IAkHCf8ABAH__wABBwj_YQQEAQD_____IAICCP8",
+   "publicSeed": "v1:c:28:e729903e:4d31b676",
+   "board": "AgYCAAAACxAAwP____8AAAj__wADAAkJwP____8A_____0QDBAT_AAgECf-gBwcD_6AABwn_AAAEB_8AAwgI_w",
    "optimal": 16,
    "thresholds": {
-    "three": 25,
-    "two": 30
+    "three": 23,
+    "two": 28
    },
    "moveLimit": 26,
    "hiddenRatio": 0.29400000000000004,
-   "hiddenCells": 8,
+   "hiddenCells": 6,
    "units": 24
   },
   {
@@ -1118,13 +1090,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 21,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 0,
-    "cracked": 0,
+    "ad": 1,
     "orders": 2,
     "optimalMin": 13,
-    "optimalMax": 27,
+    "optimalMax": 29,
     "title": "一隻空瓶",
     "palette": null,
     "patterns": [
@@ -1136,16 +1107,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:29:31b0f075:9bdd1fa6",
-   "board": "AgYCAAAACQgOAAAJ__8A_____wAHCAf_AAQEA_8ACAf__yADAAMJIAQHCP8AAwAABCAJCQj_",
-   "optimal": 15,
+   "publicSeed": "v1:c:29:ac54a58a:9bdd1fa6",
+   "board": "AgYCAAAACgQSAP____8ABAf__6AECf__oAIECAEACQEJBwAHAgL_wP____8AAgH__6ABBwT_AAkICAg",
+   "optimal": 16,
    "thresholds": {
-    "three": 24,
-    "two": 29
+    "three": 25,
+    "two": 30
    },
-   "moveLimit": 25,
+   "moveLimit": 26,
    "hiddenRatio": 0.302,
-   "hiddenCells": 7,
+   "hiddenCells": 6,
    "units": 24
   },
   {
@@ -1156,13 +1127,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 22,
-    "frosted": 2,
+    "hidden": 2,
     "covered": 1,
-    "takeaway": 0,
-    "cracked": 1,
+    "ad": 2,
     "orders": 2,
     "optimalMin": 14,
-    "optimalMax": 28,
+    "optimalMax": 30,
     "title": "布遮雙磨砂",
     "palette": null,
     "patterns": [
@@ -1174,16 +1144,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:30:7cad877b:3acb849c",
-   "board": "AgYCAAAACQwIRAkJ__8AAwkA_yAGCAMAAAAEBv-ACAAD_wAJAwb_AAQE__8A_____yAGCAgE",
-   "optimal": 16,
+   "publicSeed": "v1:c:30:d0c3b2b0:3acb849c",
+   "board": "AgYCAAAACxIGoAAIAwgACQUD_wAAA___AAMA__-gCAkFCcD_____AAgGAAYA_____8D_____AAkFBgZEBf___w",
+   "optimal": 19,
    "thresholds": {
-    "three": 23,
-    "two": 28
+    "three": 26,
+    "two": 31
    },
-   "moveLimit": 26,
+   "moveLimit": 29,
    "hiddenRatio": 0.31,
-   "hiddenCells": 7,
+   "hiddenCells": 6,
    "units": 24
   },
   {
@@ -1194,13 +1164,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 22,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 0,
-    "cracked": 0,
+    "ad": 1,
     "orders": 2,
     "optimalMin": 14,
-    "optimalMax": 28,
+    "optimalMax": 30,
     "title": "六色全開",
     "palette": null,
     "patterns": [
@@ -1212,8 +1181,8 @@
      0
     ]
    },
-   "publicSeed": "v1:c:31:dce2321c:00b4d972",
-   "board": "AgYCAAAACQAKIAgGCQIACQYFCQD_____AAb___8gAAICACACCAb_IAUJ__8AAAAFCAAIBf__",
+   "publicSeed": "v1:c:31:857d1273:00b4d972",
+   "board": "AgYCAAAAChAGoAAJ__-gCAMF_wAGAAgJAP____8ACQMG_6AFBQn_oAMDAAjA_____wAGAAj_AAUG__8",
    "optimal": 16,
    "thresholds": {
     "three": 27,
@@ -1221,7 +1190,7 @@
    },
    "moveLimit": 24,
    "hiddenRatio": 0.318,
-   "hiddenCells": 9,
+   "hiddenCells": 8,
    "units": 24
   },
   {
@@ -1232,13 +1201,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 22,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 0,
-    "cracked": 1,
+    "ad": 2,
     "orders": 2,
     "optimalMin": 14,
-    "optimalMax": 28,
+    "optimalMax": 30,
     "title": "六色磨砂",
     "palette": null,
     "patterns": [
@@ -1250,16 +1218,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:32:8363058f:64fab357",
-   "board": "AgYCAAAACQQMAP____8ABP___yAIBAAJAAIACAAABAICBiAAAgT_IAgI__8gBgkG_4AGCQn_",
-   "optimal": 17,
+   "publicSeed": "v1:c:32:b60ab25b:64fab357",
+   "board": "AgYCAAAACxIQwP____-gCAgJ_6AAA___AAkJAP-gCAUJ_8D_____oAUABf8ABgYD_wD_____oAYDBv8ABQMIAA",
+   "optimal": 16,
    "thresholds": {
-    "three": 28,
-    "two": 33
+    "three": 29,
+    "two": 34
    },
-   "moveLimit": 25,
+   "moveLimit": 24,
    "hiddenRatio": 0.32599999999999996,
-   "hiddenCells": 8,
+   "hiddenCells": 9,
    "units": 24
   },
   {
@@ -1270,13 +1238,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 22,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 1,
-    "takeaway": 0,
-    "cracked": 0,
+    "ad": 1,
     "orders": 2,
     "optimalMin": 14,
-    "optimalMax": 28,
+    "optimalMax": 30,
     "title": "八隻瓶",
     "palette": null,
     "patterns": [
@@ -1288,16 +1255,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:33:e588acb9:0fba6630",
-   "board": "AgYCAAAACBICAAn___8gAgEIAQAIAgH_IAEHBAlEBAcCAgD_____AAQHBwkABAgICQ",
-   "optimal": 16,
+   "publicSeed": "v1:c:33:4b113784:0fba6630",
+   "board": "AgYCAAAACQoSAAgFBgKgBQUJCAAJCAH_AP____8ABggGCcD_____RAEBAv-gCQIB_wACBgX_",
+   "optimal": 17,
    "thresholds": {
-    "three": 23,
-    "two": 28
+    "three": 24,
+    "two": 29
    },
-   "moveLimit": 24,
+   "moveLimit": 25,
    "hiddenRatio": 0.33399999999999996,
-   "hiddenCells": 9,
+   "hiddenCells": 7,
    "units": 24
   },
   {
@@ -1308,13 +1275,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 22,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 0,
-    "takeaway": 1,
-    "cracked": 0,
+    "ad": 2,
     "orders": 2,
     "optimalMin": 14,
-    "optimalMax": 28,
+    "optimalMax": 30,
     "title": "曲頸夜更",
     "palette": null,
     "patterns": [
@@ -1326,16 +1292,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:34:59bd55d8:5e12eaf7",
-   "board": "AgYCAAAACAAEAP____9hAgkGAAAAAgYgCQgFCCACCAX_IAAABgkABQIGCSAIBf__",
-   "optimal": 17,
+   "publicSeed": "v1:c:34:18c7bccb:5e12eaf7",
+   "board": "AgYCAAAACgwSAAkJCAkAAggE_wAEBgECoAEJ___A_____6ACAgYIAAQGCP-gBAEGAcD_____AP____8",
+   "optimal": 18,
    "thresholds": {
-    "three": 28,
-    "two": 33
+    "three": 27,
+    "two": 32
    },
-   "moveLimit": 25,
+   "moveLimit": 26,
    "hiddenRatio": 0.34199999999999997,
-   "hiddenCells": 9,
+   "hiddenCells": 7,
    "units": 24
   },
   {
@@ -1346,13 +1312,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 22,
-    "frosted": 2,
+    "hidden": 2,
     "covered": 1,
-    "takeaway": 0,
-    "cracked": 0,
+    "ad": 1,
     "orders": 2,
     "optimalMin": 14,
-    "optimalMax": 28,
+    "optimalMax": 30,
     "title": "師傅考牌",
     "palette": null,
     "patterns": [
@@ -1364,8 +1329,8 @@
      0
     ]
    },
-   "publicSeed": "v1:c:35:a130ccd6:4c32b092",
-   "board": "AgYCAAAACBIEAAcAAv8AAAkACCAICQcCIAkHBP8AAAgE_0QECAcEAAICCf8A_____w",
+   "publicSeed": "v1:c:35:0d3b1952:4c32b092",
+   "board": "AgYCAAAACQQSRAEIBwEABAEI_6AIBAcJAP_____A_____wACCAcEAAkCAv8ACQL__6AHBAEJ",
    "optimal": 18,
    "thresholds": {
     "three": 25,
@@ -1373,7 +1338,7 @@
    },
    "moveLimit": 26,
    "hiddenRatio": 0.35,
-   "hiddenCells": 8,
+   "hiddenCells": 9,
    "units": 24
   },
   {
@@ -1384,13 +1349,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 23,
-    "frosted": 2,
+    "hidden": 2,
     "covered": 0,
-    "takeaway": 1,
-    "cracked": 0,
+    "ad": 2,
     "orders": 3,
     "optimalMin": 15,
-    "optimalMax": 29,
+    "optimalMax": 31,
     "title": "導師訓話",
     "palette": null,
     "patterns": [
@@ -1402,16 +1366,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:36:690910e6:34b5476f",
-   "board": "AgYDAAAACAQQEgAGBQL_YQUABSAGAAIAAAIICAYgCAUJ_yAABggJAP____8AAgkJ_w",
-   "optimal": 18,
+   "publicSeed": "v1:c:36:b516a62f:34b5476f",
+   "board": "AgYDAAAACggSBKAJBAIJoAQJAQTA_____6AICAcBAAcCAggAAgEH_wAHBP__AP____8AAQgJ_8D_____",
+   "optimal": 16,
    "thresholds": {
-    "three": 27,
-    "two": 32
+    "three": 25,
+    "two": 30
    },
-   "moveLimit": 26,
+   "moveLimit": 24,
    "hiddenRatio": 0.358,
-   "hiddenCells": 8,
+   "hiddenCells": 9,
    "units": 24
   },
   {
@@ -1422,13 +1386,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 23,
-    "frosted": 2,
+    "hidden": 2,
     "covered": 1,
-    "takeaway": 0,
-    "cracked": 0,
+    "ad": 1,
     "orders": 3,
     "optimalMin": 15,
-    "optimalMax": 29,
+    "optimalMax": 31,
     "title": "布遮雙磨砂 II",
     "palette": null,
     "patterns": [
@@ -1440,16 +1403,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:37:1b5b3018:4988ddd5",
-   "board": "AgYDAAAACAIIBAD_____IAgIBAEAAQkE_wAHBAkCAAkJBwJECAcBCCAEAv__IAECB_8",
-   "optimal": 17,
+   "publicSeed": "v1:c:37:f7dd8f97:4988ddd5",
+   "board": "AgYDAAAACQIECgACAQn_RAUJBgUAAQUI_6ABBgb_oAkGCP-gCAIFAcD_____AP____8ACAIJAg",
+   "optimal": 19,
    "thresholds": {
-    "three": 26,
-    "two": 31
+    "three": 28,
+    "two": 33
    },
-   "moveLimit": 25,
+   "moveLimit": 27,
    "hiddenRatio": 0.366,
-   "hiddenCells": 9,
+   "hiddenCells": 10,
    "units": 24
   },
   {
@@ -1460,13 +1423,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 23,
-    "frosted": 1,
+    "hidden": 1,
     "covered": 1,
-    "takeaway": 1,
-    "cracked": 1,
+    "ad": 2,
     "orders": 3,
     "optimalMin": 15,
-    "optimalMax": 29,
+    "optimalMax": 31,
     "title": "全部瓶種",
     "palette": null,
     "patterns": [
@@ -1478,16 +1440,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:38:5425b4c0:4254c226",
-   "board": "AgYDAAAACRIACGEDAP8AAAgE_wD_____IAkDCAiAAwgACSAJBAMEIAYABv9EBAb__wAJBv__",
-   "optimal": 20,
+   "publicSeed": "v1:c:38:a5a4e15a:4254c226",
+   "board": "AgYDAAAACwQADAAGAAn_AP_____A_____6AIBQD_wP____8ACQYCBaAFCQACRAkG__-gBgUA_6ACCAj_AAgC__8",
+   "optimal": 18,
    "thresholds": {
     "three": 29,
     "two": 34
    },
-   "moveLimit": 28,
+   "moveLimit": 26,
    "hiddenRatio": 0.374,
-   "hiddenCells": 9,
+   "hiddenCells": 10,
    "units": 24
   },
   {
@@ -1498,13 +1460,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 23,
-    "frosted": 2,
+    "hidden": 2,
     "covered": 1,
-    "takeaway": 1,
-    "cracked": 0,
+    "ad": 1,
     "orders": 3,
     "optimalMin": 15,
-    "optimalMax": 29,
+    "optimalMax": 31,
     "title": "最後衝刺",
     "palette": null,
     "patterns": [
@@ -1516,16 +1477,16 @@
      0
     ]
    },
-   "publicSeed": "v1:c:39:02399ab2:4f36b995",
-   "board": "AgYDAAAACAQSDCAGCQj_AP____9hAgb_IAkGAgZECAACBAAACQAEAAgEBP8AAggACQ",
-   "optimal": 18,
+   "publicSeed": "v1:c:39:f7dd8f97:4f36b995",
+   "board": "AgYDAAAACQYSCAAABgb_AP____8ACAAEBkQJAAkIoAMA__-gBAMD_6AIAwkIAAYECQTA_____w",
+   "optimal": 17,
    "thresholds": {
-    "three": 25,
-    "two": 30
+    "three": 26,
+    "two": 31
    },
-   "moveLimit": 26,
+   "moveLimit": 25,
    "hiddenRatio": 0.382,
-   "hiddenCells": 8,
+   "hiddenCells": 9,
    "units": 24
   },
   {
@@ -1536,13 +1497,12 @@
     "colors": 6,
     "empties": 1,
     "segments": 23,
-    "frosted": 2,
+    "hidden": 2,
     "covered": 1,
-    "takeaway": 1,
-    "cracked": 1,
+    "ad": 2,
     "orders": 3,
     "optimalMin": 15,
-    "optimalMax": 29,
+    "optimalMax": 31,
     "title": "實驗室之光",
     "palette": null,
     "patterns": [
@@ -1554,8 +1514,8 @@
      0
     ]
    },
-   "publicSeed": "v1:c:40:fdde0a6f:1bf410ff",
-   "board": "AgYDAAAACRAMCiACCAn_RAECCP8gCAL__2EBAQWABQkIBQD_____IAUJCQYABv___wACBgEG",
+   "publicSeed": "v1:c:40:434145c4:1bf410ff",
+   "board": "AgYDAAAACwQIEAAEBAEIAAL___8ACAEI_wACAf__RAcJBP_A_____6AIBAcHwP____-gBwkCCaAJAgH_AP____8",
    "optimal": 17,
    "thresholds": {
     "three": 26,
@@ -1563,7 +1523,7 @@
    },
    "moveLimit": 25,
    "hiddenRatio": 0.39,
-   "hiddenCells": 8,
+   "hiddenCells": 10,
    "units": 24
   }
  ]

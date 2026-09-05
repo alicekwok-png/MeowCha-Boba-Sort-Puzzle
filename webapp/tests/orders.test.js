@@ -10,16 +10,19 @@ const N = (seg) => makeCup('normal', seg);
 const level = (board, id = 20) => ({ id, board: encodeBoard(board), optimal: solve(board, 30).length, thresholds: { three: 30, two: 40 } });
 
 describe('廣告訂單槽', () => {
-  test('新訂單顏色一定係板面上未完成、未被點嘅色', () => {
-    // 色 1 已經係純色滿杯；色 2 已有訂單；只剩色 3 可以加
+  test('新委託顏色一定係板面上未被點嘅色（v4：已封樽嘅色都可以點，點咗即刻飛走）', () => {
+    // 色 2 已有委託；色 1 係已封樽（純色滿）、色 3 未完成 → 兩者都可以加；加色 1 會即刻交貨飛走
     const b = makeBoard([N([1, 1, 1, 1]), N([2, 2, 3]), N([3, 3, 3, 2]), N([2]), N([])], 3, [2]);
     const srv = new LocalServer();
     const st = srv.start(level(b));
     const r = srv.addOrder(st.sessionId, [], () => 0.99);
     assert.equal(r.ok, true);
-    assert.equal(r.color, 3);
+    assert.ok([1, 3].includes(r.color));
     assert.equal(r.maskedBoard.orders.length, 2);
-    // 再加：冇未完成色可揀 → 拒絕，唔會亂加
+    if (r.color === 1) assert.equal(r.maskedBoard.cups[0].kind, 'gone');
+    const r2 = srv.addOrder(st.sessionId, [], () => 0.99);
+    assert.equal(r2.ok, true);
+    // 再加：三色都點晒 → 拒絕，唔會亂加
     assert.equal(srv.addOrder(st.sessionId, []).ok, false);
   });
 

@@ -1,6 +1,6 @@
 // core/generator.js — 隨機生成 + 驗證。段數係難度主旋鈕，所以唔用逆向生成。
 
-import { makeCup, makeUnit, countSegments, hiddenCount, CAP_NORMAL, CAP_TAKEAWAY } from './board.js';
+import { makeCup, makeUnit, countSegments, hiddenCount, CAP_NORMAL } from './board.js';
 import { isComplete, isSolved } from './rules.js';
 import { solveEx, countOptimalPaths, safeOpening } from './solver.js';
 import { mulberry32, shuffle, randInt } from './prng.js';
@@ -13,10 +13,12 @@ import { PALETTE, colorsCompatible, unitsCompatible, MAX_COLORS_BY_HUE } from '.
  *  colors = 元素數（色 × 圖案）；patterns = 每個元素嘅 patternId（預設全部 P0）
  */
 
+/** v4：單一樽型（capacity 4）。cfg.hidden = `?` 隱藏層樽最少數量（hiddenRatio 會補足）；cfg.ad = 廣告樽數（額外、鎖死、空）；cfg.covered = 布遮樽 */
 export function validateConfig(cfg) {
   const filled = cfg.cups - cfg.empties;
-  const capacity = (filled - cfg.takeaway) * CAP_NORMAL + cfg.takeaway * CAP_TAKEAWAY;
+  const capacity = filled * CAP_NORMAL;
   const units = cfg.colors * CAP_NORMAL;
+  if ((cfg.takeaway || 0) > 0 || (cfg.cracked || 0) > 0) throw new Error('v4：曲頸瓶 / 裂瓶已移除，全遊戲單一樽型');
   const patterns = cfg.patterns || new Array(cfg.colors).fill(0);
   if (patterns.length !== cfg.colors) throw new Error('patterns length != colors');
   const distinctColors = cfg.palette ? new Set(cfg.palette).size : cfg.colors;
@@ -28,12 +30,12 @@ export function validateConfig(cfg) {
   if (filled < cfg.colors) throw new Error('filled cups < colors');
   if (capacity < units) throw new Error(`capacity ${capacity} < units ${units}`);
   if (capacity - units > filled * 2) throw new Error('too much slack: cups would be nearly empty');
-  const covered = cfg.covered || 0, cracked = cfg.cracked || 0;
-  if (cfg.frosted + covered + cfg.takeaway + cracked > filled) throw new Error('special cups exceed filled cups');
+  const covered = cfg.covered || 0, hidden = cfg.hidden || 0, ad = cfg.ad || 0;
+  if (hidden + covered > filled) throw new Error('special cups exceed filled cups');
   if (covered > 0 && cfg.orders < 2 * covered) throw new Error('covered cups need >= 2 orders each');
   if (cfg.orders > cfg.colors) throw new Error('orders > colors');
   if (cfg.segments < cfg.colors || cfg.segments > units) throw new Error('segments out of range');
-  if (cfg.cups > 16) throw new Error('max 16 cups (4-bit move encoding)');
+  if (cfg.cups + ad > 16) throw new Error('max 16 cups incl. ad bottles (4-bit move encoding)');
   return true;
 }
 
@@ -69,19 +71,17 @@ export function randomFill(cfg, rng) {
   const colors = shuffle(picked.map((c, i) => makeUnit(c, patterns[i])), rng);
   const filled = cfg.cups - cfg.empties;
 
-  // 器皿分配：曲頸瓶 / 布遮瓶 / 裂瓶 / 磨砂瓶（關卡表指定最少數量）；磨砂瓶數量之後按隱藏密度補足
+  // 樽分配（v4 單一樽型）：布遮樽 / `?` 隱藏層樽（關卡表指定最少數量）；隱藏層樽數量之後按隱藏密度補足
   const kinds = [];
-  for (let i = 0; i < cfg.takeaway; i++) kinds.push('takeaway');
   for (let i = 0; i < (cfg.covered || 0); i++) kinds.push('covered');
-  for (let i = 0; i < (cfg.cracked || 0); i++) kinds.push('cracked');
-  for (let i = 0; i < cfg.frosted; i++) kinds.push('frosted');
+  for (let i = 0; i < (cfg.hidden || 0); i++) kinds.push('hidden');
   while (kinds.length < filled) kinds.push('normal');
   shuffle(kinds, rng);
 
   // 每杯目標格數：由滿開始隨機扣減，扣到總量 = 4 × 色數
-  const caps = kinds.map(k => (k === 'takeaway' ? CAP_TAKEAWAY : CAP_NORMAL));
+  const caps = kinds.map(() => CAP_NORMAL);
   const sizes = caps.slice();
-  const minSize = kinds.map(k => (k === 'frosted' ? 2 : 1));
+  const minSize = kinds.map(k => (k === 'hidden' ? 2 : 1));
   const units = cfg.colors * CAP_NORMAL;
   let slack = sizes.reduce((a, b) => a + b, 0) - units;
   let guard = 0;
@@ -94,7 +94,7 @@ export function randomFill(cfg, rng) {
   // 隱藏密度（工單 #5 公式）：目標隱藏格 = ratio × 有色格總數。
   // 布遮瓶（頂格以外）同關卡表指定嘅磨砂瓶先扣走，餘下由普通瓶隨機轉做磨砂瓶（每隻隱藏 size−1 格）補足，最接近目標就停。
   if (cfg.hiddenRatio !== undefined && cfg.hiddenRatio > 0) {
-    const fixedCells = kinds.reduce((a, k, i) => a + ((k === 'covered' || k === 'frosted') ? Math.max(0, sizes[i] - 1) : 0), 0);
+    const fixedCells = kinds.reduce((a, k, i) => a + ((k === 'covered' || k === 'hidden') ? Math.max(0, sizes[i] - 1) : 0), 0);
     const target = Math.max(0, Math.round(cfg.hiddenRatio * units) - fixedCells);
     const cand = shuffle(kinds.map((k, i) => (k === 'normal' && sizes[i] >= 2 ? i : -1)).filter(i => i >= 0), rng);
     let hidden = 0;
@@ -102,7 +102,7 @@ export function randomFill(cfg, rng) {
       const add = sizes[i] - 1;
       if (hidden >= target) break;
       if (hidden + add - target > target - hidden) break;   // 加咗會離目標更遠就停
-      kinds[i] = 'frosted'; hidden += add;
+      kinds[i] = 'hidden'; hidden += add;
     }
   }
 
@@ -142,6 +142,8 @@ export function randomFill(cfg, rng) {
   const cups = kinds.map((k, i) => makeCup(k, segs[i], k === 'covered'));
   for (let i = 0; i < cfg.empties; i++) cups.push(makeCup('normal', []));
   shuffle(cups, rng);
+  // 廣告樽（v4 §4）：一開波就喺盤面，空 + 鎖死；solver 當佢唔存在 → 唔解鎖都可解
+  for (let i = 0; i < (cfg.ad || 0); i++) cups.splice(randInt(rng, 0, cups.length), 0, makeCup('ad', []));
 
   // 訂單：由本關顏色抽
   const orderColors = shuffle(colors.slice(), rng).slice(0, cfg.orders);
@@ -173,7 +175,7 @@ export function ordersReachable(b) {
   return b.orders.every(o => visible.has(o.color));
 }
 
-/** 檢查 7：磨砂瓶 / 布遮瓶唔可以有 3 格以上連續同色（否則隱藏冇意義） */
+/** 檢查 7：隱藏層樽 / 布遮樽唔可以有 3 格以上連續同色（否則隱藏冇意義） */
 export function frostedMeaningful(b) {
   return b.cups.filter(c => hiddenCount(c) > 0).every(c => {
     let run = 1;
@@ -185,14 +187,14 @@ export function frostedMeaningful(b) {
   });
 }
 
-/** 隱藏格數：磨砂瓶 / 布遮瓶頂格以外全部 */
+/** 隱藏格數：hidden / 布遮樽頂格以外全部 */
 export function countHidden(b) {
   return b.cups.reduce((a, c) => a + hiddenCount(c), 0);
 }
 
-/** 三星門檻：無隱藏關卡 = 最優 + 3；有隱藏 = 最優 + 3 + (磨砂瓶數 × 2) */
+/** 三星門檻：無隱藏關卡 = 最優 + 3；有隱藏 = 最優 + 3 + (`?` 樽數 × 2) */
 export function starThresholds(optimal, board) {
-  const q = board.cups.filter(c => c.kind === 'frosted').length;
+  const q = board.cups.filter(c => c.kind === 'hidden' || c.kind === 'frosted').length;
   const three = optimal + 3 + q * 2;
   return { three, two: three + 5 };
 }

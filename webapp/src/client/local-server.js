@@ -92,6 +92,7 @@ export class LocalServer {
       revealCalls: 0, hintCalls: 0,
       extraOrders: [],          // 廣告解鎖嘅額外委託 {atMove, color}，重放時喺同一步插入
       extraCups: [],            // 廣告加嘅空燒瓶 {atMove}，重放時喺同一步 append（Spec v2 §6 addEmptyBottle）
+      adUnlocks: [],            // v4 §4 廣告樽解鎖 {atMove, cup}：重放時喺同一步將 ad 樽變 normal 空樽
     };
     this.sessions.set(s.id, s);
     return {
@@ -127,6 +128,15 @@ export class LocalServer {
     }
   }
 
+  /** 廣告樽解鎖：喺第 atMove 步之後將該樽由 ad 變 normal（空）；已經唔係 ad 就略過 */
+  static _applyAdUnlocks(board, list, applied) {
+    for (const u of list) if (u.atMove === applied && !u.applied) {
+      const c = board.cups[u.cup];
+      if (c && c.kind === 'ad') { c.kind = 'normal'; c.locked = false; }
+      u.applied = true;
+    }
+  }
+
   /** 將 client 嘅走步序列同步到 session（共同前綴只補新步；撤銷就由頭重放） */
   _sync(s, moves) {
     let prefix = 0;
@@ -139,7 +149,9 @@ export class LocalServer {
       // 撤銷到解鎖之前：額外訂單改為由而家開始生效（解鎖當關有效，唔會因撤銷消失）
       for (const o of s.extraOrders) { if (o.atMove > moves.length) o.atMove = moves.length; o.inserted = false; }
       for (const c of s.extraCups) { if (c.atMove > moves.length) c.atMove = moves.length; c.inserted = false; }
+      for (const u of s.adUnlocks) { if (u.atMove > moves.length) u.atMove = moves.length; u.applied = false; }
       LocalServer._insertExtraCups(s.board, s.extraCups, 0);
+      LocalServer._applyAdUnlocks(s.board, s.adUnlocks, 0);
       LocalServer._insertExtraOrders(s.board, s.extraOrders, 0);
     }
     let last = null;
@@ -157,6 +169,7 @@ export class LocalServer {
       s.board = applyMove(s.board, m, events);
       s.applied.push(m);
       LocalServer._insertExtraCups(s.board, s.extraCups, s.applied.length);
+      LocalServer._applyAdUnlocks(s.board, s.adUnlocks, s.applied.length);
       LocalServer._insertExtraOrders(s.board, s.extraOrders, s.applied.length);
       // 磨砂瓶倒走頂格 → 露出新頂格（永久）；被倒走嘅格玩家已經見到係乜色，撤銷後亦唔再遮
       const after = s.board.cups[m.from];
@@ -183,26 +196,34 @@ export class LocalServer {
     return LocalServer._orderCandidates(s.board).length > 0;
   }
 
+  /** v4 §7：已封樽（純色滿、冇委託）嘅色都可以被點——加咗委託就即刻交貨飛走，釋放位置 */
   static _orderCandidates(b) {
     const ordered = new Set(b.orders.map(o => o.color));
-    const complete = new Set(b.cups.filter(isComplete).map(c => c.seg[0]));
-    const present = new Set(b.cups.flatMap(c => c.seg));
-    return [...present].filter(c => !ordered.has(c) && !complete.has(c));
+    const present = new Set(b.cups.filter(c => c.kind !== 'gone').flatMap(c => c.seg));
+    return [...present].filter(c => !ordered.has(c));
   }
 
   addOrder(sessionId, moves, rng = Math.random) {
     const s = this._session(sessionId);
     this._sync(s, moves);
     const b = s.board;
-    const ordered = new Set(b.orders.map(o => o.color));
-    const complete = new Set(b.cups.filter(isComplete).map(c => c.seg[0]));
-    const present = new Set(b.cups.flatMap(c => c.seg));
-    const candidates = [...present].filter(c => !ordered.has(c) && !complete.has(c));
+    const candidates = LocalServer._orderCandidates(b);
     if (!candidates.length) return { ok: false, reason: 'NO_UNFULFILLED_COLOR' };
     const color = candidates[Math.floor(rng() * candidates.length)];
     s.extraOrders.push({ atMove: s.applied.length, color, inserted: false });
     LocalServer._insertExtraOrders(s.board, s.extraOrders, s.applied.length);
     return { ok: true, color, maskedBoard: mask(s.board, s.revealed) };
+  }
+
+  // ---------- 廣告樽解鎖（v4 §4：一開波喺盤面嘅 ad 樽，撳一下睇廣告 → 變 normal 空樽，當關有效）----------
+  unlockAdCup(sessionId, moves, cupIdx) {
+    const s = this._session(sessionId);
+    this._sync(s, moves);
+    const c = s.board.cups[cupIdx];
+    if (!c || c.kind !== 'ad') return { ok: false, reason: 'NOT_AD_CUP' };
+    s.adUnlocks.push({ atMove: s.applied.length, cup: cupIdx, applied: false });
+    LocalServer._applyAdUnlocks(s.board, s.adUnlocks, s.applied.length);
+    return { ok: true, cup: cupIdx, maskedBoard: mask(s.board, s.revealed) };
   }
 
   // ---------- 廣告加空燒瓶（Spec v2 §6 addEmptyBottle，第 11 關起）----------
@@ -256,13 +277,16 @@ export class LocalServer {
     let b = decodeBoard(s.trueBoard);
     const extra = s.extraOrders.map(o => ({ atMove: Math.min(o.atMove, moves.length), color: o.color, inserted: false }));
     const extraCups = s.extraCups.map(c => ({ atMove: Math.min(c.atMove, moves.length), inserted: false }));
+    const adUnlocks = s.adUnlocks.map(u => ({ atMove: Math.min(u.atMove, moves.length), cup: u.cup, applied: false }));
     LocalServer._insertExtraCups(b, extraCups, 0);
+    LocalServer._applyAdUnlocks(b, adUnlocks, 0);
     LocalServer._insertExtraOrders(b, extra, 0);
     for (let i = 0; i < moves.length; i++) {
       const m = moves[i];
       if (!canPour(b, m.from, m.to)) return { verified: false, reason: 'ILLEGAL_MOVE' };
       b = applyMove(b, m);
       LocalServer._insertExtraCups(b, extraCups, i + 1);
+      LocalServer._applyAdUnlocks(b, adUnlocks, i + 1);
       LocalServer._insertExtraOrders(b, extra, i + 1);
     }
     if (!isSolved(b)) return { verified: false, reason: 'NOT_SOLVED' };

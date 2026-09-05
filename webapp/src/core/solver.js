@@ -1,6 +1,7 @@
 // core/solver.js — IDA* 求解。永遠喺完整資訊（真實盤面）上運行。
 
 import { applyMove, isSolved, isDead, legalMoves, isUniform, isComplete, topColor, topRun, pourAmount } from './rules.js';
+import { INERT_KINDS } from './board.js';
 
 const FOUND = -1;
 const INF = Number.MAX_SAFE_INTEGER;
@@ -37,7 +38,7 @@ export function canonical(b) {
   for (let i = 0; i < n; i++) {
     const c = b.cups[i];
     // 4 bit 杯標頭（locked / cap / cracked）+ 4 格 × 7 bit unit key（127 = 空）= 32 bit
-    let k = (c.locked ? 1 : 0) | ((c.cap === 3 ? 1 : 0) << 1) | ((c.kind === 'cracked' ? 1 : 0) << 2);
+    let k = ((c.locked || INERT_KINDS.has(c.kind)) ? 1 : 0) | ((c.cap === 3 ? 1 : 0) << 1) | ((c.kind === 'cracked' ? 1 : 0) << 2);
     const s = c.seg;
     for (let j = 0; j < 4; j++) k |= ((j < s.length ? s[j] & 127 : 127) << (4 + j * 7));
     keys[i] = k;
@@ -69,7 +70,7 @@ export function orderedMoves(b, last) {
   let firstEmpty4 = -1, firstEmpty3 = -1;
   for (let i = 0; i < cups.length; i++) {
     const c = cups[i];
-    if (c.seg.length === 0 && !c.locked && c.kind !== 'cracked') {
+    if (c.seg.length === 0 && !c.locked && c.kind !== 'cracked' && !INERT_KINDS.has(c.kind)) {
       if (c.cap === 4 && firstEmpty4 < 0) firstEmpty4 = i;
       else if (c.cap === 3 && firstEmpty3 < 0) firstEmpty3 = i;
     }
@@ -78,14 +79,14 @@ export function orderedMoves(b, last) {
   const sc = [];
   for (let i = 0; i < cups.length; i++) {
     const F = cups[i];
-    if (F.locked || F.seg.length === 0) continue;
+    if (F.locked || F.seg.length === 0 || INERT_KINDS.has(F.kind)) continue;
     if (isComplete(F)) continue;
     const fUniform = isUniform(F);
     const tc = topColor(F);
     for (let j = 0; j < cups.length; j++) {
       if (i === j) continue;
       const T = cups[j];
-      if (T.locked || T.seg.length >= T.cap || T.kind === 'cracked') continue;   // 裂瓶只出不入
+      if (T.locked || T.seg.length >= T.cap || T.kind === 'cracked' || INERT_KINDS.has(T.kind)) continue;   // 廣告樽 / 已飛走：唔入
       if (T.seg.length === 0) {
         if (fUniform && F.cap === 4) continue;                    // 剪枝 2（外帶杯例外：佢最終必須清空）
         if (j !== (T.cap === 4 ? firstEmpty4 : firstEmpty3)) continue; // 剪枝 3

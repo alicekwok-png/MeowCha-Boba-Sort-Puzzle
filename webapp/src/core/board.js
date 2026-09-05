@@ -9,14 +9,18 @@ export const CAP_NORMAL = 4;
 export const CAP_TAKEAWAY = 3;
 export const PATTERN_COUNT = 5;          // P0–P4
 
-/** 器皿種類（Spec v2 §2 vessel + cover 壓成一個 kind）：
- *  normal   燒瓶 flask（4 格，全部可見）
- *  frosted  磨砂瓶（4 格，只有頂格可見，倒走一格露一格）
- *  covered  布遮瓶 cloth（全部隱藏，蠟封顯示頂層色；鎖死，交兩單解鎖 → 變 normal）
- *  takeaway 曲頸瓶 retort（3 格，永遠裝唔滿一色）
- *  cracked  裂瓶（4 格，只出不入）
+/** 器皿種類（實作指令 v4：全遊戲單一樽型，capacity 固定 4）：
+ *  normal   標準樽（全部可見）
+ *  hidden   `?` 隱藏層樽（只顯示頂層，下面畫 ?；倒走頂層下一層即刻揭露）— v4 §5，L2 起
+ *  frosted  磨砂樽（v4：整枝睇唔到；資產未交、用戶早前否決盲倒 → 暫不生成，引擎行為同 hidden）
+ *  covered  布遮樽 cloth（全部隱藏，蠟封顯示頂層色；鎖死，交兩單解鎖 → 變 normal）
+ *  ad       廣告樽（v4 §4：空、鎖死，撳一下睇廣告 → 變 normal 空樽；關卡唔解鎖都必須可解）
+ *  gone     已交貨飛走（v4 §7：交貨後盤面釋放位置，唔留空樽）
+ *  takeaway / cracked：v4 已移除（只留 decode 相容，唔會再生成）
  */
-export const KINDS = ['normal', 'frosted', 'covered', 'takeaway', 'cracked'];
+export const KINDS = ['normal', 'frosted', 'covered', 'takeaway', 'cracked', 'hidden', 'ad', 'gone'];
+export const HIDDEN_KINDS = new Set(['hidden', 'frosted', 'covered']);
+export const INERT_KINDS = new Set(['ad', 'gone']);   // 唔可以倒入亦唔可以倒出
 
 /** @typedef {'normal'|'frosted'|'covered'|'takeaway'|'cracked'} CupKind */
 /** @typedef {{kind:CupKind, cap:number, seg:number[], locked:boolean}} Cup  — seg 由底至頂，每格一個 unit key */
@@ -39,14 +43,14 @@ export function makeCup(kind = 'normal', seg = [], locked = false) {
   };
 }
 
-/** 隱藏格數（由底數起）：布遮瓶 = 頂格以外全部（頂格由蠟封提示）；磨砂瓶 = 頂格以外全部；其餘 0 */
+/** 隱藏格數（由底數起）：hidden / frosted / covered = 頂格以外全部（布遮頂格由蠟封提示）；其餘 0 */
 export function hiddenCount(c) {
-  if (c.kind === 'covered' || c.kind === 'frosted') return Math.max(0, c.seg.length - 1);
+  if (HIDDEN_KINDS.has(c.kind)) return Math.max(0, c.seg.length - 1);
   return 0;
 }
 
-/** 可以操作（揀嚟倒出 / 倒入）？布遮瓶鎖死期間唔得 */
-export const canInteract = (c) => c.kind !== 'covered' || !c.locked;
+/** 可以操作（揀嚟倒出 / 倒入）？布遮樽鎖死期間、廣告樽、已飛走嘅樽都唔得 */
+export const canInteract = (c) => !INERT_KINDS.has(c.kind) && (c.kind !== 'covered' || !c.locked);
 
 export function makeBoard(cups, colors, orders = []) {
   return { cups, colors, orders: orders.map(c => ({ color: c, filled: false })), delivered: 0, moveCount: 0 };

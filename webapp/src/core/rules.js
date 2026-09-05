@@ -1,7 +1,7 @@
 // core/rules.js — 合法性判定、走步套用、訂單結算、勝負判定。
 // Client 同 server 用同一份；server 用佢重放玩家走步，client 造唔出 server 唔認嘅狀態。
 
-import { EMPTY, cloneBoard } from './board.js';
+import { EMPTY, cloneBoard, INERT_KINDS } from './board.js';
 
 export class IllegalMoveError extends Error {
   constructor(m) { super(`illegal move ${m.from}->${m.to}`); this.move = m; }
@@ -36,8 +36,9 @@ export function canPour(b, from, to) {
   if (from === to) return false;
   if (from < 0 || to < 0 || from >= b.cups.length || to >= b.cups.length) return false;
   const F = b.cups[from], T = b.cups[to];
-  if (F.locked || T.locked) return false;                    // 布遮瓶鎖死
-  if (T.kind === 'cracked') return false;                    // 裂瓶只出不入（Spec v2 更正 2）
+  if (F.locked || T.locked) return false;                    // 布遮樽鎖死
+  if (INERT_KINDS.has(F.kind) || INERT_KINDS.has(T.kind)) return false;   // 廣告樽 / 已飛走：唔入唔出
+  if (T.kind === 'cracked') return false;                    // 裂瓶（v4 已移除，留相容）
   if (F.seg.length === 0) return false;                      // 空杯冇嘢倒
   if (T.seg.length >= T.cap) return false;                   // 目標滿
   if (isComplete(F)) return false;                           // 已完成純色滿杯唔准再動
@@ -63,8 +64,8 @@ export function applyMove(b, m, events = null) {
   next.cups[m.from].seg.splice(-n, n);
   for (let i = 0; i < n; i++) next.cups[m.to].seg.push(color);
 
-  // frosted 瓶倒空之後降級為 normal（冇嘢再需要隱藏）
-  if (next.cups[m.from].kind === 'frosted' && next.cups[m.from].seg.length === 0) next.cups[m.from].kind = 'normal';
+  // hidden / frosted 樽倒空之後降級為 normal（冇嘢再需要隱藏）
+  if ((next.cups[m.from].kind === 'frosted' || next.cups[m.from].kind === 'hidden') && next.cups[m.from].seg.length === 0) next.cups[m.from].kind = 'normal';
 
   next.moveCount++;
   settleOrders(next, events);
@@ -83,8 +84,8 @@ export function settleOrders(b, events = null) {
       if (!slot) continue;
       slot.filled = true;
       if (events) events.push({ type: 'deliver', cup: ci, color: cup.seg[0] });
-      cup.seg = [];                 // 交付後變返空杯 —— 玩家賺返嘅空間
-      if (cup.kind === 'frosted') cup.kind = 'normal';
+      cup.seg = [];                 // v4 §7：交貨後樽飛向訂單槽，盤面釋放位置（唔留空樽）
+      cup.kind = 'gone';
       b.delivered++;
       changed = true;
       if (b.delivered % 2 === 0) unlockSealed(b, events);   // 每交付 2 單解開一隻布遮瓶

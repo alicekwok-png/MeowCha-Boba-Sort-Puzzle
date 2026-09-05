@@ -20,7 +20,7 @@ const rows = data.levels.filter(l => !want.length || want.includes(l.id)).map(l 
     關卡: l.id, 容器數: b.cups.length, 色數: b.colors, 空瓶: empties, 每色平均段數: +(segs / b.colors).toFixed(2),
     '隱藏格%': `${Math.round(hidden / units * 100)}% (目標 ${Math.round(hiddenRatio(l.id) * 100)}%)`,
     最優步: l.optimal, '3★': threeStar, 步數上限: computeMoveLimit(l.id, l.optimal) ?? '無',
-    磨砂: count('frosted'), 布遮: count('covered'), 曲頸: count('takeaway'), 裂瓶: count('cracked'), 委託: b.orders.length,
+    隱藏: count('hidden'), 布遮: count('covered'), 廣告樽: count('ad'), 委託: b.orders.length,
   };
 });
 console.table(rows);
