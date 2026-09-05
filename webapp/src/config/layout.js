@@ -2,15 +2,16 @@
 // 調參規則：jitterX/Y 由 0.05 開始向上調。超過 0.10 / 0.15 會由「有機」變「凌亂」。
 
 export const LAYOUT = Object.freeze({
-  // 實作指令 v4 §3.3：垂直分配（相對螢幕高度）
+  // 垂直分配（相對螢幕高度）— 用戶 2026-09-05：頂欄併入委託人行（金幣 / 關卡 / 設定放喺兩端），道具列 14% → 10%，盤面 62% → 72%
+  // 目的：加真樽（難度）之後 3 行 × 0.19 = 0.57 仲有 0.15 分俾行距 + 上下邊距，唔使縮樽
   topBarTop:        0.00,
-  topBarBottom:     0.10,   // 金幣 / 關卡 / 設定
-  orderSlotsTop:    0.10,
-  orderSlotsBottom: 0.24,   // 委託槽 ×4 + 委託人
-  playfieldTop:     0.24,
-  playfieldBottom:  0.86,   // 盤面 62%
-  toolbarTop:       0.86,
-  toolbarBottom:    1.00,   // 道具列 ×4
+  topBarBottom:     0.00,   // 併入委託人行
+  orderSlotsTop:    0.00,
+  orderSlotsBottom: 0.18,   // 委託人 + 委託槽 + 金幣 / 關卡 / 設定同行
+  playfieldTop:     0.18,
+  playfieldBottom:  0.90,   // 盤面 72%
+  toolbarTop:       0.90,
+  toolbarBottom:    1.00,   // 道具列 ×4，10%
   // 樽尺寸（相對螢幕高度）
   bottleHeightRatio: 0.19,  // 原本約 0.13
   bottleAspect:      0.42,  // 寬 / 高

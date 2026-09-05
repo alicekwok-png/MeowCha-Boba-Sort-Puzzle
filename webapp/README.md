@@ -130,7 +130,7 @@ webapp/
    同屏 ≤ 2 個入口（`assertAdSlotLimit` 啟動即驗）；「+樽」等廣告樽撳晒先出，係為咗唔會同時有 3 個廣告觸點。
 5. **背景**：單張 `BG_lab_full`，冇視差 / 階段過渡 / 氛圍粒子（`BackgroundManager` 保留做 no-op 接口）。
 6. **液體**：喺器皿 sprite 入面用 `multiply` 畫，clip 到 `vessels.json` 嘅玻璃內壁多邊形；配料由 `PAT_tile_large / small` 四象限取樣（P3 橫向 repeat），墨色 = 該層色 −28% 明度。
-7. **版面**（實作指令 v4 §3）：CSS grid 四行 **10% 頂欄（金幣 / 關卡 + 步數 / 設定）· 14% 委託人 + 托盤 · 62% 盤面 · 14% 道具列（撤銷 / 提示 / +樽 / 重來）**；貓助手唔再佔行，只喺交貨（`CAT.showDurationMs` 1.2 s）同教學句（≈2.5 s）由盤面右下滑入再淡出（`#cat-pop`，pointer-events none）。`src/core/layout.js safeLayout()` 以關卡號做種子（練習關用 seed hash），R2 永不遮液體；`?jitter=0` 強制純網格除錯。
+7. **版面**（實作指令 v4 §3）：CSS grid 三行 **18% 委託人 + 托盤（金幣 / 關卡 + 步數 / 設定同行，放兩端）· 72% 盤面 · 10% 道具列（撤銷 / 提示 / +樽 / 重來）**（用戶 2026-09-05：由 UI 攞返垂直空間畀 3 行樽，唔縮樽）；貓助手唔再佔行，只喺交貨（`CAT.showDurationMs` 1.2 s）同教學句（≈2.5 s）由盤面右下滑入再淡出（`#cat-pop`，pointer-events none）。`src/core/layout.js safeLayout()` 以關卡號做種子（練習關用 seed hash），R2 永不遮液體；`?jitter=0` 強制純網格除錯。
 8. **單一樽型 + 訂單隊列**（v4 §2 / §5 / §7）：全部樽 `VES_bottle_std` 深色、capacity 4（retort / cracked 已唔再生成；磨砂 kind 2026-09-05 已刪走，唔留相容）。`hidden` = `?` 隱藏層樽（頂層可見，下面畫 `?`，倒走頂層 160 ms 逐格揭露，L2 起；第一次見會彈教學句 `extra.tutor.hidden`）。交貨 = 樽加塞 → `animateFlyToSlot` 飛向該委託人托盤（✓ 等飛到先出）→ kind `gone` 釋放位置；完成樽冇委託 = `animateSeal` 加塞去飽和留喺盤面（main.js `newlySealed` 比對前後盤面觸發），之後同色委託出現會由 server 自動交貨。
 
 ## 關卡節奏（2026-09-05）

@@ -168,39 +168,42 @@ body {
   position: relative; z-index: 40;
   height: 100%; width: 100%;
   display: grid; grid-template-columns: minmax(0, 1fr);   /* 唔可以跟 min-content 撐闊：頂欄多咗設定掣，360px 手機會溢出 */
-  /* 實作指令 v4 §3.3（src/config/layout.js LAYOUT）：頂欄 0–10% · 委託槽 + 委託人 10–24% · 盤面 24–86%（62%）· 道具列 86–100%。
+  /* src/config/layout.js LAYOUT（用戶 2026-09-05）：委託人行 0–18%（頂欄併入）· 盤面 18–90%（72%）· 道具列 90–100%。
      貓助手唔再佔行（transient overlay 喺 .zone-board 右下） */
-  grid-template-rows: 10% 14% 62% 14%;
+  grid-template-rows: 18% 72% 10%;
 }
 @media (min-aspect-ratio: 3/4) {
   .game-col { width: min(100%, 68vh); }
 }
 .zone { position: relative; min-height: 0; }
 
-/* 頂欄 */
-/* 頂欄（v4 §3.4）：左 = 返回 + 金幣 · 中 = 關卡 + 步數 · 右 = 設定（音效掣搬咗入設定 modal） */
-.zone-top {
+/* 委託人行（18%）= HUD 一條（左 = 返回 + 金幣 · 中 = 關卡 + 步數 · 右 = 設定）疊喺委託人上方，委託人 + 托盤佔餘下高度 */
+.zone-orders { display: flex; flex-direction: column; z-index: 60; }
+.hud {
+  flex: 0 0 auto; position: relative; z-index: 61;
   display: flex; align-items: center; justify-content: space-between; gap: 6px;
-  padding: max(4px, env(safe-area-inset-top)) 10px 2px;
+  padding: max(3px, env(safe-area-inset-top)) 8px 0;
 }
+.customers { flex: 1 1 auto; min-height: 0; }
 .top-left, .top-right { display: flex; align-items: center; gap: 4px; flex: 0 0 auto; }
-.top-left .coins { padding: 3px 8px; font-size: 13px; }
+.top-left .coins { padding: 2px 7px; font-size: 12px; }
+.hud .icon-btn.img { width: 34px; height: 34px; }
 .top-centre { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 6px; }
 .level-title {
   flex: 0 1 auto; min-width: 0; max-width: 100%;
   text-align: center; display: flex; flex-direction: column; line-height: 1.15;
   background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px;
-  padding: 3px 14px; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  padding: 2px 10px; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
   box-shadow: var(--panel-inset), 0 2px 8px rgba(10,8,6,0.5);
 }
-.level-title b { font-size: 16px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.level-title span { font-size: 11px; color: var(--brass-light); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.level-title b { font-size: 14px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.level-title span { font-size: 10px; color: var(--brass-light); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pace {
   display: flex; flex-direction: column; align-items: center; line-height: 1.05;
-  background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; padding: 3px 9px; flex: 0 0 auto; box-shadow: var(--panel-inset);
+  background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px; padding: 2px 8px; flex: 0 0 auto; box-shadow: var(--panel-inset);
 }
-.pace-stars { display: flex; gap: 1px; height: 14px; }
-.pace-stars img { width: 14px; height: 14px; object-fit: contain; }
+.pace-stars { display: flex; gap: 1px; height: 12px; }
+.pace-stars img { width: 12px; height: 12px; object-fit: contain; }
 .pace-moves { font-size: 10px; font-weight: 800; color: var(--ink-2); white-space: nowrap; }
 .pace.warn { border-color: var(--candle); background: rgba(90,60,20,0.88); }
 .pace.warn .pace-moves { color: var(--candle); }
@@ -209,12 +212,11 @@ body {
 @keyframes pulse { 0%, 100% { transform: scale(1) } 50% { transform: scale(1.08) } }
 
 /* 委託人區（Spec v2 §6）：四位委託人固定顯示（raven → badger → owl → hare）；有委託 = 全彩，未解鎖 = 灰態；紋章只出喺下一個可解鎖嗰位 */
-.zone-top { z-index: 60; grid-row: 1; }
-.zone-customers { grid-row: 2; }
-.zone-board { grid-row: 3; }
-.zone-actions { grid-row: 4; }
-.zone-customers {
-  z-index: 35; overflow: visible;
+.zone-orders { grid-row: 1; }
+.zone-board { grid-row: 2; }
+.zone-actions { grid-row: 3; }
+.customers {
+  position: relative; overflow: visible;
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 2px 5px 0; align-items: end;
 }
 .slot { position: relative; height: 100%; min-width: 0; --label-h: max(26px, 3vh); }   /* 托盤：玩家係睇顏色玩；14% 高度入面委託人 + 托盤要一齊放得落 */
@@ -267,7 +269,7 @@ body {
   font-size: 12px; font-weight: 700; color: var(--ink-2); background: var(--panel); border: 1px solid var(--panel-border); padding: 4px 10px; border-radius: 999px; white-space: nowrap;
 }
 
-/* 盤面（v4：62%）；貓助手 overlay 喺右下 */
+/* 盤面（72%）；貓助手 overlay 喺右下 */
 .zone-board { overflow: visible; }
 #board { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: manipulation; z-index: 40; }
 
@@ -293,8 +295,8 @@ body {
 .cat-bubble::before { content: ""; position: absolute; right: -8px; bottom: 10px; border: 7px solid transparent; border-left-color: var(--panel-border); border-right: 0; }
 .cat-bubble::after { content: ""; position: absolute; right: -6px; bottom: 11px; border: 6px solid transparent; border-left-color: var(--panel-solid); border-right: 0; }
 
-/* 道具列（z 60，v4 §3.4 四件）：撤銷 / 提示 / +樽 / 重來；貼圖 UI_item_undo / UI_item_hint / UI_item_addflask，重來保留字形 */
-.zone-actions { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 4px 10px max(6px, env(safe-area-inset-bottom)); z-index: 60; }
+/* 道具列（z 60，10%，四件）：撤銷 / 提示 / +樽 / 重來；貼圖 UI_item_undo / UI_item_hint / UI_item_addflask，重來保留字形 */
+.zone-actions { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 3px 10px max(4px, env(safe-area-inset-bottom)); z-index: 60; }
 .act {
   font: inherit; flex: 1 1 0; max-width: 88px; min-width: 0; min-height: 44px; max-height: 100%; padding: 5px 0 4px; border-radius: 16px; border: 1px solid var(--panel-border);
   background: var(--panel); color: var(--ink); box-shadow: var(--panel-inset), 0 4px 0 var(--brass-dark); cursor: pointer;
