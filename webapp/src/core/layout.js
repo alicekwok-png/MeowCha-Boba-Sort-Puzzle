@@ -114,7 +114,9 @@ export function minCenterDistance(layout) {
  * 若連純網格都遮擋，代表區域太細，會再縮瓶直到通過）。
  * 回傳 { layout, bottleWidth, bottleHeight, fallback: 0..3+ }
  */
-export function safeLayout(input, warn = null) {
+export function safeLayout(input, warn = null, opts = {}) {
+  // liquidTopRatio：液體頂佔瓶高比例（由器皿幾何推：允許重疊 = 底座高度）。bottle_std 液體去到 98.5% → 幾乎唔准重疊
+  const ltr = opts.liquidTopRatio ?? 0.88;
   let bw = input.bottleWidth, bh = input.bottleHeight;
   const attempts = [
     { jitterY: LAYOUT.jitterY },
@@ -124,15 +126,15 @@ export function safeLayout(input, warn = null) {
   for (let k = 0; k < attempts.length; k++) {
     const a = attempts[k];
     const w = bw * (a.scale || 1), h = bh * (a.scale || 1);
-    const layout = computeLayout({ ...input, bottleWidth: w, bottleHeight: h }, { jitterY: a.jitterY });
-    if (validateNoLiquidOcclusion(layout, w, h).ok) return { layout, bottleWidth: w, bottleHeight: h, fallback: k };
+    const layout = computeLayout({ ...input, bottleWidth: w, bottleHeight: h }, { jitterY: a.jitterY, ...(opts.force || {}) });
+    if (validateNoLiquidOcclusion(layout, w, h, ltr).ok) return { layout, bottleWidth: w, bottleHeight: h, fallback: k };
   }
   // 純網格：逐步縮瓶直到冇遮擋
   let scale = 0.92, k = 3;
   for (let tries = 0; tries < 12; tries++, k++) {
     const w = bw * scale, h = bh * scale;
     const layout = computeLayout({ ...input, bottleWidth: w, bottleHeight: h }, { jitterX: 0, jitterY: 0, rotationMaxDeg: 0 });
-    if (validateNoLiquidOcclusion(layout, w, h).ok) {
+    if (validateNoLiquidOcclusion(layout, w, h, ltr).ok) {
       if (warn) warn(`BottleLayout: level ${input.levelId} fell back to plain grid (scale ${scale.toFixed(2)})`);
       return { layout, bottleWidth: w, bottleHeight: h, fallback: k };
     }

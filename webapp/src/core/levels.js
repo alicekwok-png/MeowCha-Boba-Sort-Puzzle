@@ -9,8 +9,8 @@
 
 import { BY_KEY, MAX_COLORS_BY_HUE } from './palette.js';
 
-const L = (cups, colors, empties, segments, hidden, covered, ad, orders, optimalMin, optimalMax, title, palette = null) =>
-  ({ cups, colors, empties, segments, hidden, covered, ad, orders, optimalMin, optimalMax, title, palette, patterns: new Array(colors).fill(0) });
+const L = (cups, colors, empties, segments, hidden, covered, ad, orders, optimalMin, optimalMax, title, palette = null, tutorialQueue = null) =>
+  ({ cups, colors, empties, segments, hidden, covered, ad, orders, optimalMin, optimalMax, title, palette, patterns: new Array(colors).fill(0), tutorialQueue });
 
 const P = (keys) => keys.split('').map(k => BY_KEY[k]);
 
@@ -40,26 +40,27 @@ const R = (id, cups, hidden, covered, orders, title) => {
 
 export const CAMPAIGN = [
   // ---- 第一章：教學（L1–3 純倒，2 隻空樽；L2 起 `?` 隱藏層 + 廣告樽）----
-  L(5, 2, 2, 5, 0, 0, 0, 0, 3, 11,  '第一瓶',  P('AG')),
-  L(6, 3, 2, 7, 1, 0, 2, 0, 3, 13,  '第二單',  P('AGC')),     // v4：`?` 樽 + 2 隻廣告樽
-  L(6, 3, 2, 8, 1, 0, 1, 0, 3, 14,  '換班',    P('IEB')),
+  // Spec v3 §7 教學：L1 一個槽 = 最先完成到嘅色；L2 先封存再追上飛走；L3 兩個槽要揀先做邊隻
+  L(5, 2, 2, 5, 0, 0, 0, 1, 3, 11,  '第一瓶',  P('AG'), 'firstDelivered'),
+  L(6, 3, 2, 7, 1, 0, 2, 1, 3, 13,  '第二單',  P('AGC'), 'sealThenCatchUp'),   // v4：`?` 樽 + 2 隻廣告樽
+  L(6, 3, 2, 8, 1, 0, 1, 2, 3, 14,  '換班',    P('IEB')),
   // ---- L4 起 1 隻空樽 ----
-  L(6, 4, 1, 10, 1, 0, 2, 0, 4, 18, '熟手',    P('AGCI')),
-  L(6, 4, 1, 11, 1, 0, 1, 0, 5, 19, '晚更',    P('BHEJ')),
-  L(7, 4, 1, 12, 1, 0, 2, 0, 7, 20, '蓋住咗',  P('AGDI')),
+  L(6, 4, 1, 10, 1, 0, 2, 2, 4, 18, '熟手',    P('AGCI')),
+  L(6, 4, 1, 11, 1, 0, 1, 2, 5, 19, '晚更',    P('BHEJ')),
+  L(7, 4, 1, 12, 1, 0, 2, 2, 7, 20, '蓋住咗',  P('AGDI')),
   // ---- 第二章：委託（第 7 關委託槽；第 12 關限步）----
-  L(7, 5, 1, 14, 1, 0, 1, 1, 9, 22, '排隊',    P('AGCIF')),
-  L(7, 5, 1, 15, 1, 0, 2, 1, 10, 23, '打烊前',  P('BHEIJ')),
-  L(7, 5, 1, 16, 1, 0, 1, 1, 12, 24, '磨砂瓶',  P('AGDFI')),
-  L(8, 5, 1, 17, 1, 0, 2, 1, 13, 25, '曲頸瓶',  P('BHCIJ')),
-  L(8, 6, 1, 18, 1, 0, 1, 1, 14, 26, '爆單',    P('AGCIFJ')),
-  L(8, 6, 1, 19, 1, 0, 2, 1, 15, 27, '實驗室高峰', P('BHEIJC')),
+  L(7, 5, 1, 14, 1, 0, 1, 2, 9, 22, '排隊',    P('AGCIF')),
+  L(7, 5, 1, 15, 1, 0, 2, 2, 10, 23, '打烊前',  P('BHEIJ')),
+  L(7, 5, 1, 16, 1, 0, 1, 2, 12, 24, '磨砂瓶',  P('AGDFI')),
+  L(8, 5, 1, 17, 1, 0, 2, 2, 13, 25, '曲頸瓶',  P('BHCIJ')),
+  L(8, 6, 1, 18, 1, 0, 1, 2, 14, 26, '爆單',    P('AGCIFJ')),
+  L(8, 6, 1, 19, 1, 0, 2, 2, 15, 27, '實驗室高峰', P('BHEIJC')),
   // ---- 第三章（第 14 關提示）----
-  R(13, 9, 1, 0, 1, '開爐'),
-  R(14, 9, 1, 0, 1, '導師提示'),
-  R(15, 9, 1, 0, 1, '裂瓶'),
+  R(13, 9, 1, 0, 2, '開爐'),
+  R(14, 9, 1, 0, 2, '導師提示'),
+  R(15, 9, 1, 0, 2, '裂瓶'),
   // ---- 第四章：第 17 關第二委託槽；第 19 關布遮樽（要交兩單先開得）----
-  R(16, 9, 1, 0, 1, '睇唔到嘅底'),
+  R(16, 9, 1, 0, 2, '睇唔到嘅底'),
   R(17, 9, 1, 0, 2, '兩張委託'),
   R(18, 9, 1, 0, 2, '排長龍'),
   R(19, 9, 1, 1, 2, '布遮瓶'),
@@ -103,7 +104,7 @@ export const CHAPTERS = [
 
 /** 練習模式：三個難度桶（色數上限 6；練習冇廣告樽） */
 export const PRACTICE = {
-  easy:   L(6, 4, 1, 11, 0, 0, 0, 1, 5, 19, '練習・輕鬆'),
-  medium: L(8, 5, 1, 16, 1, 0, 0, 1, 9, 24, '練習・普通'),
+  easy:   L(6, 4, 1, 11, 0, 0, 0, 2, 5, 19, '練習・輕鬆'),
+  medium: L(8, 5, 1, 16, 1, 0, 0, 2, 9, 24, '練習・普通'),
   hard:   L(9, 6, 1, 22, 1, 1, 0, 2, 14, 30, '練習・困難'),
 };

@@ -2,8 +2,8 @@
 // 真實盤面（含磨砂杯隱藏層）只存喺呢個 class 嘅 session 入面；client 只攞到遮罩視圖。
 // 換成真 server 時，只需要將呢啲方法改成 fetch('/v1/level/...')。
 
-import { decodeBoard, encodeBoard, mask, decodeMoves, cloneBoard, hiddenCount, makeCup } from '../core/board.js';
-import { canPour, applyMove, isSolved, topColor, pourAmount, isComplete, settleOrders } from '../core/rules.js';
+import { decodeBoard, encodeBoard, mask, decodeMoves, cloneBoard, hiddenCount, makeCup, HIDDEN_KINDS } from '../core/board.js';
+import { canPour, applyMove, isSolved, topColor, pourAmount, isComplete, settleOrders, openSlot } from '../core/rules.js';
 import { starThresholds } from '../core/generator.js';
 import { hash32 } from '../core/prng.js';
 import { computeMoveLimit } from '../core/difficulty.js';
@@ -112,11 +112,11 @@ export class LocalServer {
   }
 
   /** 額外訂單：喺第 atMove 步之後（即已套用 atMove 步時）插入盤面 */
-  static _insertExtraOrders(board, extra, applied) {
+  /** 廣告解鎖訂單槽（Spec v3 §3）：喺第 atMove 步之後開一個新槽，由隊列攞下一單（唔係隨機色）；已封樽嘅色追上就即刻飛走 */
+  static _insertExtraOrders(board, extra, applied, events = null) {
     for (const o of extra) if (o.atMove === applied && !o.inserted) {
-      board.orders.push({ color: o.color, filled: false });
+      openSlot(board, events);
       o.inserted = true;
-      settleOrders(board);   // 板面已有該色純色滿杯就即刻出單
     }
   }
 
@@ -162,7 +162,7 @@ export class LocalServer {
       const events = [];
       const poured = pourAmount(s.board, m.from, m.to);
       // 倒入磨砂瓶：原本可見嘅頂格同新倒入嘅格玩家都見過 → 永久露出（否則倒滿都唔算完成、撤銷後又遮返）
-      if (hiddenCount(dst) > 0 || dst.kind === 'frosted') {
+      if (HIDDEN_KINDS.has(dst.kind)) {   // hidden / frosted / covered：倒入嘅格同原頂格玩家見過 → 永久露出（1 格嘅 ? 樽 hiddenCount 係 0，要用 kind 判）
         if (dst.seg.length > 0) s.revealed.add(m.to + ':' + (dst.seg.length - 1));
         for (let i = dst.seg.length; i < dst.seg.length + poured; i++) s.revealed.add(m.to + ':' + i);
       }
@@ -178,7 +178,7 @@ export class LocalServer {
         for (let i = after.seg.length; i < src.seg.length; i++) s.revealed.add(m.from + ':' + i);
       }
       // 任何瓶變成純色滿瓶：內容已經可以完全推斷（交貨 / 完成判定 client 要睇得到），全部露出
-      s.board.cups.forEach((c, ci) => { if (c.kind === 'frosted' && isComplete(c)) for (let i = 0; i < c.seg.length; i++) s.revealed.add(ci + ':' + i); });
+      s.board.cups.forEach((c, ci) => { if (HIDDEN_KINDS.has(c.kind) && isComplete(c)) for (let i = 0; i < c.seg.length; i++) s.revealed.add(ci + ':' + i); });
       last = { poured, events };
     }
     return last;
@@ -189,30 +189,25 @@ export class LocalServer {
    * 由當前真實盤面剩餘「未完成」嘅顏色中隨機揀一隻加做新訂單：
    * 排除已有訂單嘅色、已經係純色滿杯嘅色。回傳 { ok, color, maskedBoard }。
    */
-  /** 廣告紋章出現之前先問：而家仲有冇未完成、未被點嘅色可以加做委託（唔好等玩家睇完廣告先話冇） */
+  /** 廣告紋章出現之前先問：隊列仲有冇單可以開新槽（唔好等玩家睇完廣告先話冇） */
   canAddOrder(sessionId, moves) {
     const s = this._session(sessionId);
     this._sync(s, moves);
-    return LocalServer._orderCandidates(s.board).length > 0;
+    return (s.board.queue || []).length > 0;
   }
 
-  /** v4 §7：已封樽（純色滿、冇委託）嘅色都可以被點——加咗委託就即刻交貨飛走，釋放位置 */
-  static _orderCandidates(b) {
-    const ordered = new Set(b.orders.map(o => o.color));
-    const present = new Set(b.cups.filter(c => c.kind !== 'gone').flatMap(c => c.seg));
-    return [...present].filter(c => !ordered.has(c));
-  }
-
-  addOrder(sessionId, moves, rng = Math.random) {
+  /** 廣告解鎖一個訂單槽：由隊列攞下一單；回傳結算事件（已封樽追上會即刻 deliver）畀 client 播動畫 */
+  addOrder(sessionId, moves) {
     const s = this._session(sessionId);
     this._sync(s, moves);
-    const b = s.board;
-    const candidates = LocalServer._orderCandidates(b);
-    if (!candidates.length) return { ok: false, reason: 'NO_UNFULFILLED_COLOR' };
-    const color = candidates[Math.floor(rng() * candidates.length)];
-    s.extraOrders.push({ atMove: s.applied.length, color, inserted: false });
-    LocalServer._insertExtraOrders(s.board, s.extraOrders, s.applied.length);
-    return { ok: true, color, maskedBoard: mask(s.board, s.revealed) };
+    if (!(s.board.queue || []).length) return { ok: false, reason: 'QUEUE_EMPTY' };
+    const events = [];
+    s.extraOrders.push({ atMove: s.applied.length, inserted: false });
+    LocalServer._insertExtraOrders(s.board, s.extraOrders, s.applied.length, events);
+    // color = 新開嗰單嘅色（events 第一個 order）；已封樽追上會即刻 deliver，槽可能已經補咗下一單
+    const opened = events.find(e => e.type === 'order');
+    const slot = s.board.orders[s.board.orders.length - 1];
+    return { ok: true, color: opened ? opened.color : slot.color, slotColor: slot.color, events, maskedBoard: mask(s.board, s.revealed) };
   }
 
   // ---------- 廣告樽解鎖（v4 §4：一開波喺盤面嘅 ad 樽，撳一下睇廣告 → 變 normal 空樽，當關有效）----------
@@ -275,7 +270,7 @@ export class LocalServer {
 
     // 1. 由 server 存嘅真實盤面重放全部走步（唔信 client 任何盤面狀態）
     let b = decodeBoard(s.trueBoard);
-    const extra = s.extraOrders.map(o => ({ atMove: Math.min(o.atMove, moves.length), color: o.color, inserted: false }));
+    const extra = s.extraOrders.map(o => ({ atMove: Math.min(o.atMove, moves.length), inserted: false }));
     const extraCups = s.extraCups.map(c => ({ atMove: Math.min(c.atMove, moves.length), inserted: false }));
     const adUnlocks = s.adUnlocks.map(u => ({ atMove: Math.min(u.atMove, moves.length), cup: u.cup, applied: false }));
     LocalServer._insertExtraCups(b, extraCups, 0);

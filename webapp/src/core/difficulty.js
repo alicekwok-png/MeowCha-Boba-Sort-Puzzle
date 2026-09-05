@@ -27,12 +27,12 @@ export const UNLOCK_LEVEL = {
   hidden: 2,        // `?` 隱藏層樽 — v4 §5「L2 就出現」
   adBottle: 2,      // 廣告樽（一開波喺盤面）— v4 §4「第二關已經有兩隻」；⚠ 同「第 1–10 關零廣告」相撞，見 ads.js ADS_FREE_MAX_LEVEL
   undo: 5,          // Undo 按鈕
-  orders: 7,        // 委託槽
+  orders: 1,        // 委託槽（Spec v3：L1 就有 1 個免費槽）
   adEmptyCup: 11,   // 道具列「+樽」
   moveLimit: 12,    // 步數上限
   hint: 14,         // 提示道具
-  secondOrder: 17,  // 第二委託槽
-  adOrderSlot: 17,  // 廣告委託槽
+  secondOrder: 3,   // 第二免費槽（Spec v3 §7：L3 兩個槽同時開）
+  adOrderSlot: 11,  // 廣告委託槽（Spec v3 adSlots，每關最多 2）
   covered: 19,      // 布遮樽（鎖死 + 蠟封提示）
   thirdOrder: 36,   // 第三委託槽
 };

@@ -46,9 +46,10 @@ export function canonical(b) {
   keys.sort((a, c) => a - c);
   let str = '';
   for (let i = 0; i < n; i++) str += String.fromCharCode(keys[i] & 0xffff, (keys[i] >>> 16) & 0xffff);
-  let o = 0;
-  for (let i = 0; i < b.orders.length; i++) if (b.orders[i].filled) o |= 1 << i;
-  return str + String.fromCharCode(o);
+  // 訂單狀態：每個槽 (color | filled<<7)，再加隊列長度（隊列順序係固定嘅，長度足以決定剩餘內容）
+  let os = '';
+  for (let i = 0; i < b.orders.length; i++) os += String.fromCharCode((b.orders[i].color & 127) | (b.orders[i].filled ? 128 : 0));
+  return str + os + String.fromCharCode((b.queue || []).length);
 }
 
 function score(b, m) {

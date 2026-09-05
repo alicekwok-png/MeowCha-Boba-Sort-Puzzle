@@ -20,22 +20,22 @@ export const CORE_ASSETS = [
   { url: 'levels/campaign.json', bytes: 20_000 },
   A('BG_lab_full', 206_000),
   A('VES_geometry', 11_000),
-  A('VES_flask_empty', 28_000), A('VES_flask_frosted', 41_000), A('VES_flask_cracked', 36_000),
-  A('VES_retort_empty', 23_000), A('VES_retort_frosted', 29_000),
+  // v4 §2 單一樽型：首屏只需要深色標準樽；flask / frosted 只留說明畫面用（批次 3）
+  A('VES_bottle_std', 40_000),
   A('VES_cloth_cover', 12_000), A('VES_wax_seal', 123_000), A('VES_wax_ring', 133_000),
   A('LIQ_base', 23_000), A('PAT_tile_large', 18_000), A('PAT_tile_small', 23_000),
   A('CHR_cat_idle', 53_000), A('CHR_cat_happy', 48_000), A('CHR_cat_cheer', 62_000),
   A('CHR_client_raven', 65_000), A('CHR_client_badger', 88_000), A('CHR_client_owl', 83_000), A('CHR_client_hare', 44_000),
   // 首屏要用嘅 UI：道具 / 系統鍵 / 星 / 金幣 / 主按鈕 / 紋章
-  A('UI_item_undo', 30_000), A('UI_item_hint', 30_000), A('UI_sys_back', 27_000), A('UI_sys_shop', 28_000),
+  A('UI_item_undo', 30_000), A('UI_item_hint', 30_000), A('UI_item_addflask', 30_000), A('UI_sys_back', 27_000), A('UI_sys_shop', 28_000),
   A('UI_star', 17_000), A('UI_star_dim', 15_000), A('UI_coin', 34_000), A('UI_btn_primary', 9_000), A('UI_ad_crest', 15_000),
 ];
 
 /** 批次 3 — 延後（進入關卡後閒時載）：主畫面細背景、博士剪影、其餘 UI */
 export const DEFERRED_ASSETS = [
-  'BG_lab_full_small', 'CHR_doctor_silhouette',
+  'BG_lab_full_small', 'CHR_doctor_silhouette', 'VES_flask_empty', 'VES_flask_frosted',
   'UI_btn_secondary', 'UI_btn_danger', 'UI_btn_disabled', 'UI_panel_dialog', 'UI_panel_info',
-  'UI_item_addflask', 'UI_item_swap', 'UI_sys_settings', 'UI_sys_daily', 'UI_sys_codex', 'UI_progressbar',
+  'UI_item_swap', 'UI_sys_settings', 'UI_sys_daily', 'UI_sys_codex', 'UI_progressbar',
 ].map(k => ASSET_MAP[k]);
 
 // ---------------- 決策（純函數） ----------------

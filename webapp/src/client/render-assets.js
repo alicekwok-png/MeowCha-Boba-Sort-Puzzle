@@ -1,22 +1,22 @@
-// client/render-assets.js — Spec v2 渲染素材載入（器皿 sprite / 幾何 / 布 / 蠟封 / 液體底圖 / 配料 tile）。
+// client/render-assets.js — 渲染素材載入（器皿 sprite / 幾何 / 玻璃高光遮罩 / 布 / 蠟封 / 廣告紋章 / 配料 tile）。
 // 全部由 config/assets.js 嘅 ASSET_MAP 取路徑；舊 assets/*.webp 一律唔引用。
 // 載入失敗唔會 throw：對應 slot 係 null，game.js 會畫程式佔位。
+//
+// 實作指令 v4 §1.2：液體唔再經玻璃（唔乘 sprite），玻璃只貢獻高光 —— 載入時為每張器皿 sprite 預先生成一張
+// 「高光圖」：每像素 alpha = clamp((luma − 215) / 40, 0, 1)、rgb 全白；game.js 用 screen @ 0.55 疊落液體上。
+// LIQ_base 已經唔需要（v4 §1.2），唔再載入。
 
 import { ASSET_MAP, VESSEL_SPRITE } from '../config/assets.js';
+import { RENDER } from '../config/render.js';
 
 const ROOT = new URL('../../', import.meta.url);
 
 /** 邏輯名 → 絕對 URL（相對 webapp 根目錄，唔靠 document 位置） */
 export const assetUrl = (key) => new URL(ASSET_MAP[key], ROOT).href;
 
-/** kind → vessels.json 幾何 key */
+/** kind → vessels.json 幾何 key（v4：除 frosted 外全部用深色標準樽 bottle_std） */
 export function geomKey(kind) {
-  switch (kind) {
-    case 'frosted': return 'flask_frosted';
-    case 'cracked': return 'flask_cracked';
-    case 'takeaway': return 'retort';
-    default: return 'flask';   // normal / covered（布底下係 flask）
-  }
+  return kind === 'frosted' ? 'flask_frosted' : 'bottle_std';
 }
 
 /** kind → ASSET_MAP sprite key */
@@ -24,7 +24,7 @@ export function spriteKey(kind) {
   return VESSEL_SPRITE[kind] || VESSEL_SPRITE.normal;
 }
 
-// vessels.json 未到手前用嘅後備幾何（flask 數值，rows 只留三行，interp 會補）
+// vessels.json 未到手前用嘅後備幾何（bottle_std 數值，rows 只留三行，interp 會補）
 export const FALLBACK_GEOM = Object.freeze({
   frame: 768,
   content: { top: 0.0299, bottom: 0.9701 },
@@ -41,6 +41,7 @@ export const renderAssets = {
   promise: null,
   geom: null,            // vessels.json
   img: {},               // key → HTMLImageElement | HTMLCanvasElement | null
+  highlight: {},         // 器皿 sprite key → 高光圖 canvas（白色、alpha = 高光量）| null
   patMask: {},           // large / small → canvas（白色墨、alpha = 墨量）
 };
 
@@ -98,6 +99,34 @@ function keyOutBlack(img) {
   }
 }
 
+/**
+ * 玻璃高光圖（v4 §1.2 第 2 步）：sprite 每像素 luma ≤ 215 完全唔參與；
+ * alpha = clamp((luma − 215) / 40, 0, 1) × 原 alpha，rgb 設成白。game.js 用 screen @ strength 疊落液體上，
+ * 令玻璃排線只出現喺高光位，唔會出現喺色塊中間（深色樽身 luma ≈ 20，alpha 必然係 0）。
+ */
+function glassHighlight(img) {
+  if (!img) return null;
+  try {
+    const { lumaThreshold, lumaRange } = RENDER.glassHighlight;
+    const w = img.naturalWidth, h = img.naturalHeight;
+    const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+    const cx = cv.getContext('2d');
+    cx.drawImage(img, 0, 0);
+    const id = cx.getImageData(0, 0, w, h), d = id.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const luma = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+      const hl = Math.max(0, Math.min(1, (luma - lumaThreshold) / lumaRange));
+      d[i] = d[i + 1] = d[i + 2] = 255;
+      d[i + 3] = Math.round(d[i + 3] * hl);
+    }
+    cx.putImageData(id, 0, 0);
+    return cv;
+  } catch (e) {
+    console.warn('[assets] 玻璃高光圖生成失敗', e);
+    return null;
+  }
+}
+
 /** 灰階 L tile（黑 = 墨）→ 白色墨 + alpha 遮罩，之後用 source-in 染成該層色 −28% L */
 function inkMask(img) {
   if (!img) return null;
@@ -120,9 +149,11 @@ function inkMask(img) {
   }
 }
 
+/** 器皿 sprite（每張都會生成高光圖） */
+const VESSEL_KEYS = ['VES_bottle_std', 'VES_flask_frosted'];
 const IMAGE_KEYS = [
-  'VES_flask_empty', 'VES_flask_frosted', 'VES_flask_cracked', 'VES_retort_empty', 'VES_retort_frosted',
-  'VES_cloth_cover', 'VES_wax_seal', 'VES_wax_ring', 'LIQ_base', 'PAT_tile_large', 'PAT_tile_small',
+  ...VESSEL_KEYS,
+  'VES_cloth_cover', 'VES_wax_seal', 'VES_wax_ring', 'UI_ad_crest', 'PAT_tile_large', 'PAT_tile_small',
 ];
 
 /** 預載全部渲染素材（可重複呼叫，回傳同一個 Promise） */
@@ -135,17 +166,17 @@ export function preloadRenderAssets() {
     ]);
     IMAGE_KEYS.forEach((k, i) => { renderAssets.img[k] = imgs[i]; });
     renderAssets.img.VES_cloth_cover = keyOutBlack(renderAssets.img.VES_cloth_cover);
-    if (renderAssets.img.LIQ_base) renderAssets.img.LIQ_base.bbox = alphaBBox(renderAssets.img.LIQ_base);   // 白帶只佔圖中央，四周透明
+    for (const k of VESSEL_KEYS) renderAssets.highlight[k] = glassHighlight(renderAssets.img[k]);
     renderAssets.patMask.large = inkMask(renderAssets.img.PAT_tile_large);
     renderAssets.patMask.small = inkMask(renderAssets.img.PAT_tile_small);
-    if (geom && geom.flask) renderAssets.geom = geom;
+    if (geom && geom.bottle_std) renderAssets.geom = geom;
     renderAssets.ready = true;
     return renderAssets;
   })();
   return renderAssets.promise;
 }
 
-/** 取某 kind 嘅幾何（未載入 → 後備 flask 幾何） */
+/** 取某 kind 嘅幾何（未載入 → 後備 bottle_std 幾何） */
 export function geomFor(kind) {
   const g = renderAssets.geom;
   return (g && g[geomKey(kind)]) || FALLBACK_GEOM;

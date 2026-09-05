@@ -155,13 +155,11 @@ describe('v4：廣告樽 / 交貨飛走 / `?` 隱藏層', () => {
     assert.equal(canPour(n, 1, 0), false);                                             // 飛走咗嘅位唔可以用
     assert.equal(isSolved(n), true);
   });
-  test('已封樽嘅色之後出現喺委託 → 自動交貨飛走', () => {
-    const b = B([N([2, 2, 2, 2]), N([1, 1, 1]), N([1]), N([])], 2, [1]);
-    const srv = new LocalServer();
-    const st = srv.start({ id: 20, board: encodeBoard(b), optimal: 1, thresholds: { three: 4, two: 9 } });
-    const r = srv.addOrder(st.sessionId, [], () => 0);   // 唯一候選：色 2
-    assert.equal(r.color, 2);
-    assert.equal(r.maskedBoard.cups[0].kind, 'gone');
+  test('已封樽嘅色之後出現喺委託（隊列追上）→ 自動交貨飛走', () => {
+    const b = makeBoard([N([2, 2, 2, 2]), N([1, 1, 1]), N([1]), N([])], 2, [1], [2]);
+    const n = applyMove(b, { from: 2, to: 1 });          // 交 1 → 槽補 2 → 已封色 2 飛走
+    assert.equal(n.cups[0].kind, 'gone'); assert.equal(n.cups[1].kind, 'gone');
+    assert.equal(isSolved(n), true);
   });
   test('`?` 隱藏層樽：只顯示頂層，倒走頂層下一層揭露', () => {
     const b = B([makeCup('hidden', [1, 2, 3]), N([3]), N([])], 3);
@@ -318,10 +316,10 @@ describe('generator', () => {
     assert.equal(a.optimal, b.optimal);
   });
   test('7 色 config 直接被 validateConfig 拒絕（要等 P3 圖案系統）', () => {
-    assert.throws(() => generateLevelEx({ cups: 10, colors: 7, empties: 2, segments: 21, hidden: 0, covered: 0, ad: 0, orders: 0, optimalMin: 3, optimalMax: 40 }, 1), /colors > 6/);
+    assert.throws(() => generateLevelEx({ cups: 10, colors: 7, empties: 2, segments: 21, hidden: 0, covered: 0, ad: 0, orders: 2, optimalMin: 3, optimalMax: 40 }, 1), /colors > 6/);
   });
   test('7 元素靠圖案：同色唔同圖案可以同關（unit key 唔同就唔合併）', () => {
-    const cfg = { cups: 10, colors: 7, empties: 2, segments: 18, hidden: 0, covered: 0, ad: 0, orders: 0, optimalMin: 3, optimalMax: 40,
+    const cfg = { cups: 10, colors: 7, empties: 2, segments: 18, hidden: 0, covered: 0, ad: 0, orders: 2, optimalMin: 3, optimalMax: 40,
       palette: [0, 2, 4, 6, 8, 9, 0], patterns: [0, 0, 0, 0, 0, 0, 1] };
     const r = generateLevelEx(cfg, 5, { maxAttempts: 200 });
     assert.ok(r, 'generated');

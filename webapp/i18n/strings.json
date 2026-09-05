@@ -818,17 +818,17 @@
         "zh-Hans": "观看广告解锁委托槽"
       },
       "addCup": {
-        "en": "+Vial",
+        "en": "+Bottle",
         "zh-Hant": "+瓶",
         "zh-Hans": "+瓶"
       },
       "addCupAria": {
-        "en": "Watch an ad to add an empty flask",
-        "zh-Hant": "觀看廣告增加一個空燒瓶",
-        "zh-Hans": "观看广告增加一个空烧瓶"
+        "en": "Watch an ad to add an empty bottle",
+        "zh-Hant": "觀看廣告增加一個空瓶",
+        "zh-Hans": "观看广告增加一个空瓶"
       },
       "noOrders": {
-        "en": "No orders today · fill one flask of each reagent to finish",
+        "en": "No orders today · fill one bottle of each reagent to finish",
         "zh-Hant": "今日沒有委託 · 每種試劑裝滿一瓶即完成",
         "zh-Hans": "今日没有委托 · 每种试剂装满一瓶即完成"
       },
@@ -841,16 +841,21 @@
         "en": "Back to the lab",
         "zh-Hant": "返回工房",
         "zh-Hans": "返回工房"
+      },
+      "queueLeft": {
+        "en": "{n} more in queue",
+        "zh-Hant": "尚有 {n} 單",
+        "zh-Hans": "尚有 {n} 单"
       }
     },
     "tutor": {
       "idleEmpty": {
-        "en": "An empty flask takes anything.",
-        "zh-Hant": "空燒瓶什麼都裝得下。",
-        "zh-Hans": "空烧瓶什么都装得下。"
+        "en": "An empty bottle takes anything.",
+        "zh-Hant": "空瓶什麼都裝得下。",
+        "zh-Hans": "空瓶什么都装得下。"
       },
       "idleOrder": {
-        "en": "Clients only accept a full flask of one reagent.",
+        "en": "Clients only accept a full bottle of one reagent.",
         "zh-Hant": "委託人只收整瓶純色的試劑。",
         "zh-Hans": "委托人只收整瓶纯色的试剂。"
       },
@@ -920,9 +925,9 @@
         "zh-Hans": "解开了！这个瓶可以用了。"
       },
       "addCup": {
-        "en": "An extra empty flask — more room to work.",
-        "zh-Hant": "多了一個空燒瓶，寬鬆多了。",
-        "zh-Hans": "多了一个空烧瓶，宽松多了。"
+        "en": "An extra empty bottle — more room to work.",
+        "zh-Hant": "多了一個空瓶，寬鬆多了。",
+        "zh-Hans": "多了一个空瓶，宽松多了。"
       },
       "undo": {
         "en": "Alright, one step back.",
@@ -943,6 +948,21 @@
         "en": "Out of moves…",
         "zh-Hant": "步數用完了……",
         "zh-Hans": "步数用完了……"
+      },
+      "hidden": {
+        "en": "Pour the top layer away to see what's underneath.",
+        "zh-Hant": "倒走最上層，才知道下面是什麼。",
+        "zh-Hans": "倒走最上层，才知道下面是什么。"
+      },
+      "adBottle": {
+        "en": "Unlocked! An extra empty bottle to work with.",
+        "zh-Hant": "解鎖了！多一個空瓶可以用。",
+        "zh-Hans": "解锁了！多一个空瓶可以用。"
+      },
+      "sealed": {
+        "en": "Corked and shelved — it flies off once a client asks for it.",
+        "zh-Hant": "加塞封存了，有委託人要時會自動送出。",
+        "zh-Hans": "加塞封存了，有委托人要时会自动送出。"
       }
     },
     "toast": {
@@ -985,6 +1005,16 @@
         "en": "Failed to load levels",
         "zh-Hant": "關卡載入失敗",
         "zh-Hans": "关卡加载失败"
+      },
+      "adBottleLocked": {
+        "en": "Locked bottle — watch an ad to unlock it",
+        "zh-Hant": "上鎖的瓶——觀看廣告即可解鎖",
+        "zh-Hans": "上锁的瓶——观看广告即可解锁"
+      },
+      "adBottleFailed": {
+        "en": "Couldn't unlock this bottle right now",
+        "zh-Hant": "暫時無法解鎖這個瓶",
+        "zh-Hans": "暂时无法解锁这个瓶"
       }
     },
     "ads": {
@@ -1012,6 +1042,11 @@
         "en": "A new client! They want {liquid}.",
         "zh-Hant": "來了新的委託人！想要{liquid}。",
         "zh-Hans": "来了新的委托人！想要{liquid}。"
+      },
+      "afterBottle": {
+        "en": "This bottle unlocks right after the ad",
+        "zh-Hant": "看完廣告立刻解鎖這個瓶",
+        "zh-Hans": "看完广告立刻解锁这个瓶"
       }
     },
     "practice": {
@@ -1026,7 +1061,7 @@
         "zh-Hans": "轻松"
       },
       "easySub": {
-        "en": "6 vials · 4 colours · 1 client",
+        "en": "6 bottles · 4 colours · 1 client",
         "zh-Hant": "6 瓶 · 4 色 · 1 位委託人",
         "zh-Hans": "6 瓶 · 4 色 · 1 位委托人"
       },
@@ -1036,9 +1071,9 @@
         "zh-Hans": "普通"
       },
       "mediumSub": {
-        "en": "8 vials · 5 colours · frosted + retort",
-        "zh-Hant": "8 瓶 · 5 色 · 磨砂 + 曲頸瓶",
-        "zh-Hans": "8 瓶 · 5 色 · 磨砂 + 曲颈瓶"
+        "en": "8 bottles · 5 colours · ? bottles",
+        "zh-Hant": "8 瓶 · 5 色 · ？瓶",
+        "zh-Hans": "8 瓶 · 5 色 · ？瓶"
       },
       "hard": {
         "en": "Hard",
@@ -1046,9 +1081,9 @@
         "zh-Hans": "困难"
       },
       "hardSub": {
-        "en": "9 vials · 6 colours · every vessel",
-        "zh-Hant": "9 瓶 · 6 色 · 全部瓶種",
-        "zh-Hans": "9 瓶 · 6 色 · 全部瓶种"
+        "en": "9 bottles · 6 colours · ? + shrouded",
+        "zh-Hant": "9 瓶 · 6 色 · ？瓶 + 布罩瓶",
+        "zh-Hans": "9 瓶 · 6 色 · ？瓶 + 布罩瓶"
       },
       "generating": {
         "en": "The tutor is mixing reagents…",
@@ -1170,14 +1205,14 @@
         "zh-Hans": "只能倒入<b>空瓶</b>或<b>顶层同色</b>的瓶，顶层连续同色的几格会一次倒完。"
       },
       "b3": {
-        "en": "Fill one flask (4 measures of a single reagent) for each reagent; complete them all to clear the level.",
-        "zh-Hant": "每種試劑裝滿一個燒瓶（4 格純色）即完成；全部完成就過關。",
-        "zh-Hans": "每种试剂装满一个烧瓶（4 格纯色）即完成；全部完成就过关。"
+        "en": "Fill one bottle (4 measures of a single reagent) for each reagent; complete them all to clear the level.",
+        "zh-Hant": "每種試劑裝滿一個瓶（4 格純色）即完成；全部完成就過關。",
+        "zh-Hans": "每种试剂装满一个瓶（4 格纯色）即完成；全部完成就过关。"
       },
       "b4": {
-        "en": "Fewer moves, more stars: three stars = optimal moves + 3 (each frosted / shrouded vial adds +2). The three stars in the top bar follow your move count.",
-        "zh-Hant": "步數越少星越多：三星 = 最優步數 + 3（每個磨砂 / 布罩瓶再 +2）。頂欄的三顆星會隨你的步數變化。",
-        "zh-Hans": "步数越少星越多：三星 = 最优步数 + 3（每个磨砂 / 布罩瓶再 +2）。顶栏的三颗星会随你的步数变化。"
+        "en": "Fewer moves, more stars: three stars = optimal moves + 3 (each ? / shrouded bottle adds +2). The three stars in the top bar follow your move count.",
+        "zh-Hant": "步數越少星越多：三星 = 最優步數 + 3（每個？/ 布罩瓶再 +2）。頂欄的三顆星會隨你的步數變化。",
+        "zh-Hans": "步数越少星越多：三星 = 最优步数 + 3（每个？/ 布罩瓶再 +2）。顶栏的三颗星会随你的步数变化。"
       },
       "clients": {
         "en": "Clients",
@@ -1185,9 +1220,9 @@
         "zh-Hans": "委托人"
       },
       "c1": {
-        "en": "Each client holds the reagent they want. Filling a flask of it is <b>delivered</b> at once and the flask empties — more room! Every 2 deliveries unveil one shrouded vial.",
-        "zh-Hant": "委託人手上標示想要的試劑。裝滿一瓶他要的試劑會立刻<b>交貨</b>，該瓶清空變回空瓶——空間更多！每交 2 單解開一個布罩瓶。",
-        "zh-Hans": "委托人手上标示想要的试剂。装满一瓶他要的试剂会立刻<b>交货</b>，该瓶清空变回空瓶——空间更多！每交 2 单解开一个布罩瓶。"
+        "en": "Each client's tray shows the reagent they want. Fill a bottle of it and it is <b>delivered</b> at once: corked, flown up to the tray, and its spot on the board is freed. Every 2 deliveries unveil one shrouded bottle.",
+        "zh-Hant": "委託人的托盤顯示想要的試劑。裝滿一瓶就立刻<b>交貨</b>：加塞、飛向托盤，盤面騰出位置。每交 2 單解開一個布罩瓶。",
+        "zh-Hans": "委托人的托盘显示想要的试剂。装满一瓶就立刻<b>交货</b>：加塞、飞向托盘，盘面腾出位置。每交 2 单解开一个布罩瓶。"
       },
       "vessels": {
         "en": "Vessels",
@@ -1205,7 +1240,7 @@
         "zh-Hans": "只看得到最上面一格，倒走一格才露出下一格。"
       },
       "clothDesc": {
-        "en": "Fully hidden; the wax seal shows the top colour. Sealed and untouchable until 2 orders are delivered per vial.",
+        "en": "Fully hidden; the wax seal shows the top colour. Sealed and untouchable until 2 orders are delivered per bottle.",
         "zh-Hant": "全部隱藏，蠟封顯示頂層顏色；封住時無法操作，每交 2 單解開一個。",
         "zh-Hans": "全部隐藏，蜡封显示顶层颜色；封住时无法操作，每交 2 单解开一个。"
       },
@@ -1225,9 +1260,44 @@
         "zh-Hans": "工具"
       },
       "t1": {
-        "en": "Undo: step back one move. Hint: the tutor points out the next move (doesn't affect clearing, but no bonus for a hint-free run).",
-        "zh-Hant": "撤銷：退回一步。提示：導師會指出下一步（不影響過關，但沒有「零提示」加分）。",
-        "zh-Hans": "撤销：退回一步。提示：导师会指出下一步（不影响过关，但没有“零提示”加分）。"
+        "en": "Undo: step back one move. Hint: the tutor points out the next move (no bonus for a hint-free run). +Bottle: watch an ad for an extra empty bottle when none is left.",
+        "zh-Hant": "撤銷：退回一步。提示：導師指出下一步（沒有「零提示」加分）。+瓶：沒有空瓶時，觀看廣告增加一個空瓶。",
+        "zh-Hans": "撤销：退回一步。提示：导师指出下一步（没有“零提示”加分）。+瓶：没有空瓶时，观看广告增加一个空瓶。"
+      },
+      "bottleName": {
+        "en": "Bottle",
+        "zh-Hant": "標準瓶",
+        "zh-Hans": "标准瓶"
+      },
+      "bottleDesc": {
+        "en": "Dark glass, 4 measures, everything visible. The only bottle type.",
+        "zh-Hant": "深色玻璃，4 格，內容全部可見。全遊戲只有這一種瓶。",
+        "zh-Hans": "深色玻璃，4 格，内容全部可见。全游戏只有这一种瓶。"
+      },
+      "hiddenName": {
+        "en": "? bottle",
+        "zh-Hant": "？瓶",
+        "zh-Hans": "？瓶"
+      },
+      "hiddenDesc": {
+        "en": "Only the top layer shows; the rest is ?. Pour the top away and the next layer appears at once.",
+        "zh-Hant": "只看得到最上層，其餘是「？」。倒走最上層，下一層立刻揭露。",
+        "zh-Hans": "只看得到最上层，其余是“？”。倒走最上层，下一层立刻揭露。"
+      },
+      "adName": {
+        "en": "Ad bottle",
+        "zh-Hant": "廣告瓶",
+        "zh-Hans": "广告瓶"
+      },
+      "adDesc": {
+        "en": "Sits locked on the board from the start; nothing goes in or out. Tap it and watch an ad to turn it into a normal empty bottle. Every level is solvable without it.",
+        "zh-Hant": "一開始就鎖在盤面上，不能倒入也不能倒出。點一下觀看廣告，就變成普通空瓶。不解鎖也一定能過關。",
+        "zh-Hans": "一开始就锁在盘面上，不能倒入也不能倒出。点一下观看广告，就变成普通空瓶。不解锁也一定能过关。"
+      },
+      "sealedDesc": {
+        "en": "A full bottle of one reagent with no client asking for it gets corked and stays on the board; if a client later asks for that reagent, it is delivered automatically.",
+        "zh-Hant": "裝滿純色但沒有委託人要的瓶會加塞封存，留在盤面；之後若有委託人要這種試劑，會自動送出。",
+        "zh-Hans": "装满纯色但没有委托人要的瓶会加塞封存，留在盘面；之后若有委托人要这种试剂，会自动送出。"
       }
     },
     "settings": {
@@ -1294,6 +1364,16 @@
         "en": "1 order",
         "zh-Hant": "1 單",
         "zh-Hans": "1 单"
+      },
+      "adUnlocked": {
+        "en": "Unlocked!",
+        "zh-Hant": "解鎖！",
+        "zh-Hans": "解锁！"
+      },
+      "sealed": {
+        "en": "Sealed",
+        "zh-Hant": "已封存",
+        "zh-Hans": "已封存"
       }
     }
   }

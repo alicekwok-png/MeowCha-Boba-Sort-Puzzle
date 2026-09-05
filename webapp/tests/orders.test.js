@@ -9,57 +9,71 @@ import { LocalServer, MIN_MS_PER_MOVE } from '../src/client/local-server.js';
 const N = (seg) => makeCup('normal', seg);
 const level = (board, id = 20) => ({ id, board: encodeBoard(board), optimal: solve(board, 30).length, thresholds: { three: 30, two: 40 } });
 
-describe('廣告訂單槽', () => {
-  test('新委託顏色一定係板面上未被點嘅色（v4：已封樽嘅色都可以點，點咗即刻飛走）', () => {
-    // 色 2 已有委託；色 1 係已封樽（純色滿）、色 3 未完成 → 兩者都可以加；加色 1 會即刻交貨飛走
-    const b = makeBoard([N([1, 1, 1, 1]), N([2, 2, 3]), N([3, 3, 3, 2]), N([2]), N([])], 3, [2]);
+describe('廣告訂單槽（Spec v3 §3：由隊列攞下一單，當關有效）', () => {
+  test('addOrder 開新槽 = 隊列下一單；隊列空就開唔到；已封樽嘅色追上即刻飛走（events 帶 deliver）', () => {
+    // 色 1 已封（純色滿、冇訂單）；槽只有色 2；隊列 [1]
+    const b = makeBoard([N([1, 1, 1, 1]), N([2, 2, 3]), N([3, 3, 3, 2]), N([2]), N([])], 3, [2], [1, 3]);
     const srv = new LocalServer();
     const st = srv.start(level(b));
-    const r = srv.addOrder(st.sessionId, [], () => 0.99);
+    const r = srv.addOrder(st.sessionId, []);
     assert.equal(r.ok, true);
-    assert.ok([1, 3].includes(r.color));
+    assert.equal(r.color, 1);                                   // 隊列頭
+    assert.ok(r.events.some(e => e.type === 'deliver' && e.color === 1), '已封樽追上 → deliver event');
+    assert.equal(r.maskedBoard.cups[0].kind, 'gone');
     assert.equal(r.maskedBoard.orders.length, 2);
-    if (r.color === 1) assert.equal(r.maskedBoard.cups[0].kind, 'gone');
-    const r2 = srv.addOrder(st.sessionId, [], () => 0.99);
-    assert.equal(r2.ok, true);
-    // 再加：三色都點晒 → 拒絕，唔會亂加
-    assert.equal(srv.addOrder(st.sessionId, []).ok, false);
+    assert.equal(r.slotColor, 3);                               // 交完 1 即刻補隊列下一單 3
+    assert.equal(r.maskedBoard.queueLeft, 0);
+    assert.equal(srv.addOrder(st.sessionId, []).ok, false);     // 隊列空
   });
 
-  test('解鎖後嘅訂單喺 complete() 重放時同一步插入，交付結果一致，驗證通過', () => {
-    const b = makeBoard([N([1, 1, 1]), N([2, 2, 2]), N([2, 1]), N([])], 2, []);
+  test('解鎖後嘅槽喺 complete() 重放時同一步插入，交貨結果一致，驗證通過', () => {
+    const b = makeBoard([N([1, 1, 1]), N([2, 2, 2]), N([2, 1]), N([])], 2, [1], [2]);
     const srv = new LocalServer();
     const st = srv.start(level(b));
-    // 第 1 步先，再解鎖（atMove = 1），揀到色 1 或 2 都得
-    const m1 = { from: 2, to: 3 };            // 1 → 空杯
+    const m1 = { from: 2, to: 3 };            // 1 → 空樽
     srv.reveal(st.sessionId, [m1]);
-    const r = srv.addOrder(st.sessionId, [m1], () => 0);
-    assert.equal(r.ok, true);
-    const color = r.color;
-    // client 用 server 畀嘅盤面繼續玩到完
+    const r = srv.addOrder(st.sessionId, [m1]);
+    assert.equal(r.ok, true); assert.equal(r.color, 2);
     let board = r.maskedBoard;
     const moves = [m1];
     const rest = solve(board, 20);
-    assert.ok(rest, 'still solvable after extra order');
+    assert.ok(rest, 'still solvable after extra slot');
     for (const m of rest) { board = applyMove(board, m); moves.push(m); }
     assert.ok(isSolved(board));
-    assert.ok(board.orders.find(o => o.color === color).filled, 'extra order delivered');
     srv.sessions.get(st.sessionId).startedAt -= moves.length * MIN_MS_PER_MOVE + 1000;
     const res = srv.complete(st.sessionId, { moves, moveTimestamps: [] });
     assert.equal(res.verified, true, res.reason);
   });
 
-  test('撤銷到解鎖之前，訂單仍然存在（當關有效），server 同 client 盤面一致', () => {
-    const b = makeBoard([N([1, 1, 1]), N([2, 2, 2]), N([2, 1]), N([])], 2, []);
+  test('撤銷到解鎖之前，新槽仍然存在（當關有效），server 同 client 盤面一致', () => {
+    const b = makeBoard([N([1, 1, 1]), N([2, 2, 2]), N([2, 1]), N([])], 2, [1], [2]);
     const srv = new LocalServer();
     const st = srv.start(level(b));
     const m1 = { from: 2, to: 3 };
     srv.reveal(st.sessionId, [m1]);
-    const r = srv.addOrder(st.sessionId, [m1], () => 0);
+    srv.addOrder(st.sessionId, [m1]);
     const undone = srv.reveal(st.sessionId, []);             // 撤銷第 1 步
-    assert.equal(undone.maskedBoard.orders.length, 1);
-    assert.equal(undone.maskedBoard.orders[0].color, r.color);
-    assert.equal(undone.maskedBoard.cups[3].seg.length, 0);   // 走步真係撤銷咗
+    assert.equal(undone.maskedBoard.orders.length, 2);
+    assert.equal(undone.maskedBoard.queueLeft, 0);
+  });
+
+  test('隊列推進：交完貨只有嗰個槽補下一單；隊列空 → 槽收工；過關 = 隊列空 + 全部槽收工', () => {
+    const b = makeBoard([N([1, 1, 1]), N([1]), N([2, 2, 2]), N([2]), N([3, 3, 3, 3]), N([])], 3, [1], [3, 2]);
+    let n = applyMove(b, { from: 1, to: 0 });                 // 交 1 → 槽補 3 → 已封色 3 即刻飛走 → 槽補 2
+    assert.equal(n.cups[0].kind, 'gone'); assert.equal(n.cups[4].kind, 'gone');
+    assert.equal(n.orders[0].color, 2); assert.equal(n.orders[0].filled, false); assert.equal(n.queue.length, 0);
+    assert.equal(isSolved(n), false);
+    n = applyMove(n, { from: 3, to: 2 });                     // 交 2 → 隊列空 → 槽收工
+    assert.equal(n.orders[0].filled, true);
+    assert.equal(isSolved(n), true);
+  });
+
+  test('布罩：交夠 2 單一次過全開（v4.1 §5.1）', () => {
+    const b = makeBoard([N([1, 1, 1]), N([1]), N([2, 2, 2]), N([2]), makeCup('covered', [3, 3, 4, 4], true), makeCup('covered', [4, 4, 3, 3], true), N([])], 4, [1, 2], [3, 4]);
+    let n = applyMove(b, { from: 1, to: 0 });
+    assert.ok(n.cups[4].locked && n.cups[5].locked);
+    n = applyMove(n, { from: 3, to: 2 });
+    assert.ok(!n.cups[4].locked && !n.cups[5].locked && n.cups[4].kind === 'normal' && n.cups[5].kind === 'normal');
   });
 });
 

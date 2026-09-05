@@ -1,7 +1,7 @@
 // core/generator.js — 隨機生成 + 驗證。段數係難度主旋鈕，所以唔用逆向生成。
 
 import { makeCup, makeUnit, countSegments, hiddenCount, CAP_NORMAL } from './board.js';
-import { isComplete, isSolved } from './rules.js';
+import { isComplete, isSolved, applyMove } from './rules.js';
 import { solveEx, countOptimalPaths, safeOpening } from './solver.js';
 import { mulberry32, shuffle, randInt } from './prng.js';
 import { PALETTE, colorsCompatible, unitsCompatible, MAX_COLORS_BY_HUE } from './palette.js';
@@ -32,7 +32,7 @@ export function validateConfig(cfg) {
   if (capacity - units > filled * 2) throw new Error('too much slack: cups would be nearly empty');
   const covered = cfg.covered || 0, hidden = cfg.hidden || 0, ad = cfg.ad || 0;
   if (hidden + covered > filled) throw new Error('special cups exceed filled cups');
-  if (covered > 0 && cfg.orders < 2 * covered) throw new Error('covered cups need >= 2 orders each');
+  if (cfg.orders < 1) throw new Error('Spec v3：每關最少 1 個免費訂單槽（過關 = 交晒全部顏色）');
   if (cfg.orders > cfg.colors) throw new Error('orders > colors');
   if (cfg.segments < cfg.colors || cfg.segments > units) throw new Error('segments out of range');
   if (cfg.cups + ad > 16) throw new Error('max 16 cups incl. ad bottles (4-bit move encoding)');
@@ -145,16 +145,59 @@ export function randomFill(cfg, rng) {
   // 廣告樽（v4 §4）：一開波就喺盤面，空 + 鎖死；solver 當佢唔存在 → 唔解鎖都可解
   for (let i = 0; i < (cfg.ad || 0); i++) cups.splice(randInt(rng, 0, cups.length), 0, makeCup('ad', []));
 
-  // 訂單：由本關顏色抽
-  const orderColors = shuffle(colors.slice(), rng).slice(0, cfg.orders);
+  // Spec v3：訂單隊列 = 關內全部顏色（隨機次序，必須涵蓋全部——否則某色永遠交唔到，必然無解）；
+  // 免費槽先攞隊列頭 cfg.orders 單；廣告槽解鎖時再由隊列攞（openSlot）
+  const queue = shuffle(colors.slice(), rng);
+  const orderColors = queue.splice(0, cfg.orders);
 
   return {
     cups,
     colors: cfg.colors,
     orders: orderColors.map(c => ({ color: c, filled: false })),
+    queue,
     delivered: 0,
     moveCount: 0,
   };
+}
+
+/** 隊列 + 槽係咪涵蓋關內全部顏色（Spec v3 §6 必驗：肉眼睇唔出嘅 bug） */
+export function queueCoversAllColors(b) {
+  const present = new Set(b.cups.flatMap(c => c.seg));
+  const listed = new Set([...b.orders.map(o => o.color), ...(b.queue || [])]);
+  for (const c of present) if (!listed.has(c)) return false;
+  return true;
+}
+
+/** 重放走步，記錄每步嘅完成 / 交貨事件（教學排序用） */
+export function replayEvents(b0, moves) {
+  let b = b0;
+  const out = [];
+  for (let i = 0; i < moves.length; i++) {
+    const before = b.cups.map(c => isComplete(c));
+    const events = [];
+    b = applyMove(b, moves[i], events);
+    const delivered = new Set(events.filter(e => e.type === 'deliver').map(e => e.cup));
+    b.cups.forEach((c, ci) => {
+      if (delivered.has(ci)) out.push({ move: i, type: 'deliver', cup: ci, color: events.find(e => e.type === 'deliver' && e.cup === ci).color });
+      else if (isComplete(c) && !before[ci]) out.push({ move: i, type: 'seal', cup: ci, color: c.seg[0] });
+    });
+    for (const e of events) if (e.type === 'deliver' && !delivered.has(e.cup)) out.push({ move: i, type: 'deliver', cup: e.cup, color: e.color });
+  }
+  return out;
+}
+
+/**
+ * Spec v3 §7 教學：
+ *  'firstDelivered' — L1：訂單槽係盤面最先完成到嘅色（保證即刻成功）
+ *  'sealThenCatchUp' — L2：最先完成嘅樽冇訂單（封存變暗），之後訂單追上、自動飛走
+ */
+export function tutorialQueueOk(kind, board, solution) {
+  const ev = replayEvents(board, solution);
+  const first = ev[0];
+  if (!first) return false;
+  if (kind === 'firstDelivered') return first.type === 'deliver';
+  if (kind === 'sealThenCatchUp') return first.type === 'seal' && ev.some(e => e.type === 'deliver' && e.color === first.color && e.move > first.move);
+  return true;
 }
 
 // ---------- 質量檢查 ----------
@@ -219,6 +262,7 @@ export function generateLevelEx(cfg, seed, opts = {}) {
     if (Math.abs(countSegments(b) - cfg.segments) > 1) { rejects.segments++; continue; }
     // 平嘢先：色盲 / 訂單 / 磨砂
     if (!colorSafe(b)) { rejects.color++; continue; }
+    if (!queueCoversAllColors(b)) { rejects.orders++; continue; }
     if (!ordersReachable(b)) { rejects.orders++; continue; }
     if (!frostedMeaningful(b)) { rejects.frosted++; continue; }
 
@@ -229,6 +273,23 @@ export function generateLevelEx(cfg, seed, opts = {}) {
     const sol = r.moves;
     if (sol.length < cfg.optimalMin || sol.length > cfg.optimalMax) { rejects.length++; continue; }
 
+    // 檢查 2b：教學排序（Spec v3 §7）——唔啱就轉隊列次序再試（最多 colors 次）
+    if (cfg.tutorialQueue) {
+      let ok = tutorialQueueOk(cfg.tutorialQueue, b, sol), tries = 0, sol2 = sol;
+      while (!ok && tries++ < cfg.colors * 2) {
+        const all = [...b.orders.map(o => o.color), ...b.queue];
+        all.push(all.shift());                                   // 輪轉
+        b.orders = all.slice(0, b.orders.length).map(c => ({ color: c, filled: false }));
+        b.queue = all.slice(b.orders.length);
+        const r2 = solveEx(b, cfg.optimalMax + 2, opts.maxNodes ?? 150_000);
+        if (!r2.moves) continue;
+        sol2 = r2.moves;
+        ok = tutorialQueueOk(cfg.tutorialQueue, b, sol2);
+      }
+      if (!ok) { rejects.orders++; continue; }
+      if (sol2.length < cfg.optimalMin || sol2.length > cfg.optimalMax) { rejects.length++; continue; }
+      sol.length = 0; sol.push(...sol2);
+    }
     // 檢查 3：最優解不唯一
     if (countOptimalPaths(b, sol.length, 2) < 2) { rejects.unique++; continue; }
 

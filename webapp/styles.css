@@ -168,8 +168,9 @@ body {
   position: relative; z-index: 40;
   height: 100%; width: 100%;
   display: grid; grid-template-columns: minmax(0, 1fr);   /* 唔可以跟 min-content 撐闊：頂欄多咗設定掣，360px 手機會溢出 */
-  /* 工單 #4 版面（1080 × 2400）：頂欄 0–160 · 委託人區 160–560（含托盤）· 間隔 560–600 · 瓶陣安全區 600–1750 · 導師 1750–2100 · 按鈕 2100–2400 */
-  grid-template-rows: 6.67% 16.67% 1.67% 47.92% 14.58% 12.49%;
+  /* 實作指令 v4 §3.3（src/config/layout.js LAYOUT）：頂欄 0–10% · 委託槽 + 委託人 10–24% · 盤面 24–86%（62%）· 道具列 86–100%。
+     貓助手唔再佔行（transient overlay 喺 .zone-board 右下） */
+  grid-template-rows: 10% 14% 62% 14%;
 }
 @media (min-aspect-ratio: 3/4) {
   .game-col { width: min(100%, 68vh); }
@@ -177,12 +178,16 @@ body {
 .zone { position: relative; min-height: 0; }
 
 /* 頂欄 */
+/* 頂欄（v4 §3.4）：左 = 返回 + 金幣 · 中 = 關卡 + 步數 · 右 = 設定（音效掣搬咗入設定 modal） */
 .zone-top {
-  display: flex; align-items: center; gap: 8px;
-  padding: max(8px, env(safe-area-inset-top)) 12px 4px;
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
+  padding: max(4px, env(safe-area-inset-top)) 10px 2px;
 }
+.top-left, .top-right { display: flex; align-items: center; gap: 4px; flex: 0 0 auto; }
+.top-left .coins { padding: 3px 8px; font-size: 13px; }
+.top-centre { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 6px; }
 .level-title {
-  flex: 1 1 auto; margin: 0 auto; max-width: 62%; min-width: 0;
+  flex: 0 1 auto; min-width: 0; max-width: 100%;
   text-align: center; display: flex; flex-direction: column; line-height: 1.15;
   background: var(--panel); border: 1px solid var(--panel-border); border-radius: 12px;
   padding: 3px 14px; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
@@ -206,19 +211,18 @@ body {
 /* 委託人區（Spec v2 §6）：四位委託人固定顯示（raven → badger → owl → hare）；有委託 = 全彩，未解鎖 = 灰態；紋章只出喺下一個可解鎖嗰位 */
 .zone-top { z-index: 60; grid-row: 1; }
 .zone-customers { grid-row: 2; }
-.zone-board { grid-row: 4; }
-.zone-mocha { grid-row: 5; }
-.zone-actions { grid-row: 6; }
+.zone-board { grid-row: 3; }
+.zone-actions { grid-row: 4; }
 .zone-customers {
   z-index: 35; overflow: visible;
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 0 5px; align-items: end;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 2px 5px 0; align-items: end;
 }
-.slot { position: relative; height: 100%; min-width: 0; --label-h: max(28px, 3.2vh); }   /* 托盤加大：玩家係睇顏色玩 */
+.slot { position: relative; height: 100%; min-width: 0; --label-h: max(26px, 3vh); }   /* 托盤：玩家係睇顏色玩；14% 高度入面委託人 + 托盤要一齊放得落 */
 .slot:nth-child(1) { z-index: 1 } .slot:nth-child(2) { z-index: 2 } .slot:nth-child(3) { z-index: 3 } .slot:nth-child(4) { z-index: 4 }
 /* 委託人半身圖（512 方格）：底邊釘喺托盤頂 */
 .slot img.body {
   position: absolute; bottom: var(--label-h); left: 50%; transform: translateX(-50%);
-  max-width: 100%; height: auto; max-height: 22vh;
+  max-width: 100%; height: auto; max-height: calc(100% - var(--label-h));
   filter: drop-shadow(0 4px 8px rgba(10,8,6,0.6)); transition: filter .3s;
 }
 .slot.done img.body { filter: drop-shadow(0 4px 8px rgba(10,8,6,0.6)) saturate(.7); }
@@ -263,41 +267,47 @@ body {
   font-size: 12px; font-weight: 700; color: var(--ink-2); background: var(--panel); border: 1px solid var(--panel-border); padding: 4px 10px; border-radius: 999px; white-space: nowrap;
 }
 
-/* 瓶陣安全區 */
+/* 盤面（v4：62%）；貓助手 overlay 喺右下 */
+.zone-board { overflow: visible; }
 #board { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: manipulation; z-index: 40; }
-/* 玩區廣告入口（Spec §6 addEmptyBottle）：右下角固定 56px 紋章 */
-#btn-add-cup { position: absolute; right: 8px; bottom: 10px; z-index: 55; width: 56px; height: 56px; }   /* 導師區右下角，唔會遮瓶陣 */
-#btn-add-cup img { width: 56px; height: 56px; }
-#btn-add-cup[hidden] { display: none; }
 
-/* 導師貓 + 對話（z 50） */
-.zone-mocha { display: flex; align-items: flex-end; gap: 8px; padding: 0 12px 2px; z-index: 50; }
-.zone-mocha img { height: 100%; max-height: 120px; width: auto; filter: drop-shadow(0 4px 10px rgba(10,8,6,0.65)); transition: transform .2s; }
-.zone-mocha img.hop { animation: hop .5s ease; }
-@keyframes hop { 0%,100% { transform: translateY(0) } 40% { transform: translateY(-12px) } }
-/* cheer 係跳起姿勢（Spec §7 註）：向上位移 24px + 彈跳 easing */
-.zone-mocha img.cheer { animation: cheer .7s cubic-bezier(.34,1.56,.64,1) both; }
-@keyframes cheer { 0% { transform: translateY(0) } 45% { transform: translateY(-24px) } 70% { transform: translateY(-6px) } 100% { transform: translateY(-24px) } }
-.bubble {
-  position: relative; flex: 0 1 auto; background: var(--panel); border: 1px solid var(--panel-border); border-radius: 14px;
-  padding: 7px 12px; font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 16%;
-  max-width: 100%; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); box-shadow: var(--panel-inset);
+/* 貓助手 transient（v4 §3.2 CAT）：由右下滑入 → 停 showDurationMs → fadeOutMs 淡出；唔接收點擊（唔會遮住瓶嘅 tap） */
+.cat-pop {
+  position: absolute; right: 4px; bottom: 0; z-index: 50; pointer-events: none;
+  display: flex; align-items: flex-end; gap: 6px; max-width: 92%;
+  opacity: 0; transform: translate(30%, 25%);
+  transition: opacity .3s ease, transform .3s cubic-bezier(.34,1.4,.64,1);
 }
-.bubble::before { content: ""; position: absolute; left: -8px; bottom: 10px; border: 7px solid transparent; border-right-color: var(--panel-border); border-left: 0; }
-.bubble::after { content: ""; position: absolute; left: -6px; bottom: 11px; border: 6px solid transparent; border-right-color: var(--panel-solid); border-left: 0; }
+.cat-pop[hidden] { display: none; }
+.cat-pop.in { opacity: 1; transform: translate(0, 0); }
+.cat-pop.out { opacity: 0; transform: translate(10%, 10%); transition: opacity .3s ease, transform .3s ease; }
+.cat-pop img { height: min(18vh, 150px); width: auto; filter: drop-shadow(0 4px 10px rgba(10,8,6,0.65)); }
+.cat-pop.in img { animation: cheer .7s cubic-bezier(.34,1.56,.64,1) both; }
+@keyframes cheer { 0% { transform: translateY(0) } 45% { transform: translateY(-24px) } 70% { transform: translateY(-6px) } 100% { transform: translateY(-16px) } }
+.cat-bubble {
+  position: relative; flex: 0 1 auto; background: var(--panel); border: 1px solid var(--panel-border); border-radius: 14px;
+  padding: 7px 12px; font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 18%;
+  max-width: 100%; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); box-shadow: var(--panel-inset), 0 4px 10px rgba(10,8,6,0.5);
+}
+.cat-bubble[hidden] { display: none; }
+.cat-bubble::before { content: ""; position: absolute; right: -8px; bottom: 10px; border: 7px solid transparent; border-left-color: var(--panel-border); border-right: 0; }
+.cat-bubble::after { content: ""; position: absolute; right: -6px; bottom: 11px; border: 6px solid transparent; border-left-color: var(--panel-solid); border-right: 0; }
 
-/* 按鈕區（z 60）：道具用 UI_item_undo / UI_item_hint 貼圖，重來保留字形 */
-.zone-actions { display: flex; justify-content: center; align-items: center; gap: 14px; padding: 4px 14px max(6px, env(safe-area-inset-bottom)); z-index: 60; }
+/* 道具列（z 60，v4 §3.4 四件）：撤銷 / 提示 / +樽 / 重來；貼圖 UI_item_undo / UI_item_hint / UI_item_addflask，重來保留字形 */
+.zone-actions { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 4px 10px max(6px, env(safe-area-inset-bottom)); z-index: 60; }
 .act {
-  font: inherit; width: 84px; max-height: 100%; padding: 6px 0 5px; border-radius: 16px; border: 1px solid var(--panel-border);
+  font: inherit; flex: 1 1 0; max-width: 88px; min-width: 0; min-height: 44px; max-height: 100%; padding: 5px 0 4px; border-radius: 16px; border: 1px solid var(--panel-border);
   background: var(--panel); color: var(--ink); box-shadow: var(--panel-inset), 0 4px 0 var(--brass-dark); cursor: pointer;
-  display: flex; flex-direction: column; align-items: center; gap: 1px; font-weight: 800; font-size: 12px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; font-weight: 800; font-size: 12px;
 }
 .act i { font-style: normal; font-size: 19px; line-height: 1; height: 26px; display: grid; place-items: center; color: var(--brass-light); }
-.act img { width: 26px; height: 26px; object-fit: contain; }
+.act img { width: 28px; height: 28px; object-fit: contain; }
+.act span { white-space: nowrap; }
 .act:active { transform: translateY(3px); box-shadow: var(--panel-inset), 0 1px 0 var(--brass-dark); }
 .act[disabled] { opacity: .45; pointer-events: none; }
-.act[hidden] { display: none; }   /* 機制登場表：Undo 第 5 關、提示第 14 關先出現 */
+.act[hidden] { display: none; }   /* 機制登場表：Undo 第 5 關、提示第 14 關、+樽 第 11 關（冇廣告樽剩低）先出現 */
+/* +樽 係廣告入口：黃銅脈動同紋章一致 */
+.act.ad { border-color: var(--brass-main); animation: crestPulse 2.2s ease-in-out infinite; }
 
 /* ---------- Modal ---------- */
 .modal { position: absolute; inset: 0; background: rgba(10,8,6,0.62); display: grid; place-items: center; padding: 20px; z-index: 80; backdrop-filter: blur(2px); }
@@ -332,6 +342,9 @@ body {
 .cuptype .pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
 .cuptype .pic img.cloth { transform: scale(1.34) translateY(-4%); }
 .cuptype .pic img.wax { width: 34%; height: 34%; left: 33%; top: 30%; }
+/* 說明卡（v4 單一樽型）：`?` 隱藏層 = 深色樽 + 襯線 ?（RENDER.hiddenGlyph #9A8B6F）；廣告樽 = 深色樽 + 中央 UI_ad_crest */
+.cuptype .pic .q { position: absolute; left: 0; right: 0; top: 34%; text-align: center; font-family: var(--font); font-size: 24px; font-weight: 900; color: #9A8B6F; line-height: 1; }
+.cuptype .pic img.crest { width: 56%; height: 56%; left: 22%; top: 24%; }
 .cuptype b { display: block; font-size: 13px; color: var(--ink); }
 .cuptype span { font-size: 11px; color: var(--ink-2); line-height: 1.3; display: block; }
 .diff { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
@@ -392,6 +405,12 @@ body {
 
 /* 窄機（≤ 380px）：頂欄有 5 件嘢，標題同步數縮細先唔會截字 */
 @media (max-width: 380px) {
+  .top-left .coins { padding: 2px 6px; font-size: 12px; }
+  .top-left .icon-btn.img, .top-right .icon-btn.img { width: 38px; height: 38px; }
+  .cat-pop img { height: min(16vh, 120px); }
+  .cat-bubble { font-size: 12px; padding: 5px 9px; }
+  .act { font-size: 11px; }
+  .act img { width: 24px; height: 24px; }
   .level-title { padding: 3px 8px; }
   .level-title b { font-size: 13px; }
   .level-title span { font-size: 10px; }
@@ -400,3 +419,8 @@ body {
   .pace-moves { font-size: 9px; }
   .icon-btn { width: 36px; height: 36px; }
 }
+
+/* Spec v3 §5.1 第 4 段：樽到槽 → 槽閃光一下，槽底色換成新訂單色 */
+.slot.flash .tray { animation: slotFlash .32s ease-out; }
+@keyframes slotFlash { 0% { box-shadow: 0 0 0 0 rgba(255,244,200,.95), 0 0 24px 8px rgba(255,214,120,.9); filter: brightness(1.8) } 100% { filter: brightness(1) } }
+.customers-note.queue { left: auto; right: 8px; transform: none; bottom: auto; top: 4px; font-size: 11px; }

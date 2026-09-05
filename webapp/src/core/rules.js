@@ -72,8 +72,16 @@ export function applyMove(b, m, events = null) {
   return next;
 }
 
-/** 交付：純色滿杯 + 顏色被點單 → 清空該杯，訂單推進；每交付 2 單解開一隻布遮瓶 */
+/** v4.1 §5.1：交夠 2 單，一次過解開關內全部布罩樽 */
+export const CLOTH_UNLOCK_ORDERS = 2;
+
+/**
+ * Spec v3 §2：純色滿樽 + 該色有 active 訂單槽 → 交貨（樽飛走 gone、盤面釋放位置），只有嗰個槽補隊列下一單（隊列空 → 槽 filled）；
+ * 純色滿樽冇訂單 → 留喺盤面（已封：isComplete，唔入唔出）；隊列推進後再掃一次 → 已封樽嘅色追上就自動飛走（§2.3）。
+ * 交夠 CLOTH_UNLOCK_ORDERS 單 → 全部布罩樽一次過解開。
+ */
 export function settleOrders(b, events = null) {
+  if (!b.queue) b.queue = [];
   let changed = true;
   while (changed) {
     changed = false;
@@ -82,26 +90,50 @@ export function settleOrders(b, events = null) {
       if (cup.locked || !isComplete(cup)) continue;
       const slot = b.orders.find(o => !o.filled && o.color === cup.seg[0]);
       if (!slot) continue;
-      slot.filled = true;
-      if (events) events.push({ type: 'deliver', cup: ci, color: cup.seg[0] });
+      const color = cup.seg[0];
+      if (events) events.push({ type: 'deliver', cup: ci, color, slot: b.orders.indexOf(slot) });
       cup.seg = [];                 // v4 §7：交貨後樽飛向訂單槽，盤面釋放位置（唔留空樽）
       cup.kind = 'gone';
       b.delivered++;
+      advanceQueue(b, slot, events);
       changed = true;
-      if (b.delivered % 2 === 0) unlockSealed(b, events);   // 每交付 2 單解開一隻布遮瓶
+      if (b.delivered === CLOTH_UNLOCK_ORDERS) unlockAllCloth(b, events);
     }
   }
 }
 
-function unlockSealed(b, events) {
-  const ci = b.cups.findIndex(x => x.kind === 'covered' && x.locked);
-  if (ci < 0) return;
-  b.cups[ci].locked = false;
-  b.cups[ci].kind = 'normal';
-  if (events) events.push({ type: 'unlock', cup: ci });
+/** Spec v3 §2.4：一個槽交完貨，只有嗰個槽補新訂單；隊列空 → 槽收工（filled） */
+export function advanceQueue(b, slot, events = null) {
+  if (b.queue && b.queue.length) {
+    slot.color = b.queue.shift();
+    slot.filled = false;
+    if (events) events.push({ type: 'order', slot: b.orders.indexOf(slot), color: slot.color });
+  } else {
+    slot.filled = true;
+  }
 }
 
+/** 開一個新槽（廣告解鎖）：由隊列攞下一單；隊列空就開唔到 */
+export function openSlot(b, events = null) {
+  if (!b.queue || !b.queue.length) return null;
+  const slot = { color: b.queue.shift(), filled: false };
+  b.orders.push(slot);
+  if (events) events.push({ type: 'order', slot: b.orders.length - 1, color: slot.color });
+  settleOrders(b, events);   // 已封樽嘅色追上 → 即刻飛走
+  return slot;
+}
+
+function unlockAllCloth(b, events) {
+  b.cups.forEach((c, ci) => {
+    if (c.kind !== 'covered' || !c.locked) return;
+    c.locked = false; c.kind = 'normal';
+    if (events) events.push({ type: 'unlock', cup: ci });
+  });
+}
+
+/** Spec v3 §2.5：過關 = 隊列空 + 所有槽收工（全部顏色都交咗貨）。唔係「全部樽純色」 */
 export function isSolved(b) {
+  if (b.queue && b.queue.length) return false;
   if (b.orders.some(o => !o.filled)) return false;
   return b.cups.every(c => c.seg.length === 0 || isComplete(c));
 }

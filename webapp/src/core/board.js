@@ -24,8 +24,10 @@ export const INERT_KINDS = new Set(['ad', 'gone']);   // 唔可以倒入亦唔�
 
 /** @typedef {'normal'|'frosted'|'covered'|'takeaway'|'cracked'} CupKind */
 /** @typedef {{kind:CupKind, cap:number, seg:number[], locked:boolean}} Cup  — seg 由底至頂，每格一個 unit key */
-/** @typedef {{color:number, filled:boolean}} OrderSlot  — color 係 unit key */
-/** @typedef {{cups:Cup[], colors:number, orders:OrderSlot[], delivered:number, moveCount:number}} Board */
+/** @typedef {{color:number, filled:boolean}} OrderSlot  — color 係 unit key；Spec v3：filled = 隊列已空、呢個槽收工（empty）
+ *  訂單槽（orders）= 已開放嘅槽（免費槽 + 已解鎖嘅廣告槽）；queue = 未派出嘅訂單色（必須涵蓋關內全部顏色）。
+ *  交貨後只有嗰個槽補隊列下一單；隊列空 → 槽 filled。過關 = 隊列空 + 全部槽 filled。 */
+/** @typedef {{cups:Cup[], colors:number, orders:OrderSlot[], queue:number[], delivered:number, moveCount:number}} Board */
 /** @typedef {{from:number, to:number}} Move */
 
 // ---------- LiquidUnit ----------
@@ -52,8 +54,8 @@ export function hiddenCount(c) {
 /** 可以操作（揀嚟倒出 / 倒入）？布遮樽鎖死期間、廣告樽、已飛走嘅樽都唔得 */
 export const canInteract = (c) => !INERT_KINDS.has(c.kind) && (c.kind !== 'covered' || !c.locked);
 
-export function makeBoard(cups, colors, orders = []) {
-  return { cups, colors, orders: orders.map(c => ({ color: c, filled: false })), delivered: 0, moveCount: 0 };
+export function makeBoard(cups, colors, orders = [], queue = []) {
+  return { cups, colors, orders: orders.map(c => ({ color: c, filled: false })), queue: queue.slice(), delivered: 0, moveCount: 0 };
 }
 
 export function cloneBoard(b) {
@@ -61,6 +63,7 @@ export function cloneBoard(b) {
     cups: b.cups.map(c => ({ kind: c.kind, cap: c.cap, seg: c.seg.slice(), locked: c.locked })),
     colors: b.colors,
     orders: b.orders.map(o => ({ color: o.color, filled: o.filled })),
+    queue: (b.queue || []).slice(),
     delivered: b.delivered,
     moveCount: b.moveCount,
   };
@@ -86,6 +89,7 @@ export function mask(board, revealed = null) {
   return {
     colors: board.colors,
     orders: board.orders.map(o => ({ color: o.color, filled: o.filled })),
+    queueLeft: (board.queue || []).length,        // client 只知仲有幾多單，唔知係咩色（Spec v3：隊列順序係關卡資訊）
     delivered: board.delivered,
     moveCount: board.moveCount,
     cups: board.cups.map((c, ci) => {
@@ -97,13 +101,13 @@ export function mask(board, revealed = null) {
   };
 }
 
-// ---------- 緊湊編碼（v2） ----------
-// 標頭: [version=2][colors][nOrders][delivered][moveCount lo][moveCount hi][nCups]
-// 每張訂單 1 byte: unit key（訂單只用 P0–P3 色 + 圖案，key < 128）<<1 | filled
+// ---------- 緊湊編碼（v3） ----------
+// 標頭: [version=3][colors][nOrders][nQueue][delivered][moveCount lo][moveCount hi][nCups]
+// 每張訂單 1 byte: unit key（key < 128）<<1 | filled；之後 nQueue byte 隊列 unit key
 // 每隻杯: 1 byte 標頭 (kind<<5 | locked<<2 | capFlag) + cap byte，每格 1 byte unit key（EMPTY=255 補位）
 //   capFlag：0 = cap 4，1 = cap 3（曲頸瓶）
 
-const VERSION = 2;
+const VERSION = 3;
 
 function toBase64Url(bytes) {
   let bin = '';
@@ -122,8 +126,10 @@ function fromBase64Url(s) {
 }
 
 export function encodeBoard(b) {
-  const bytes = [VERSION, b.colors, b.orders.length, b.delivered, b.moveCount & 0xff, (b.moveCount >> 8) & 0xff, b.cups.length];
+  const queue = b.queue || [];
+  const bytes = [VERSION, b.colors, b.orders.length, queue.length, b.delivered, b.moveCount & 0xff, (b.moveCount >> 8) & 0xff, b.cups.length];
   for (const o of b.orders) bytes.push(((o.color & 127) << 1) | (o.filled ? 1 : 0));
+  for (const q of queue) bytes.push(q & 127);
   for (const c of b.cups) {
     bytes.push((KINDS.indexOf(c.kind) << 5) | ((c.locked ? 1 : 0) << 2) | (c.cap === 3 ? 1 : 0));
     for (let i = 0; i < c.cap; i++) bytes.push(i < c.seg.length ? c.seg[i] : EMPTY);
@@ -136,11 +142,13 @@ export function decodeBoard(s) {
   let p = 0;
   const version = bytes[p++];
   if (version !== VERSION) throw new Error(`board encoding version ${version} unsupported (want ${VERSION}) — regenerate levels/campaign.json`);
-  const colors = bytes[p++], nOrders = bytes[p++], delivered = bytes[p++];
+  const colors = bytes[p++], nOrders = bytes[p++], nQueue = bytes[p++], delivered = bytes[p++];
   const moveCount = bytes[p++] | (bytes[p++] << 8);
   const nCups = bytes[p++];
   const orders = [];
   for (let i = 0; i < nOrders; i++) { const v = bytes[p++]; orders.push({ color: v >> 1, filled: !!(v & 1) }); }
+  const queue = [];
+  for (let i = 0; i < nQueue; i++) queue.push(bytes[p++]);
   const cups = [];
   for (let i = 0; i < nCups; i++) {
     const h = bytes[p++];
@@ -149,7 +157,7 @@ export function decodeBoard(s) {
     for (let k = 0; k < cap; k++) { const v = bytes[p++]; if (v !== EMPTY) seg.push(v); }
     cups.push({ kind, cap, seg, locked });
   }
-  return { cups, colors, orders, delivered, moveCount };
+  return { cups, colors, orders, queue, delivered, moveCount };
 }
 
 /** 走步：from 4 bit + to 4 bit = 1 byte */

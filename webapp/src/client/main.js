@@ -11,9 +11,10 @@ import { GameView } from './game.js';
 import { Sfx } from './audio.js';
 import { BackgroundManager, stageForLevel } from './background.js';
 import { BootFlow, decideEntry } from './boot.js';
-import { ads, adsAllowedForLevel } from './ads.js';
+import { ads, adsAllowedForLevel, adBottleTappable } from './ads.js';
 import { hiddenRatio, UNLOCK_LEVEL } from '../core/difficulty.js';
 import { ASSET_MAP, CLIENT_SPRITE } from '../config/assets.js';
+import { CAT } from '../config/layout.js';
 import { AD_SLOTS, assertAdSlotLimit, CLIENT_ORDER } from '../config/render.js';
 import { initI18n, t, has, setLocale, getLocale, getLocales, onLocaleChange, applyDom } from './i18n.js';
 
@@ -33,7 +34,7 @@ const bg = new BackgroundManager($('#bg-layers'), new URL('../../assets/v2/', im
 const CONFIG = {
   orderText: false,
   orderSlots: { ad: [{ from: 1, to: 10, count: 0 }, { from: 11, to: 16, count: 0 }, { from: 17, to: 35, count: 1 }, { from: 36, to: 9999, count: 1 }] },
-  adUnits: { extraOrderSlot: 'rewarded_extra_order_slot', extraEmptyCup: 'rewarded_extra_empty_cup' },
+  adUnits: { extraOrderSlot: 'rewarded_extra_order_slot', extraEmptyCup: 'rewarded_extra_empty_cup', adBottle: 'rewarded_ad_bottle' },
 };
 async function loadConfig() {
   try {
@@ -46,7 +47,7 @@ function orderTextOn() {
   try { const v = localStorage.getItem('mc_order_text'); if (v !== null) return v === '1'; } catch { /* ignore */ }
   return !!CONFIG.orderText;
 }
-/** 廣告解鎖委託槽數量（遠端參數 config.orderSlots.ad；第 1–10 關永遠 0 — 就算 config 寫錯都唔會破） */
+/** 廣告解鎖委託槽數量（遠端參數 config.orderSlots.ad；第 1–10 關永遠 0 — 就算 config 寫錯都唔會破）。廣告樽（kind ad）唔經呢度，見 ads.js */
 function adSlotsFor(levelId) {
   if (!adsAllowedForLevel(levelId)) return 0;
   const r = (CONFIG.orderSlots?.ad || []).find(x => levelId >= x.from && levelId <= x.to);
@@ -105,6 +106,7 @@ function refreshTitle() {
   $('#coins-title').textContent = progress.coins;
   $('#stars-title').textContent = totalStars();
   $('#coins-levels').textContent = progress.coins;
+  $('#coins-game').textContent = progress.coins;   // v4 §3.4 頂欄左邊金幣
 }
 
 /** 星星：UI_star / UI_star_dim 圖（螢幕閱讀器用 sr-only 文字） */
@@ -156,41 +158,58 @@ function toast(text, ms = 1600) {
   toastTimer = setTimeout(() => t.classList.add('hidden'), ms);
 }
 
-// ---------- 導師（煉金貓）----------
+// ---------- 導師（煉金貓）— v4 §3.2 transient ----------
+// 貓唔再常駐：只喺交貨（CHR_cat_cheer，CAT.showDurationMs）同教學 / 事件句（≈2.5 s）由盤面右下滑入，之後 CAT.fadeOutMs 淡出。
 // 對白全部係 i18n key（strings.json catLines / tutorial + extra.tutor），顯示時先 t()
 const LINES = {
-  idle: ['tutorial.pour', 'tutorial.sameOnly', 'extra.tutor.idleEmpty', 'catLines.idle1', 'extra.tutor.idleOrder'],
   serve: ['extra.tutor.serve1', 'extra.tutor.serve2', 'extra.tutor.serve3', 'catLines.good'],
   almost: ['extra.tutor.almost1', 'extra.tutor.almost2'],
   stuck: ['catLines.stuck', 'extra.tutor.stuck2'],
   clear: ['extra.tutor.clear1', 'extra.tutor.clear2'],
   hint: ['extra.tutor.hint1', 'extra.tutor.hint2'],
-  frosted: ['tutorial.frosted'],
+  hidden: ['extra.tutor.hidden'],        // v4 §5：L2 第一次見 `?` 樽
   covered: ['extra.tutor.covered'],
-  cracked: ['tutorial.cracked'],
   unlock: ['extra.tutor.unlock'],
-  pour: ['catLines.pouring'],
+  adBottle: ['extra.tutor.adBottle'],    // v4 §4：廣告樽解鎖
+  sealed: ['extra.tutor.sealed'],        // v4 §7：完成樽冇委託 → 封存
   addCup: ['extra.tutor.addCup'],
 };
 /** 某組對白：指定 index 或隨機一句（已翻譯） */
 const line = (mood, i = null) => t(LINES[mood][i === null ? Math.floor(Math.random() * LINES[mood].length) : i]);
-/** 導師貓三態：idle（待機）· happy（交貨 / 好事）· cheer（過關，跳起姿勢 + 彈跳） */
+/** 導師貓三態：idle · happy（交貨 / 好事）· cheer（交貨彈出用 cheer，v4 §8 建議） */
 const CAT_SRC = { idle: 'CHR_cat_idle', happy: 'CHR_cat_happy', cheer: 'CHR_cat_cheer' };
-function cat(state, text) {
-  const img = $('#mocha-img');
-  const key = CAT_SRC[state] || CAT_SRC.idle;
-  const src = asset(key);
+const CAT_LINE_MS = 2500;   // 有對白時最少停留
+let catTimer = null, catSeq = 0;
+/**
+ * 彈出貓：由右下滑入 → 停 ms → 淡出。text 省略就淨係貓（交貨）。
+ * 連續觸發會重置停留時間（唔會閃兩次）。pointer-events none，唔會遮住瓶嘅點擊。
+ */
+function catPop(state = 'cheer', text = undefined, ms = null) {
+  const pop = $('#cat-pop'), img = $('#cat-img'), bubble = $('#cat-bubble');
+  if (!pop) return;
+  const src = asset(CAT_SRC[state] || CAT_SRC.cheer);
   if (img.src !== src) img.src = src;
-  if (text !== undefined) $('#mocha-bubble').textContent = text;
-  img.classList.remove('hop', 'cheer');
-  if (state === 'happy') { void img.offsetWidth; img.classList.add('hop'); }
-  else if (state === 'cheer') { void img.offsetWidth; img.classList.add('cheer'); }
+  if (text) { bubble.textContent = text; bubble.hidden = false; } else { bubble.hidden = true; }
+  const hold = ms ?? (text ? Math.max(CAT.showDurationMs, CAT_LINE_MS) : CAT.showDurationMs);
+  const seq = ++catSeq;
+  clearTimeout(catTimer);
+  pop.classList.remove('out');
+  if (pop.hidden) { pop.hidden = false; void pop.offsetWidth; }   // reflow 先加 .in，transition 先會播
+  pop.classList.add('in');
+  catTimer = setTimeout(() => {
+    if (seq !== catSeq) return;
+    pop.classList.remove('in'); pop.classList.add('out');
+    catTimer = setTimeout(() => { if (seq === catSeq) { pop.hidden = true; pop.classList.remove('out'); } }, CAT.fadeOutMs);
+  }, hold);
 }
-/** 舊呼叫名（idle / pouring / serve / stuck / almost / clear）映射到三態 + 對白組 */
-const MOOD = { idle: 'idle', pouring: 'idle', stuck: 'idle', almost: 'idle', serve: 'happy', clear: 'cheer' };
+/** 即刻收起（換關 / 過關 modal） */
+function catHide() { clearTimeout(catTimer); catSeq++; const pop = $('#cat-pop'); if (pop) { pop.hidden = true; pop.classList.remove('in', 'out'); } }
+/** 舊呼叫名（serve / stuck / almost / clear …）→ 一律 transient；冇對白嘅 idle / pouring 唔再彈貓（v4：平時盤面冇貓） */
+const MOOD = { idle: 'idle', pouring: 'idle', stuck: 'idle', almost: 'happy', serve: 'happy', clear: 'cheer' };
 function mocha(mood, text) {
   const txt = text !== undefined ? text : LINES[mood] ? line(mood) : undefined;
-  cat(MOOD[mood] || 'idle', txt);
+  if (!txt) return;
+  catPop(MOOD[mood] || 'idle', txt);
 }
 
 // ---------- 委託人區（Spec v2 §6）----------
@@ -200,9 +219,10 @@ const SLOT_COUNT = 4;   // 四位委託人固定顯示：slot i = CLIENT_ORDER[i
  * 每個槽位：有委託 = 全彩（filled 就淡化 + ✓）；未解鎖 = 灰態（去飽和 + 亮度 −55%）冇按鈕；
  * 黃銅紋章只出現喺「下一個可解鎖」嗰位，而且只限該關容許廣告（第 1–10 關永遠冇）。
  */
-function renderClients(popColor = null, enterIndex = -1) {
+function renderClients(popColor = null, enterIndex = -1, flyingIndex = -1, opts = {}) {
   const el = $('#customers');
-  const orders = G.board.orders;
+  const orders = (opts.board || G.board).orders;
+  const flashIndex = opts.flashIndex ?? -1;
   el.innerHTML = '';
   const lockedAds = Math.max(0, G.adTotal - G.adUnlocked);
   const adsOk = !G.practice && adsAllowedForLevel(G.level && G.level.id);
@@ -213,12 +233,14 @@ function renderClients(popColor = null, enterIndex = -1) {
     const body = `<img class="body" src="${asset(CLIENT_SPRITE[who])}" alt="${t('extra.hud.client')} · ${t('clients.' + who)}">`;
     if (o) {
       const p = pal(o.color);
-      slot.className = 'slot' + (o.filled ? ' done' : '') + (popColor !== null && popColor === o.color ? ' pop' : '') + (enterIndex === i ? ' enter' : '');
+      // flyingIndex：樽仲飛緊去托盤（v4 §7 animateFlyToSlot），✓ 等佢到咗先顯示
+      const done = o.filled && i !== flyingIndex;
+      slot.className = 'slot' + (done ? ' done' : '') + (popColor !== null && popColor === o.color ? ' pop' : '') + (enterIndex === i ? ' enter' : '') + (flashIndex === i ? ' flash' : '');
       // 色塊托盤：顏色 = 板面液體同一個 hex；文字預設唔顯示（L* > 55 用深啡，否則白）
       const textColor = p.L > 55 ? '#3A2410' : '#FFFFFF';
       const name = liquidName(o.color);
       slot.innerHTML = `${body}
-        <div class="tray" style="--c:${p.hex};--cd:${hexScale(p.hex, 0.82)};--ci:${hexScale(p.hex, 0.9)};--ct:${textColor}" title="${name}" aria-label="${name}">${orderTextOn() && !o.filled ? `<span class="name">${name}</span>` : ''}</div>`;
+        <div class="tray" style="--c:${p.hex};--cd:${hexScale(p.hex, 0.82)};--ci:${hexScale(p.hex, 0.9)};--ct:${textColor}" title="${name}" aria-label="${name}">${orderTextOn() && !done ? `<span class="name">${name}</span>` : ''}</div>`;
     } else {
       const nextUnlockable = adsOk && lockedAds > 0 && i === orders.length && G.session && server.canAddOrder(G.session.sessionId, G.moves);
       slot.className = 'slot grey';
@@ -238,6 +260,42 @@ function renderClients(popColor = null, enterIndex = -1) {
     const s = document.createElement('span'); s.className = 'customers-note'; s.textContent = t('extra.hud.noOrders');
     el.appendChild(s);
   }
+  // Spec v3：隊列仲有幾多單（client 只知數量，唔知色）
+  const left = G.board.queueLeft || 0;
+  if (left > 0) {
+    const q = document.createElement('span'); q.className = 'customers-note queue'; q.textContent = t('extra.hud.queueLeft', { n: left });
+    el.appendChild(q);
+  }
+}
+
+/**
+ * 結算事件（Spec v3 §5）：deliver → 樽飛向該槽（托盤途中保持舊色）→ 槽閃光換新訂單色；unlock → 布罩全開；order → 新槽入場。
+ * onCupTap 同 unlockOrderSlot 共用。prevBoard = 事件之前嘅盤面（托盤舊色）。
+ */
+async function runEvents(events, prevBoard) {
+  let served = false;
+  for (const ev of events) {
+    if (ev.type === 'deliver') {
+      served = true; sfx.deliver();
+      const orderIdx = ev.slot ?? prevBoard.orders.findIndex(o => o.color === ev.color);
+      // 飛行途中：托盤仍然顯示舊訂單色（用 prevBoard 渲染），✓ / 新色等落地先出
+      renderClients(null, -1, orderIdx, { board: prevBoard });
+      if (CAT.showOnDeliver) catPop('cheer', undefined, CAT.showDurationMs);
+      const rect = orderIdx >= 0 ? trayRectFor(orderIdx) : null;
+      if (rect && typeof G.view.animateFlyToSlot === 'function') await G.view.animateFlyToSlot(ev.cup, rect);
+      else await G.view.animateDeliver(ev.cup, `✓ ${liquidName(ev.color)} ${t('clients.deliver')}`);
+      // 到槽：槽閃光，換成新訂單色（隊列空 → ✓）
+      renderClients(ev.color, -1, -1, { flashIndex: orderIdx });
+      await sleep(140);
+    } else if (ev.type === 'unlock') {
+      sfx.unlock(); mocha('unlock', line('unlock', 0));
+      await G.view.animateUnlock(ev.cup);
+      renderClients();
+    } else if (ev.type === 'order') {
+      renderClients(null, ev.slot);
+    }
+  }
+  return served;
 }
 
 /** 廣告解鎖委託槽（AD_SLOTS.unlockOrder）：睇 rewarded video → server 由未完成顏色揀一隻加單 → 委託人入場 */
@@ -253,16 +311,20 @@ async function unlockOrderSlot() {
   try { r = server.addOrder(G.session.sessionId, G.moves); } catch (e) { r = { ok: false, reason: e.message }; }
   if (!r.ok) { G.busy = false; toast(t('extra.toast.noOrderColor')); return; }
   G.adUnlocked++;
+  const prevBoard = G.board;
   applyBoard(r.maskedBoard);
-  sfx.deliver();
   mocha('serve', t('extra.ads.newClient', { liquid: liquidName(r.color) }));
   renderClients(null, G.board.orders.length - 1);   // 入場動畫：由頂部滑落 + 托盤淡入
-  await sleep(600);
+  await sleep(500);
+  // Spec v3 §2.3：新單嘅色如果係已封樽 → server 已即刻交貨（events），要播返飛走動畫
+  const prevWithSlot = { ...prevBoard, orders: [...prevBoard.orders, { color: r.color, filled: false }] };
+  await runEvents((r.events || []).filter(e => e.type !== 'order'), prevWithSlot);
   G.busy = false;
   updatePace();
+  if (isSolved(G.board)) { await onSolved(); return; }
 }
 
-/** 廣告加空燒瓶（AD_SLOTS.addEmptyBottle，第 11 關起）：每關一次；成功就 server append 一隻空瓶 */
+/** 廣告加空樽（AD_SLOTS.addEmptyBottle，道具列「+樽」，第 11 關起）：每關一次；成功就 server append 一隻空瓶 */
 async function addEmptyCup() {
   if (G.busy || G.cupAdded || !canOfferEmptyCup()) return;
   G.busy = true;
@@ -283,12 +345,42 @@ async function addEmptyCup() {
   G.busy = false;
   updatePace();
 }
-/** 玩區紋章出現條件：非練習、≥ 第 11 關、該關容許廣告、未用過、而且冇任何可用空瓶 */
+/**
+ * 「+樽」出現條件：非練習、≥ 第 11 關、該關容許廣告入口、未用過、盤面冇可用空樽（只計 kind normal 嘅空樽 —
+ * gone 係已飛走嘅位、ad 係鎖住嘅），而且盤面冇廣告樽剩低（v2 同屏 ≤ 2 個廣告觸點：有 ad 樽就先撳 ad 樽）。
+ */
 function canOfferEmptyCup() {
   if (!G.level || G.practice || G.cupAdded) return false;
   if (!adsAllowedForLevel(G.level.id) || G.level.id < UNLOCK_LEVEL.adEmptyCup) return false;
-  const empties = G.board.cups.filter(c => c.seg.length === 0 && canInteract(c) && c.kind !== 'cracked').length;
+  if (G.board.cups.some(c => c.kind === 'ad')) return false;
+  const empties = G.board.cups.filter(c => c.kind === 'normal' && c.seg.length === 0).length;
   return empties <= 0;
+}
+
+/**
+ * 廣告樽（v4 §4）：撳一下 → 廣告 modal → ads.showRewarded → server.unlockAdCup（記 atMove，撤銷 / 重放一致）
+ * → 遮罩盤面 → GameView.animateAdUnlock（紋章飛走 + 樽亮起）。失敗只 toast，唔扣任何嘢；唔解鎖都一定可解。
+ */
+async function unlockAdCup(idx) {
+  const cup = G.board && G.board.cups[idx];
+  if (G.busy || !adBottleTappable(cup)) return;
+  G.busy = true;
+  G.selected = null; G.view.select(null);
+  sfx.click();
+  modal(`<img class="crest" src="${asset('UI_ad_crest')}" alt=""><h3>${t('extra.ads.playing')}</h3><div class="spinner"></div><p id="ad-count" style="font-size:13px">${t('extra.ads.afterBottle')}</p>`);
+  const ok = await ads.showRewarded(CONFIG.adUnits.adBottle, { ui: { tick: (n) => { const c = $('#ad-count'); if (c) c.textContent = t('extra.ads.secondsLeft', { n }); } } });
+  closeModal();
+  if (!ok) { G.busy = false; toast(t('extra.toast.adUnavailable')); return; }
+  let r;
+  try { r = server.unlockAdCup(G.session.sessionId, G.moves, idx); } catch (e) { r = { ok: false, reason: e.message }; }
+  if (!r.ok) { G.busy = false; toast(t('extra.toast.adBottleFailed')); return; }
+  applyBoard(r.maskedBoard);
+  sfx.unlock();
+  if (typeof G.view.animateAdUnlock === 'function') await G.view.animateAdUnlock(idx);
+  mocha('adBottle', line('adBottle', 0));
+  G.busy = false;
+  updatePace();
+  updateAddCupButton();
 }
 function updateAddCupButton() {
   const b = $('#btn-add-cup');
@@ -303,6 +395,7 @@ const G = {
   cupAdded: false,             // 廣告空瓶：每關只一次
   practiceDiff: null,          // 練習難度（easy / medium / hard）→ 副標題用 extra.practice.*
   modalName: null,             // 而家開住嘅 modal（help / settings）：語言切換時重繪
+  hiddenTipShown: false,       // v4 §5：`?` 樽教學句只講一次（存 localStorage mc_tut_hidden）
 };
 
 /**
@@ -385,11 +478,21 @@ async function startLevel(levelData, { practice = false, diff = null } = {}) {
   show('screen-game');
   updatePace();
   renderClients();
-  const frosted = G.board.cups.some(c => c.kind === 'frosted');
+  catHide();
+  refreshTitle();
+  // v4 §5 教學：第一次見 `?` 隱藏層樽（L2），貓彈出一句「倒走上面先知下面係咩」；布遮樽第一次出現同樣講一次
+  const hidden = G.board.cups.some(c => c.kind === 'hidden' || c.kind === 'frosted');
   const covered = G.board.cups.some(c => c.kind === 'covered' && c.locked);
-  const cracked = G.board.cups.some(c => c.kind === 'cracked');
-  const tip = covered && Math.random() < 0.6 ? line('covered', 0) : frosted && Math.random() < 0.6 ? line('frosted', 0) : cracked && Math.random() < 0.5 ? line('cracked', 0) : undefined;
-  mocha('idle', tip);
+  let seenHidden = G.hiddenTipShown, seenCovered = false;
+  try { seenHidden = seenHidden || localStorage.getItem('mc_tut_hidden') === '1'; seenCovered = localStorage.getItem('mc_tut_covered') === '1'; } catch { /* ignore */ }
+  if (hidden && !seenHidden) {
+    G.hiddenTipShown = true;
+    try { localStorage.setItem('mc_tut_hidden', '1'); } catch { /* ignore */ }
+    setTimeout(() => { if (G.level === levelData) catPop('idle', line('hidden', 0)); }, 400);
+  } else if (covered && !seenCovered) {
+    try { localStorage.setItem('mc_tut_covered', '1'); } catch { /* ignore */ }
+    setTimeout(() => { if (G.level === levelData) catPop('idle', line('covered', 0)); }, 400);
+  }
 }
 
 async function playCampaign(id) {
@@ -406,10 +509,39 @@ function rejectTap(idx, cup) {
   if (cup.kind === 'covered' && cup.locked) toast(t('extra.toast.clothLocked', { n: cup.unlockIn || 1 }));
 }
 
+/** 訂單槽托盤 → canvas 座標（v4 §7 animateFlyToSlot 目標）；搵唔到就 null（用舊 animateDeliver 頂住） */
+function trayRectFor(orderIndex) {
+  const tray = document.querySelector(`#customers .slot:nth-child(${orderIndex + 1}) .tray`);
+  if (!tray || !G.view) return null;
+  const r = tray.getBoundingClientRect(), c = G.view.canvas.getBoundingClientRect();
+  if (!r.width || !c.width) return null;
+  return { x: r.left - c.left, y: r.top - c.top, w: r.width, h: r.height };
+}
+
+/**
+ * 完成樽冇委託（v4 §7）：純色滿、kind normal、冇未完成同色委託、而且上一步未完成 → 加塞封存動畫。
+ * 只用遮罩盤面判斷（隱藏格 null 唔算完成；server 對 frosted 滿樽會全露出）。
+ */
+function newlySealed(prevBoard, board) {
+  const out = [];
+  const openColours = new Set(board.orders.filter(o => !o.filled).map(o => o.color));
+  board.cups.forEach((c, i) => {
+    if (c.kind !== 'normal' || !isComplete(c) || openColours.has(c.seg[0])) return;
+    const p = prevBoard && prevBoard.cups[i];
+    if (p && p.kind !== 'gone' && isComplete(p)) return;
+    out.push(i);
+  });
+  return out;
+}
+
 async function onCupTap(idx) {
   if (G.busy) return;
   const cup = G.board.cups[idx];
   if (!cup) return;
+
+  // v4 §4 廣告樽：唔係來源亦唔係目標，撳一下就係「睇廣告解鎖」；已飛走嘅位冇嘢可撳
+  if (cup.kind === 'ad') { unlockAdCup(idx); return; }
+  if (cup.kind === 'gone') return;
 
   if (G.selected === null) {
     if (canBeSource(cup)) { G.selected = idx; G.view.select(idx); sfx.select(); }
@@ -421,8 +553,6 @@ async function onCupTap(idx) {
   const m = { from: G.selected, to: idx };
   if (G.session.moveLimit !== null && G.moves.length >= G.session.moveLimit) { showOutOfMoves(); return; }
   if (!canPour(G.board, m.from, m.to)) {
-    // 裂瓶做目標：一律震 + 提示（就算佢本身可以做來源），否則玩家以為係自己撳錯
-    if (cup.kind === 'cracked') { rejectTap(idx, cup); toast(t('extra.toast.crackedOnly')); return; }
     if (canBeSource(cup)) { G.selected = idx; G.view.select(idx); sfx.select(); }
     else rejectTap(idx, cup);
     return;
@@ -453,7 +583,6 @@ async function onCupTap(idx) {
   }
 
   G.moves = nextMoves; G.ts.push(Math.round(performance.now() - G.startedAt)); G.history.push(prevBoard);
-  mocha('pouring', line('pour', 0));
   sfx.pour(n);
   bg.onPour();                                   // 單張背景下係 no-op，保留接口
   await G.view.animatePour(m.from, m.to, n, unitKey);
@@ -461,20 +590,13 @@ async function onCupTap(idx) {
   applyBoard(next);
   updatePace();
 
-  // 結算事件動畫
-  let served = false;
-  for (const ev of events) {
-    if (ev.type === 'deliver') {
-      served = true; sfx.deliver();
-      renderClients(ev.color);
-      mocha('serve');
-      await G.view.animateDeliver(ev.cup, `✓ ${liquidName(ev.color)} ${t('clients.deliver')}`);
-    } else if (ev.type === 'unlock') {
-      // 布遮瓶解鎖：繩鬆 → 布滑上 → 塵粒 → 顏色同圖案一齊淡入（動畫由 GameView 負責）
-      sfx.unlock(); mocha('serve', line('unlock', 0));
-      await G.view.animateUnlock(ev.cup);
-      renderClients();
-    }
+  // 結算事件動畫（Spec v3 §5 訂單隊列）
+  const served = await runEvents(events, prevBoard);
+  // 完成樽冇委託 → 加塞 + 去飽和留喺盤面（v4 §7）；之後有同色委託會由 server 自動交貨（deliver event）
+  const sealed = newlySealed(prevBoard, G.board);
+  if (sealed.length && typeof G.view.animateSeal === 'function') {
+    await Promise.all(sealed.map(i => G.view.animateSeal(i)));
+    if (!served && G.board.orders.length) mocha('sealed', line('sealed', 0));
   }
   G.view.setBoard(G.board);
   G.busy = false;
@@ -486,12 +608,6 @@ async function onCupTap(idx) {
   if (isSolved(G.board)) { await onSolved(); return; }
   if (isDead(G.board)) { mocha('stuck'); sfx.stuck(); await sleep(350); showStuck(); return; }
   if (G.session.moveLimit !== null && G.moves.length >= G.session.moveLimit) { mocha('stuck', t('extra.tutor.outOfMoves')); sfx.stuck(); await sleep(350); showOutOfMoves(); return; }
-  if (!served) {
-    const left = G.board.orders.filter(o => !o.filled).length;
-    const segsLeft = G.board.cups.reduce((a, c) => a + c.seg.filter((v, i) => i === 0 || v !== c.seg[i - 1]).length, 0);
-    if (segsLeft - G.board.colors <= 2 || (G.board.orders.length && left === 1 && Math.random() < 0.5)) mocha('almost');
-    else mocha('idle', Math.random() < 0.25 ? undefined : $('#mocha-bubble').textContent === line('pour', 0) ? line('idle', 0) : $('#mocha-bubble').textContent);
-  }
 }
 
 async function undo() {
@@ -503,13 +619,11 @@ async function undo() {
   applyBoard(r.maskedBoard);
   sfx.undo();
   updatePace(); renderClients();
-  mocha('idle', t('extra.tutor.undo'));
 }
 
 async function hint() {
   if (G.busy || $('#btn-hint').hidden) return;
   G.busy = true; $('#btn-hint').disabled = true;
-  mocha('idle', t('extra.tutor.thinking'));
   try {
     const r = await server.hint(G.session.sessionId, G.moves);
     if (!r.move) { mocha('stuck', t('extra.tutor.noHint')); }
@@ -537,7 +651,7 @@ function restart() {
 async function onSolved() {
   G.busy = true; G.solved = true;
   $('#btn-add-cup').hidden = true;
-  mocha('clear');
+  catHide();   // 過關 modal 本身有 cheer 貓
   sfx.win();
   G.view.animateWin();
   const res = server.complete(G.session.sessionId, {
@@ -635,8 +749,9 @@ function pickPractice() {
 
 // ---------- 說明（只講規則；設定項已搬去設定 modal）----------
 function showHelp() {
-  const pic = (imgs) => `<div class="pic">${imgs.map(([k, cls]) => `<img src="${asset(k)}" alt="" class="${cls || ''}">`).join('')}</div>`;
-  const cup = (imgs, name, desc) => `<div class="cuptype">${pic(imgs)}<div><b>${name}</b><span>${desc}</span></div></div>`;
+  // v4 §2 單一樽型：全部卡用 VES_bottle_std，`?` / 紋章 / 布由疊圖或文字做
+  const pic = (imgs, extraHtml = '') => `<div class="pic">${imgs.map(([k, cls]) => `<img src="${asset(k)}" alt="" class="${cls || ''}">`).join('')}${extraHtml}</div>`;
+  const cup = (imgs, name, desc, extraHtml = '') => `<div class="cuptype">${pic(imgs, extraHtml)}<div><b>${name}</b><span>${desc}</span></div></div>`;
   modal(`
     <h3>${t('menu.howToPlay')}</h3>
     <div class="help">
@@ -651,12 +766,12 @@ function showHelp() {
       <ul><li>${t('extra.help.c1')}</li></ul>
       <h4>${t('extra.help.vessels')}</h4>
       <div class="cuptypes">
-        ${cup([['VES_flask_empty']], t('vessels.flask'), t('extra.help.flaskDesc'))}
-        ${cup([['VES_flask_frosted']], t('vessels.frosted'), t('extra.help.frostedDesc'))}
-        ${cup([['VES_flask_empty'], ['VES_cloth_cover', 'cloth'], ['VES_wax_seal', 'wax'], ['VES_wax_ring', 'wax']], t('vessels.cloth'), t('extra.help.clothDesc'))}
-        ${cup([['VES_retort_empty']], t('vessels.retort'), t('extra.help.retortDesc'))}
-        ${cup([['VES_flask_cracked']], t('vessels.cracked'), t('extra.help.crackedDesc'))}
+        ${cup([['VES_bottle_std']], t('extra.help.bottleName'), t('extra.help.bottleDesc'))}
+        ${cup([['VES_bottle_std']], t('extra.help.hiddenName'), t('extra.help.hiddenDesc'), '<span class="q">?</span>')}
+        ${cup([['VES_bottle_std'], ['VES_cloth_cover', 'cloth'], ['VES_wax_seal', 'wax'], ['VES_wax_ring', 'wax']], t('vessels.cloth'), t('extra.help.clothDesc'))}
+        ${cup([['VES_bottle_std'], ['UI_ad_crest', 'crest']], t('extra.help.adName'), t('extra.help.adDesc'))}
       </div>
+      <ul style="margin-top:8px"><li>${t('extra.help.sealedDesc')}</li></ul>
       <h4>${t('extra.help.tools')}</h4>
       <ul><li>${t('extra.help.t1')}</li></ul>
     </div>
@@ -731,7 +846,7 @@ function refreshTexts() {
     renderLevelHeader();
     updatePace();
     renderClients();
-    if (!G.busy) mocha('idle', line('idle', 0));   // 對白：換返預設第一句（舊句係另一種語言）
+    catHide();   // 對白係另一種語言：直接收起（貓本身唔常駐）
   }
   syncMute();
   if (G.modalName === 'help') showHelp();
@@ -760,8 +875,7 @@ function bind() {
   $('#btn-hint').onclick = hint;
   $('#btn-restart').onclick = restart;
   $('#btn-add-cup').onclick = addEmptyCup;
-  $('#btn-mute').onclick = () => { sfx.setMuted(!sfx.muted); syncMute(); if (!sfx.muted) sfx.click(); };
-  syncMute();
+  syncMute();   // 音效掣已搬入設定 modal（頂欄 10% 只留 金幣 / 關卡 / 設定）
   // HTML 入面嘅頂欄 placeholder（第 1 關 / 0 步）換成當前語言，避免任何畫面殘留中文
   $('#game-level-no').textContent = t('hud.level', { n: 1 }); $('#pace-moves').textContent = t('hud.moves', { n: 0 });
   onLocaleChange(refreshTexts);
@@ -821,5 +935,5 @@ async function startApp() {
 }
 
 // 除錯 / 自動化測試用（正式版可移除）
-window.meowcha = { G, server, bg, CONFIG, playCampaign, onCupTap, undo, hint, restart, progress, enterCafe, unlockOrderSlot, addEmptyCup, setLocale, getLocale, t, showSettings, showHelp };
+window.meowcha = { G, server, bg, CONFIG, playCampaign, onCupTap, undo, hint, restart, progress, enterCafe, unlockOrderSlot, addEmptyCup, unlockAdCup, catPop, setLocale, getLocale, t, showSettings, showHelp };
 startApp();

@@ -15,11 +15,11 @@
   <!-- 批次 1：開場必需，喺 HTML 層 preload，唔經遊戲 loader（Spec v2：導師貓單張 CHR_cat_idle） -->
   <link rel="preload" as="image" href="assets/company-logo.webp">
   <link rel="preload" as="image" href="assets/v2/cat_idle.webp">
-  <link rel="modulepreload" href="src/client/main.js?v=8">
+  <link rel="modulepreload" href="src/client/main.js?v=9">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&display=swap">
-  <link rel="stylesheet" href="styles.css?v=8">
+  <link rel="stylesheet" href="styles.css?v=9">
 </head>
 <body>
 <div id="app">
@@ -81,27 +81,34 @@
     </div>
 
     <div class="game-col">
+      <!-- 實作指令 v4 §3.3/3.4 版面：頂欄 10% · 委託人 + 委託槽 14% · 盤面 62% · 道具列 14%（貓助手唔佔位，只喺交貨時彈出） -->
       <header class="zone zone-top">
-        <button class="icon-btn img shop" id="btn-game-back" aria-label="返回工房" title="返回工房" data-i18n-key="extra.hud.backToLab" data-i18n-attr="aria-label|title"><img src="assets/v2/ui_sys_shop.webp" alt=""></button>
-        <div class="level-title"><b id="game-level-no">第 1 關</b><span id="game-level-title"></span></div>
-        <div class="pace" id="pace" title="步數 / 三星門檻" data-i18n-key="extra.hud.paceStatic" data-i18n-attr="title"><span class="pace-stars" id="pace-stars"></span><span class="pace-moves" id="pace-moves">0 步</span></div>
-        <button class="icon-btn" id="btn-mute" aria-label="音效" data-i18n-key="settings.sound" data-i18n-attr="aria-label|title">🔊</button>
-        <button class="icon-btn img settings" id="btn-settings-game" aria-label="設定" title="設定" data-i18n-key="menu.settings" data-i18n-attr="aria-label|title"><img src="assets/v2/ui_sys_settings.webp" alt=""></button>
+        <div class="top-left">
+          <button class="icon-btn img shop" id="btn-game-back" aria-label="返回工房" title="返回工房" data-i18n-key="extra.hud.backToLab" data-i18n-attr="aria-label|title"><img src="assets/v2/ui_sys_shop.webp" alt=""></button>
+          <span class="coins"><img class="ico" src="assets/v2/ui_coin.webp" alt="金幣" data-i18n-key="hud.coins" data-i18n-attr="alt"> <b id="coins-game">0</b></span>
+        </div>
+        <div class="top-centre">
+          <div class="level-title"><b id="game-level-no">第 1 關</b><span id="game-level-title"></span></div>
+          <div class="pace" id="pace" title="步數 / 三星門檻" data-i18n-key="extra.hud.paceStatic" data-i18n-attr="title"><span class="pace-stars" id="pace-stars"></span><span class="pace-moves" id="pace-moves">0 步</span></div>
+        </div>
+        <div class="top-right">
+          <button class="icon-btn img settings" id="btn-settings-game" aria-label="設定" title="設定" data-i18n-key="menu.settings" data-i18n-attr="aria-label|title"><img src="assets/v2/ui_sys_settings.webp" alt=""></button>
+        </div>
       </header>
       <div class="zone zone-customers" id="customers"></div>
       <div class="zone zone-board">
         <canvas id="board"></canvas>
+        <!-- v4 §3.2 貓助手 transient：只喺交貨 / 教學句時由右下滑入，CAT.showDurationMs 後淡出；其餘時間完全唔佔位 -->
+        <div id="cat-pop" class="cat-pop" aria-live="polite" hidden>
+          <div id="cat-bubble" class="cat-bubble" hidden></div>
+          <img id="cat-img" src="assets/v2/cat_cheer.webp" alt="導師" data-i18n-key="extra.title.mascotAlt" data-i18n-attr="alt">
+        </div>
       </div>
-      <div class="zone zone-mocha">
-        <img id="mocha-img" src="assets/v2/cat_idle.webp" alt="導師" data-i18n-key="extra.title.mascotAlt" data-i18n-attr="alt">
-        <div id="mocha-bubble" class="bubble" data-i18n="tutorial.pour">揀一隻瓶，再揀倒去邊隻～</div>
-        <!-- Spec v2 §6 addEmptyBottle：黃銅紋章廣告入口（第 11 關起、冇空瓶時先出現；第 1–10 關永遠冇）。
-             放喺導師區右下角而唔係瓶陣之上：R2 永不遮液體 -->
-        <button id="btn-add-cup" class="crest-btn" type="button" hidden aria-label="睇廣告加一隻空燒瓶" title="睇廣告加一隻空燒瓶" data-i18n-key="extra.hud.addCupAria" data-i18n-attr="aria-label|title"><img src="assets/v2/ui_ad_crest.webp" alt=""><span data-i18n="extra.hud.addCup">+瓶</span></button>
-      </div>
+      <!-- 道具列 ×4（v4 §3.4）：撤銷（L5 起）· 提示（L14 起）· +樽（廣告加空樽，L11 起、盤面冇廣告樽剩低先出）· 重來 -->
       <footer class="zone zone-actions">
         <button class="act" id="btn-undo"><img src="assets/v2/ui_item_undo.webp" alt=""><span data-i18n="actions.undo">撤銷</span></button>
         <button class="act" id="btn-hint"><img src="assets/v2/ui_item_hint.webp" alt=""><span data-i18n="actions.hint">提示</span></button>
+        <button class="act ad" id="btn-add-cup" type="button" hidden aria-label="睇廣告加一隻空樽" title="睇廣告加一隻空樽" data-i18n-key="extra.hud.addCupAria" data-i18n-attr="aria-label|title"><img src="assets/v2/ui_item_addflask.webp" alt=""><span data-i18n="extra.hud.addCup">+樽</span></button>
         <button class="act" id="btn-restart"><i>↻</i><span data-i18n="actions.restart">重來</span></button>
       </footer>
     </div>
@@ -111,6 +118,6 @@
   <div id="modal" class="modal hidden"><div class="card" id="modal-card"></div></div>
   <div id="toast" class="toast hidden"></div>
 </div>
-<script type="module" src="src/client/main.js?v=8"></script>
+<script type="module" src="src/client/main.js?v=9"></script>
 </body>
 </html>
