@@ -168,22 +168,22 @@ body {
   position: relative; z-index: 40;
   height: 100%; width: 100%;
   display: grid; grid-template-columns: minmax(0, 1fr);   /* 唔可以跟 min-content 撐闊：頂欄多咗設定掣，360px 手機會溢出 */
-  /* src/config/layout.js LAYOUT（用戶 2026-09-05）：委託人行 0–18%（頂欄併入）· 盤面 18–90%（72%）· 道具列 90–100%。
+  /* src/config/layout.js LAYOUT（用戶 2026-09-05 第二版）：頂區 0–20% = HUD 5.5% + 委託人 10% + 訂單槽 4.5% · 盤面 20–90%（70%）· 道具列 90–100%。
      貓助手唔再佔行（transient overlay 喺 .zone-board 右下） */
-  grid-template-rows: 18% 72% 10%;
+  grid-template-rows: 20% 70% 10%;
 }
 @media (min-aspect-ratio: 3/4) {
   .game-col { width: min(100%, 68vh); }
 }
 .zone { position: relative; min-height: 0; }
 
-/* 委託人行（18%）：HUD 一條（左 = 返回 + 金幣 · 中 = 關卡 + 步數 · 右 = 剩餘訂單 + 設定）做「玻璃層」疊喺委託人頭頂
-   （#12100D @ 55% + 8px 高斯模糊，委託人透出嚟，唔會讀成遮擋；用戶 2026-09-05 方案 B）；委託人 + 托盤佔成個 18% */
+/* 頂區（20% = HUD 5.5% + 委託人 10% + 訂單槽 4.5%）：HUD 一條（左 = 返回 + 金幣 · 中 = 關卡 + 步數 · 右 = 剩餘訂單 + 設定）
+   玻璃層（#12100D @ 55% + 8px 高斯模糊）固定佔頂 27.5%（= 5.5% 螢幕），唔再疊喺委託人頭頂——委託人必須拎足 10% */
 .zone-orders { position: relative; z-index: 60; }
 .hud {
-  position: absolute; top: 0; left: 0; right: 0; z-index: 61;
+  position: absolute; top: 0; left: 0; right: 0; height: 27.5%; box-sizing: border-box; z-index: 61;
   display: flex; align-items: center; justify-content: space-between; gap: 6px;
-  padding: max(3px, env(safe-area-inset-top)) 8px 3px;
+  padding: max(2px, env(safe-area-inset-top)) 8px 2px;
   background: rgba(18, 16, 13, 0.55);
   backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid rgba(201, 162, 90, 0.18);
@@ -225,10 +225,10 @@ body {
 .zone-board { grid-row: 2; }
 .zone-actions { grid-row: 3; }
 .customers {
-  position: absolute; inset: 0; overflow: visible;   /* 佔成個 18%，頭頂伸入 HUD 玻璃層之下 */
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 12px 5px 0; align-items: end;
+  position: absolute; top: 27.5%; bottom: 0; left: 0; right: 0; overflow: visible;   /* HUD 以下：委託人 10% + 托盤 4.5% */
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 0 5px 0; align-items: end;
 }
-.slot { position: relative; height: 100%; min-width: 0; --label-h: max(26px, 3vh); }   /* 托盤：玩家係睇顏色玩；14% 高度入面委託人 + 托盤要一齊放得落 */
+.slot { position: relative; height: 100%; min-width: 0; --label-h: 31%; }   /* 托盤 = 4.5% 螢幕（4.5 / 14.5 = 31% 槽高）；委託人拎餘下 10% */
 .slot:nth-child(1) { z-index: 1 } .slot:nth-child(2) { z-index: 2 } .slot:nth-child(3) { z-index: 3 } .slot:nth-child(4) { z-index: 4 }
 /* 委託人半身圖（512 方格）：底邊釘喺托盤頂 */
 .slot img.body {

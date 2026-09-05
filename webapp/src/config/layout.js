@@ -2,14 +2,16 @@
 // 調參規則：jitterX/Y 由 0.05 開始向上調。超過 0.10 / 0.15 會由「有機」變「凌亂」。
 
 export const LAYOUT = Object.freeze({
-  // 垂直分配（相對螢幕高度）— 用戶 2026-09-05：頂欄併入委託人行（金幣 / 關卡 / 設定放喺兩端），道具列 14% → 10%，盤面 62% → 72%
-  // 目的：加真樽（難度）之後 3 行 × 0.19 = 0.57 仲有 0.15 分俾行距 + 上下邊距，唔使縮樽
+  // 垂直分配（相對螢幕高度）— 用戶 2026-09-05 第二版：HUD 5.5% / 委託人 10%（必須拎足，唔可以被 HUD 或訂單槽壓）/ 訂單槽 4.5% / 盤面 70% / 道具列 10%
+  // 3 行 × 0.19 = 0.57，盤面 70% 仲有 0.13 分俾行距 + 上下邊距；如果要多退一步 fallback 就接受——寧願壓訂單槽都唔壓角色
   topBarTop:        0.00,
-  topBarBottom:     0.00,   // 併入委託人行
-  orderSlotsTop:    0.00,
-  orderSlotsBottom: 0.18,   // 委託人 + 委託槽 + 金幣 / 關卡 / 設定同行
-  playfieldTop:     0.18,
-  playfieldBottom:  0.90,   // 盤面 72%
+  topBarBottom:     0.055,  // HUD（金幣 / 關卡 + 步數 / 剩餘訂單 + 設定）
+  clientsTop:       0.055,
+  clientsBottom:    0.155,  // 委託人半身 10%
+  orderSlotsTop:    0.155,
+  orderSlotsBottom: 0.20,   // 訂單槽（托盤）4.5%
+  playfieldTop:     0.20,
+  playfieldBottom:  0.90,   // 盤面 70%
   toolbarTop:       0.90,
   toolbarBottom:    1.00,   // 道具列 ×4，10%
   // 樽尺寸（相對螢幕高度）

@@ -118,7 +118,7 @@ describe('Render', () => {
     assert.equal(RENDER.liquidBlend, 'source-over');
     assert.deepEqual(RENDER.glassHighlight, { lumaThreshold: 215, lumaRange: 40, strength: 0.55 });
     assert.deepEqual(RENDER.surfaceLine, { thickness: 3, boost: 1.5 });
-    assert.equal(LAYOUT.bottleHeightRatio, 0.19); assert.equal(LAYOUT.playfieldBottom - LAYOUT.playfieldTop, 0.72); assert.equal(LAYOUT.orderSlotsBottom, 0.18); assert.equal(LAYOUT.toolbarTop, 0.90);
+    assert.equal(LAYOUT.bottleHeightRatio, 0.19); assert.equal(+(LAYOUT.playfieldBottom - LAYOUT.playfieldTop).toFixed(3), 0.70); assert.equal(LAYOUT.topBarBottom, 0.055); assert.equal(+(LAYOUT.clientsBottom - LAYOUT.clientsTop).toFixed(3), 0.10); assert.equal(+(LAYOUT.orderSlotsBottom - LAYOUT.orderSlotsTop).toFixed(3), 0.045); assert.equal(LAYOUT.toolbarTop, 0.90);
   });
   test('v4 §2.2：深色標準樽樽身中央明度 < 80/255', () => {
     const c = JSON.parse(readFileSync(new URL('../assets/v2/asset-check.json', import.meta.url), 'utf8')).checks;
