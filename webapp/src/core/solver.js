@@ -102,15 +102,19 @@ export function orderedMoves(b, last) {
   return idx.map(i => moves[i]);
 }
 
+/** deadline（牆鐘 ms）：每 DEADLINE_STRIDE 個節點檢查一次，超時即刻 abort（成本近乎零；練習關即時生成 / 關卡 generator 都靠佢） */
+const DEADLINE_STRIDE = 50_000;
+const pastDeadline = (state) => state.deadline && (state.nodes % DEADLINE_STRIDE === 0) && Date.now() > state.deadline;
+
 /**
  * IDA* 主體。回傳 { moves, nodes, aborted }。
- * moves === null 代表 maxDepth 內無解（或 nodes 超出 maxNodes，此時 aborted = true）。
+ * moves === null 代表 maxDepth 內無解（或 nodes 超出 maxNodes / 過咗 deadline，此時 aborted = true）。
  */
-export function solveEx(start, maxDepth = 40, maxNodes = 4_000_000) {
+export function solveEx(start, maxDepth = 40, maxNodes = 4_000_000, deadline = 0) {
   if (isSolved(start)) return { moves: [], nodes: 0, aborted: false };
   const path = [];
   const onPath = new Set([canonical(start)]);
-  const state = { nodes: 0, maxNodes, aborted: false, seen: new Map() };
+  const state = { nodes: 0, maxNodes, deadline, aborted: false, seen: new Map() };
 
   let bound = heuristic(start);
   while (bound <= maxDepth) {
@@ -124,13 +128,13 @@ export function solveEx(start, maxDepth = 40, maxNodes = 4_000_000) {
   return { moves: null, nodes: state.nodes, aborted: false };
 }
 
-export function solve(start, maxDepth = 40, maxNodes = 4_000_000) {
-  return solveEx(start, maxDepth, maxNodes).moves;
+export function solve(start, maxDepth = 40, maxNodes = 4_000_000, deadline = 0) {
+  return solveEx(start, maxDepth, maxNodes, deadline).moves;
 }
 
 function search(b, g, bound, path, onPath, state, last) {
   if (isSolved(b)) return FOUND;
-  if (++state.nodes > state.maxNodes) { state.aborted = true; return INF; }
+  if (++state.nodes > state.maxNodes || pastDeadline(state)) { state.aborted = true; return INF; }
 
   let min = INF;
   for (const m of orderedMoves(b, last)) {
@@ -159,16 +163,16 @@ function search(b, g, bound, path, onPath, state, last) {
  * 計算長度恰為 `len` 嘅最優解條數，數到 `limit` 即停。
  * 用於「最優解不唯一」質量檢查。以 (狀態, 深度) 記憶化。
  */
-export function countOptimalPaths(start, len, limit = 2, maxNodes = 2_000_000) {
+export function countOptimalPaths(start, len, limit = 2, maxNodes = 2_000_000, deadline = 0) {
   const memo = new Map();
-  const state = { nodes: 0 };
+  const state = { nodes: 0, deadline };
   const dfs = (b, g, last) => {
     if (isSolved(b)) return g === len ? 1 : 0;
     if (g + heuristic(b) > len) return 0;
     const key = canonical(b) + String.fromCharCode(g);
     const cached = memo.get(key);
     if (cached !== undefined) return cached;
-    if (++state.nodes > maxNodes) return limit;
+    if (++state.nodes > maxNodes || pastDeadline(state)) return limit;   // 超預算 / 超時：當「不唯一」放行，由 caller 嘅 deadline 決定棄唔棄
     let total = 0;
     for (const m of orderedMoves(b, last)) {
       total += dfs(applyMove(b, m), g + 1, m);
@@ -184,14 +188,15 @@ export function countOptimalPaths(start, len, limit = 2, maxNodes = 2_000_000) {
  * 起手安全區：由起始狀態出發，任何深度 ≤ K 嘅走法（不剪枝）都唔可以進入死局 / 無解。
  * 葉節點求解超出 node 預算會視為不安全（寧可拒收，唔會誤放）。
  */
-export function safeOpening(b, K, depthCap, maxNodes = 150_000) {
+export function safeOpening(b, K, depthCap, maxNodes = 150_000, deadline = 0) {
   const memo = new Map();
   const dfs = (s, d) => {
     if (isDead(s)) return false;
+    if (deadline && Date.now() > deadline) return false;   // 超時當不安全（拒收）
     const key = canonical(s) + String.fromCharCode(d);
     if (memo.has(key)) return memo.get(key);
     let ok;
-    if (d === 0) ok = solve(s, depthCap, maxNodes) !== null;
+    if (d === 0) ok = solve(s, depthCap, maxNodes, deadline) !== null;
     else {
       ok = true;
       for (const m of legalMoves(s)) {

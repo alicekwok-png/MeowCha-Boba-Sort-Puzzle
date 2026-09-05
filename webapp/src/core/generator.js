@@ -275,8 +275,8 @@ export function generateLevelEx(cfg, seed, opts = {}) {
     if (!hiddenMeaningful(b)) { rejects.hidden++; continue; }
 
     // 檢查 2：可解，且步數落喺目標區間
-    const r = solveEx(b, cfg.optimalMax + 2, opts.maxNodes ?? 150_000);
-    if (r.aborted) { rejects.aborted++; continue; }
+    const r = solveEx(b, cfg.optimalMax + 2, opts.maxNodes ?? 150_000, opts.deadline || 0);
+    if (r.aborted) { rejects.aborted++; if (opts.deadline && Date.now() > opts.deadline) return null; continue; }
     if (!r.moves) { rejects.unsolvable++; continue; }
     const sol = r.moves;
     if (sol.length < cfg.optimalMin || sol.length > cfg.optimalMax) { rejects.length++; continue; }
@@ -289,7 +289,8 @@ export function generateLevelEx(cfg, seed, opts = {}) {
         all.push(all.shift());                                   // 輪轉
         b.orders = all.slice(0, b.orders.length).map(c => ({ color: c, filled: false }));
         b.queue = all.slice(b.orders.length);
-        const r2 = solveEx(b, cfg.optimalMax + 2, opts.maxNodes ?? 150_000);
+        const r2 = solveEx(b, cfg.optimalMax + 2, opts.maxNodes ?? 150_000, opts.deadline || 0);
+        if (r2.aborted && opts.deadline && Date.now() > opts.deadline) { rejects.aborted++; return null; }
         if (!r2.moves) continue;
         sol2 = r2.moves;
         ok = tutorialQueueOk(cfg.tutorialQueue, b, sol2);
@@ -299,7 +300,8 @@ export function generateLevelEx(cfg, seed, opts = {}) {
       sol.length = 0; sol.push(...sol2);
     }
     // 檢查 3：最優解不唯一
-    if (countOptimalPaths(b, sol.length, 2) < 2) { rejects.unique++; continue; }
+    if (countOptimalPaths(b, sol.length, 2, 2_000_000, opts.deadline || 0) < 2) { rejects.unique++; continue; }
+    if (opts.deadline && Date.now() > opts.deadline) { rejects.aborted++; return null; }
 
     // 檢查 3b：亂撳★2 率（用戶 2026-09-05：L4 起 < 10%）— 隨機玩家太易撞到過關就棄掉重抽
     if (cfg.randomTwoStarMax != null) {
@@ -308,7 +310,7 @@ export function generateLevelEx(cfg, seed, opts = {}) {
     }
     // 檢查 4：起手安全區
     const K = cfg.cups <= 8 ? 3 : 2;
-    if (!safeOpening(b, K, sol.length + 4)) { rejects.opening++; continue; }
+    if (!safeOpening(b, K, sol.length + 4, 150_000, opts.deadline || 0)) { rejects.opening++; if (opts.deadline && Date.now() > opts.deadline) { rejects.aborted++; return null; } continue; }
 
     return { board: b, optimal: sol.length, solution: sol, thresholds: starThresholds(sol.length, b), attempts: attempt, rejects, hiddenCells: countHidden(b), units: cfg.colors * CAP_NORMAL };
   }
