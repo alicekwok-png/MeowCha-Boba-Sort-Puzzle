@@ -13,7 +13,7 @@ self.onmessage = (e) => {
       const r = solveEx(b, e.data.maxDepth ?? 40, e.data.maxNodes ?? 600_000);
       self.postMessage({ id, result: { moves: r.moves, nodes: r.nodes, aborted: r.aborted } });
     } else if (type === 'generate') {
-      const r = generateLevelEx(e.data.cfg, e.data.seed, { maxAttempts: e.data.maxAttempts ?? 400 });
+      const r = generateLevelEx(e.data.cfg, e.data.seed, { maxAttempts: e.data.maxAttempts ?? 400, deadline: e.data.budgetMs ? Date.now() + e.data.budgetMs : null });
       self.postMessage({ id, result: r ? { board: encodeBoard(r.board), optimal: r.optimal, thresholds: r.thresholds, attempts: r.attempts } : null });
     } else {
       self.postMessage({ id, error: 'unknown type ' + type });

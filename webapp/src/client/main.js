@@ -115,7 +115,7 @@ function renderLevelGrid() {
       const st = progress.stars[id] || 0;
       const locked = id > unlockedTo && !st;
       b.className = 'lv' + (locked ? ' locked' : '') + (id === unlockedTo ? ' current' : '');
-      b.innerHTML = `${id}<span class="st">${starsHtml(st)}</span>`;
+      b.innerHTML = `${id}<span class="st">${st > 0 ? starsHtml(st) : ''}</span>`;   // 0 星唔畫三粒暗星（黃銅底上會誤讀成三星）
       b.title = CAMPAIGN[id - 1].title;
       b.addEventListener('click', () => { sfx.click(); playCampaign(id); });
       g.appendChild(b);
@@ -200,7 +200,7 @@ function renderClients(popColor = null, enterIndex = -1) {
       slot.innerHTML = `${body}
         <div class="tray" style="--c:${p.hex};--cd:${hexScale(p.hex, 0.82)};--ci:${hexScale(p.hex, 0.9)};--ct:${textColor}" title="${p.zh}" aria-label="${p.zh}">${orderTextOn() && !o.filled ? `<span class="name">${p.zh}</span>` : ''}</div>`;
     } else {
-      const nextUnlockable = adsOk && lockedAds > 0 && i === orders.length;
+      const nextUnlockable = adsOk && lockedAds > 0 && i === orders.length && G.session && server.canAddOrder(G.session.sessionId, G.moves);
       slot.className = 'slot grey';
       slot.innerHTML = `${body}<div class="tray blank" aria-hidden="true"></div>`;
       if (nextUnlockable) {
@@ -324,11 +324,11 @@ function showOutOfMoves() {
     <h3>步數用晒喇…</h3>
     <p>呢關上限 ${G.session.moveLimit} 步。撤銷幾步再諗，或者重新嚟過？</p>
     <div class="row">
-      <button class="btn" id="m-undo">↶ 撤銷</button>
+      ${$('#btn-undo').hidden ? '' : '<button class="btn" id="m-undo">↶ 撤銷</button>'}
       <button class="btn primary" id="m-restart">↻ 重來</button>
     </div>
   `);
-  $('#m-undo').onclick = () => { closeModal(); undo(); };
+  if ($('#m-undo')) $('#m-undo').onclick = () => { closeModal(); undo(); };
   $('#m-restart').onclick = () => { closeModal(); restart(); };
 }
 
@@ -400,11 +400,10 @@ async function onCupTap(idx) {
   const m = { from: G.selected, to: idx };
   if (G.session.moveLimit !== null && G.moves.length >= G.session.moveLimit) { showOutOfMoves(); return; }
   if (!canPour(G.board, m.from, m.to)) {
+    // 裂瓶做目標：一律震 + 提示（就算佢本身可以做來源），否則玩家以為係自己撳錯
+    if (cup.kind === 'cracked') { rejectTap(idx, cup); toast('裂瓶只出不入'); return; }
     if (canBeSource(cup)) { G.selected = idx; G.view.select(idx); sfx.select(); }
-    else {
-      rejectTap(idx, cup);
-      if (cup.kind === 'cracked') toast('裂瓶只出不入');
-    }
+    else rejectTap(idx, cup);
     return;
   }
 
@@ -569,11 +568,11 @@ function showStuck() {
     <h3>冇路行喇…</h3>
     <p>所有瓶都倒唔到。撤銷幾步，或者重新嚟過？</p>
     <div class="row">
-      <button class="btn" id="m-undo">↶ 撤銷</button>
+      ${$('#btn-undo').hidden ? '' : '<button class="btn" id="m-undo">↶ 撤銷</button>'}
       <button class="btn primary" id="m-restart">↻ 重來</button>
     </div>
   `);
-  $('#m-undo').onclick = () => { closeModal(); undo(); };
+  if ($('#m-undo')) $('#m-undo').onclick = () => { closeModal(); undo(); };
   $('#m-restart').onclick = () => { closeModal(); restart(); };
 }
 
@@ -597,7 +596,12 @@ function pickPractice() {
     try {
       const seed = `v1:p:${b.dataset.d}:${Date.now().toString(36)}:${Math.random().toString(36).slice(2, 8)}`;
       const pseudo = { easy: 8, medium: 15, hard: 25 }[b.dataset.d];   // 練習難度對應假關卡號：隱藏密度照公式
-      const lvl = await server.generatePractice({ ...cfg, hiddenRatio: hiddenRatio(pseudo) }, seed);
+      // 先用 4 秒預算；唔夠時間就放寬 config（冇裂瓶 / 布遮、最優區間放寬）再試 4 秒，最後先放棄
+      let lvl = await server.generatePractice({ ...cfg, hiddenRatio: hiddenRatio(pseudo) }, seed, { budgetMs: 4000 });
+      if (!lvl) {
+        const relaxed = { ...cfg, cracked: 0, covered: 0, orders: Math.min(cfg.orders, 1), optimalMax: cfg.optimalMax + 8, hiddenRatio: hiddenRatio(pseudo) };
+        lvl = await server.generatePractice(relaxed, seed + ':r', { budgetMs: 4000 });
+      }
       closeModal();
       if (!lvl) { toast('生成失敗，再試一次'); return; }
       await startLevel(lvl, { practice: true });

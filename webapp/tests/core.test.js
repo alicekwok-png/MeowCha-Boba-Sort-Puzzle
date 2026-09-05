@@ -3,7 +3,7 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { makeCup, makeBoard, encodeBoard, decodeBoard, encodeMoves, decodeMoves, mask, countSegments, makeUnit, canMerge, canInteract } from '../src/core/board.js';
-import { canPour, applyMove, isSolved, isDead, legalMoves, IllegalMoveError } from '../src/core/rules.js';
+import { canPour, applyMove, isSolved, isDead, legalMoves, IllegalMoveError, isComplete } from '../src/core/rules.js';
 import { heuristic, solve, solveEx, canonical } from '../src/core/solver.js';
 import { generateLevelEx, colorSafe, randomFill, pickColors } from '../src/core/generator.js';
 import { CAMPAIGN, PRACTICE } from '../src/core/levels.js';
@@ -378,5 +378,26 @@ describe('server', () => {
       for (let i = 0; i < 25; i++) { ts.push(Math.round(t)); t += 400 + rng() * 1800 + (rng() < 0.2 ? 3000 * rng() : 0); }
       assert.ok(rhythmRisk(ts) < 30, `game ${k} risk ${rhythmRisk(ts)}`);
     }
+  });
+});
+
+describe('server：倒入磨砂瓶嘅露出', () => {
+  test('倒入磨砂瓶：原本頂格同新倒入嘅格永久露出；倒滿純色時全部露出（client 先判到完成）', () => {
+    const b = B([makeCup('frosted', [2, 2]), N([2, 2]), N([1]), N([])], 2);   // 磨砂 [2,2]：底格隱藏
+    const srv = new LocalServer();
+    const st = srv.start({ id: 't', board: encodeBoard(b), optimal: 3, thresholds: { three: 6, two: 11 } });
+    assert.deepEqual(st.maskedBoard.cups[0].seg, [null, 2]);
+    const r = srv.reveal(st.sessionId, [{ from: 1, to: 0 }]);          // 倒 2,2 入磨砂瓶 → 真實 [2,2,2,2]
+    assert.deepEqual(r.maskedBoard.cups[0].seg, [2, 2, 2, 2]);         // 純色滿瓶：全部露出
+    assert.equal(isComplete(r.maskedBoard.cups[0]), true);
+    const back = srv.reveal(st.sessionId, []);                          // 撤銷：曾經見過嘅格唔再遮
+    assert.deepEqual(back.maskedBoard.cups[0].seg, [2, 2]);
+  });
+  test('倒入磨砂瓶（未滿）：原本可見頂格保持可見，唔會變成「浮起一格」', () => {
+    const b = B([makeCup('frosted', [1, 2]), N([2]), N([])], 2);
+    const srv = new LocalServer();
+    const st = srv.start({ id: 't', board: encodeBoard(b), optimal: 3, thresholds: { three: 6, two: 11 } });
+    const r = srv.reveal(st.sessionId, [{ from: 1, to: 0 }]);
+    assert.deepEqual(r.maskedBoard.cups[0].seg, [null, 2, 2]);
   });
 });

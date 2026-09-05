@@ -146,19 +146,26 @@ export class LocalServer {
     for (let i = prefix; i < moves.length; i++) {
       const m = moves[i];
       if (!canPour(s.board, m.from, m.to)) throw new Error('ILLEGAL_MOVE');
-      const src = s.board.cups[m.from];
+      const src = s.board.cups[m.from], dst = s.board.cups[m.to];
       const events = [];
       const poured = pourAmount(s.board, m.from, m.to);
+      // 倒入磨砂瓶：原本可見嘅頂格同新倒入嘅格玩家都見過 → 永久露出（否則倒滿都唔算完成、撤銷後又遮返）
+      if (hiddenCount(dst) > 0 || dst.kind === 'frosted') {
+        if (dst.seg.length > 0) s.revealed.add(m.to + ':' + (dst.seg.length - 1));
+        for (let i = dst.seg.length; i < dst.seg.length + poured; i++) s.revealed.add(m.to + ':' + i);
+      }
       s.board = applyMove(s.board, m, events);
       s.applied.push(m);
       LocalServer._insertExtraCups(s.board, s.extraCups, s.applied.length);
       LocalServer._insertExtraOrders(s.board, s.extraOrders, s.applied.length);
-      // 磨砂杯 / 隱藏層倒走頂格 → 露出新頂格（永久）；被倒走嘅格玩家已經見到係乜色，撤銷後亦唔再遮
+      // 磨砂瓶倒走頂格 → 露出新頂格（永久）；被倒走嘅格玩家已經見到係乜色，撤銷後亦唔再遮
       const after = s.board.cups[m.from];
       if (hiddenCount(src) > 0) {
         if (after.seg.length > 0) s.revealed.add(m.from + ':' + (after.seg.length - 1));
         for (let i = after.seg.length; i < src.seg.length; i++) s.revealed.add(m.from + ':' + i);
       }
+      // 任何瓶變成純色滿瓶：內容已經可以完全推斷（交貨 / 完成判定 client 要睇得到），全部露出
+      s.board.cups.forEach((c, ci) => { if (c.kind === 'frosted' && isComplete(c)) for (let i = 0; i < c.seg.length; i++) s.revealed.add(ci + ':' + i); });
       last = { poured, events };
     }
     return last;
@@ -169,6 +176,20 @@ export class LocalServer {
    * 由當前真實盤面剩餘「未完成」嘅顏色中隨機揀一隻加做新訂單：
    * 排除已有訂單嘅色、已經係純色滿杯嘅色。回傳 { ok, color, maskedBoard }。
    */
+  /** 廣告紋章出現之前先問：而家仲有冇未完成、未被點嘅色可以加做委託（唔好等玩家睇完廣告先話冇） */
+  canAddOrder(sessionId, moves) {
+    const s = this._session(sessionId);
+    this._sync(s, moves);
+    return LocalServer._orderCandidates(s.board).length > 0;
+  }
+
+  static _orderCandidates(b) {
+    const ordered = new Set(b.orders.map(o => o.color));
+    const complete = new Set(b.cups.filter(isComplete).map(c => c.seg[0]));
+    const present = new Set(b.cups.flatMap(c => c.seg));
+    return [...present].filter(c => !ordered.has(c) && !complete.has(c));
+  }
+
   addOrder(sessionId, moves, rng = Math.random) {
     const s = this._session(sessionId);
     this._sync(s, moves);
@@ -212,14 +233,14 @@ export class LocalServer {
   async hint(sessionId, moves) {
     const s = this._session(sessionId);
     this._sync(s, moves);
-    s.hintCalls++;
     const r = await this._call('solve', { board: encodeBoard(s.board), maxDepth: 40 });
+    if (r.moves && r.moves.length) s.hintCalls++;   // 真係派咗提示先扣「零提示」加分
     return { move: r.moves && r.moves.length ? r.moves[0] : null, remaining: r.moves ? r.moves.length : null };
   }
 
   // ---------- 練習關：server 生成後只下發遮罩 ----------
-  async generatePractice(cfg, seedStr) {
-    const r = await this._call('generate', { cfg, seed: hash32(seedStr) });
+  async generatePractice(cfg, seedStr, opts = {}) {
+    const r = await this._call('generate', { cfg, seed: hash32(seedStr), budgetMs: opts.budgetMs ?? null });
     if (!r) return null;
     return { id: 'p:' + seedStr, title: cfg.title, board: r.board, optimal: r.optimal, thresholds: r.thresholds, publicSeed: seedStr, config: cfg };
   }
@@ -228,7 +249,7 @@ export class LocalServer {
   complete(sessionId, req) {
     const s = this._session(sessionId);
     const moves = typeof req.moves === 'string' ? decodeMoves(req.moves) : req.moves;
-    if (moves.length > s.optimalMoves + 60) return { verified: false, reason: 'MOVE_FLOOD' };
+    if (moves.length > s.optimalMoves + (s.moveLimit === null ? 400 : 60)) return { verified: false, reason: 'MOVE_FLOOD' };   // 冇上限嘅教學關容許新手亂試
     if (s.moveLimit !== null && moves.length > s.moveLimit) return { verified: false, reason: 'MOVE_LIMIT' };   // 步數上限（server 亦驗）
 
     // 1. 由 server 存嘅真實盤面重放全部走步（唔信 client 任何盤面狀態）

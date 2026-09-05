@@ -26,6 +26,13 @@ const FONT = '"Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif';
 /** unit key → 液體 hex（colour 可能係 unit key，亦兼容純 colorId） */
 const hexOf = (u) => (PALETTE[unitColor(u)] || PALETTE[0]).hex;
 
+/** 淺色試劑（HSL 明度 > 0.85，例如蛋白石）：transparent 瓶要另外落描邊先睇得出 */
+function isLight(hex) {
+  const n = parseInt(hex.slice(1), 16);
+  const r = (n >> 16) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+  return (Math.max(r, g, b) + Math.min(r, g, b)) / 2 > 0.85;
+}
+
 /** hex → rgba(…, alpha) */
 function rgba(hex, alpha) {
   const n = parseInt(hex.slice(1), 16);
@@ -125,7 +132,10 @@ export class GameView {
    */
   layout() {
     const n = this.cups.length;
+    this._glowCache = null;                      // 瓶尺寸可能改變 → 背後柔光快取作廢
+    this.layoutValid = false;
     if (!n || this.W < 40 || this.H < 40) return;
+    this.layoutValid = true;
     const padX = 6, padTop = 26, padBottom = 8;
     const areaWidth = Math.max(60, this.W - padX * 2), areaHeight = Math.max(60, this.H - padTop - padBottom);
     const flask = geomFor('normal');
@@ -209,8 +219,10 @@ export class GameView {
         }
         // 滿 → 空（交貨）：先保留液體，等 animateDeliver
         const oldSeg = old.pendingSeg?.seg ?? old.seg;
-        if (seg.length === 0 && oldSeg.length >= old.cap && oldSeg.every(v => v !== null && v === oldSeg[0]) && !old.anim) {
-          cup.pendingSeg = { t0: old.pendingSeg?.t0 ?? now, seg: oldSeg.slice(), kind: old.kind };
+        const topUnit = [...oldSeg].reverse().find(v => v !== null) ?? null;
+        if (seg.length === 0 && oldSeg.length >= old.cap && topUnit !== null && oldSeg.every(v => v === null || v === topUnit) && !old.anim) {
+          // 磨砂瓶倒滿交貨時 client 嘅 seg 可能仲有 null（隱藏格）：server 已判定純色滿瓶，用頂色補齊畀交貨動畫
+          cup.pendingSeg = { t0: old.pendingSeg?.t0 ?? now, seg: oldSeg.map(v => v === null ? topUnit : v), kind: old.kind };
         }
       } else {
         for (let k = 0; k < seg.length; k++) if (seg[k] === null) cup.fade[k] = undefined;
@@ -235,7 +247,7 @@ export class GameView {
       const cos = Math.cos(-rot), sin = Math.sin(-rot);
       const lx = dx * cos - dy * sin, ly = dx * sin + dy * cos;
       const cloth = this._showsCloth(c);
-      const halfW = (cloth ? this._clothRect(c).w : c.w) / 2 + 6;
+      const halfW = c.w / 2 + 6;   // 布比瓶闊係裝飾，點擊範圍照用瓶闊，免搶鄰瓶嘅點擊
       const top = -c.h / 2 - (cloth ? c.h * CLOTH.topOffsetRatio : 0) - 10, bottom = c.h / 2 + 6;
       if (lx >= -halfW && lx <= halfW && ly >= top && ly <= bottom) return i;
     }
@@ -244,8 +256,13 @@ export class GameView {
 
   // ---------- 動畫工具 ----------
   _tween(dur, fn) {
-    // 分頁隱藏時 requestAnimationFrame 會暫停；改用 setTimeout 推進，動畫唔會卡死
-    const schedule = (cb) => (document.hidden ? setTimeout(() => cb(performance.now()), 40) : requestAnimationFrame(cb));
+    // rAF 同 setTimeout 兩邊都排，邊個先到用邊個：分頁隱藏 / rAF 被節流（背景 pane、省電模式）都唔會卡死
+    const schedule = (cb) => {
+      let done = false;
+      const fire = () => { if (done) return; done = true; cancelAnimationFrame(raf); clearTimeout(tm); cb(performance.now()); };
+      const raf = document.hidden ? 0 : requestAnimationFrame(fire);
+      const tm = setTimeout(fire, document.hidden ? 40 : 120);
+    };
     return new Promise(res => {
       const t0 = performance.now();
       const step = (now) => {
@@ -429,6 +446,7 @@ export class GameView {
     this._last = now;
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.W, this.H);
+    if (this.cups.length && !this.layoutValid) { if (this.W >= 40 && this.H >= 40) this.layout(); else return; }   // 畫布仲係 0×0（display:none）：唔好喺原點畫一堆瓶
 
     for (let i = 0; i < this.cups.length; i++) {
       const c = this.cups[i];
@@ -507,7 +525,7 @@ export class GameView {
     // 瓶身陰影：平時畫瓶底軟橢圓（平，唔使每幀 blur 成張 sprite）；選中 / 交貨先用燭光 shadowBlur
     const glow = c.glow > 0 ? c.glow : (selected ? 0.75 : 0);
     const shadowOn = () => {
-      if (glow > 0) { ctx.shadowColor = rgba(COLORS.candleGlow, glow); ctx.shadowBlur = 18 + 8 * glow; ctx.shadowOffsetY = 0; }
+      if (glow > 0) { ctx.shadowColor = rgba(COLORS.candleGlow, glow); ctx.shadowBlur = (18 + 8 * glow) * (window.devicePixelRatio || 1); ctx.shadowOffsetY = 0; }
     };
     const shadowOff = () => { ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; };
     this.drawGroundShadow(c);
@@ -554,12 +572,51 @@ export class GameView {
    */
   drawBackGlow(c, alphaMul = 1) {
     const ctx = this.ctx;
+    const seg0 = c.pendingSeg ? c.pendingSeg.seg : c.seg;
+    if (!seg0.length) return;
+    const animating = c.removedUnits > 0 || c.extraUnits > 0 || !!c.settle;
+    if (!animating) {
+      // 靜止瓶：72 個 shadowBlur 填色 / 幀太貴（≈30% 幀時間），用 offscreen 快取，每幀只係一次 drawImage
+      const cached = this._glowSprite(c, seg0);
+      if (cached) {
+        ctx.save();
+        ctx.globalAlpha *= c.layerAlpha * alphaMul;
+        ctx.drawImage(cached.canvas, cached.x, cached.y, cached.w, cached.h);
+        ctx.restore();
+        return;
+      }
+    }
+    this._drawBackGlowLive(ctx, c, seg0, alphaMul);
+  }
+
+  /** 靜止瓶嘅背後柔光快取：以 local 座標 (0,0)=瓶中心 畫入 offscreen，LRU ≤ 24，layout / resize 時清空 */
+  _glowSprite(c, seg) {
+    const dpr = window.devicePixelRatio || 1;
+    const S = this._frame(c).S;
+    const key = `${c.kind}|${c.cap}|${seg.join(',')}|${Math.round(S * dpr)}`;
+    const cache = this._glowCache || (this._glowCache = new Map());
+    let e = cache.get(key);
+    if (e) { cache.delete(key); cache.set(key, e); return e; }
+    const pad = RENDER.glow.backBlurPx * 2 * 2 + 8;   // 兩層 blur（最闊 ×2）
+    const w = c.w + pad * 2, h = c.h + pad * 2;
+    const cv = document.createElement('canvas');
+    cv.width = Math.max(2, Math.ceil(w * dpr)); cv.height = Math.max(2, Math.ceil(h * dpr));
+    const octx = cv.getContext('2d');
+    octx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    octx.translate(w / 2, h / 2);   // 同 drawCup 一樣以瓶中心為原點
+    this._drawBackGlowLive(octx, c, seg, 1);
+    e = { canvas: cv, x: -w / 2, y: -h / 2, w, h };
+    cache.set(key, e);
+    if (cache.size > 24) cache.delete(cache.keys().next().value);
+    return e;
+  }
+
+  _drawBackGlowLive(ctx, c, seg, alphaMul = 1) {
     const { g, S, fx, fy } = this._frame(c);
-    const seg = c.pendingSeg ? c.pendingSeg.seg : c.seg;
-    if (!seg.length) return;
     const slot = (g.liquid.bottom - g.liquid.top) / c.cap;
     const yAt = (level) => g.liquid.bottom - level * slot;
     const dpr = window.devicePixelRatio || 1;
+    const savedCtx = this.ctx; this.ctx = ctx;   // _bandPath 用 this.ctx
     ctx.save();
     ctx.globalAlpha *= c.layerAlpha * alphaMul;
     let level = 0;
@@ -586,8 +643,11 @@ export class GameView {
       ctx.fillStyle = rgba(hex, RENDER.glow.backAlpha);
       ctx.shadowColor = rgba(hex, 0.55); ctx.shadowBlur = RENDER.glow.backBlurPx * dpr;
       ctx.fill();
+      ctx.shadowBlur = RENDER.glow.backBlurPx * 2 * dpr; ctx.shadowColor = rgba(hex, 0.3);
+      ctx.fill();
     }
     ctx.restore();
+    this.ctx = savedCtx;
   }
 
   /** 瓶底投影：COLORS.shadow 50%，向下偏 6px，柔邊 ≈ blur 10 */
@@ -659,6 +719,13 @@ export class GameView {
       const y1 = fy + yTop * S, y2 = fy + yBot * S;
       const ext = extentsAt(g, (yTop + yBot) / 2);
       const bx0 = fx + ext.l * S, bx1 = fx + ext.r * S;
+      // 發光三件套 ②：液體外緣 rim glow = 該層色 @ 40%，2px——先畫描邊，再填色，內半邊會被液體蓋住、外半邊留喺玻璃上
+      ctx.save();
+      ctx.globalAlpha = baseAlpha * alpha;
+      this._bandPath(g, S, fx, fy, yTop, yBot);
+      ctx.strokeStyle = rgba(hex, RENDER.glow.rimAlpha); ctx.lineWidth = RENDER.glow.rimPx * 2; ctx.lineJoin = 'round';
+      ctx.stroke();
+      ctx.restore();
       ctx.save();
       ctx.globalAlpha = baseAlpha * alpha;
       this._bandPath(g, S, fx, fy, yTop, yBot);
@@ -681,19 +748,18 @@ export class GameView {
         ctx.fillStyle = shiftL(hex, -0.18, 1);
         ctx.fillRect(fx, y2 - Math.max(1, lineW * 0.7), S, Math.max(1, lineW * 0.7));
         ctx.globalCompositeOperation = 'source-over';
+        // 淺色試劑（蛋白石 L 92）multiply 落近白玻璃後同空瓶冇分別：加一層微染 + 深色描邊，令佢仲係「一格液體」
+        if (isLight(hex)) {
+          ctx.fillStyle = shiftL(hex, -0.30, 0.16); ctx.fillRect(fx, y1, S, y2 - y1);
+          this._bandPath(g, S, fx, fy, yTop, yBot);
+          ctx.strokeStyle = shiftL(hex, -0.35, 0.7); ctx.lineWidth = 3; ctx.stroke();
+        }
       }
       if (y2 - y1 > lineW * 2) {
         // 發光三件套 ①：液面高光線 = 該層色 +35% 明度，2px，layer 頂邊
         ctx.fillStyle = shiftL(hex, RENDER.glow.surfaceLineL, 0.95);
         ctx.fillRect(fx, y1, S, RENDER.glow.surfaceLinePx);
       }
-      ctx.restore();
-      // 發光三件套 ②：液體外緣 rim glow = 該層色 @ 40%，2px（沿內壁多邊形描邊，唔受 clip 限制 → 光暈微微溢出玻璃）
-      ctx.save();
-      ctx.globalAlpha = baseAlpha * alpha;
-      this._bandPath(g, S, fx, fy, yTop, yBot);
-      ctx.strokeStyle = rgba(hex, RENDER.glow.rimAlpha); ctx.lineWidth = RENDER.glow.rimPx; ctx.lineJoin = 'round';
-      ctx.stroke();
       ctx.restore();
       // 配料圖案（該層色 −28% L）
       const p = unitPattern(unit);
@@ -761,7 +827,7 @@ export class GameView {
     const sx = uv.u0 * atlas, sy = uv.v0 * atlas, sw = (uv.u1 - uv.u0) * atlas, sh = (uv.v1 - uv.v0) * atlas;
     const sc = this._scratch, dpr = window.devicePixelRatio || 1;
     const W = Math.max(2, Math.ceil(bw * dpr)), H = Math.max(2, Math.ceil(bh * dpr));
-    if (sc.width !== W || sc.height !== H) { sc.width = W; sc.height = H; }
+    if (sc.width < W || sc.height < H) { sc.width = Math.max(sc.width, W, 256); sc.height = Math.max(sc.height, H, 256); }   // 只放大，唔每層重新配置
     const sctx = sc.getContext('2d');
     sctx.setTransform(1, 0, 0, 1, 0, 0);
     sctx.globalCompositeOperation = 'source-over';
@@ -902,7 +968,7 @@ export class GameView {
     }
     ctx.setLineDash([]);
     const ax = A.hx, ay = A.hy - A.h / 2 - 12, bx = B.hx, by = B.hy - B.h / 2 - 12;
-    const mx = (ax + bx) / 2, my = Math.min(ay, by) - 34;
+    const mx = (ax + bx) / 2, my = Math.max(8, Math.min(ay, by) - 34);   // 頂行嘅瓶：弧線唔好穿出畫布
     ctx.beginPath(); ctx.moveTo(ax, ay); ctx.quadraticCurveTo(mx, my, bx, by);
     ctx.strokeStyle = COLORS.brassLight; ctx.lineWidth = 3.5; ctx.stroke();
     const ang = Math.atan2(by - my, bx - mx);

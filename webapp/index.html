@@ -86,12 +86,13 @@
       <div class="zone zone-customers" id="customers"></div>
       <div class="zone zone-board">
         <canvas id="board"></canvas>
-        <!-- Spec v2 §6 addEmptyBottle：黃銅紋章廣告入口（第 11 關起、冇空瓶時先出現；第 1–10 關永遠冇） -->
-        <button id="btn-add-cup" class="crest-btn" type="button" hidden aria-label="睇廣告加一隻空燒瓶" title="睇廣告加一隻空燒瓶"><img src="assets/v2/ui_ad_crest.webp" alt=""><span>+瓶</span></button>
       </div>
       <div class="zone zone-mocha">
         <img id="mocha-img" src="assets/v2/cat_idle.webp" alt="導師">
         <div id="mocha-bubble" class="bubble">揀一隻瓶，再揀倒去邊隻～</div>
+        <!-- Spec v2 §6 addEmptyBottle：黃銅紋章廣告入口（第 11 關起、冇空瓶時先出現；第 1–10 關永遠冇）。
+             放喺導師區右下角而唔係瓶陣之上：R2 永不遮液體 -->
+        <button id="btn-add-cup" class="crest-btn" type="button" hidden aria-label="睇廣告加一隻空燒瓶" title="睇廣告加一隻空燒瓶"><img src="assets/v2/ui_ad_crest.webp" alt=""><span>+瓶</span></button>
       </div>
       <footer class="zone zone-actions">
         <button class="act" id="btn-undo"><img src="assets/v2/ui_item_undo.webp" alt=""><span>撤銷</span></button>

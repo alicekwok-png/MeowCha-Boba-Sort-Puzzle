@@ -233,8 +233,8 @@ body {
   transition: opacity .3s;
 }
 .slot .tray .name { color: var(--ct); }
-.slot.done .tray { opacity: .35; }
-.slot.done .tray::after { content: "✓"; position: absolute; color: #fff; font-size: max(18px, 2.4vw); font-weight: 900; text-shadow: 0 1px 2px rgba(0,0,0,.4); }
+.slot.done .tray { background: color-mix(in srgb, var(--c) 40%, #1B2420); border-color: color-mix(in srgb, var(--cd) 50%, #1B2420); }   /* 唔用 opacity：✓ 要保持實色 */
+.slot.done .tray::after { content: "✓"; position: absolute; color: #fff; font-size: max(18px, 2.4vw); font-weight: 900; text-shadow: 0 0 3px rgba(0,0,0,.9), 0 1px 2px rgba(0,0,0,.8); }
 /* 灰態槽嘅底座：空木牌（冇按鈕） */
 .slot .tray.blank { background: rgba(42,31,22,0.55); border-color: #3E2F1E; box-shadow: none; }
 /* 廣告紋章（UI_ad_crest）：只出現喺下一個可解鎖嘅委託人；tap target ≥ 44px */
@@ -265,7 +265,7 @@ body {
 /* 瓶陣安全區 */
 #board { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: manipulation; z-index: 40; }
 /* 玩區廣告入口（Spec §6 addEmptyBottle）：右下角固定 56px 紋章 */
-#btn-add-cup { position: absolute; right: 6px; bottom: 6px; z-index: 45; width: 56px; height: 56px; }
+#btn-add-cup { position: absolute; right: 8px; bottom: 10px; z-index: 55; width: 56px; height: 56px; }   /* 導師區右下角，唔會遮瓶陣 */
 #btn-add-cup img { width: 56px; height: 56px; }
 #btn-add-cup[hidden] { display: none; }
 

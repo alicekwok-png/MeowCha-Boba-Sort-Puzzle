@@ -208,6 +208,7 @@ export function generateLevelEx(cfg, seed, opts = {}) {
   const rejects = { shape: 0, segments: 0, unsolvable: 0, length: 0, unique: 0, opening: 0, color: 0, orders: 0, frosted: 0, aborted: 0 };
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    if (opts.deadline && Date.now() > opts.deadline) { rejects.aborted++; return null; }   // 牆鐘預算（練習關即時生成用）
     const b = randomFill(cfg, rng);
     if (!b) { rejects.shape++; continue; }
     if (b.cups.some(isComplete) || isSolved(b)) { rejects.shape++; continue; }
