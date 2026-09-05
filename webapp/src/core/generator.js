@@ -233,6 +233,11 @@ export function hiddenMeaningful(b) {
   });
 }
 
+/** 用戶 2026-09-06：有隱藏嘅關，至少一隻樽要有 ≥ minDepth 個隱藏格（一隻樽 2–3 個 ?），唔可以全部得一格 */
+export function hiddenDepthOk(b, minDepth) {
+  return b.cups.some(c => c.kind === 'hidden' && hiddenCount(c) >= minDepth);
+}
+
 /** 隱藏格數：hidden / 布遮樽頂格以外全部 */
 export function countHidden(b) {
   return b.cups.reduce((a, c) => a + hiddenCount(c), 0);
@@ -273,6 +278,7 @@ export function generateLevelEx(cfg, seed, opts = {}) {
     if (!queueCoversAllColors(b)) { rejects.orders++; continue; }
     if (!ordersReachable(b)) { rejects.orders++; continue; }
     if (!hiddenMeaningful(b)) { rejects.hidden++; continue; }
+    if (cfg.hiddenRatio > 0 && !hiddenDepthOk(b, cfg.minHiddenDepth ?? 2)) { rejects.hidden++; continue; }
 
     // 檢查 2：可解，且步數落喺目標區間
     const r = solveEx(b, cfg.optimalMax + 2, opts.maxNodes ?? 150_000, opts.deadline || 0);

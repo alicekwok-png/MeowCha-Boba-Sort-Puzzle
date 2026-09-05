@@ -12,15 +12,21 @@ export function computeMoveLimit(levelId, optimal) {
 }
 
 /**
- * 隱藏格比例（佔全部有色格）：
- *  L1 0；L2–5（v4 §5：`?` 隱藏層 L2 就出現）10%；6–10 12% → 15%；11 關起沿用工單 #5：15% + 每關 0.8%，上限 65%
+ * 隱藏格比例（佔全部有色格）— 用戶 2026-09-06：舊曲線（L2–5 10%、L7 13%）太易，參考同類遊戲第 2 關已經約一半係 `?`。
+ *  L1 0；L2 30%；L3 35%；L4–6 40%；L7–10 45%；L11 起 50% + 每關 0.5%，上限 65%
+ *  另外 generator 硬檢查：L2 起至少一隻樽有 ≥ MIN_HIDDEN_DEPTH（2）個隱藏格（hiddenDepthOk）
  */
 export function hiddenRatio(levelId) {
   if (!levelId || levelId < UNLOCK_LEVEL.hidden) return 0;
-  if (levelId <= 5) return 0.10;
-  if (levelId <= 10) return 0.12 + (levelId - 6) * 0.0075;
-  return Math.min(0.65, 0.15 + (levelId - 10) * 0.008);
+  if (levelId === 2) return 0.30;
+  if (levelId === 3) return 0.35;
+  if (levelId <= 6) return 0.40;
+  if (levelId <= 10) return 0.45;
+  return Math.min(0.65, 0.50 + (levelId - 11) * 0.005);
 }
+
+/** L2 起：至少一隻樽要有咁多個隱藏格（一隻樽 2–3 個 ?） */
+export const MIN_HIDDEN_DEPTH = 2;
 
 /** 機制最早登場關卡（實作指令 v4 + 工單 #5） */
 export const UNLOCK_LEVEL = {

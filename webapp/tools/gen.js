@@ -20,7 +20,7 @@ const OUT = opt('--out', 'levels/campaign.json');
 const ONLY = opt('--only', null);
 const MERGE = args.includes('--merge');   // --only N --merge：只重生第 N 關並寫入現有檔案
 const SALT = opt('--salt', 'meowcha-dev-salt');   // 正式環境用環境變數，永不下發 client
-const MAX_ATTEMPTS = Number(opt('--attempts', 400));
+const MAX_ATTEMPTS = Number(opt('--attempts', 2000));   // 2026-09-06 隱藏密度加大之後，緊 config（L12）要千幾次先撞到
 
 function configHash(cfg) {
   const { title, ...rest } = cfg;

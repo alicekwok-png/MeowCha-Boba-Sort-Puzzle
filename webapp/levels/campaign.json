@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-09-05T15:30:27.859Z",
+ "generatedAt": "2026-09-05T21:40:35.284Z",
  "levels": [
   {
    "id": 1,
@@ -69,15 +69,15 @@
     "randomTwoStarMax": null
    },
    "publicSeed": "v1:c:2:e61ff2fc:61df1f14",
-   "board": "BAMBAgAAAAgEBgCg_____wAAAP__AP____8ABgYGAAD_____AAYCAgCAAgL__6D_____",
-   "optimal": 4,
+   "board": "BAMBAgAAAAgEBgAA_____4AAAP__AAYGAgKABgICBqD_____oP____8A_____4AAAP__",
+   "optimal": 5,
    "thresholds": {
-    "three": 9,
-    "two": 14
+    "three": 14,
+    "two": 19
    },
    "moveLimit": null,
-   "hiddenRatio": 0.1,
-   "hiddenCells": 1,
+   "hiddenRatio": 0.3,
+   "hiddenCells": 5,
    "units": 12
   },
   {
@@ -109,15 +109,15 @@
     "randomTwoStarMax": null
    },
    "publicSeed": "v1:c:3:e994cd21:4561d6b1",
-   "board": "BAMCAQAAAAcIAggA_____wD_____oP____8ACAj__4ABBAEIAAQEBAEACAH__w",
+   "board": "BAMCAQAAAAcIAggA_____wD_____oP____-ACAj__4ABBAEIAAQEBAEACAH__w",
    "optimal": 6,
    "thresholds": {
-    "three": 11,
-    "two": 16
+    "three": 13,
+    "two": 18
    },
    "moveLimit": null,
-   "hiddenRatio": 0.1,
-   "hiddenCells": 3,
+   "hiddenRatio": 0.35,
+   "hiddenCells": 4,
    "units": 12
   },
   {
@@ -151,15 +151,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:4:ee39f0be:6e39c52f",
-   "board": "BAQCAgAAAAoADAgCAAAAAgig_____wD_____AAIC__-g_____4AGBv__AAIICACABgb__wAI____AAD___8",
+   "board": "BAQCAgAAAAoADAgCAAAAAgig_____wD_____gAIC__-g_____4AGBv__gAIICACABgb__wAI____AAD___8",
    "optimal": 7,
    "thresholds": {
-    "three": 14,
-    "two": 19
+    "three": 18,
+    "two": 23
    },
    "moveLimit": null,
-   "hiddenRatio": 0.1,
-   "hiddenCells": 2,
+   "hiddenRatio": 0.4,
+   "hiddenCells": 6,
    "units": 16
   },
   {
@@ -193,15 +193,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:5:0a1de6ba:b17c09f0",
-   "board": "BAQCAgAAAAkCDgkEAAT___8A_____wAJCQcHoP____-AAQH__wAJ____AAEEBP8ACQQB_wAHB___",
+   "board": "BAQCAgAAAAkCDgkEAAT___8A_____4AJCQcHoP____-AAQH__wAJ____AAEEBP-ACQQB_4AHB___",
    "optimal": 7,
    "thresholds": {
-    "three": 12,
-    "two": 17
+    "three": 18,
+    "two": 23
    },
    "moveLimit": null,
-   "hiddenRatio": 0.1,
-   "hiddenCells": 1,
+   "hiddenRatio": 0.4,
+   "hiddenCells": 7,
    "units": 16
   },
   {
@@ -235,15 +235,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:6:a1d0da7d:d7c55cca",
-   "board": "BAQCAgAAAAoQAAMGAP____-g_____wAIAAAGAAP___8AAwMI_4AGBv__AAAI__8ABgP__wAIAP__oP____8",
+   "board": "BAQCAgAAAAoQAAMGAP____-g_____4AIAAAGAAP___-AAwMI_4AGBv__AAAI__8ABgP__wAIAP__oP____8",
    "optimal": 9,
    "thresholds": {
-    "three": 14,
-    "two": 19
+    "three": 18,
+    "two": 23
    },
    "moveLimit": null,
-   "hiddenRatio": 0.12,
-   "hiddenCells": 1,
+   "hiddenRatio": 0.4,
+   "hiddenCells": 6,
    "units": 16
   },
   {
@@ -279,15 +279,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:7:a8a826fe:3f5ab324",
-   "board": "BAUCAwAAAAoQAAIGBQAIBgL_AAX___8ABQUF_4AGBv__oP____8A_____wAGCAICgAAI__-AAgj__wAAAAD_",
+   "board": "BAUCAwAAAAoADAgCBYAICP__gAAAAv8ABv___4ACAAL_gAYGCAiABgX__wAFBQX_AAIA__-g_____wD_____",
    "optimal": 9,
    "thresholds": {
-    "three": 18,
-    "two": 23
+    "three": 22,
+    "two": 27
    },
    "moveLimit": null,
-   "hiddenRatio": 0.1275,
-   "hiddenCells": 3,
+   "hiddenRatio": 0.45,
+   "hiddenCells": 9,
    "units": 20
   },
   {
@@ -323,15 +323,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:8:67bae470:29f68a08",
-   "board": "BAUCAwAAAAsOCAkIAaD_____AAQH__8A_____wAHBwn_gAcB__-AAQH__wAECAkEAAkJ__-g_____4AICP__AAEIBP8",
+   "board": "BAUCAwAAAAsOCAkIAaD_____gAQH__8A_____4AHBwn_gAcB__-AAQH__4AECAkEgAkJ__-g_____4AICP__AAEIBP8",
    "optimal": 11,
    "thresholds": {
-    "three": 20,
-    "two": 25
+    "three": 28,
+    "two": 33
    },
    "moveLimit": null,
-   "hiddenRatio": 0.135,
-   "hiddenCells": 3,
+   "hiddenRatio": 0.45,
+   "hiddenCells": 10,
    "units": 20
   },
   {
@@ -367,15 +367,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:9:1d40ffa9:27e4c564",
-   "board": "BAUCAwAAAAoQBgYABQAD____AAYI__-g_____wAD____gAAA__8AAAgGBoADBgX_AP____8ABQUAAwAFCAj_",
+   "board": "BAUCAwAAAAoQBgYABQAD____gAYI__-g_____wAD____gAAA__-AAAgGBoADBgX_AP____8ABQUAA4AFCAj_",
    "optimal": 12,
    "thresholds": {
-    "three": 19,
-    "two": 24
+    "three": 25,
+    "two": 30
    },
    "moveLimit": null,
-   "hiddenRatio": 0.1425,
-   "hiddenCells": 3,
+   "hiddenRatio": 0.45,
+   "hiddenCells": 9,
    "units": 20
   },
   {
@@ -411,15 +411,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:10:a45edef4:6190c984",
-   "board": "BAUCAwAAAAsEEgEIB4ABAgj_oP____8A_____wAC____oP____8ABwcCBwAJCAj_AAgBB_8ACf___4ABCQH_AAkC__8",
+   "board": "BAUCAwAAAAsEEgEIB4ABAgj_oP____8A_____wAC____oP____-ABwcCB4AJCAj_AAgBB_8ACf___4ABCQH_gAkC__8",
    "optimal": 13,
    "thresholds": {
-    "three": 20,
-    "two": 25
+    "three": 26,
+    "two": 31
    },
    "moveLimit": null,
-   "hiddenRatio": 0.15,
-   "hiddenCells": 4,
+   "hiddenRatio": 0.45,
+   "hiddenCells": 10,
    "units": 20
   },
   {
@@ -457,15 +457,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:11:4c5ec15c:cbc17bcf",
-   "board": "BAYCBAAAAAoKDAkACAIABQkIBYAICAAAAP____8AAgAG_wAJCAYGoP____8ABgkAAgAJ____AAIC__-ABQX__w",
+   "board": "BAYCBAAAAAoKDAkACAKABQkIBYAICAAAAP____-AAgAG_wAJCAYGoP____-ABgkAAgAJ____gAIC__-ABQX__w",
    "optimal": 14,
    "thresholds": {
-    "three": 21,
-    "two": 26
+    "three": 29,
+    "two": 34
    },
    "moveLimit": null,
-   "hiddenRatio": 0.158,
-   "hiddenCells": 4,
+   "hiddenRatio": 0.5,
+   "hiddenCells": 13,
    "units": 24
   },
   {
@@ -503,15 +503,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:12:bb7fbfbe:0060cb57",
-   "board": "BAYCBAAAAAsOAgkEAggABAkI_4ACBwH_gAQHAgKg_____wABBwn_AAQE__8ACAkJAQD_____AAgI__8AAQcC_6D_____",
-   "optimal": 16,
+   "board": "BAYCBAAAAAsCBAcIBAmABAQJ_6D_____AP____-g_____wAHCAkJgAcHCP-ABAEC_4ACCAICAAH___-ACQcB_4AIAQT_",
+   "optimal": 15,
    "thresholds": {
-    "three": 23,
-    "two": 28
+    "three": 30,
+    "two": 35
    },
-   "moveLimit": 28,
-   "hiddenRatio": 0.16599999999999998,
-   "hiddenCells": 5,
+   "moveLimit": 27,
+   "hiddenRatio": 0.505,
+   "hiddenCells": 13,
    "units": 24
   },
   {
@@ -542,15 +542,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:13:629b41b3:c39f2be8",
-   "board": "BAYCBAAAAAsOEgEEAggABAcH_wAEBAH_AAkJCf8AAgn__6D_____AAgB__8ABAH__wABCAL_gAcHAgIA_____4AICP__",
+   "board": "BAYCBAAAAAsSCgIGCACABQUG_wD_____gAgA__-ABgb__4AAAv__AAkJCP-ACAgCAgAJ____gAYAAP-AAgkFBaD_____",
    "optimal": 11,
    "thresholds": {
-    "three": 18,
-    "two": 23
+    "three": 28,
+    "two": 33
    },
    "moveLimit": 23,
-   "hiddenRatio": 0.174,
-   "hiddenCells": 4,
+   "hiddenRatio": 0.51,
+   "hiddenCells": 13,
    "units": 24
   },
   {
@@ -581,15 +581,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:14:a8bdc152:c9df2b6d",
-   "board": "BAYCBAAAAAwQDgMJBACg_____wAACP__AAMDA_8ABAcA_wAJCf__gAMJCf8ABwcE_wD_____gAQA__-g_____wAICAD_gAgHBP8",
-   "optimal": 12,
+   "board": "BAYCBAAAAAwSBgYIAAUA_____wAACAD_gAYGAP8ABf___4AIA___gAYJCf-AAAUF_4AJCAj_oP____-AAwYDA4AFCf__oP____8",
+   "optimal": 13,
    "thresholds": {
-    "three": 21,
-    "two": 26
+    "three": 30,
+    "two": 35
    },
-   "moveLimit": 24,
-   "hiddenRatio": 0.182,
-   "hiddenCells": 5,
+   "moveLimit": 25,
+   "hiddenRatio": 0.515,
+   "hiddenCells": 13,
    "units": 24
   },
   {
@@ -620,15 +620,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:15:46896cc2:6ef76e03",
-   "board": "BAYCBAAAAAsABAYICQUABgYGAAAIBf__AP____8AAgn__4AICQj_AAICAv8ABf___6D_____gAkIBv8ABQAJ_4AFAAD_",
+   "board": "BAYCBAAAAAsQEgIEBwCAAgL__4AEB___AP____8ACQkEB4AEBAkHgAgCAv-g_____4AJAAj_gAAH__-ACAAA_wAI____",
    "optimal": 14,
    "thresholds": {
-    "three": 23,
-    "two": 28
+    "three": 31,
+    "two": 36
    },
    "moveLimit": 26,
-   "hiddenRatio": 0.19,
-   "hiddenCells": 6,
+   "hiddenRatio": 0.52,
+   "hiddenCells": 12,
    "units": 24
   },
   {
@@ -659,15 +659,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:16:a8bdc152:ec9e18f8",
-   "board": "BAYCBAAAAAwEDgkIAQQA_____wAHAgT_AAkJCQKg_____6D_____AAH___-AAgn__4ABAv__gAQEBwcABAgICAAHAQj_AAH___8",
-   "optimal": 13,
+   "board": "BAYCBAAAAAwADgkIBAOACQP__4AJCAj_AP____-ACQT__4AHBwQDAAAEAP-AAwf__4AHA___gAQJAACg_____4AICP__oP____8",
+   "optimal": 15,
    "thresholds": {
-    "three": 22,
-    "two": 27
+    "three": 34,
+    "two": 39
    },
-   "moveLimit": 25,
-   "hiddenRatio": 0.198,
-   "hiddenCells": 5,
+   "moveLimit": 27,
+   "hiddenRatio": 0.525,
+   "hiddenCells": 13,
    "units": 24
   },
   {
@@ -698,15 +698,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:17:46896cc2:e8a534d3",
-   "board": "BAYCBAAAAAsACgMGCQiAAwn__wD_____gAUDA_8ABgAICAAJBgn_oP____8ACAgFBoAAAP__AAMFBf8ACf___wAABv__",
+   "board": "BAYCBAAAAAsACgMGCQiAAwn__wD_____gAUDA_-ABgAICIAJBgn_oP____-ACAgFBoAAAP__AAMFBf8ACf___4AABv__",
    "optimal": 13,
    "thresholds": {
-    "three": 22,
-    "two": 27
+    "three": 30,
+    "two": 35
    },
    "moveLimit": 25,
-   "hiddenRatio": 0.206,
-   "hiddenCells": 4,
+   "hiddenRatio": 0.53,
+   "hiddenCells": 13,
    "units": 24
   },
   {
@@ -737,15 +737,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:18:a8bdc152:ba09e9d7",
-   "board": "BAYCBAAAAAwIEAYAAgkACQIA_wAGCQn_gAIICf-ABgIE_4AECP__oP____-g_____4AGAv__AAQE__8ACAgA_wAAAAb_AP____8",
+   "board": "BAYCBAAAAAwIEAYAAgmACQIA_4AGCQn_gAIICf-ABgIE_4AECP__oP____-g_____4AGAv__gAQE__-ACAgA_wAAAAb_AP____8",
    "optimal": 14,
    "thresholds": {
-    "three": 25,
-    "two": 30
+    "three": 33,
+    "two": 38
    },
    "moveLimit": 26,
-   "hiddenRatio": 0.214,
-   "hiddenCells": 6,
+   "hiddenRatio": 0.535,
+   "hiddenCells": 13,
    "units": 24
   },
   {
@@ -776,15 +776,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:19:7af7b057:6d323667",
-   "board": "BAYCBAAAAAsMCgkACAIAAAYGBiQIAggFAAkJ__-ABQkA_wAGAv__AAD___-g_____wAFBQj_AP____8AAAIC_4AICf__",
+   "board": "BAYCBAAAAAsMCgkACAIAAAYGBiQIAggFgAkJ__-ABQkA_4AGAv__AAD___-g_____4AFBQj_AP____-AAAIC_4AICf__",
    "optimal": 14,
    "thresholds": {
-    "three": 21,
-    "two": 26
+    "three": 29,
+    "two": 34
    },
    "moveLimit": 26,
-   "hiddenRatio": 0.222,
-   "hiddenCells": 6,
+   "hiddenRatio": 0.54,
+   "hiddenCells": 12,
    "units": 24
   },
   {
@@ -815,15 +815,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:20:05360592:bfd4e194",
-   "board": "BAYCBAAAAAwCBAkIBQYA_____6D_____oP____-AAgIJ_wAGBf__AAgFBf8AAQEGCQAB____JAUICf8ACAkI_4AGBgH_AAIC__8",
+   "board": "BAYCBAAAAAwCBAkIBQYA_____6D_____oP____-AAgIJ_wAGBf__gAgFBf-AAQEGCQAB____JAUICf-ACAkI_4AGBgH_gAIC__8",
    "optimal": 14,
    "thresholds": {
-    "three": 21,
-    "two": 26
+    "three": 29,
+    "two": 34
    },
    "moveLimit": 26,
-   "hiddenRatio": 0.22999999999999998,
-   "hiddenCells": 6,
+   "hiddenRatio": 0.545,
+   "hiddenCells": 14,
    "units": 24
   },
   {
@@ -854,15 +854,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:21:222abf8f:0d001ad8",
-   "board": "BAYCBAAAAAwGEAAJBgWACQYJ_wAG____AAUF__8ABgUD_wD_____oP____8ABv___wAICf__gAUDCQAACAgI_4ADAwD_AAAA__8",
+   "board": "BAYCBAAAAAwGCgAIBgmABQX__6D_____AP____-ACAAJ_4AAAP__AAP___-ACQAJBoAGBv__gAMFBv8ABQj__4AJAwP_gAgI__8",
    "optimal": 13,
    "thresholds": {
-    "three": 22,
-    "two": 27
+    "three": 32,
+    "two": 37
    },
    "moveLimit": 23,
-   "hiddenRatio": 0.238,
-   "hiddenCells": 7,
+   "hiddenRatio": 0.55,
+   "hiddenCells": 13,
    "units": 24
   },
   {
@@ -893,15 +893,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:22:76bbaeeb:f8755fca",
-   "board": "BAYCBAAAAAwMBAQICQGACAYC_wAEBP__AP____-AAgEG_4ABBAj_AAEB__8AAv___wAICP__AAYE__8ACQkJBqD_____AAkC__8",
+   "board": "BAYCBAAAAAwKDAMIAAkABgb__4AFAAD_AP____-g_____4AJAP__gAYD__-AAwUF_wAI____gAgI__-ACAP__4ADBQYJgAAJCf8",
    "optimal": 13,
    "thresholds": {
-    "three": 22,
-    "two": 27
+    "three": 32,
+    "two": 37
    },
    "moveLimit": 23,
-   "hiddenRatio": 0.246,
-   "hiddenCells": 6,
+   "hiddenRatio": 0.555,
+   "hiddenCells": 13,
    "units": 24
   },
   {
@@ -932,15 +932,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:23:26727d21:bfe59e7b",
-   "board": "BAYCBAAAAAwIEgIGCACg_____yQICAD_AP____8ABAL__4AIAgT_AAkA__-ACQkI_wAABgICAAT___8AAP___wAE____AAYGBgk",
+   "board": "BAYCBAAAAAwQAAcEAwmACAP__yQAAAP_gAkJB_-g_____wAA____AAT___8AAP___4AHBAj_gAgDA_8A_____4AHCQn_gAQEBwg",
    "optimal": 14,
    "thresholds": {
-    "three": 21,
-    "two": 26
+    "three": 29,
+    "two": 34
    },
    "moveLimit": 24,
-   "hiddenRatio": 0.254,
-   "hiddenCells": 6,
+   "hiddenRatio": 0.56,
+   "hiddenCells": 14,
    "units": 24
   },
   {
@@ -971,15 +971,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:24:222abf8f:7eb5eb08",
-   "board": "BAYCBAAAAAwGCgkIBgAACAgG_wAF____gAUF__8A_____wAJ____gAMDCQYAAP___wAJAwMGoP____8ACQb__wAIAAD_gAAFCP8",
-   "optimal": 14,
+   "board": "BAYCBAAAAAwIDggJAwCABAP__4AICAkJgAkJB_8A_____6D_____AAf___-ABAcAA4AECP__gAAA__-ABwMI_4AAA___AAT___8",
+   "optimal": 15,
    "thresholds": {
-    "three": 23,
-    "two": 28
+    "three": 34,
+    "two": 39
    },
-   "moveLimit": 24,
-   "hiddenRatio": 0.262,
-   "hiddenCells": 6,
+   "moveLimit": 25,
+   "hiddenRatio": 0.565,
+   "hiddenCells": 14,
    "units": 24
   },
   {
@@ -1010,15 +1010,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:25:00d86e21:1fedb828",
-   "board": "BAYCBAAAAAwOCAkACAMACAgE_4AJAAMDAAn___8AB____6D_____AP____8ACAQHByQAAAP_AAQD__8ACQQH_4AICf__AAD___8",
+   "board": "BAYCBAAAAAwOCAkACAOACAgE_4AJAAMDAAn___8AB____6D_____AP____-ACAQHByQAAAP_gAQD__-ACQQH_4AICf__AAD___8",
    "optimal": 15,
    "thresholds": {
-    "three": 22,
-    "two": 27
+    "three": 30,
+    "two": 35
    },
    "moveLimit": 25,
-   "hiddenRatio": 0.27,
-   "hiddenCells": 6,
+   "hiddenRatio": 0.5700000000000001,
+   "hiddenCells": 14,
    "units": 24
   },
   {
@@ -1049,15 +1049,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:26:e86e3903:b65a4130",
-   "board": "BAYCBAAAAAwQEgAEBgOAAwgG_4AGA___AAgA__-AAwME_wAG____AP____-AAAAJ_wAIAP__AAkE__-g_____wAJCf__AAgEBgQ",
+   "board": "BAYCBAAAAAwIEAYJAgGg_____4AIBP__AAn___-AAQb__4ACCAL_AP____-ABgYCBIABCQb_gAIBCP-ABAj__wAE____gAEJCf8",
    "optimal": 16,
    "thresholds": {
-    "three": 27,
-    "two": 32
+    "three": 35,
+    "two": 40
    },
    "moveLimit": 26,
-   "hiddenRatio": 0.278,
-   "hiddenCells": 7,
+   "hiddenRatio": 0.575,
+   "hiddenCells": 14,
    "units": 24
   },
   {
@@ -1088,15 +1088,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:27:5d1304b4:857c9b91",
-   "board": "BAYCBAAAAAwCEgYIAgUACP___4AGCf__oP____8ABQUGBgD_____AAkBAv8AAQb__wACCf__gAUCCf-AAQgB_4AICP__gAIF__8",
+   "board": "BAYCBAAAAAwCEgYIAgUACP___4AGCf__oP____-ABQUGBgD_____gAkBAv-AAQb__4ACCf__gAUCCf-AAQgB_4AICP__gAIF__8",
    "optimal": 15,
    "thresholds": {
-    "three": 28,
-    "two": 33
+    "three": 36,
+    "two": 41
    },
    "moveLimit": 25,
-   "hiddenRatio": 0.28600000000000003,
-   "hiddenCells": 7,
+   "hiddenRatio": 0.58,
+   "hiddenCells": 14,
    "units": 24
   },
   {
@@ -1127,15 +1127,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:28:00d86e21:4d31b676",
-   "board": "BAYCBAAAAAwSAAQIBgMACf___wAGCAMDgAYABP8A_____4ADCP__AAkE__-g_____yQICAkGAAQACQAAAP___4ADBv__AAT___8",
+   "board": "BAYCBAAAAAwSAAQIBgMACf___4AGCAMDgAYABP8A_____4ADCP__gAkE__-g_____yQICAkGgAQACQAAAP___4ADBv__AAT___8",
    "optimal": 16,
    "thresholds": {
-    "three": 25,
-    "two": 30
+    "three": 31,
+    "two": 36
    },
    "moveLimit": 26,
-   "hiddenRatio": 0.29400000000000004,
-   "hiddenCells": 7,
+   "hiddenRatio": 0.585,
+   "hiddenCells": 14,
    "units": 24
   },
   {
@@ -1166,15 +1166,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:29:e86e3903:9bdd1fa6",
-   "board": "BAYCBAAAAAwQBAEEBwkA_____4ABBwICAAj___8ACAkEAqD_____gAcEB_8ACf___wACCP__gAkBCP8ABAQHAQAB____AAn___8",
+   "board": "BAYCBAAAAAwQBAEEBwkA_____4ABBwICAAj___-ACAkEAqD_____gAcEB_8ACf___4ACCP__gAkBCP-ABAQHAQAB____AAn___8",
    "optimal": 16,
    "thresholds": {
-    "three": 25,
-    "two": 30
+    "three": 31,
+    "two": 36
    },
    "moveLimit": 26,
-   "hiddenRatio": 0.302,
-   "hiddenCells": 7,
+   "hiddenRatio": 0.59,
+   "hiddenCells": 14,
    "units": 24
   },
   {
@@ -1205,15 +1205,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:30:6ea1b1ba:3acb849c",
-   "board": "BAYCBAAAAAwSDgQAAwgkAwP__6D_____AP____-AAAj__wAJBAkIgAcA__-ACQgD_4ADCf__gAQH__8ABAAHBAAACP__AAf___8",
+   "board": "BAYCBAAAAAwSDgQAAwgkAwP__6D_____AP____-AAAj__4AJBAkIgAcA__-ACQgD_4ADCf__gAQH__-ABAAHBIAACP__AAf___8",
    "optimal": 18,
    "thresholds": {
-    "three": 31,
-    "two": 36
+    "three": 37,
+    "two": 42
    },
    "moveLimit": 28,
-   "hiddenRatio": 0.31,
-   "hiddenCells": 7,
+   "hiddenRatio": 0.595,
+   "hiddenCells": 14,
    "units": 24
   },
   {
@@ -1244,15 +1244,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:31:c9ba2e02:00b4d972",
-   "board": "BAYCBAAAAAwKBAAJCAYABf___wAJ____AAgCBf8AAAIF_wAI____AAn___-ABgUG_6D_____AP____8AAAkA_4AJAggIgAACBgY",
-   "optimal": 18,
+   "board": "BAYCBAAAAAwCEAkGAgWAAgb__4AFAQH_gAkF__-AAQn__4AFAgn_oP____8AAv___4ACCP__gAgI__-ACAYB_wD_____gAYGBQk",
+   "optimal": 15,
    "thresholds": {
-    "three": 27,
-    "two": 32
+    "three": 36,
+    "two": 41
    },
-   "moveLimit": 26,
-   "hiddenRatio": 0.318,
-   "hiddenCells": 8,
+   "moveLimit": 23,
+   "hiddenRatio": 0.6,
+   "hiddenCells": 14,
    "units": 24
   },
   {
@@ -1283,15 +1283,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:32:c9ba2e02:64fab357",
-   "board": "BAYCBAAAAAwIDgMACQgABAgA_wAD____gAMHCP-ABwD__4ADAAD_AAME__8AB____wD_____gAcI__-ACAkJBAAJBAn_oP____8",
+   "board": "BAYCBAAAAAwIDgMACQiABAgA_wAD____gAMHCP-ABwD__4ADAAD_gAME__8AB____wD_____gAcI__-ACAkJBIAJBAn_oP____8",
    "optimal": 17,
    "thresholds": {
-    "three": 30,
-    "two": 35
+    "three": 36,
+    "two": 41
    },
    "moveLimit": 25,
-   "hiddenRatio": 0.32599999999999996,
-   "hiddenCells": 9,
+   "hiddenRatio": 0.605,
+   "hiddenCells": 14,
    "units": 24
   },
   {
@@ -1322,15 +1322,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:33:04e8f52f:0fba6630",
-   "board": "BAYCBAAAAAwGCggGCQAAAP___wAACf__oP____8ACQUF_wAIA___JAP___-ACAAACYAFCQb_gAYDCAUA_____wAG____AAgGA_8",
+   "board": "BAYCBAAAAAwGCggGCQAAAP___4AACf__oP____-ACQUF_4AIA___JAP___-ACAAACYAFCQb_gAYDCAUA_____wAG____gAgGA_8",
    "optimal": 16,
    "thresholds": {
-    "three": 25,
-    "two": 30
+    "three": 33,
+    "two": 38
    },
    "moveLimit": 24,
-   "hiddenRatio": 0.33399999999999996,
-   "hiddenCells": 8,
+   "hiddenRatio": 0.61,
+   "hiddenCells": 14,
    "units": 24
   },
   {
@@ -1361,15 +1361,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:34:c9ba2e02:5e12eaf7",
-   "board": "BAYCBAAAAAwQBAcJBACABwf__wAC____gAgE__-AAAQA_4AIAv__gAkH__8AAAQJAAD_____AAgJAv-ABwn__6D_____gAgEAv8",
-   "optimal": 18,
+   "board": "BAYCBAAAAAwQEgIHAASACAn__4AABwD_AAf___-AAgII_4AEAAf_AAj___-ACQT__4AJCQgCAP____-g_____4AHAgQAAAT___8",
+   "optimal": 16,
    "thresholds": {
-    "three": 35,
-    "two": 40
+    "three": 33,
+    "two": 38
    },
-   "moveLimit": 26,
-   "hiddenRatio": 0.34199999999999997,
-   "hiddenCells": 9,
+   "moveLimit": 24,
+   "hiddenRatio": 0.615,
+   "hiddenCells": 14,
    "units": 24
   },
   {
@@ -1400,15 +1400,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:35:6ea1b1ba:4c32b092",
-   "board": "BAYCBAAAAAwSDAUIAgEABv___wD_____AAb___8AAQIC_wAFCAj_gAEI__-AAQb__6D_____JAgJ__8ABQYC_4AJAQn_gAIFCQU",
+   "board": "BAYCBAAAAAwSDAUIAgEABv___wD_____AAb___-AAQIC_4AFCAj_gAEI__-AAQb__6D_____JAgJ__-ABQYC_4AJAQn_gAIFCQU",
    "optimal": 16,
    "thresholds": {
-    "three": 27,
-    "two": 32
+    "three": 33,
+    "two": 38
    },
    "moveLimit": 24,
-   "hiddenRatio": 0.35,
-   "hiddenCells": 8,
+   "hiddenRatio": 0.62,
+   "hiddenCells": 14,
    "units": 24
   },
   {
@@ -1439,15 +1439,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:36:4fedb3eb:34b5476f",
-   "board": "BAYCBAAAAAwCBAkGCAUAAf___4AIBv__gAkGAv-g_____4AGAQL_AAEIBv8ACQj__4AFAv__AAEFBf8A_____wAJ____gAIFCQg",
+   "board": "BAYCBAAAAAwCBAkGCAUAAf___4AIBv__gAkGAv-g_____4AGAQL_gAEIBv-ACQj__4AFAv__gAEFBf8A_____wAJ____gAIFCQg",
    "optimal": 17,
    "thresholds": {
-    "three": 30,
-    "two": 35
+    "three": 36,
+    "two": 41
    },
    "moveLimit": 25,
-   "hiddenRatio": 0.358,
-   "hiddenCells": 9,
+   "hiddenRatio": 0.625,
+   "hiddenCells": 14,
    "units": 24
   },
   {
@@ -1478,15 +1478,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:37:028cd146:4988ddd5",
-   "board": "BAYCBAAAAAwOEAEEAgkABP___4AJB___AAII__-AAQgJ_yQCAv__AP____8AAQEI_4AHCf__gAcIBP8ABAkE_6D_____gAEHAv8",
+   "board": "BAYCBAAAAAwOEAEEAgkABP___4AJB___gAII__-AAQgJ_yQCAv__AP____-AAQEI_4AHCf__gAcIBP-ABAkE_6D_____gAEHAv8",
    "optimal": 17,
    "thresholds": {
-    "three": 30,
-    "two": 35
+    "three": 36,
+    "two": 41
    },
    "moveLimit": 25,
-   "hiddenRatio": 0.366,
-   "hiddenCells": 9,
+   "hiddenRatio": 0.63,
+   "hiddenCells": 14,
    "units": 24
   },
   {
@@ -1517,15 +1517,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:38:db09f826:4254c226",
-   "board": "BAYCBAAAAAwSCAcAAwgACAD__4AEBwP_AAkA__-g_____4AJAAP_AP____8kCP___4AEBP__gAQJ__-ABwj__4ADBwADAAcJCP8",
+   "board": "BAYCBAAAAAwSCAcAAwiACAD__4AEBwP_gAkA__-g_____4AJAAP_AP____8kCP___4AEBP__gAQJ__-ABwj__4ADBwADgAcJCP8",
    "optimal": 18,
    "thresholds": {
-    "three": 33,
-    "two": 38
+    "three": 39,
+    "two": 44
    },
    "moveLimit": 26,
-   "hiddenRatio": 0.374,
-   "hiddenCells": 10,
+   "hiddenRatio": 0.635,
+   "hiddenCells": 14,
    "units": 24
   },
   {
@@ -1556,15 +1556,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:39:028cd146:4f36b995",
-   "board": "BAYCBAAAAAwQEgIEAAeAAgkIBwAIBAn_AP____8ABP___wAHCQQHgAcC__-AAgn__yQC____oP____8ACP___4AAAAj_gAAEAP8",
+   "board": "BAYCBAAAAAwQEgIEAAeAAgkIB4AIBAn_AP____8ABP___4AHCQQHgAcC__-AAgn__yQC____oP____8ACP___4AAAAj_gAAEAP8",
    "optimal": 18,
    "thresholds": {
-    "three": 31,
-    "two": 36
+    "three": 35,
+    "two": 40
    },
    "moveLimit": 26,
-   "hiddenRatio": 0.382,
-   "hiddenCells": 9,
+   "hiddenRatio": 0.64,
+   "hiddenCells": 14,
    "units": 24
   },
   {
@@ -1595,15 +1595,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:40:028cd146:1bf410ff",
-   "board": "BAYCBAAAAAwACAkCBwig_____4AJB___AAQHBP-AAgD__4AACAT_JAIJ__-ACAAJ_wAI____AAQJB_-AAAj__4ACBwL_AP____8",
+   "board": "BAYCBAAAAAwACAkCBwig_____4AJB___gAQHBP-AAgD__4AACAT_JAIJ__-ACAAJ_wAI____gAQJB_-AAAj__4ACBwL_AP____8",
    "optimal": 19,
    "thresholds": {
-    "three": 34,
-    "two": 39
+    "three": 38,
+    "two": 43
    },
    "moveLimit": 27,
-   "hiddenRatio": 0.39,
-   "hiddenCells": 10,
+   "hiddenRatio": 0.645,
+   "hiddenCells": 14,
    "units": 24
   }
  ]

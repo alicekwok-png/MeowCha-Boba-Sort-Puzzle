@@ -37,14 +37,22 @@ describe('步數上限', () => {
 });
 
 describe('隱藏密度', () => {
-  test('公式：L1 0；L2–5 10%（v4 `?` L2 登場）；第 6 關 12%；第 10 關 15%；第 11 關 15.8%；第 30 關 31%；上限 65%', () => {
+  test('公式（2026-09-06 加強）：L1 0；L2 30%；L3 35%；L4–6 40%；L7–10 45%；L11 50%；L30 59.5%；上限 65%', () => {
     assert.equal(hiddenRatio(1), 0);
-    assert.ok(Math.abs(hiddenRatio(2) - 0.10) < 1e-9); assert.ok(Math.abs(hiddenRatio(5) - 0.10) < 1e-9);
-    assert.ok(Math.abs(hiddenRatio(6) - 0.12) < 1e-9);
-    assert.ok(Math.abs(hiddenRatio(10) - 0.15) < 1e-9);
-    assert.ok(Math.abs(hiddenRatio(11) - 0.158) < 1e-9);
-    assert.ok(Math.abs(hiddenRatio(30) - 0.31) < 1e-9);
+    assert.ok(Math.abs(hiddenRatio(2) - 0.30) < 1e-9); assert.ok(Math.abs(hiddenRatio(3) - 0.35) < 1e-9);
+    assert.ok(Math.abs(hiddenRatio(4) - 0.40) < 1e-9); assert.ok(Math.abs(hiddenRatio(6) - 0.40) < 1e-9);
+    assert.ok(Math.abs(hiddenRatio(7) - 0.45) < 1e-9); assert.ok(Math.abs(hiddenRatio(10) - 0.45) < 1e-9);
+    assert.ok(Math.abs(hiddenRatio(11) - 0.50) < 1e-9);
+    assert.ok(Math.abs(hiddenRatio(30) - 0.595) < 1e-9);
     assert.equal(hiddenRatio(100), 0.65);
+  });
+  test('campaign.json：L2 起每關至少一隻樽有 ≥ 2 個隱藏格', () => {
+    const { decodeBoard } = decodeMod;
+    const d = JSON.parse(readFileSync(new URL('../levels/campaign.json', import.meta.url), 'utf8'));
+    for (const l of d.levels) if (l.id >= 2) {
+      const b = decodeBoard(l.board);
+      assert.ok(b.cups.some(c => c.kind === 'hidden' && c.seg.length - 1 >= 2), `L${l.id}`);
+    }
   });
 });
 
