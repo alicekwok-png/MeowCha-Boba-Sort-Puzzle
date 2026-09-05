@@ -123,7 +123,7 @@ webapp/
 2. **器皿**：燒瓶 = normal（4 格）、曲頸瓶 = takeaway（3 格，永遠裝唔滿一色）、裂瓶 = cracked（只出不入，第 15 關起）、布遮瓶 = covered（布蓋喺燒瓶上）。冇獨立「封膜杯」。
 3. **文案**：客人→委託人、出單→交貨、訂單→委託、杯→瓶；飲品變試劑（硫黃 / 琥珀 / 薔薇 / 硃砂 / 龍膽 / 紫晶 / 淡藍 / 群青 / 銅綠 / 蛋白石）；吉祥物係「導師」（煉金貓 idle / happy / cheer）。遊戲名 2026-09-05 起改為 **Mortar & Mew**（存檔 key `meowcha.*` 唔改，保住進度）。
 4. **廣告**：三個觸點，視覺一律 `UI_ad_crest`：
-   - **廣告樽**（實作指令 v4 §4，kind `ad`）：由 **L2** 起關卡資料本身就有（L2 有 2 隻），一開波就鎖喺盤面，唔入唔出；撳一下 → 廣告 → `LocalServer.unlockAdCup` 記 `adUnlocks` 同步重放 → 變 normal 空樽（`GameView.animateAdUnlock`）。**v4 明文覆蓋咗「第 1–10 關零廣告」呢條** — `ADS_FREE_MAX_LEVEL` 只管下面兩個「入口」，唔管廣告樽；每關唔解鎖廣告樽都必須可解（solver 驗）。
+   - **廣告樽**（實作指令 v4 §4，kind `ad`）：由 **L2** 起關卡資料本身就有（L2 有 2 隻），一開波就鎖喺盤面，唔入唔出；撳一下 → 廣告 → `LocalServer.unlockAdCup` 記 `adUnlocks` 同步重放 → 變 normal 空樽（`GameView.animateAdUnlock`）。**廣告政策：冇強制廣告，想睇先睇；冇「頭幾關零廣告」呢條**（2026-09-05 拍板，跟 v4）— `adsAllowedForLevel` 只擋練習關同 L1，兩個「入口」各自跟 `UNLOCK_LEVEL.adOrderSlot` / `adEmptyCup`；每關唔解鎖廣告樽都必須可解（`verify-levels` 驗）。
    - 委託人區 `unlockOrder`（第 11 關起；紋章只出喺下一個可解鎖嘅委託人 raven → badger → owl → hare，其餘灰態）。
    - 道具列 `addEmptyBottle`「+樽」（第 11 關起、盤面冇 kind normal 空樽、**而且冇廣告樽剩低**先出，每關一次，`LocalServer.addEmptyCup` 記 `extraCups` 同步重放）。
    同屏 ≤ 2 個入口（`assertAdSlotLimit` 啟動即驗）；「+樽」等廣告樽撳晒先出，係為咗唔會同時有 3 個廣告觸點。

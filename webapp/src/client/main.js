@@ -47,9 +47,9 @@ function orderTextOn() {
   try { const v = localStorage.getItem('mc_order_text'); if (v !== null) return v === '1'; } catch { /* ignore */ }
   return !!CONFIG.orderText;
 }
-/** 廣告解鎖委託槽數量（遠端參數 config.orderSlots.ad；第 1–10 關永遠 0 — 就算 config 寫錯都唔會破）。廣告樽（kind ad）唔經呢度，見 ads.js */
+/** 廣告解鎖委託槽數量（遠端參數 config.orderSlots.ad；UNLOCK_LEVEL.adOrderSlot 之前永遠 0 — 就算 config 寫錯都唔會破）。廣告樽（kind ad）唔經呢度，見 ads.js */
 function adSlotsFor(levelId) {
-  if (!adsAllowedForLevel(levelId)) return 0;
+  if (!adsAllowedForLevel(levelId) || levelId < UNLOCK_LEVEL.adOrderSlot) return 0;
   const r = (CONFIG.orderSlots?.ad || []).find(x => levelId >= x.from && levelId <= x.to);
   return r ? r.count : 0;
 }

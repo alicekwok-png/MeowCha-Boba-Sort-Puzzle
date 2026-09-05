@@ -25,7 +25,7 @@ export function hiddenRatio(levelId) {
 /** 機制最早登場關卡（實作指令 v4 + 工單 #5） */
 export const UNLOCK_LEVEL = {
   hidden: 2,        // `?` 隱藏層樽 — v4 §5「L2 就出現」
-  adBottle: 2,      // 廣告樽（一開波喺盤面）— v4 §4「第二關已經有兩隻」；⚠ 同「第 1–10 關零廣告」相撞，見 ads.js ADS_FREE_MAX_LEVEL
+  adBottle: 2,      // 廣告樽（一開波喺盤面）— v4 §4「第二關已經有兩隻」；廣告政策見 ads.js（冇強制廣告、冇零廣告關）
   undo: 5,          // Undo 按鈕
   orders: 1,        // 委託槽（Spec v3：L1 就有 1 個免費槽）
   adEmptyCup: 11,   // 道具列「+樽」
