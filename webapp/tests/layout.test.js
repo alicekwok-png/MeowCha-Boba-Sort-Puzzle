@@ -114,10 +114,10 @@ describe('LevelValidation', () => {
 });
 
 describe('Render', () => {
-  test('v4 §1.2：液體純色填（source-over），玻璃只加光 luma>215 / range 40 / 0.55；液面線 3px ×1.5', () => {
+  test('v4 §1.2：液體純色填（source-over），玻璃只加光 luma>215 / range 40 / 0.55；圓柱模型頂面橢圓 ry 0.14 / lighten 0.32', () => {
     assert.equal(RENDER.liquidBlend, 'source-over');
     assert.deepEqual(RENDER.glassHighlight, { lumaThreshold: 215, lumaRange: 40, strength: 0.55 });
-    assert.deepEqual(RENDER.surfaceLine, { thickness: 3, boost: 1.5 });
+    assert.deepEqual(RENDER.surfaceEllipse, { ryRatio: 0.14, lighten: 0.32 });   // 液面線已由圓柱頂面橢圓取代（2026-09-06）
     assert.equal(LAYOUT.bottleHeightRatio, 0.19); assert.equal(+(LAYOUT.playfieldBottom - LAYOUT.playfieldTop).toFixed(3), 0.70); assert.equal(LAYOUT.topBarBottom, 0.055); assert.equal(+(LAYOUT.clientsBottom - LAYOUT.clientsTop).toFixed(3), 0.10); assert.equal(+(LAYOUT.orderSlotsBottom - LAYOUT.orderSlotsTop).toFixed(3), 0.045); assert.equal(LAYOUT.toolbarTop, 0.90);
   });
   test('v4 §2.2：深色標準樽樽身中央明度 < 80/255', () => {
