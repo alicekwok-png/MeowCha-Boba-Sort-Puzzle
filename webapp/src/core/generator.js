@@ -2,6 +2,7 @@
 
 import { makeCup, makeUnit, countSegments, hiddenCount, CAP_NORMAL } from './board.js';
 import { isComplete, isSolved, applyMove } from './rules.js';
+import { simulateRandom, twoStarBudget } from './analysis.js';
 import { solveEx, countOptimalPaths, safeOpening } from './solver.js';
 import { mulberry32, shuffle, randInt } from './prng.js';
 import { PALETTE, colorsCompatible, unitsCompatible, MAX_COLORS_BY_HUE } from './palette.js';
@@ -9,7 +10,9 @@ import { PALETTE, colorsCompatible, unitsCompatible, MAX_COLORS_BY_HUE } from '.
 /**
  * @typedef {{cups:number, colors:number, empties:number, segments:number,
  *            hidden:number, covered:number, ad:number, orders:number,
- *            optimalMin:number, optimalMax:number, palette?:number[], patterns?:number[], hiddenRatio?:number}} LevelConfig
+ *            optimalMin:number, optimalMax:number, palette?:number[], patterns?:number[], hiddenRatio?:number,
+ *            randomTwoStarMax?:number|null}} LevelConfig
+ *  randomTwoStarMax = 亂撳★2 率上限（隨機玩家喺最優 × 1.5 步內過關嘅比例，core/analysis.js）；超過就棄掉重抽（seed 篩選）。null = 唔篩
  *  colors = 元素數（色 × 圖案）；patterns = 每個元素嘅 patternId（預設全部 P0）
  */
 
@@ -246,11 +249,14 @@ export function starThresholds(optimal, board) {
  * 生成關卡。回傳 { board, optimal, thresholds, attempts, rejects } 或 null。
  * opts.maxAttempts 預設 400；opts.onReject 可用作統計。
  */
+const RANDOM_TRIALS = 1000;    // 亂撳篩選局數（1000 局 SD ≈ 0.95% @ 10%）
+const RANDOM_MARGIN = 0.025;   // 估計值要低過門檻 2.5%（≈ 2.6 SD），免得重掃（其他 seed、2000 局）時翻返上去
+
 export function generateLevelEx(cfg, seed, opts = {}) {
   validateConfig(cfg);
   const rng = mulberry32(seed);
   const maxAttempts = opts.maxAttempts ?? 400;
-  const rejects = { shape: 0, segments: 0, unsolvable: 0, length: 0, unique: 0, opening: 0, color: 0, orders: 0, hidden: 0, aborted: 0 };
+  const rejects = { shape: 0, segments: 0, unsolvable: 0, length: 0, unique: 0, opening: 0, color: 0, orders: 0, hidden: 0, random: 0, aborted: 0 };
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     if (opts.deadline && Date.now() > opts.deadline) { rejects.aborted++; return null; }   // 牆鐘預算（練習關即時生成用）
@@ -293,6 +299,11 @@ export function generateLevelEx(cfg, seed, opts = {}) {
     // 檢查 3：最優解不唯一
     if (countOptimalPaths(b, sol.length, 2) < 2) { rejects.unique++; continue; }
 
+    // 檢查 3b：亂撳★2 率（用戶 2026-09-05：L4 起 < 10%）— 隨機玩家太易撞到過關就棄掉重抽
+    if (cfg.randomTwoStarMax != null) {
+      const r = simulateRandom(b, { trials: RANDOM_TRIALS, seed: attempt + 1, budget: twoStarBudget(sol.length) });
+      if (r.rate + RANDOM_MARGIN >= cfg.randomTwoStarMax) { rejects.random++; continue; }
+    }
     // 檢查 4：起手安全區
     const K = cfg.cups <= 8 ? 3 : 2;
     if (!safeOpening(b, K, sol.length + 4)) { rejects.opening++; continue; }
