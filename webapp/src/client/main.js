@@ -15,7 +15,7 @@ import { ads, adsAllowedForLevel, adBottleTappable } from './ads.js';
 import { hiddenRatio, UNLOCK_LEVEL } from '../core/difficulty.js';
 import { ASSET_MAP, CLIENT_SPRITE } from '../config/assets.js';
 import { CAT } from '../config/layout.js';
-import { AD_SLOTS, assertAdSlotLimit, CLIENT_ORDER } from '../config/render.js';
+import { AD_SLOTS, assertAdSlotLimit, CLIENT_ORDER, CLIENT_FILTER, CLIENT_GLOW } from '../config/render.js';
 import { initI18n, t, has, setLocale, getLocale, getLocales, onLocaleChange, applyDom } from './i18n.js';
 
 const $ = (s) => document.querySelector(s);
@@ -25,6 +25,18 @@ const asset = (key) => new URL('../../' + ASSET_MAP[key], import.meta.url).href;
 
 // Spec v2 §6：同屏最多 2 個廣告入口 — 啟動即驗，超過就直接炸
 assertAdSlotLimit(AD_SLOTS);
+// 委託人 filter / 背光（config/render.js）→ CSS 變數，styles.css .slot 用
+{
+  const r = document.documentElement.style;
+  r.setProperty('--client-active', CLIENT_FILTER.active);
+  r.setProperty('--client-locked', CLIENT_FILTER.locked);
+  r.setProperty('--client-adlocked', CLIENT_FILTER.adLocked);
+  r.setProperty('--glow-color', CLIENT_GLOW.color);
+  r.setProperty('--glow-opacity', String(CLIENT_GLOW.opacity));
+  r.setProperty('--glow-radius', String(CLIENT_GLOW.radius));
+  r.setProperty('--glow-offset', String(CLIENT_GLOW.offsetY));
+  r.setProperty('--glow-blur', CLIENT_GLOW.blur + 'px');
+}
 
 const server = new LocalServer({ solverWorkerUrl: new URL('./solver.worker.js', import.meta.url) });
 const sfx = new Sfx();
@@ -265,15 +277,16 @@ function renderClients(popColor = null, enterIndex = -1, flyingIndex = -1, opts 
       const p = pal(o.color);
       // flyingIndex：樽仲飛緊去托盤（v4 §7 animateFlyToSlot），✓ 等佢到咗先顯示
       const done = o.filled && i !== flyingIndex;
-      slot.className = 'slot' + (done ? ' done' : '') + (popColor !== null && popColor === o.color ? ' pop' : '') + (enterIndex === i ? ' enter' : '') + (flashIndex === i ? ' flash' : '');
+      slot.className = 'slot active' + (done ? ' done' : '') + (popColor !== null && popColor === o.color ? ' pop' : '') + (enterIndex === i ? ' enter' : '') + (flashIndex === i ? ' flash' : '');
       // 色塊托盤：顏色 = 板面液體同一個 hex；文字預設唔顯示（L* > 55 用深啡，否則白）
       const textColor = p.L > 55 ? '#3A2410' : '#FFFFFF';
       const name = liquidName(o.color);
-      slot.innerHTML = `${body}
+      // 渲染次序：背光（.glow，只喺 active）→ 角色 → 托盤
+      slot.innerHTML = `<div class="glow" aria-hidden="true"></div>${body}
         <div class="tray" style="--c:${p.hex};--cd:${hexScale(p.hex, 0.82)};--ci:${hexScale(p.hex, 0.9)};--ct:${textColor}" title="${name}" aria-label="${name}">${orderTextOn() && !done ? `<span class="name">${name}</span>` : ''}</div>`;
     } else {
       const nextUnlockable = adsOk && lockedAds > 0 && i === orders.length && G.session && server.canAddOrder(G.session.sessionId, G.moves);
-      slot.className = 'slot grey';
+      slot.className = 'slot ' + (nextUnlockable ? 'adlocked' : 'locked');
       slot.innerHTML = `${body}<div class="tray blank" aria-hidden="true"></div>`;
       if (nextUnlockable) {
         const b = document.createElement('button');

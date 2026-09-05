@@ -70,3 +70,24 @@ export function assertAdSlotLimit(slots = AD_SLOTS) {
 
 /** 委託人解鎖順序（紋章一次只出現喺「下一個可解鎖」嗰位） */
 export const CLIENT_ORDER = ['raven', 'badger', 'owl', 'hare'];
+
+/**
+ * 委託人視覺可讀性（用戶 2026-09-05，唔動美術、引擎做）：原素材蝕刻風褐灰調本身低飽和，
+ * 已解鎖要推高飽和 + 亮度先同灰態拉得開；locked / adLocked 同一套灰，adLocked 只係槽多個 UI_ad_crest。
+ * CSS filter 字串，main.js 注入 CSS 變數 --client-active / --client-locked / --client-adlocked。
+ */
+export const CLIENT_FILTER = Object.freeze({
+  active:   'saturate(1.55) brightness(1.25) contrast(1.05)',
+  locked:   'saturate(0) brightness(0.45)',
+  adLocked: 'saturate(0) brightness(0.45)',
+});
+
+/** 已解鎖委託人背光：角色後面徑向暖光暈（燭光由下打上，光心略低），令角色由深背景浮出嚟；locked 唔畫。
+ *  渲染次序：背光 → 角色（套 filter）→ 訂單槽 → HUD 玻璃層 */
+export const CLIENT_GLOW = Object.freeze({
+  color:   '#FFA94D',
+  opacity: 0.25,
+  radius:  1.15,   // 相對角色寬度
+  offsetY: 0.10,   // 光心低於角色中心（相對角色高度）
+  blur:    18,     // px
+});

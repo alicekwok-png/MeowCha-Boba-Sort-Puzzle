@@ -236,9 +236,19 @@ body {
   max-width: 100%; height: auto; max-height: calc(100% - var(--label-h));
   filter: drop-shadow(0 4px 8px rgba(10,8,6,0.6)); transition: filter .3s;
 }
-.slot.done img.body { filter: drop-shadow(0 4px 8px rgba(10,8,6,0.6)) saturate(.7); }
-/* 灰態：runtime 去飽和 + 亮度 −55%（Spec §6） */
-.slot.grey img.body { filter: saturate(0) brightness(0.45); }
+/* 三個狀態（config/render.js CLIENT_FILTER → CSS 變數）：active 推高飽和 / 亮度，locked / adlocked 灰態；done（槽收工）喺 active 上再壓少少 */
+.slot.active img.body { filter: drop-shadow(0 4px 8px rgba(10,8,6,0.6)) var(--client-active, none); }
+.slot.active.done img.body { filter: drop-shadow(0 4px 8px rgba(10,8,6,0.6)) var(--client-active, none) saturate(.7); }
+.slot.locked img.body { filter: var(--client-locked, saturate(0) brightness(0.45)); }
+.slot.adlocked img.body { filter: var(--client-adlocked, saturate(0) brightness(0.45)); }
+/* 已解鎖背光（CLIENT_GLOW）：角色後面徑向暖光暈，光心略低（燭光由下打上）；只喺 active，DOM 排喺角色之前 → 畫喺角色後面 */
+.slot .glow {
+  position: absolute; left: 50%; bottom: var(--label-h);
+  width: calc(100% * var(--glow-radius, 1.15)); height: calc(100% - var(--label-h));
+  transform: translate(-50%, calc(var(--glow-offset, 0.1) * 100%));
+  background: radial-gradient(ellipse 50% 50% at 50% 50%, var(--glow-color, #FFA94D) 0%, transparent 70%);
+  opacity: var(--glow-opacity, 0.25); filter: blur(var(--glow-blur, 18px)); pointer-events: none;
+}
 /* 色塊托盤（工單 #4 任務 1）：闊度 = 槽位闊度，顏色 = 液體 hex，邊框 ×0.82，頂部內陰影 ×0.9 */
 .slot .tray {
   position: absolute; left: 0; right: 0; bottom: 0; height: var(--label-h); box-sizing: border-box;
@@ -251,8 +261,8 @@ body {
 .slot .tray .name { color: var(--ct); }
 .slot.done .tray { background: color-mix(in srgb, var(--c) 40%, #1B2420); border-color: color-mix(in srgb, var(--cd) 50%, #1B2420); }   /* 唔用 opacity：✓ 要保持實色 */
 .slot.done .tray::after { content: "✓"; position: absolute; color: #fff; font-size: max(18px, 2.4vw); font-weight: 900; text-shadow: 0 0 3px rgba(0,0,0,.9), 0 1px 2px rgba(0,0,0,.8); }
-/* 灰態槽嘅底座：空木牌（冇按鈕） */
-.slot .tray.blank { background: rgba(42,31,22,0.55); border-color: #3E2F1E; box-shadow: none; }
+/* 未開嘅槽：深褐 + 1px 黃銅描邊 —「有槽但未開」，唔係純黑「壞咗」 */
+.slot .tray.blank { background: #2A2318; border: 1px solid #6B4E24; box-shadow: inset 0 2px 0 rgba(255,255,255,0.03); }
 /* 廣告紋章（UI_ad_crest）：只出現喺下一個可解鎖嘅委託人；tap target ≥ 44px */
 .crest-btn {
   border: 0; background: transparent; padding: 0; cursor: pointer; font: inherit;
