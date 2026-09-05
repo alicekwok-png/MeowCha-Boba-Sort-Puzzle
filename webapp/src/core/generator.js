@@ -250,7 +250,9 @@ export function starThresholds(optimal, board) {
  * opts.maxAttempts 預設 400；opts.onReject 可用作統計。
  */
 const RANDOM_TRIALS = 1000;    // 亂撳篩選局數（1000 局 SD ≈ 0.95% @ 10%）
-const RANDOM_MARGIN = 0.025;   // 估計值要低過門檻 2.5%（≈ 2.6 SD），免得重掃（其他 seed、2000 局）時翻返上去
+// 邊際 2.5%，唔係 1.5%：篩選係「揀最好嗰次估計」，會偏向低估（winner's curse）。實際案例（2026-09-05）：L11 用 400 局估 8.4%
+// 通過咗 1.5% 邊際，5000 局真值係 10.0%，重掃即刻超標。2.5% ≈ 2.6 SD，先擋得住估計誤差 + 揀最好嗰次嘅偏差。唔好改細。
+const RANDOM_MARGIN = 0.025;
 
 export function generateLevelEx(cfg, seed, opts = {}) {
   validateConfig(cfg);
