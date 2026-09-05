@@ -2,6 +2,7 @@
 // 核心原則：資源下載同 Logo 播放並行。純函數（決策 / 載入）同 DOM 流程分開，方便測試。
 
 import { ASSET_MAP } from '../config/assets.js';
+import { t } from './i18n.js';
 
 export const LOGO_FIRST_MS = 2000;
 export const LOGO_REPEAT_MS = 1200;
@@ -9,7 +10,9 @@ export const LOADING_MIN_MS = 800;
 export const ASSET_TIMEOUT_MS = 15000;
 export const ASSET_RETRIES = 1;
 
-export const TIPS = ['正在點蠟燭…', '正在磨試劑…', '導師擦緊燒瓶…', '委託人快到工房喇…', '正在封蠟…'];
+/** Loading 文案輪播：i18n key（initI18n 已喺 boot.run() 之前完成，所以 t() 直接可用）；重試文案由 index.html data-i18n 填 */
+export const TIPS = ['extra.boot.tip1', 'extra.boot.tip2', 'extra.boot.tip3', 'extra.boot.tip4', 'extra.boot.tip5'];
+const randomTip = () => t(TIPS[Math.floor(Math.random() * TIPS.length)]);
 
 /** 批次 2 — 遊戲核心（阻塞 GameLoading）。全部由 ASSET_MAP（Spec v2 §7）出；bytes 係估算，用嚟加權進度。 */
 const A = (key, bytes) => ({ url: ASSET_MAP[key], bytes });
@@ -185,7 +188,7 @@ export class BootFlow {
     retry.hidden = true;
     fill.style.background = this.liquidColors[Math.floor(Math.random() * this.liquidColors.length)];
     fill.style.width = '0%';
-    tip.textContent = TIPS[Math.floor(Math.random() * TIPS.length)];
+    tip.textContent = randomTip();
     s.classList.add('active');
     requestAnimationFrame(() => s.classList.add('in'));
 
@@ -197,7 +200,7 @@ export class BootFlow {
     // 文案輪播 1.4s
     const tips = setInterval(() => {
       tip.classList.add('hide');
-      setTimeout(() => { tip.textContent = TIPS[Math.floor(Math.random() * TIPS.length)]; tip.classList.remove('hide'); }, 200);
+      setTimeout(() => { tip.textContent = randomTip(); tip.classList.remove('hide'); }, 200);
     }, 1400);
 
     let ok = true;

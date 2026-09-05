@@ -7,6 +7,7 @@
 //   frosted  只畫可見格（頂格 + 露出過嘅格），隱藏格唔畫；新露出嘅格 160 ms 淡入
 //   covered  布全遮 + 蠟封顯示頂格色 + 「N 單」徽章；鎖死；解鎖 → animateUnlock 布揭開動畫
 
+import { t } from './i18n.js';
 import { PALETTE } from '../core/palette.js';
 import { unitColor, unitPattern } from '../core/board.js';
 import { COLORS, FROSTED_GLASS } from '../config/theme.js';
@@ -369,7 +370,7 @@ export class GameView {
   }
 
   /** 交貨：金光 + 液體升起消失 + 浮字 */
-  async animateDeliver(idx, label = '✓ 交貨') {
+  async animateDeliver(idx, label = '✓ ' + t('clients.deliver')) {
     const c = this.cups[idx];
     if (!c) return;
     c.anim = 'deliver';
@@ -404,7 +405,7 @@ export class GameView {
     c.clothHold = null; c.locked = false; if (c.kind === 'covered') c.kind = 'normal';
     c.reveal = { hint, rope: 0, slide: 0, fade: 0 };
     const top = this._toWorld(c, 0, -c.h / 2);
-    this.floaters.push({ x: top.x, y: top.y - 10, text: '揭開！', t0: performance.now(), dur: 1000, color: COLORS.brassLight });
+    this.floaters.push({ x: top.x, y: top.y - 10, text: t('extra.badges.revealed'), t0: performance.now(), dur: 1000, color: COLORS.brassLight });
     await this._tween(R.ropeMs, t => { c.reveal.rope = t; });
     await this._tween(R.slideMs, t => { c.reveal.slide = cubicOut(t); });
     // 塵粒：由布底散開向上飄
@@ -544,7 +545,7 @@ export class GameView {
         this.drawLiquid(c, now);
         ctx.restore();
       }
-      if (c.kind === 'cracked') this.drawBadge('只出', 0, c.h * 0.36, { text: COLORS.brassMain });
+      if (c.kind === 'cracked') this.drawBadge(t('extra.badges.pourOnly'), 0, c.h * 0.36, { text: COLORS.brassMain });
     }
     if (cloth) {
       ctx.save();
@@ -560,7 +561,7 @@ export class GameView {
       shadowOff();
       const hint = r ? r.hint : (c.clothHold ? c.clothHold.hint : (c.seg[c.seg.length - 1] ?? null));
       this.drawSeal(c, hint, r ? 1 - r.rope * 0.6 : 1);
-      if (!r) this.drawBadge(`${c.unlockIn || 1} 單`, 0, this._clothRect(c).y + this._clothRect(c).h * 0.55 + this._clothRect(c).w * 0.36 + 12);
+      if (!r) this.drawBadge(((c.unlockIn || 1) === 1 ? t('extra.badges.order1') : t('hud.orders', { n: c.unlockIn })), 0, this._clothRect(c).y + this._clothRect(c).h * 0.55 + this._clothRect(c).w * 0.36 + 12);
       ctx.restore();
     }
     ctx.restore();

@@ -15,11 +15,11 @@
   <!-- 批次 1：開場必需，喺 HTML 層 preload，唔經遊戲 loader（Spec v2：導師貓單張 CHR_cat_idle） -->
   <link rel="preload" as="image" href="assets/company-logo.webp">
   <link rel="preload" as="image" href="assets/v2/cat_idle.webp">
-  <link rel="modulepreload" href="src/client/main.js?v=7">
+  <link rel="modulepreload" href="src/client/main.js?v=8">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&display=swap">
-  <link rel="stylesheet" href="styles.css?v=7">
+  <link rel="stylesheet" href="styles.css?v=8">
 </head>
 <body>
 <div id="app">
@@ -32,11 +32,11 @@
   <!-- ===== 開場：遊戲 Loading（深色工房）===== -->
   <section id="screen-loading" class="screen boot-loading">
     <!-- 開場字標：舊圖係珍奶時期嘅「喵喵茶記」，新 wordmark 圖未交付，暫用文字 -->
-    <div class="boot-wordmark" aria-label="Mortar &amp; Mew"><span class="wm-main">Mortar &amp; Mew</span><span class="wm-sub">煉金工房 · 試劑分類</span></div>
+    <div class="boot-wordmark" data-i18n-key="app.name" data-i18n-attr="aria-label" aria-label="Mortar &amp; Mew"><span class="wm-main" data-i18n="app.name">Mortar &amp; Mew</span><span class="wm-sub" data-i18n="app.subtitle">煉金工房 · 試劑分類</span></div>
     <img id="boot-mocha" class="boot-mocha" src="assets/v2/cat_idle.webp" alt="">
     <div class="boot-bar"><div id="boot-fill" class="boot-fill"></div><span class="boot-straw"></span></div>
-    <div id="boot-tip" class="boot-tip">正在點蠟燭…</div>
-    <div id="boot-retry" class="boot-retry" hidden>載入唔到，撳一下重試</div>
+    <div id="boot-tip" class="boot-tip" data-i18n="extra.boot.tip1">正在點蠟燭…</div>
+    <div id="boot-retry" class="boot-retry" data-i18n="extra.boot.retry" hidden>載入唔到，撳一下重試</div>
   </section>
 
   <!-- ===== 主畫面（煉金工房）===== -->
@@ -44,17 +44,18 @@
     <div class="title-bg"></div>
     <div class="title-content">
       <div id="cafe-banner" class="cafe-banner" hidden></div>
-      <img class="title-mascot" src="assets/v2/cat_idle.webp" alt="導師">
-      <h1 class="logo"><span class="logo-main">Mortar &amp; Mew</span><span class="logo-sub">煉金工房 · 試劑分類解謎</span></h1>
+      <img class="title-mascot" src="assets/v2/cat_idle.webp" alt="導師" data-i18n-key="extra.title.mascotAlt" data-i18n-attr="alt">
+      <h1 class="logo"><span class="logo-main" data-i18n="app.name">Mortar &amp; Mew</span><span class="logo-sub" data-i18n="app.subtitle">煉金工房 · 試劑分類解謎</span></h1>
       <div class="menu">
-        <button id="btn-continue" class="btn primary">開始</button>
-        <button id="btn-levels" class="btn">關卡選擇</button>
-        <button id="btn-practice" class="btn">練習模式</button>
-        <button id="btn-help" class="btn ghost">點樣玩？</button>
+        <button id="btn-continue" class="btn primary" data-i18n="menu.start">開始</button>
+        <button id="btn-levels" class="btn" data-i18n="menu.levelSelect">關卡選擇</button>
+        <button id="btn-practice" class="btn" data-i18n="menu.practice">練習模式</button>
+        <button id="btn-help" class="btn ghost" data-i18n="menu.howToPlay">點樣玩？</button>
       </div>
       <div class="title-foot">
-        <span class="coins"><img class="ico" src="assets/v2/ui_coin.webp" alt="金幣"> <b id="coins-title">0</b></span>
-        <span class="stars-total"><img class="ico" src="assets/v2/ui_star.webp" alt="星"> <b id="stars-title">0</b>/120</span>
+        <span class="coins"><img class="ico" src="assets/v2/ui_coin.webp" alt="金幣" data-i18n-key="hud.coins" data-i18n-attr="alt"> <b id="coins-title">0</b></span>
+        <span class="stars-total"><img class="ico" src="assets/v2/ui_star.webp" alt="星" data-i18n-key="extra.title.starsAlt" data-i18n-attr="alt"> <b id="stars-title">0</b>/120</span>
+        <button class="icon-btn img settings" id="btn-settings-title" aria-label="設定" title="設定" data-i18n-key="menu.settings" data-i18n-attr="aria-label|title"><img src="assets/v2/ui_sys_settings.webp" alt=""></button>
       </div>
     </div>
   </section>
@@ -62,9 +63,9 @@
   <!-- ===== 關卡選擇 ===== -->
   <section id="screen-levels" class="screen">
     <header class="bar">
-      <button class="icon-btn img" id="btn-levels-back" aria-label="返回"><img src="assets/v2/ui_sys_back.webp" alt=""></button>
-      <h2>關卡</h2>
-      <span class="coins"><img class="ico" src="assets/v2/ui_coin.webp" alt="金幣"> <b id="coins-levels">0</b></span>
+      <button class="icon-btn img" id="btn-levels-back" aria-label="返回" data-i18n-key="actions.back" data-i18n-attr="aria-label"><img src="assets/v2/ui_sys_back.webp" alt=""></button>
+      <h2 data-i18n="menu.levelSelect">關卡</h2>
+      <span class="coins"><img class="ico" src="assets/v2/ui_coin.webp" alt="金幣" data-i18n-key="hud.coins" data-i18n-attr="alt"> <b id="coins-levels">0</b></span>
     </header>
     <div id="level-grid" class="level-grid"></div>
   </section>
@@ -81,26 +82,27 @@
 
     <div class="game-col">
       <header class="zone zone-top">
-        <button class="icon-btn img shop" id="btn-game-back" aria-label="返回工房" title="返回工房"><img src="assets/v2/ui_sys_shop.webp" alt=""></button>
+        <button class="icon-btn img shop" id="btn-game-back" aria-label="返回工房" title="返回工房" data-i18n-key="extra.hud.backToLab" data-i18n-attr="aria-label|title"><img src="assets/v2/ui_sys_shop.webp" alt=""></button>
         <div class="level-title"><b id="game-level-no">第 1 關</b><span id="game-level-title"></span></div>
-        <div class="pace" id="pace" title="步數 / 三星門檻"><span class="pace-stars" id="pace-stars"></span><span class="pace-moves" id="pace-moves">0 步</span></div>
-        <button class="icon-btn" id="btn-mute" aria-label="音效">🔊</button>
+        <div class="pace" id="pace" title="步數 / 三星門檻" data-i18n-key="extra.hud.paceStatic" data-i18n-attr="title"><span class="pace-stars" id="pace-stars"></span><span class="pace-moves" id="pace-moves">0 步</span></div>
+        <button class="icon-btn" id="btn-mute" aria-label="音效" data-i18n-key="settings.sound" data-i18n-attr="aria-label|title">🔊</button>
+        <button class="icon-btn img settings" id="btn-settings-game" aria-label="設定" title="設定" data-i18n-key="menu.settings" data-i18n-attr="aria-label|title"><img src="assets/v2/ui_sys_settings.webp" alt=""></button>
       </header>
       <div class="zone zone-customers" id="customers"></div>
       <div class="zone zone-board">
         <canvas id="board"></canvas>
       </div>
       <div class="zone zone-mocha">
-        <img id="mocha-img" src="assets/v2/cat_idle.webp" alt="導師">
-        <div id="mocha-bubble" class="bubble">揀一隻瓶，再揀倒去邊隻～</div>
+        <img id="mocha-img" src="assets/v2/cat_idle.webp" alt="導師" data-i18n-key="extra.title.mascotAlt" data-i18n-attr="alt">
+        <div id="mocha-bubble" class="bubble" data-i18n="tutorial.pour">揀一隻瓶，再揀倒去邊隻～</div>
         <!-- Spec v2 §6 addEmptyBottle：黃銅紋章廣告入口（第 11 關起、冇空瓶時先出現；第 1–10 關永遠冇）。
              放喺導師區右下角而唔係瓶陣之上：R2 永不遮液體 -->
-        <button id="btn-add-cup" class="crest-btn" type="button" hidden aria-label="睇廣告加一隻空燒瓶" title="睇廣告加一隻空燒瓶"><img src="assets/v2/ui_ad_crest.webp" alt=""><span>+瓶</span></button>
+        <button id="btn-add-cup" class="crest-btn" type="button" hidden aria-label="睇廣告加一隻空燒瓶" title="睇廣告加一隻空燒瓶" data-i18n-key="extra.hud.addCupAria" data-i18n-attr="aria-label|title"><img src="assets/v2/ui_ad_crest.webp" alt=""><span data-i18n="extra.hud.addCup">+瓶</span></button>
       </div>
       <footer class="zone zone-actions">
-        <button class="act" id="btn-undo"><img src="assets/v2/ui_item_undo.webp" alt=""><span>撤銷</span></button>
-        <button class="act" id="btn-hint"><img src="assets/v2/ui_item_hint.webp" alt=""><span>提示</span></button>
-        <button class="act" id="btn-restart"><i>↻</i><span>重來</span></button>
+        <button class="act" id="btn-undo"><img src="assets/v2/ui_item_undo.webp" alt=""><span data-i18n="actions.undo">撤銷</span></button>
+        <button class="act" id="btn-hint"><img src="assets/v2/ui_item_hint.webp" alt=""><span data-i18n="actions.hint">提示</span></button>
+        <button class="act" id="btn-restart"><i>↻</i><span data-i18n="actions.restart">重來</span></button>
       </footer>
     </div>
   </section>
@@ -109,6 +111,6 @@
   <div id="modal" class="modal hidden"><div class="card" id="modal-card"></div></div>
   <div id="toast" class="toast hidden"></div>
 </div>
-<script type="module" src="src/client/main.js?v=7"></script>
+<script type="module" src="src/client/main.js?v=8"></script>
 </body>
 </html>

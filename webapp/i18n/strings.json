@@ -1,0 +1,1300 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "locales": [
+      "en",
+      "zh-Hant",
+      "zh-Hans"
+    ],
+    "fallback": "en",
+    "note": "zh-Hant 用書面中文（台灣為主），非廣東話。zh-Hans 用大陸用語，非簡單轉碼。"
+  },
+  "app": {
+    "name": {
+      "en": "Mortar & Mew",
+      "zh-Hant": "深夜藥劑鋪",
+      "zh-Hans": "深夜药剂铺"
+    },
+    "subtitle": {
+      "en": "Potion & Water Sort Puzzle",
+      "zh-Hant": "藥劑分類解謎",
+      "zh-Hans": "药剂分类解谜"
+    },
+    "tagline": {
+      "en": "The apothecary opens at midnight.",
+      "zh-Hant": "只在深夜開門的藥劑鋪。",
+      "zh-Hans": "只在深夜开门的药剂铺。"
+    }
+  },
+  "menu": {
+    "start": {
+      "en": "Begin",
+      "zh-Hant": "開始",
+      "zh-Hans": "开始"
+    },
+    "levelSelect": {
+      "en": "Levels",
+      "zh-Hant": "關卡選擇",
+      "zh-Hans": "关卡选择"
+    },
+    "practice": {
+      "en": "Practice",
+      "zh-Hant": "練習模式",
+      "zh-Hans": "练习模式"
+    },
+    "howToPlay": {
+      "en": "How to play",
+      "zh-Hant": "遊戲說明",
+      "zh-Hans": "游戏说明"
+    },
+    "settings": {
+      "en": "Settings",
+      "zh-Hant": "設定",
+      "zh-Hans": "设置"
+    },
+    "codex": {
+      "en": "Codex",
+      "zh-Hant": "藥劑圖鑑",
+      "zh-Hans": "药剂图鉴"
+    },
+    "shop": {
+      "en": "Shop",
+      "zh-Hant": "商店",
+      "zh-Hans": "商店"
+    },
+    "daily": {
+      "en": "Daily",
+      "zh-Hant": "每日",
+      "zh-Hans": "每日"
+    }
+  },
+  "hud": {
+    "level": {
+      "en": "Level {n}",
+      "zh-Hant": "第 {n} 關",
+      "zh-Hans": "第 {n} 关"
+    },
+    "moves": {
+      "en": "Moves {n}",
+      "zh-Hant": "步數 {n}",
+      "zh-Hans": "步数 {n}"
+    },
+    "movesOf": {
+      "en": "Moves {n} / {max}",
+      "zh-Hant": "步數 {n} / {max}",
+      "zh-Hans": "步数 {n} / {max}"
+    },
+    "coins": {
+      "en": "Coins",
+      "zh-Hant": "金幣",
+      "zh-Hans": "金币"
+    },
+    "stars": {
+      "en": "{n} / {total}",
+      "zh-Hant": "{n} / {total}",
+      "zh-Hans": "{n} / {total}"
+    },
+    "orders": {
+      "en": "{n} orders",
+      "zh-Hant": "{n} 單",
+      "zh-Hans": "{n} 单"
+    }
+  },
+  "actions": {
+    "undo": {
+      "en": "Undo",
+      "zh-Hant": "撤銷",
+      "zh-Hans": "撤销"
+    },
+    "restart": {
+      "en": "Restart",
+      "zh-Hant": "重來",
+      "zh-Hans": "重来"
+    },
+    "hint": {
+      "en": "Hint",
+      "zh-Hant": "提示",
+      "zh-Hans": "提示"
+    },
+    "addVial": {
+      "en": "Add vial",
+      "zh-Hant": "加瓶",
+      "zh-Hans": "加瓶"
+    },
+    "swap": {
+      "en": "Swap",
+      "zh-Hant": "換瓶",
+      "zh-Hans": "换瓶"
+    },
+    "next": {
+      "en": "Next",
+      "zh-Hant": "下一關",
+      "zh-Hans": "下一关"
+    },
+    "back": {
+      "en": "Back",
+      "zh-Hant": "返回",
+      "zh-Hans": "返回"
+    },
+    "confirm": {
+      "en": "Confirm",
+      "zh-Hant": "確認",
+      "zh-Hans": "确认"
+    },
+    "cancel": {
+      "en": "Cancel",
+      "zh-Hant": "取消",
+      "zh-Hans": "取消"
+    },
+    "watchAd": {
+      "en": "Watch",
+      "zh-Hant": "觀看",
+      "zh-Hans": "观看"
+    }
+  },
+  "vessels": {
+    "flask": {
+      "en": "Flask",
+      "zh-Hant": "燒瓶",
+      "zh-Hans": "烧瓶"
+    },
+    "retort": {
+      "en": "Retort",
+      "zh-Hant": "曲頸瓶",
+      "zh-Hans": "曲颈瓶"
+    },
+    "cracked": {
+      "en": "Cracked flask",
+      "zh-Hant": "裂紋瓶",
+      "zh-Hans": "裂纹瓶"
+    },
+    "frosted": {
+      "en": "Frosted flask",
+      "zh-Hant": "磨砂瓶",
+      "zh-Hans": "磨砂瓶"
+    },
+    "cloth": {
+      "en": "Shrouded vial",
+      "zh-Hant": "布罩瓶",
+      "zh-Hans": "布罩瓶"
+    }
+  },
+  "liquids": {
+    "A": {
+      "en": "Sulphur",
+      "zh-Hant": "硫黃",
+      "zh-Hans": "硫黄"
+    },
+    "B": {
+      "en": "Amber",
+      "zh-Hant": "琥珀",
+      "zh-Hans": "琥珀"
+    },
+    "C": {
+      "en": "Rose",
+      "zh-Hant": "薔薇",
+      "zh-Hans": "蔷薇"
+    },
+    "D": {
+      "en": "Cinnabar",
+      "zh-Hant": "硃砂",
+      "zh-Hans": "朱砂"
+    },
+    "E": {
+      "en": "Gentian",
+      "zh-Hant": "龍膽",
+      "zh-Hans": "龙胆"
+    },
+    "F": {
+      "en": "Amethyst",
+      "zh-Hant": "紫晶",
+      "zh-Hans": "紫晶"
+    },
+    "G": {
+      "en": "Pale Blue",
+      "zh-Hant": "淡藍",
+      "zh-Hans": "淡蓝"
+    },
+    "H": {
+      "en": "Ultramarine",
+      "zh-Hant": "群青",
+      "zh-Hans": "群青"
+    },
+    "I": {
+      "en": "Verdigris",
+      "zh-Hant": "銅綠",
+      "zh-Hans": "铜绿"
+    },
+    "J": {
+      "en": "Opal",
+      "zh-Hant": "蛋白石",
+      "zh-Hans": "蛋白石"
+    }
+  },
+  "patterns": {
+    "P0": {
+      "en": "Clear",
+      "zh-Hant": "澄清",
+      "zh-Hans": "澄清"
+    },
+    "P1": {
+      "en": "Sediment",
+      "zh-Hant": "沉澱物",
+      "zh-Hans": "沉淀物"
+    },
+    "P2": {
+      "en": "Crystals",
+      "zh-Hant": "結晶",
+      "zh-Hans": "结晶"
+    },
+    "P3": {
+      "en": "Layered",
+      "zh-Hant": "分層試劑",
+      "zh-Hans": "分层试剂"
+    },
+    "P4": {
+      "en": "Spores",
+      "zh-Hant": "懸浮孢子",
+      "zh-Hans": "悬浮孢子"
+    }
+  },
+  "clients": {
+    "owl": {
+      "en": "The Collector",
+      "zh-Hant": "收藏家",
+      "zh-Hans": "收藏家"
+    },
+    "raven": {
+      "en": "The Courier",
+      "zh-Hant": "信使",
+      "zh-Hans": "信使"
+    },
+    "badger": {
+      "en": "The Merchant",
+      "zh-Hant": "藥商",
+      "zh-Hans": "药商"
+    },
+    "hare": {
+      "en": "The Lady",
+      "zh-Hant": "夫人",
+      "zh-Hans": "夫人"
+    },
+    "locked": {
+      "en": "Not yet arrived",
+      "zh-Hant": "尚未到訪",
+      "zh-Hans": "尚未到访"
+    },
+    "deliver": {
+      "en": "Deliver",
+      "zh-Hant": "交貨",
+      "zh-Hans": "交货"
+    }
+  },
+  "tutorial": {
+    "pour": {
+      "en": "Tap a vial, then tap where to pour.",
+      "zh-Hant": "點選一瓶，再點選要倒入的瓶。",
+      "zh-Hans": "点选一瓶，再点选要倒入的瓶。"
+    },
+    "sameOnly": {
+      "en": "Only the same liquid can be poured together.",
+      "zh-Hant": "只有相同的藥劑才能倒在一起。",
+      "zh-Hans": "只有相同的药剂才能倒在一起。"
+    },
+    "frosted": {
+      "en": "Frosted glass hides all but the top layer.",
+      "zh-Hant": "磨砂玻璃只露出最上層。",
+      "zh-Hans": "磨砂玻璃只露出最上层。"
+    },
+    "cloth": {
+      "en": "Shrouded vials stay sealed until two orders are delivered.",
+      "zh-Hant": "布罩瓶要交出兩單才會解開。",
+      "zh-Hans": "布罩瓶要交出两单才会解开。"
+    },
+    "waxSeal": {
+      "en": "The wax seal shows what lies on top.",
+      "zh-Hant": "蠟封顯示最上層的藥劑。",
+      "zh-Hans": "蜡封显示最上层的药剂。"
+    },
+    "cracked": {
+      "en": "A cracked flask can be emptied, but never filled.",
+      "zh-Hant": "裂紋瓶只能倒出，不能倒入。",
+      "zh-Hans": "裂纹瓶只能倒出，不能倒入。"
+    },
+    "capacity": {
+      "en": "Retorts hold three measures, flasks hold four.",
+      "zh-Hant": "曲頸瓶裝三格，燒瓶裝四格。",
+      "zh-Hans": "曲颈瓶装三格，烧瓶装四格。"
+    }
+  },
+  "catLines": {
+    "idle1": {
+      "en": "Take your time.",
+      "zh-Hant": "慢慢來，不急。",
+      "zh-Hans": "慢慢来，不急。"
+    },
+    "idle2": {
+      "en": "The night is long.",
+      "zh-Hant": "夜還很長。",
+      "zh-Hans": "夜还很长。"
+    },
+    "pouring": {
+      "en": "Pouring…",
+      "zh-Hant": "倒入中……",
+      "zh-Hans": "倒入中……"
+    },
+    "good": {
+      "en": "Neatly done.",
+      "zh-Hant": "整齊多了。",
+      "zh-Hans": "整齐多了。"
+    },
+    "cleared": {
+      "en": "One more shelf in order.",
+      "zh-Hant": "又整理好一架了。",
+      "zh-Hans": "又整理好一架了。"
+    },
+    "stuck": {
+      "en": "Nothing left to pour. Shall we start over?",
+      "zh-Hant": "沒有能倒的了，要重來嗎？",
+      "zh-Hans": "没有能倒的了，要重来吗？"
+    },
+    "wrong": {
+      "en": "Different liquids won't mix.",
+      "zh-Hant": "不同的藥劑倒不進去。",
+      "zh-Hans": "不同的药剂倒不进去。"
+    }
+  },
+  "results": {
+    "complete": {
+      "en": "Order complete",
+      "zh-Hant": "交貨完成",
+      "zh-Hans": "交货完成"
+    },
+    "stars1": {
+      "en": "Delivered",
+      "zh-Hant": "已交貨",
+      "zh-Hans": "已交货"
+    },
+    "stars2": {
+      "en": "Well measured",
+      "zh-Hant": "分量準確",
+      "zh-Hans": "分量准确"
+    },
+    "stars3": {
+      "en": "Perfect distillation",
+      "zh-Hant": "完美蒸餾",
+      "zh-Hans": "完美蒸馏"
+    },
+    "bestMoves": {
+      "en": "Fewest moves: {n}",
+      "zh-Hant": "最短解：{n} 步",
+      "zh-Hans": "最短解：{n} 步"
+    },
+    "yourMoves": {
+      "en": "Your moves: {n}",
+      "zh-Hant": "你的步數：{n}",
+      "zh-Hans": "你的步数：{n}"
+    },
+    "noMoves": {
+      "en": "No moves left",
+      "zh-Hant": "無路可走",
+      "zh-Hans": "无路可走"
+    }
+  },
+  "settings": {
+    "language": {
+      "en": "Language",
+      "zh-Hant": "語言",
+      "zh-Hans": "语言"
+    },
+    "sound": {
+      "en": "Sound",
+      "zh-Hant": "音效",
+      "zh-Hans": "音效"
+    },
+    "music": {
+      "en": "Music",
+      "zh-Hant": "音樂",
+      "zh-Hans": "音乐"
+    },
+    "haptics": {
+      "en": "Haptics",
+      "zh-Hant": "震動回饋",
+      "zh-Hans": "震动反馈"
+    },
+    "colorblind": {
+      "en": "High-contrast patterns",
+      "zh-Hant": "高辨識模式",
+      "zh-Hans": "高辨识模式"
+    },
+    "colorblindNote": {
+      "en": "Every liquid gets its own pattern, so colour alone is never required.",
+      "zh-Hant": "每種藥劑都有專屬紋樣，不必只靠顏色分辨。",
+      "zh-Hans": "每种药剂都有专属纹样，不必只靠颜色分辨。"
+    },
+    "resetProgress": {
+      "en": "Reset progress",
+      "zh-Hant": "重置進度",
+      "zh-Hans": "重置进度"
+    },
+    "credits": {
+      "en": "Credits",
+      "zh-Hant": "製作名單",
+      "zh-Hans": "制作名单"
+    }
+  },
+  "ads": {
+    "unlockOrder": {
+      "en": "Unlock this order",
+      "zh-Hant": "解鎖此委託",
+      "zh-Hans": "解锁此委托"
+    },
+    "addVial": {
+      "en": "Get an empty vial",
+      "zh-Hant": "取得空瓶",
+      "zh-Hans": "取得空瓶"
+    },
+    "noAdsEarly": {
+      "en": "No ads for the first ten levels.",
+      "zh-Hant": "前十關完全無廣告。",
+      "zh-Hans": "前十关完全无广告。"
+    }
+  },
+  "languageNames": {
+    "en": {
+      "en": "English",
+      "zh-Hant": "English",
+      "zh-Hans": "English"
+    },
+    "zh-Hant": {
+      "en": "繁體中文",
+      "zh-Hant": "繁體中文",
+      "zh-Hans": "繁體中文"
+    },
+    "zh-Hans": {
+      "en": "简体中文",
+      "zh-Hant": "简体中文",
+      "zh-Hans": "简体中文"
+    }
+  },
+  "extra": {
+    "title": {
+      "continueLevel": {
+        "en": "Continue · Level {n}",
+        "zh-Hant": "繼續 · 第 {n} 關",
+        "zh-Hans": "继续 · 第 {n} 关"
+      },
+      "replayLevel": {
+        "en": "Replay Level {n}",
+        "zh-Hant": "重玩第 {n} 關",
+        "zh-Hans": "重玩第 {n} 关"
+      },
+      "mascotAlt": {
+        "en": "Tutor",
+        "zh-Hant": "導師",
+        "zh-Hans": "导师"
+      },
+      "starsAlt": {
+        "en": "Stars",
+        "zh-Hant": "星星",
+        "zh-Hans": "星星"
+      }
+    },
+    "boot": {
+      "tip1": {
+        "en": "Lighting the candles…",
+        "zh-Hant": "正在點蠟燭……",
+        "zh-Hans": "正在点蜡烛……"
+      },
+      "tip2": {
+        "en": "Grinding reagents…",
+        "zh-Hant": "正在研磨試劑……",
+        "zh-Hans": "正在研磨试剂……"
+      },
+      "tip3": {
+        "en": "The tutor is polishing flasks…",
+        "zh-Hant": "導師正在擦拭燒瓶……",
+        "zh-Hans": "导师正在擦拭烧瓶……"
+      },
+      "tip4": {
+        "en": "Clients are on their way…",
+        "zh-Hant": "委託人快到工房了……",
+        "zh-Hans": "委托人快到工房了……"
+      },
+      "tip5": {
+        "en": "Sealing the wax…",
+        "zh-Hant": "正在封蠟……",
+        "zh-Hans": "正在封蜡……"
+      },
+      "retry": {
+        "en": "Couldn't load — tap to retry",
+        "zh-Hant": "載入失敗，點一下重試",
+        "zh-Hans": "加载失败，点一下重试"
+      }
+    },
+    "chapters": {
+      "heading": {
+        "en": "Chapter {n} · {name}",
+        "zh-Hant": "第{n}章 · {name}",
+        "zh-Hans": "第{n}章 · {name}"
+      },
+      "c1": {
+        "en": "Tutorial",
+        "zh-Hant": "教學",
+        "zh-Hans": "教学"
+      },
+      "c2": {
+        "en": "Apprentice",
+        "zh-Hant": "學徒",
+        "zh-Hans": "学徒"
+      },
+      "c3": {
+        "en": "Furnace Lit",
+        "zh-Hant": "開爐",
+        "zh-Hans": "开炉"
+      },
+      "c4": {
+        "en": "Two Orders",
+        "zh-Hant": "兩張委託",
+        "zh-Hans": "两张委托"
+      },
+      "c5": {
+        "en": "Night Shift",
+        "zh-Hant": "夜班",
+        "zh-Hans": "夜班"
+      },
+      "c6": {
+        "en": "Late Night",
+        "zh-Hant": "深夜",
+        "zh-Hans": "深夜"
+      },
+      "c7": {
+        "en": "Master Tier",
+        "zh-Hant": "師傅級",
+        "zh-Hans": "师傅级"
+      },
+      "c8": {
+        "en": "Tutor Tier",
+        "zh-Hant": "導師級",
+        "zh-Hans": "导师级"
+      }
+    },
+    "levels": {
+      "l1": {
+        "en": "The First Vial",
+        "zh-Hant": "第一瓶",
+        "zh-Hans": "第一瓶"
+      },
+      "l2": {
+        "en": "Second Order",
+        "zh-Hant": "第二單",
+        "zh-Hans": "第二单"
+      },
+      "l3": {
+        "en": "Shift Change",
+        "zh-Hant": "換班",
+        "zh-Hans": "换班"
+      },
+      "l4": {
+        "en": "Getting the Hang",
+        "zh-Hant": "上手了",
+        "zh-Hans": "上手了"
+      },
+      "l5": {
+        "en": "Evening Shift",
+        "zh-Hant": "晚班",
+        "zh-Hans": "晚班"
+      },
+      "l6": {
+        "en": "Frosted Over",
+        "zh-Hant": "蒙上霧氣",
+        "zh-Hans": "蒙上雾气"
+      },
+      "l7": {
+        "en": "In the Queue",
+        "zh-Hant": "排隊",
+        "zh-Hans": "排队"
+      },
+      "l8": {
+        "en": "Before Closing",
+        "zh-Hant": "打烊前",
+        "zh-Hans": "打烊前"
+      },
+      "l9": {
+        "en": "Frosted Flask",
+        "zh-Hant": "磨砂瓶",
+        "zh-Hans": "磨砂瓶"
+      },
+      "l10": {
+        "en": "Retort",
+        "zh-Hant": "曲頸瓶",
+        "zh-Hans": "曲颈瓶"
+      },
+      "l11": {
+        "en": "Order Rush",
+        "zh-Hant": "訂單爆量",
+        "zh-Hans": "订单爆满"
+      },
+      "l12": {
+        "en": "Lab Rush Hour",
+        "zh-Hant": "實驗室尖峰",
+        "zh-Hans": "实验室高峰"
+      },
+      "l13": {
+        "en": "Lighting the Furnace",
+        "zh-Hant": "開爐",
+        "zh-Hans": "开炉"
+      },
+      "l14": {
+        "en": "Tutor's Hint",
+        "zh-Hant": "導師提示",
+        "zh-Hans": "导师提示"
+      },
+      "l15": {
+        "en": "Cracked Flask",
+        "zh-Hant": "裂紋瓶",
+        "zh-Hans": "裂纹瓶"
+      },
+      "l16": {
+        "en": "Hidden Depths",
+        "zh-Hant": "看不見的底層",
+        "zh-Hans": "看不见的底层"
+      },
+      "l17": {
+        "en": "Two Orders",
+        "zh-Hant": "兩張委託",
+        "zh-Hans": "两张委托"
+      },
+      "l18": {
+        "en": "Long Queue",
+        "zh-Hant": "大排長龍",
+        "zh-Hans": "大排长龙"
+      },
+      "l19": {
+        "en": "Shrouded Vial",
+        "zh-Hant": "布罩瓶",
+        "zh-Hans": "布罩瓶"
+      },
+      "l20": {
+        "en": "Family Portrait",
+        "zh-Hant": "全家福",
+        "zh-Hans": "全家福"
+      },
+      "l21": {
+        "en": "Night Shift Begins",
+        "zh-Hant": "夜班開始",
+        "zh-Hans": "夜班开始"
+      },
+      "l22": {
+        "en": "Two Frosted",
+        "zh-Hant": "兩個磨砂瓶",
+        "zh-Hans": "两个磨砂瓶"
+      },
+      "l23": {
+        "en": "Shroud and Retort",
+        "zh-Hant": "布罩與曲頸",
+        "zh-Hans": "布罩与曲颈"
+      },
+      "l24": {
+        "en": "Cracks Return",
+        "zh-Hant": "裂紋再現",
+        "zh-Hans": "裂纹再现"
+      },
+      "l25": {
+        "en": "Wax Seal",
+        "zh-Hant": "蠟封",
+        "zh-Hans": "蜡封"
+      },
+      "l26": {
+        "en": "Deep Night",
+        "zh-Hant": "夜更深",
+        "zh-Hans": "夜更深"
+      },
+      "l27": {
+        "en": "Double Frost",
+        "zh-Hant": "雙重磨砂",
+        "zh-Hans": "双重磨砂"
+      },
+      "l28": {
+        "en": "Three Vessels",
+        "zh-Hant": "三種瓶",
+        "zh-Hans": "三种瓶"
+      },
+      "l29": {
+        "en": "One Empty Flask",
+        "zh-Hant": "只有一個空瓶",
+        "zh-Hans": "只有一个空瓶"
+      },
+      "l30": {
+        "en": "Shroud and Double Frost",
+        "zh-Hant": "布罩與雙磨砂",
+        "zh-Hans": "布罩与双磨砂"
+      },
+      "l31": {
+        "en": "All Six Colours",
+        "zh-Hant": "六色齊發",
+        "zh-Hans": "六色齐发"
+      },
+      "l32": {
+        "en": "Six Colours, Frosted",
+        "zh-Hant": "六色磨砂",
+        "zh-Hans": "六色磨砂"
+      },
+      "l33": {
+        "en": "Eight Vessels",
+        "zh-Hant": "八個瓶",
+        "zh-Hans": "八个瓶"
+      },
+      "l34": {
+        "en": "Retort Night Shift",
+        "zh-Hant": "曲頸夜班",
+        "zh-Hans": "曲颈夜班"
+      },
+      "l35": {
+        "en": "Master's Exam",
+        "zh-Hant": "師傅考核",
+        "zh-Hans": "师傅考核"
+      },
+      "l36": {
+        "en": "Tutor's Lecture",
+        "zh-Hant": "導師訓話",
+        "zh-Hans": "导师训话"
+      },
+      "l37": {
+        "en": "Shroud and Double Frost II",
+        "zh-Hant": "布罩與雙磨砂 II",
+        "zh-Hans": "布罩与双磨砂 II"
+      },
+      "l38": {
+        "en": "Every Vessel",
+        "zh-Hant": "全部瓶種",
+        "zh-Hans": "全部瓶种"
+      },
+      "l39": {
+        "en": "Final Sprint",
+        "zh-Hant": "最後衝刺",
+        "zh-Hans": "最后冲刺"
+      },
+      "l40": {
+        "en": "Light of the Lab",
+        "zh-Hant": "實驗室之光",
+        "zh-Hans": "实验室之光"
+      }
+    },
+    "hud": {
+      "practice": {
+        "en": "Practice",
+        "zh-Hant": "練習",
+        "zh-Hans": "练习"
+      },
+      "paceStatic": {
+        "en": "Moves / star thresholds",
+        "zh-Hant": "步數 / 三星門檻",
+        "zh-Hans": "步数 / 三星门槛"
+      },
+      "paceTitle": {
+        "en": "Moves {n} · 3 stars ≤ {three} · best {opt}",
+        "zh-Hant": "步數 {n} · 三星 ≤ {three} · 最優 {opt}",
+        "zh-Hans": "步数 {n} · 三星 ≤ {three} · 最优 {opt}"
+      },
+      "paceTitleLimit": {
+        "en": "Moves {n} / {max} · 3 stars ≤ {three} · best {opt}",
+        "zh-Hant": "步數 {n} / 上限 {max} · 三星 ≤ {three} · 最優 {opt}",
+        "zh-Hans": "步数 {n} / 上限 {max} · 三星 ≤ {three} · 最优 {opt}"
+      },
+      "starsSr": {
+        "en": "{n} / {total} stars",
+        "zh-Hant": "{n} / {total} 星",
+        "zh-Hans": "{n} / {total} 星"
+      },
+      "crest": {
+        "en": "Order",
+        "zh-Hant": "委託",
+        "zh-Hans": "委托"
+      },
+      "crestAria": {
+        "en": "Watch an ad to unlock an order slot",
+        "zh-Hant": "觀看廣告解鎖委託槽",
+        "zh-Hans": "观看广告解锁委托槽"
+      },
+      "addCup": {
+        "en": "+Vial",
+        "zh-Hant": "+瓶",
+        "zh-Hans": "+瓶"
+      },
+      "addCupAria": {
+        "en": "Watch an ad to add an empty flask",
+        "zh-Hant": "觀看廣告增加一個空燒瓶",
+        "zh-Hans": "观看广告增加一个空烧瓶"
+      },
+      "noOrders": {
+        "en": "No orders today · fill one flask of each reagent to finish",
+        "zh-Hant": "今日沒有委託 · 每種試劑裝滿一瓶即完成",
+        "zh-Hans": "今日没有委托 · 每种试剂装满一瓶即完成"
+      },
+      "client": {
+        "en": "Client",
+        "zh-Hant": "委託人",
+        "zh-Hans": "委托人"
+      },
+      "backToLab": {
+        "en": "Back to the lab",
+        "zh-Hant": "返回工房",
+        "zh-Hans": "返回工房"
+      }
+    },
+    "tutor": {
+      "idleEmpty": {
+        "en": "An empty flask takes anything.",
+        "zh-Hant": "空燒瓶什麼都裝得下。",
+        "zh-Hans": "空烧瓶什么都装得下。"
+      },
+      "idleOrder": {
+        "en": "Clients only accept a full flask of one reagent.",
+        "zh-Hant": "委託人只收整瓶純色的試劑。",
+        "zh-Hans": "委托人只收整瓶纯色的试剂。"
+      },
+      "serve1": {
+        "en": "Ding! Order delivered.",
+        "zh-Hant": "叮！這一單交貨了。",
+        "zh-Hans": "叮！这一单交货了。"
+      },
+      "serve2": {
+        "en": "The client is delighted.",
+        "zh-Hant": "委託人很滿意。",
+        "zh-Hans": "委托人很满意。"
+      },
+      "serve3": {
+        "en": "Beautifully refined!",
+        "zh-Hant": "這瓶提煉得真好！",
+        "zh-Hans": "这瓶提炼得真好！"
+      },
+      "almost1": {
+        "en": "Almost done refining!",
+        "zh-Hant": "快提煉完了！",
+        "zh-Hans": "快提炼完了！"
+      },
+      "almost2": {
+        "en": "Just a little more.",
+        "zh-Hant": "還差一點。",
+        "zh-Hans": "还差一点。"
+      },
+      "stuck2": {
+        "en": "Stuck… shall we undo a step?",
+        "zh-Hant": "卡住了……要撤銷一步試試嗎？",
+        "zh-Hans": "卡住了……要撤销一步试试吗？"
+      },
+      "clear1": {
+        "en": "Shift's over! You're the finest apprentice.",
+        "zh-Hant": "收工！你是最出色的煉金學徒。",
+        "zh-Hans": "收工！你是最出色的炼金学徒。"
+      },
+      "clear2": {
+        "en": "Every order delivered. Splendid!",
+        "zh-Hant": "所有委託都交貨了，太棒了！",
+        "zh-Hans": "所有委托都交货了，太棒了！"
+      },
+      "hint1": {
+        "en": "Try this move?",
+        "zh-Hant": "試試這一步？",
+        "zh-Hans": "试试这一步？"
+      },
+      "hint2": {
+        "en": "I'd pour it like this.",
+        "zh-Hant": "我會這樣倒。",
+        "zh-Hans": "我会这样倒。"
+      },
+      "hintLeft": {
+        "en": "({n} more moves to go)",
+        "zh-Hant": "（再 {n} 步就完成）",
+        "zh-Hans": "（再 {n} 步就完成）"
+      },
+      "covered": {
+        "en": "Shrouded vials are sealed; the wax shows the top colour. Deliver two orders to unveil one.",
+        "zh-Hant": "布罩瓶已封住，蠟封顯示頂層顏色；交出兩單就會解開一個。",
+        "zh-Hans": "布罩瓶已封住，蜡封显示顶层颜色；交出两单就会解开一个。"
+      },
+      "unlock": {
+        "en": "Unveiled! This vial is yours to use.",
+        "zh-Hant": "解開了！這個瓶可以用了。",
+        "zh-Hans": "解开了！这个瓶可以用了。"
+      },
+      "addCup": {
+        "en": "An extra empty flask — more room to work.",
+        "zh-Hant": "多了一個空燒瓶，寬鬆多了。",
+        "zh-Hans": "多了一个空烧瓶，宽松多了。"
+      },
+      "undo": {
+        "en": "Alright, one step back.",
+        "zh-Hant": "好，退回一步。",
+        "zh-Hans": "好，退回一步。"
+      },
+      "thinking": {
+        "en": "Let me think…",
+        "zh-Hant": "讓我想想……",
+        "zh-Hans": "让我想想……"
+      },
+      "noHint": {
+        "en": "Even I can't solve this one… try undoing a few steps?",
+        "zh-Hant": "這個局面我也解不開……撤銷幾步試試？",
+        "zh-Hans": "这个局面我也解不开……撤销几步试试？"
+      },
+      "outOfMoves": {
+        "en": "Out of moves…",
+        "zh-Hant": "步數用完了……",
+        "zh-Hans": "步数用完了……"
+      }
+    },
+    "toast": {
+      "clothLocked": {
+        "en": "Shrouded vial is sealed — deliver {n} more order(s) to open it",
+        "zh-Hant": "布罩瓶已封住，再交 {n} 單才能打開",
+        "zh-Hans": "布罩瓶已封住，再交 {n} 单才能打开"
+      },
+      "crackedOnly": {
+        "en": "Cracked flask: out only, nothing goes in",
+        "zh-Hant": "裂紋瓶只能倒出，不能倒入",
+        "zh-Hans": "裂纹瓶只能倒出，不能倒入"
+      },
+      "adUnavailable": {
+        "en": "Couldn't load an ad right now. Try again later.",
+        "zh-Hant": "暫時無法載入廣告，請稍後再試",
+        "zh-Hans": "暂时无法加载广告，请稍后再试"
+      },
+      "noOrderColor": {
+        "en": "No reagent left to order right now",
+        "zh-Hant": "目前沒有未完成的試劑可以新增委託",
+        "zh-Hans": "目前没有未完成的试剂可以添加委托"
+      },
+      "noMoreVials": {
+        "en": "No more vials can be added on this level",
+        "zh-Hant": "這一關已經無法再加瓶",
+        "zh-Hans": "这一关已经无法再加瓶"
+      },
+      "levelMissing": {
+        "en": "Level data not generated",
+        "zh-Hant": "關卡資料尚未生成",
+        "zh-Hans": "关卡数据尚未生成"
+      },
+      "hintUnavailable": {
+        "en": "Hint unavailable right now",
+        "zh-Hant": "提示暫時無法使用",
+        "zh-Hans": "提示暂时无法使用"
+      },
+      "levelsLoadFailed": {
+        "en": "Failed to load levels",
+        "zh-Hant": "關卡載入失敗",
+        "zh-Hans": "关卡加载失败"
+      }
+    },
+    "ads": {
+      "playing": {
+        "en": "Ad playing",
+        "zh-Hant": "廣告播放中",
+        "zh-Hans": "广告播放中"
+      },
+      "afterOrder": {
+        "en": "One more client joins right after the ad",
+        "zh-Hant": "看完廣告立刻多一位委託人",
+        "zh-Hans": "看完广告立刻多一位委托人"
+      },
+      "afterVial": {
+        "en": "One more empty flask right after the ad",
+        "zh-Hant": "看完廣告立刻多一個空燒瓶",
+        "zh-Hans": "看完广告立刻多一个空烧瓶"
+      },
+      "secondsLeft": {
+        "en": "{n} seconds left…",
+        "zh-Hant": "還有 {n} 秒……",
+        "zh-Hans": "还有 {n} 秒……"
+      },
+      "newClient": {
+        "en": "A new client! They want {liquid}.",
+        "zh-Hant": "來了新的委託人！想要{liquid}。",
+        "zh-Hans": "来了新的委托人！想要{liquid}。"
+      }
+    },
+    "practice": {
+      "desc": {
+        "en": "Randomly generated each round; doesn't count toward progress, no ads.",
+        "zh-Hant": "每局隨機生成，不計入關卡進度，沒有廣告。",
+        "zh-Hans": "每局随机生成，不计入关卡进度，没有广告。"
+      },
+      "easy": {
+        "en": "Easy",
+        "zh-Hant": "輕鬆",
+        "zh-Hans": "轻松"
+      },
+      "easySub": {
+        "en": "6 vials · 4 colours · 1 client",
+        "zh-Hant": "6 瓶 · 4 色 · 1 位委託人",
+        "zh-Hans": "6 瓶 · 4 色 · 1 位委托人"
+      },
+      "medium": {
+        "en": "Normal",
+        "zh-Hant": "普通",
+        "zh-Hans": "普通"
+      },
+      "mediumSub": {
+        "en": "8 vials · 5 colours · frosted + retort",
+        "zh-Hant": "8 瓶 · 5 色 · 磨砂 + 曲頸瓶",
+        "zh-Hans": "8 瓶 · 5 色 · 磨砂 + 曲颈瓶"
+      },
+      "hard": {
+        "en": "Hard",
+        "zh-Hant": "困難",
+        "zh-Hans": "困难"
+      },
+      "hardSub": {
+        "en": "9 vials · 6 colours · every vessel",
+        "zh-Hant": "9 瓶 · 6 色 · 全部瓶種",
+        "zh-Hans": "9 瓶 · 6 色 · 全部瓶种"
+      },
+      "generating": {
+        "en": "The tutor is mixing reagents…",
+        "zh-Hant": "導師正在調配試劑……",
+        "zh-Hans": "导师正在调配试剂……"
+      },
+      "generatingSub": {
+        "en": "Generating a random level, one moment",
+        "zh-Hant": "正在生成隨機關卡，請稍候",
+        "zh-Hans": "正在生成随机关卡，请稍候"
+      },
+      "genFailed": {
+        "en": "Generation failed, try again",
+        "zh-Hant": "生成失敗，請再試一次",
+        "zh-Hans": "生成失败，请再试一次"
+      },
+      "genError": {
+        "en": "Generation failed: {msg}",
+        "zh-Hant": "生成失敗：{msg}",
+        "zh-Hans": "生成失败：{msg}"
+      },
+      "complete": {
+        "en": "Practice complete!",
+        "zh-Hant": "練習完成！",
+        "zh-Hans": "练习完成！"
+      },
+      "again": {
+        "en": "Play again",
+        "zh-Hant": "再來一局",
+        "zh-Hans": "再来一局"
+      }
+    },
+    "modals": {
+      "levelComplete": {
+        "en": "Level {n} complete!",
+        "zh-Hant": "第 {n} 關完成！",
+        "zh-Hans": "第 {n} 关完成！"
+      },
+      "lblMoves": {
+        "en": "Your moves",
+        "zh-Hant": "你的步數",
+        "zh-Hans": "你的步数"
+      },
+      "lblBest": {
+        "en": "Best",
+        "zh-Hant": "最優",
+        "zh-Hans": "最优"
+      },
+      "lblThree": {
+        "en": "3-star cap",
+        "zh-Hant": "三星門檻",
+        "zh-Hans": "三星门槛"
+      },
+      "perfect": {
+        "en": "Perfect! The tutor applauds.",
+        "zh-Hant": "完美！導師也拍手叫好。",
+        "zh-Hans": "完美！导师也拍手叫好。"
+      },
+      "closeCall": {
+        "en": "A few fewer moves for three stars.",
+        "zh-Hant": "再少幾步就能三星。",
+        "zh-Hans": "再少几步就能三星。"
+      },
+      "wonAnyway": {
+        "en": "A win is a win!",
+        "zh-Hant": "過關就是勝利！",
+        "zh-Hans": "过关就是胜利！"
+      },
+      "replay": {
+        "en": "Replay",
+        "zh-Hant": "再玩一次",
+        "zh-Hans": "再玩一次"
+      },
+      "stuckBody": {
+        "en": "Nothing can be poured. Undo a few steps, or start over?",
+        "zh-Hant": "所有瓶都倒不了。撤銷幾步，或重新開始？",
+        "zh-Hans": "所有瓶都倒不了。撤销几步，或重新开始？"
+      },
+      "outOfMoves": {
+        "en": "Out of moves…",
+        "zh-Hant": "步數用完了……",
+        "zh-Hans": "步数用完了……"
+      },
+      "outOfMovesBody": {
+        "en": "This level allows {n} moves. Undo a few and rethink, or start over?",
+        "zh-Hant": "這一關上限 {n} 步。撤銷幾步再想想，或重新開始？",
+        "zh-Hans": "这一关上限 {n} 步。撤销几步再想想，或重新开始？"
+      },
+      "verifyFailed": {
+        "en": "Verification failed",
+        "zh-Hant": "驗證失敗",
+        "zh-Hans": "验证失败"
+      },
+      "retry": {
+        "en": "Try again",
+        "zh-Hant": "再試一次",
+        "zh-Hans": "再试一次"
+      },
+      "ok": {
+        "en": "Got it!",
+        "zh-Hant": "明白了！",
+        "zh-Hans": "明白了！"
+      },
+      "resetConfirm": {
+        "en": "Reset all progress? Stars and coins will be lost.",
+        "zh-Hant": "要重置所有進度嗎？星星與金幣都會清除。",
+        "zh-Hans": "要重置所有进度吗？星星和金币都会清除。"
+      }
+    },
+    "help": {
+      "basics": {
+        "en": "Basics",
+        "zh-Hant": "基本",
+        "zh-Hans": "基本"
+      },
+      "b2": {
+        "en": "You can only pour into an <b>empty</b> vial or one whose <b>top layer matches</b>; every consecutive matching layer on top pours at once.",
+        "zh-Hant": "只能倒入<b>空瓶</b>或<b>頂層同色</b>的瓶，頂層連續同色的幾格會一次倒完。",
+        "zh-Hans": "只能倒入<b>空瓶</b>或<b>顶层同色</b>的瓶，顶层连续同色的几格会一次倒完。"
+      },
+      "b3": {
+        "en": "Fill one flask (4 measures of a single reagent) for each reagent; complete them all to clear the level.",
+        "zh-Hant": "每種試劑裝滿一個燒瓶（4 格純色）即完成；全部完成就過關。",
+        "zh-Hans": "每种试剂装满一个烧瓶（4 格纯色）即完成；全部完成就过关。"
+      },
+      "b4": {
+        "en": "Fewer moves, more stars: three stars = optimal moves + 3 (each frosted / shrouded vial adds +2). The three stars in the top bar follow your move count.",
+        "zh-Hant": "步數越少星越多：三星 = 最優步數 + 3（每個磨砂 / 布罩瓶再 +2）。頂欄的三顆星會隨你的步數變化。",
+        "zh-Hans": "步数越少星越多：三星 = 最优步数 + 3（每个磨砂 / 布罩瓶再 +2）。顶栏的三颗星会随你的步数变化。"
+      },
+      "clients": {
+        "en": "Clients",
+        "zh-Hant": "委託人",
+        "zh-Hans": "委托人"
+      },
+      "c1": {
+        "en": "Each client holds the reagent they want. Filling a flask of it is <b>delivered</b> at once and the flask empties — more room! Every 2 deliveries unveil one shrouded vial.",
+        "zh-Hant": "委託人手上標示想要的試劑。裝滿一瓶他要的試劑會立刻<b>交貨</b>，該瓶清空變回空瓶——空間更多！每交 2 單解開一個布罩瓶。",
+        "zh-Hans": "委托人手上标示想要的试剂。装满一瓶他要的试剂会立刻<b>交货</b>，该瓶清空变回空瓶——空间更多！每交 2 单解开一个布罩瓶。"
+      },
+      "vessels": {
+        "en": "Vessels",
+        "zh-Hant": "瓶種",
+        "zh-Hans": "瓶种"
+      },
+      "flaskDesc": {
+        "en": "Clear glass, everything visible, 4 measures.",
+        "zh-Hant": "透明，內容全部可見，4 格。",
+        "zh-Hans": "透明，内容全部可见，4 格。"
+      },
+      "frostedDesc": {
+        "en": "Only the top measure shows; pour one away to reveal the next.",
+        "zh-Hant": "只看得到最上面一格，倒走一格才露出下一格。",
+        "zh-Hans": "只看得到最上面一格，倒走一格才露出下一格。"
+      },
+      "clothDesc": {
+        "en": "Fully hidden; the wax seal shows the top colour. Sealed and untouchable until 2 orders are delivered per vial.",
+        "zh-Hant": "全部隱藏，蠟封顯示頂層顏色；封住時無法操作，每交 2 單解開一個。",
+        "zh-Hans": "全部隐藏，蜡封显示顶层颜色；封住时无法操作，每交 2 单解开一个。"
+      },
+      "retortDesc": {
+        "en": "Holds only 3 measures, so it can never complete a colour — a temporary holder. Must be emptied at the end.",
+        "zh-Hant": "只裝 3 格，永遠裝不滿一色，只作暫存。最後必須清空。",
+        "zh-Hans": "只装 3 格，永远装不满一色，只作暂存。最后必须清空。"
+      },
+      "crackedDesc": {
+        "en": "Out only: you can pour from it, but nothing goes in.",
+        "zh-Hant": "只出不入：可以倒出，但無法倒入。",
+        "zh-Hans": "只出不入：可以倒出，但无法倒入。"
+      },
+      "tools": {
+        "en": "Tools",
+        "zh-Hant": "工具",
+        "zh-Hans": "工具"
+      },
+      "t1": {
+        "en": "Undo: step back one move. Hint: the tutor points out the next move (doesn't affect clearing, but no bonus for a hint-free run).",
+        "zh-Hant": "撤銷：退回一步。提示：導師會指出下一步（不影響過關，但沒有「零提示」加分）。",
+        "zh-Hans": "撤销：退回一步。提示：导师会指出下一步（不影响过关，但没有“零提示”加分）。"
+      }
+    },
+    "settings": {
+      "orderText": {
+        "en": "Show reagent names on order trays (accessibility)",
+        "zh-Hant": "在委託色塊上顯示試劑名稱（無障礙）",
+        "zh-Hans": "在委托色块上显示试剂名称（无障碍）"
+      },
+      "on": {
+        "en": "On",
+        "zh-Hant": "開",
+        "zh-Hans": "开"
+      },
+      "off": {
+        "en": "Off",
+        "zh-Hant": "關",
+        "zh-Hans": "关"
+      },
+      "creditsLine": {
+        "en": "Mortar & Mew · 2026",
+        "zh-Hant": "Mortar & Mew · 2026",
+        "zh-Hans": "Mortar & Mew · 2026"
+      },
+      "resetDone": {
+        "en": "Progress reset",
+        "zh-Hant": "進度已重置",
+        "zh-Hans": "进度已重置"
+      },
+      "accessibility": {
+        "en": "Accessibility",
+        "zh-Hant": "無障礙",
+        "zh-Hans": "无障碍"
+      }
+    },
+    "banner": {
+      "intro": {
+        "en": "Congratulations on clearing 10 levels! This is your lab: pick levels, practice, or read how to play.",
+        "zh-Hant": "恭喜通過 10 關！這裡是你的工房：可以選關卡、練習，或查看玩法。",
+        "zh-Hans": "恭喜通过 10 关！这里是你的工房：可以选关卡、练习，或查看玩法。"
+      },
+      "reward": {
+        "en": "You have an unclaimed reward!",
+        "zh-Hant": "有獎勵尚未領取！",
+        "zh-Hans": "有奖励尚未领取！"
+      },
+      "tournament": {
+        "en": "The tournament is settled — check the rankings!",
+        "zh-Hant": "賽事已結算，去看看名次！",
+        "zh-Hans": "赛事已结算，去看看名次！"
+      }
+    },
+    "badges": {
+      "pourOnly": {
+        "en": "Out only",
+        "zh-Hant": "只出",
+        "zh-Hans": "只出"
+      },
+      "revealed": {
+        "en": "Unveiled!",
+        "zh-Hant": "揭開！",
+        "zh-Hans": "揭开！"
+      },
+      "order1": {
+        "en": "1 order",
+        "zh-Hant": "1 單",
+        "zh-Hans": "1 单"
+      }
+    }
+  }
+}
