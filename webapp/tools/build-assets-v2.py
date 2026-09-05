@@ -313,8 +313,14 @@ def square_icon(path):
 icon_src = next(src(n) for n in ('ICON_app_v3.png', 'ICON_app_v2.png', 'ICON_app_v1.png') if os.path.exists(os.path.join(RAW, n)))
 icon = square_icon(icon_src) if icon_src.endswith('v2.png') else Image.open(icon_src).convert('RGB').resize((1024, 1024), Image.LANCZOS)
 icon.save(os.path.join(ICONS, 'icon-1024.png'))
-for size, name in ((512, 'icon-512.png'), (192, 'icon-192.png'), (180, 'apple-touch-icon.png'), (64, 'favicon-64.png'), (32, 'favicon-32.png')):
-    icon.resize((size, size), Image.LANCZOS).save(os.path.join(ICONS, name))
+icon.resize((512, 512), Image.LANCZOS).save(os.path.join(ICONS, 'icon-512.png'))
+# 細尺寸：張圖隻貓只佔左下、右邊大片深底，縮細就得返一嚿深色 → 主畫面 icon 用貼身裁切（貓面 + 燒瓶），favicon 直接裁貓面
+W1 = icon.width
+crop_mid = icon.crop((int(W1 * 0.07), 0, int(W1 * 0.98), int(W1 * 0.91)))      # 貓面 + 燒瓶
+side = min(crop_mid.size); crop_mid = crop_mid.crop((0, 0, side, side))
+face = icon.crop((int(W1 * 0.14), int(W1 * 0.24), int(W1 * 0.58), int(W1 * 0.68)))   # 貓面
+for size, name, srcim in ((192, 'icon-192.png', crop_mid), (180, 'apple-touch-icon.png', crop_mid), (64, 'favicon-64.png', face), (32, 'favicon-32.png', face)):
+    srcim.resize((size, size), Image.LANCZOS).save(os.path.join(ICONS, name))
 m = Image.new('RGB', (512, 512), (0x12, 0x10, 0x0D)); m.paste(icon.resize((410, 410), Image.LANCZOS), (51, 51)); m.save(os.path.join(ICONS, 'icon-512-maskable.png'))
 report['checks']['iconSource'] = os.path.basename(icon_src)
 
