@@ -177,14 +177,23 @@ body {
 }
 .zone { position: relative; min-height: 0; }
 
-/* 委託人行（18%）= HUD 一條（左 = 返回 + 金幣 · 中 = 關卡 + 步數 · 右 = 設定）疊喺委託人上方，委託人 + 托盤佔餘下高度 */
-.zone-orders { display: flex; flex-direction: column; z-index: 60; }
+/* 委託人行（18%）：HUD 一條（左 = 返回 + 金幣 · 中 = 關卡 + 步數 · 右 = 剩餘訂單 + 設定）做「玻璃層」疊喺委託人頭頂
+   （#12100D @ 55% + 8px 高斯模糊，委託人透出嚟，唔會讀成遮擋；用戶 2026-09-05 方案 B）；委託人 + 托盤佔成個 18% */
+.zone-orders { position: relative; z-index: 60; }
 .hud {
-  flex: 0 0 auto; position: relative; z-index: 61;
+  position: absolute; top: 0; left: 0; right: 0; z-index: 61;
   display: flex; align-items: center; justify-content: space-between; gap: 6px;
-  padding: max(3px, env(safe-area-inset-top)) 8px 0;
+  padding: max(3px, env(safe-area-inset-top)) 8px 3px;
+  background: rgba(18, 16, 13, 0.55);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(201, 162, 90, 0.18);
 }
-.customers { flex: 1 1 auto; min-height: 0; }
+.queue-left {
+  font-size: 11px; font-weight: 800; color: var(--brass-light); white-space: nowrap;
+  background: var(--panel); border: 1px solid var(--panel-border); border-radius: 999px; padding: 3px 8px;
+}
+.queue-left[hidden] { display: none; }
+
 .top-left, .top-right { display: flex; align-items: center; gap: 4px; flex: 0 0 auto; }
 .top-left .coins { padding: 2px 7px; font-size: 12px; }
 .hud .icon-btn.img { width: 34px; height: 34px; }
@@ -216,8 +225,8 @@ body {
 .zone-board { grid-row: 2; }
 .zone-actions { grid-row: 3; }
 .customers {
-  position: relative; overflow: visible;
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 2px 5px 0; align-items: end;
+  position: absolute; inset: 0; overflow: visible;   /* 佔成個 18%，頭頂伸入 HUD 玻璃層之下 */
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 12px 5px 0; align-items: end;
 }
 .slot { position: relative; height: 100%; min-width: 0; --label-h: max(26px, 3vh); }   /* 托盤：玩家係睇顏色玩；14% 高度入面委託人 + 托盤要一齊放得落 */
 .slot:nth-child(1) { z-index: 1 } .slot:nth-child(2) { z-index: 2 } .slot:nth-child(3) { z-index: 3 } .slot:nth-child(4) { z-index: 4 }
@@ -425,4 +434,3 @@ body {
 /* Spec v3 §5.1 第 4 段：樽到槽 → 槽閃光一下，槽底色換成新訂單色 */
 .slot.flash .tray { animation: slotFlash .32s ease-out; }
 @keyframes slotFlash { 0% { box-shadow: 0 0 0 0 rgba(255,244,200,.95), 0 0 24px 8px rgba(255,214,120,.9); filter: brightness(1.8) } 100% { filter: brightness(1) } }
-.customers-note.queue { left: auto; right: 8px; transform: none; bottom: auto; top: 4px; font-size: 11px; }

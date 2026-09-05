@@ -260,12 +260,10 @@ function renderClients(popColor = null, enterIndex = -1, flyingIndex = -1, opts 
     const s = document.createElement('span'); s.className = 'customers-note'; s.textContent = t('extra.hud.noOrders');
     el.appendChild(s);
   }
-  // Spec v3：隊列仲有幾多單（client 只知數量，唔知色）
+  // Spec v3：隊列仲有幾多單（client 只知數量，唔知色）— 顯示喺 HUD 右邊（設定掣旁），唔壓住委託人
   const left = G.board.queueLeft || 0;
-  if (left > 0) {
-    const q = document.createElement('span'); q.className = 'customers-note queue'; q.textContent = t('extra.hud.queueLeft', { n: left });
-    el.appendChild(q);
-  }
+  const q = $('#hud-queue');
+  if (q) { q.textContent = left > 0 ? t('extra.hud.queueLeft', { n: left }) : ''; q.hidden = !(left > 0); }
 }
 
 /**
@@ -735,7 +733,7 @@ function pickPractice() {
       // 先用 4 秒預算；唔夠時間就放寬 config（冇裂瓶 / 布遮、最優區間放寬）再試 4 秒，最後先放棄
       let lvl = await server.generatePractice({ ...cfg, hiddenRatio: hiddenRatio(pseudo) }, seed, { budgetMs: 4000 });
       if (!lvl) {
-        const relaxed = { ...cfg, cracked: 0, covered: 0, orders: Math.min(cfg.orders, 1), optimalMax: cfg.optimalMax + 8, hiddenRatio: hiddenRatio(pseudo) };
+        const relaxed = { ...cfg, cracked: 0, covered: 0, orders: Math.min(cfg.orders, 1), optimalMax: cfg.optimalMax + 8, hiddenRatio: hiddenRatio(pseudo) };   // 亂撳篩選唔貴，放寬版都保留
         lvl = await server.generatePractice(relaxed, seed + ':r', { budgetMs: 4000 });
       }
       closeModal();
