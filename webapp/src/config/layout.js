@@ -26,7 +26,7 @@ export const LAYOUT = Object.freeze({
   rowOffsetRatio: 0.5,
   jitterX: 0.08,
   jitterY: 0.12,
-  rotationMaxDeg: 3,
+  rotationMaxDeg: 0,       // 用戶 2026-09-06：樽一律打直，唔准靜態傾斜（倒液 / 交貨動畫嘅傾斜係功能性，唔受呢個影響）
   minDistanceRatio: 1.15,
   maxOverlapRatio: 0.12,
   minTapTargetPt: 44,

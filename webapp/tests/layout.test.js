@@ -52,7 +52,7 @@ describe('BottleLayout', () => {
     const byZ = [...l].sort((a, b) => a.zIndex - b.zIndex);
     for (let i = 1; i < byZ.length; i++) assert.ok(byZ[i].position.y >= byZ[i - 1].position.y);
   });
-  test('全部瓶喺邊界內；旋轉 ≤ rotationMaxDeg', () => {
+  test('全部瓶喺邊界內；旋轉 ≤ rotationMaxDeg（用戶 2026-09-06：0 = 一律打直）', () => {
     for (let lv = 1; lv <= 12; lv++) {
       const l = computeLayout({ ...input, levelId: lv });
       assert.ok(allInBounds(l, input));
@@ -81,6 +81,7 @@ describe('BottleLayout', () => {
   });
   test('常數：jitter 唔超過「凌亂」門檻；布固定尺寸 1.34 / 頂 7%', () => {
     assert.ok(LAYOUT.jitterX <= 0.10 && LAYOUT.jitterY <= 0.15);
+    assert.equal(LAYOUT.rotationMaxDeg, 0);   // 樽打直
     assert.equal(CLOTH.fixedWidthRatio, 1.34); assert.equal(CLOTH.topOffsetRatio, 0.07);
   });
 });
