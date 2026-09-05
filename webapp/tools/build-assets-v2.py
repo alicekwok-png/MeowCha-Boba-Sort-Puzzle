@@ -257,7 +257,8 @@ def square_icon(path):
     blurred = out.filter(_IF.GaussianBlur(10))
     return Image.composite(blurred, out, corner)
 
-icon_src = src('ICON_app_v2.png') if os.path.exists(os.path.join(RAW, 'ICON_app_v2.png')) else src('ICON_app_v1.png')
+# v3（2026-09-05 revised）：已經係滿版正方形、冇圓角底 → 直接縮到 1024；v2 先要補角
+icon_src = next(src(n) for n in ('ICON_app_v3.png', 'ICON_app_v2.png', 'ICON_app_v1.png') if os.path.exists(os.path.join(RAW, n)))
 icon = square_icon(icon_src) if icon_src.endswith('v2.png') else Image.open(icon_src).convert('RGB').resize((1024, 1024), Image.LANCZOS)
 icon.save(os.path.join(ICONS, 'icon-1024.png'))
 for size, name in ((512, 'icon-512.png'), (192, 'icon-192.png'), (180, 'apple-touch-icon.png'), (64, 'favicon-64.png'), (32, 'favicon-32.png')):
