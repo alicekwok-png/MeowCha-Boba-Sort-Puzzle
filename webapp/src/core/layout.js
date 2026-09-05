@@ -12,10 +12,23 @@ import { mulberry32 } from './prng.js';
  * @typedef {{index:number, position:{x:number,y:number}, rotation:number, zIndex:number}} Placement
  */
 
+/** 欄數按樽數（config LAYOUT.columnsByCount）：≤6 → 3、≤9 → 4、10+ → 5 */
+export function columnsFor(bottleCount) {
+  for (const [max, cols] of LAYOUT.columnsByCount) if (bottleCount <= max) return cols;
+  return LAYOUT.fallbackColumns;
+}
+
+/** 呢個欄數下，樽要統一縮幾多先放得落（1 = 唔使縮）：行高 × 行數 ≤ 區域高；格闊 ≥ 樽闊 × minDistanceRatio（R3） */
+export function fitScale(input, columns) {
+  const rows = Math.max(1, Math.ceil(input.bottleCount / columns));
+  const cellW = input.areaWidth / (columns + (rows > 1 ? LAYOUT.rowOffsetRatio : 0));
+  return Math.min(1, input.areaHeight / (rows * input.bottleHeight), cellW / (input.bottleWidth * LAYOUT.minDistanceRatio));
+}
+
 /** Spec §4.2 參考實作（jitter 可覆蓋，供 fallback 同「先關 jitter 驗證」用） */
 export function computeLayout(input, opts = {}) {
   const rng = mulberry32(input.levelId >>> 0);
-  const columns = opts.columns ?? LAYOUT.columns;
+  const columns = opts.columns ?? columnsFor(input.bottleCount);
   const rowOffsetRatio = LAYOUT.rowOffsetRatio;
   const jitterX = opts.jitterX ?? LAYOUT.jitterX;
   const jitterY = opts.jitterY ?? LAYOUT.jitterY;
@@ -117,7 +130,10 @@ export function minCenterDistance(layout) {
 export function safeLayout(input, warn = null, opts = {}) {
   // liquidTopRatio：液體頂佔瓶高比例（由器皿幾何推：允許重疊 = 底座高度）。bottle_std 液體去到 98.5% → 幾乎唔准重疊
   const ltr = opts.liquidTopRatio ?? 0.88;
-  let bw = input.bottleWidth, bh = input.bottleHeight;
+  const columns = opts.columns ?? columnsFor(input.bottleCount);
+  // 先統一縮到放得落（行數 × 樽高、R3 格闊）；再做 R2 fallback 鏈
+  const fit = fitScale(input, columns);
+  let bw = input.bottleWidth * fit, bh = input.bottleHeight * fit;
   const attempts = [
     { jitterY: LAYOUT.jitterY },
     { jitterY: LAYOUT.jitterY * 0.7 },
@@ -126,19 +142,37 @@ export function safeLayout(input, warn = null, opts = {}) {
   for (let k = 0; k < attempts.length; k++) {
     const a = attempts[k];
     const w = bw * (a.scale || 1), h = bh * (a.scale || 1);
-    const layout = computeLayout({ ...input, bottleWidth: w, bottleHeight: h }, { jitterY: a.jitterY, ...(opts.force || {}) });
-    if (validateNoLiquidOcclusion(layout, w, h, ltr).ok) return { layout, bottleWidth: w, bottleHeight: h, fallback: k };
+    const layout = computeLayout({ ...input, bottleWidth: w, bottleHeight: h }, { columns, jitterY: a.jitterY, ...(opts.force || {}) });
+    if (validateNoLiquidOcclusion(layout, w, h, ltr).ok) return { layout, bottleWidth: w, bottleHeight: h, fallback: k, columns, fit };
   }
   // 純網格：逐步縮瓶直到冇遮擋
   let scale = 0.92, k = 3;
   for (let tries = 0; tries < 12; tries++, k++) {
     const w = bw * scale, h = bh * scale;
-    const layout = computeLayout({ ...input, bottleWidth: w, bottleHeight: h }, { jitterX: 0, jitterY: 0, rotationMaxDeg: 0 });
+    const layout = computeLayout({ ...input, bottleWidth: w, bottleHeight: h }, { columns, jitterX: 0, jitterY: 0, rotationMaxDeg: 0 });
     if (validateNoLiquidOcclusion(layout, w, h, ltr).ok) {
       if (warn) warn(`BottleLayout: level ${input.levelId} fell back to plain grid (scale ${scale.toFixed(2)})`);
-      return { layout, bottleWidth: w, bottleHeight: h, fallback: k };
+      return { layout, bottleWidth: w, bottleHeight: h, fallback: k, columns, fit };
     }
     scale *= 0.92;
   }
   throw new Error('BottleLayout: cannot satisfy R2 even with plain grid');
+}
+
+/**
+ * 揀欄數：先用 columnsFor（10+ → 5 欄）；如果 5 欄保唔住樽高（要縮 — 格闊跌穿 1.15 × 樽闊，或者 R2 fallback 要縮），
+ * 就同 4 欄比：邊個樽高大用邊個；打和用 4 欄（用戶 2026-09-05：跌穿 1.15 就維持 4 欄，接受 0.175）。
+ * 回傳 safeLayout 結果（含 columns / fit）。
+ */
+export function chooseColumns(input, warn = null, opts = {}) {
+  const base = columnsFor(input.bottleCount);
+  const candidates = base > LAYOUT.fallbackColumns ? [base, LAYOUT.fallbackColumns] : [base];
+  let best = null;
+  for (const columns of candidates) {
+    const r = safeLayout(input, null, { ...opts, columns });
+    if (!best || r.bottleHeight > best.bottleHeight + 1e-6) best = r;
+    else if (Math.abs(r.bottleHeight - best.bottleHeight) <= 1e-6 && columns < best.columns) best = r;
+  }
+  if (warn && best.fallback >= 3) warn(`BottleLayout: level ${input.levelId} fell back to plain grid (${best.columns} cols)`);
+  return best;
 }

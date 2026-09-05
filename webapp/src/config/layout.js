@@ -15,7 +15,9 @@ export const LAYOUT = Object.freeze({
   bottleHeightRatio: 0.19,  // 原本約 0.13
   bottleAspect:      0.42,  // 寬 / 高
 
-  columns: 4,
+  // 欄數按樽數：≤6 → 3、≤9 → 4、10+ → 5（5 欄放唔落 0.19 樽高 / 1.15 間距就退回 4 欄，接受縮樽）— core/layout.js columnsFor / chooseColumns
+  columnsByCount: [[6, 3], [9, 4], [Infinity, 5]],
+  fallbackColumns: 4,
   rowOffsetRatio: 0.5,
   jitterX: 0.08,
   jitterY: 0.12,

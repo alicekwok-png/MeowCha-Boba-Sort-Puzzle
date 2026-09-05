@@ -18,7 +18,7 @@ import { unitColor, unitPattern } from '../core/board.js';
 import { COLORS } from '../config/theme.js';
 import { LAYOUT, CLOTH } from '../config/layout.js';
 import { RENDER, patternUV } from '../config/render.js';
-import { safeLayout, computeLayout } from '../core/layout.js';
+import { safeLayout, computeLayout, chooseColumns, columnsFor } from '../core/layout.js';
 import { renderAssets, preloadRenderAssets, geomFor, spriteKey, extentsAt, bandPolygon } from './render-assets.js';
 
 const cubicInOut = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
@@ -180,29 +180,22 @@ export class GameView {
     const g = geomFor('normal');
     const contentSpan = g.content.bottom - g.content.top;
     const screenH = window.innerHeight || this.H;
-    let bottleHeight = LAYOUT.bottleHeightRatio * screenH;
-    let bottleWidth = bottleHeight * LAYOUT.bottleAspect;
-    const rows = Math.max(1, Math.ceil(n / LAYOUT.columns));
-    const cellW = areaWidth / (LAYOUT.columns + (rows > 1 ? LAYOUT.rowOffsetRatio : 0));
-    const fit = Math.min(1, areaHeight / (rows * bottleHeight), cellW / (bottleWidth * LAYOUT.minDistanceRatio));
-    if (fit < 0.999) {
-      console.warn(`[layout] ${n} 隻樽放唔落畫布（${rows} 行 × ${Math.round(bottleHeight)}px，區域 ${Math.round(areaWidth)}×${Math.round(areaHeight)}）→ 統一縮至 ${fit.toFixed(2)}`);
-      bottleHeight *= fit; bottleWidth *= fit;
-    }
+    const bottleHeight = LAYOUT.bottleHeightRatio * screenH;
+    const bottleWidth = bottleHeight * LAYOUT.bottleAspect;
     const input = { levelId: this.levelId, bottleCount: n, areaWidth, areaHeight, bottleWidth, bottleHeight };
+    // R2 容差由器皿幾何推：允許重疊 = 底座（液體底 → 內容底）高度；bottle_std 液體去到 98.5%，幾乎唔准疊
+    const liquidTopRatio = Math.min(0.995, Math.max(0.5, 1 - (g.content.bottom - g.liquid.bottom) / contentSpan));
     let placed;
     try {
-      if (FORCE_GRID) placed = { layout: computeLayout(input, { jitterX: 0, jitterY: 0, rotationMaxDeg: 0 }), bottleWidth, bottleHeight, fallback: 0 };
-      else {
-        // R2 容差由器皿幾何推：允許重疊 = 底座（液體底 → 內容底）高度；bottle_std 液體去到 98.5%，幾乎唔准疊
-        const g = geomFor('normal');
-        const span = g.content.bottom - g.content.top;
-        const liquidTopRatio = Math.min(0.995, Math.max(0.5, 1 - (g.content.bottom - g.liquid.bottom) / span));
-        placed = safeLayout(input, (m) => console.warn(m), { liquidTopRatio });
-      }
+      // 欄數：≤6 → 3、≤9 → 4、10+ → 5（5 欄保唔住樽高就退回 4 欄）；統一縮樽 + R2 fallback 都喺 core/layout.js
+      placed = FORCE_GRID
+        ? safeLayout(input, null, { liquidTopRatio, force: { jitterX: 0, jitterY: 0, rotationMaxDeg: 0 } })
+        : chooseColumns(input, (m) => console.warn(m), { liquidTopRatio });
+      if (placed.fit < 0.999) console.warn(`[layout] ${n} 隻樽（${placed.columns} 欄）放唔落畫布 ${Math.round(areaWidth)}×${Math.round(areaHeight)} → 統一縮至 ${placed.fit.toFixed(2)}`);
+      if (placed.bottleHeight < bottleHeight * 0.999) console.warn(`[layout] 樽高 ${(placed.bottleHeight / screenH).toFixed(3)} × 螢幕（目標 ${LAYOUT.bottleHeightRatio}），${placed.columns} 欄，fallback ${placed.fallback}`);
     } catch (e) {
       console.warn('[layout] safeLayout 失敗，退回純網格', e);
-      placed = { layout: computeLayout(input, { jitterX: 0, jitterY: 0, rotationMaxDeg: 0 }), bottleWidth, bottleHeight, fallback: 9 };
+      placed = { layout: computeLayout(input, { jitterX: 0, jitterY: 0, rotationMaxDeg: 0 }), bottleWidth, bottleHeight, fallback: 9, columns: columnsFor(n), fit: 1 };
     }
     this.bottleWidth = placed.bottleWidth; this.bottleHeight = placed.bottleHeight;
     this.frameScale = placed.bottleHeight / contentSpan;   // 768 frame → px
