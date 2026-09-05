@@ -107,7 +107,8 @@ function keyOutBlack(img) {
 function glassHighlight(img) {
   if (!img) return null;
   try {
-    const { lumaThreshold, lumaRange } = RENDER.glassHighlight;
+    // bottleMask.js v3：luma > 195 先算高光（range 60）；v4 原本 215 / 40 太緊，深色底圖只剩幾點
+    const { lumaThreshold, lumaRange } = RENDER.cylinder || RENDER.glassHighlight;
     const w = img.naturalWidth, h = img.naturalHeight;
     const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
     const cx = cv.getContext('2d');
@@ -152,6 +153,7 @@ function inkMask(img) {
 /** 器皿 sprite（每張都會生成高光圖） */
 const VESSEL_KEYS = ['VES_bottle_std', 'VES_flask_frosted'];
 const IMAGE_KEYS = [
+  'VES_cork',
   ...VESSEL_KEYS,
   'VES_cloth_cover', 'VES_wax_seal', 'VES_wax_ring', 'UI_ad_crest', 'PAT_tile_large', 'PAT_tile_small',
 ];

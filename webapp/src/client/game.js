@@ -468,8 +468,10 @@ export class GameView {
     if (c.seal && c.seal.cork >= 1 && c.seal.desat >= 1) return;
     const seal = { cork: 0, desat: 0 };
     c.seal = seal;
-    await this._tween(220, t => { seal.cork = t; });
-    await this._tween(200, t => { seal.desat = t; });
+    // Spec v3 §5.2：0–140ms 落塞 + 彈動；140–420ms 去飽和 25% + 疊 #0A0806 @ 18%
+    await this._tween(RENDER.sealAnim.corkMs, t => { seal.cork = t; c.scale = 1 + 0.06 * Math.sin(Math.PI * t); });
+    c.scale = 1;
+    await this._tween(RENDER.sealAnim.desatMs, t => { seal.desat = t; });
     if (c.seal === seal) c.seal = SEAL_DONE;
   }
 
@@ -492,19 +494,33 @@ export class GameView {
     const r = targetRect && Number.isFinite(targetRect.x) && Number.isFinite(targetRect.y) ? targetRect : null;
     const tx = r ? r.x + (r.w || 0) / 2 : sx;
     const ty = r ? r.y + (r.h || 0) / 2 : -c.h;
-    const arc = Math.max(36, Math.abs(tx - sx) * 0.25);
     const rot = c.rot0;
-    await this._tween(420, t => {
-      const e = cubicInOut(t);
-      const lift = LIFT_PX * 1.4 * clamp01(t / 0.2);
-      seal.cork = Math.max(seal.cork, clamp01(t / 0.4));
-      c.x = lerp(sx, tx, e);
-      c.y = lerp(sy, ty, e) - Math.sin(Math.PI * t) * arc - lift;
-      c.scale = 1 - 0.5 * e;
-      c.rotA = -rot * e;                                     // 飛行中扶正
-      c.alpha = t > 0.7 ? 1 - (t - 0.7) / 0.3 : 1;
-      c.glow = Math.max(0, 1 - t * 2) * 0.6;
+    const DA = RENDER.deliverAnim;
+    const hex = hexOf(c.seg[c.seg.length - 1] ?? 0);
+    // 第 1 段 0–140ms：木塞由上方落下插入樽口，樽身彈動 scale 1.0 → 1.06 → 1.0
+    if (seal.cork < 1) await this._tween(DA.corkMs, t => { seal.cork = t; c.scale = 1 + 0.06 * Math.sin(Math.PI * t); });
+    c.scale = 1;
+    // 第 2 段 140–320ms：樽身外緣發光（該色 +40%）、8–12 粒星塵向外散開
+    c.glowHex = shiftL(hex, 0.40, 1);
+    const dust = DA.dustCount[0] + Math.floor(Math.random() * (DA.dustCount[1] - DA.dustCount[0] + 1));
+    for (let i = 0; i < dust; i++) {
+      const a = Math.random() * Math.PI * 2, sp = 90 + Math.random() * 120;
+      this.particles.push({ x: sx + Math.cos(a) * c.w * 0.35, y: sy + Math.sin(a) * c.h * 0.3, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 40, life: 0, dur: 320 + Math.random() * 160, r: 1.5 + Math.random() * 2.2, color: '#FFF1C8' });
+    }
+    await this._tween(DA.glowMs, t => { c.glow = 0.9 * Math.sin(Math.PI * t) + 0.3; });
+    // 第 3 段 320–760ms：沿貝茲曲線飛向訂單槽，縮至 45%，旋轉 ±8°
+    const ctrlX = (sx + tx) / 2 + (tx > sx ? -1 : 1) * Math.abs(tx - sx) * 0.15, ctrlY = Math.min(sy, ty) - Math.max(40, Math.abs(ty - sy) * 0.35);
+    const rotDir = tx > sx ? 1 : -1;
+    await this._tween(DA.flyMs, t => {
+      const e = cubicInOut(t), u = 1 - e;
+      c.x = u * u * sx + 2 * u * e * ctrlX + e * e * tx;
+      c.y = u * u * sy + 2 * u * e * ctrlY + e * e * ty;
+      c.scale = 1 - (1 - DA.flyScale) * e;
+      c.rotA = -rot * e + rotDir * DA.flyRotDeg * DEG * Math.sin(Math.PI * t);
+      c.alpha = t > 0.75 ? 1 - (t - 0.75) / 0.25 : 1;
+      c.glow = Math.max(0, 0.6 - t);
     });
+    c.glowHex = null;
     c.seg = []; c.seal = null; c.pendingSeg = null;
     c.x = c.hx; c.y = c.hy; c.scale = 1; c.alpha = 1; c.rotA = 0; c.glow = 0; c.anim = null;
     c.kind = 'gone';
@@ -675,7 +691,7 @@ export class GameView {
     // 瓶身陰影：平時畫瓶底軟橢圓（平，唔使每幀 blur 成張 sprite）；選中 / 交貨先用燭光 shadowBlur
     const glow = c.glow > 0 ? c.glow : (selected ? 0.75 : 0);
     const shadowOn = () => {
-      if (glow > 0) { ctx.shadowColor = rgba(COLORS.candleGlow, glow); ctx.shadowBlur = (18 + 8 * glow) * (window.devicePixelRatio || 1); ctx.shadowOffsetY = 0; }
+      if (glow > 0) { ctx.shadowColor = c.glowHex ? c.glowHex.replace(/rgba\(([^)]+),[^,]+\)$/, (m, p) => `rgba(${p},${glow})`) : rgba(COLORS.candleGlow, glow); ctx.shadowBlur = (18 + 8 * glow) * (window.devicePixelRatio || 1); ctx.shadowOffsetY = 0; }
     };
     const shadowOff = () => { ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0; };
     if (!flying) this.drawGroundShadow(c);
@@ -868,7 +884,7 @@ export class GameView {
     const GH = RENDER.glassHighlight, VH = RENDER.verticalHighlight, SL = RENDER.surfaceLine;
     let topBand = null;   // 最後畫嘅一帶（液面線用）
 
-    const drawBand = (from, to, unit, alpha) => {
+    const drawBand = (from, to, unit, alpha, isTop = false) => {
       if (to - from <= 0.001) return;
       const yTop = yAt(to), yBot = yAt(from);
       const hex = hexOf(unit);
@@ -892,6 +908,30 @@ export class GameView {
       ctx.globalCompositeOperation = RENDER.liquidBlend;
       ctx.fillStyle = fill;
       ctx.fillRect(fx, y1, S, y2 - y1);
+      // ②b 圓筒明暗（bottleMask.js v3）：邊緣暗到 sideShadeMin（中軸 1.0 → 帶中央 pixel 仍然 = hex）；
+      //     頂面橢圓只喺最頂層（+42%），由液面向下 2×ry 漸變（中間層唔畫，否則出橫紋）
+      {
+        const CY = RENDER.cylinder;
+        const w = bx1 - bx0, cx = (bx0 + bx1) / 2;
+        const gr = ctx.createLinearGradient(bx0, 0, bx1, 0);
+        const edge = Math.round((1 - CY.sideShadeMin) * 255);
+        // multiply 用灰階：邊緣 gray(255−edge) → 中央 white；用 sin 分佈近似圓筒（t2 = sqrt(1−nx²)）
+        for (let k = 0; k <= 8; k++) {
+          const nx = k / 8 * 2 - 1, t2 = Math.sqrt(Math.max(0, 1 - nx * nx));
+          const v = Math.round(255 - edge * (1 - t2));
+          gr.addColorStop(k / 8, `rgb(${v},${v},${v})`);
+        }
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.fillStyle = gr; ctx.fillRect(bx0, y1, w, y2 - y1);
+        if (isTop) {
+          const ry = w * CY.ellipseRatio / 2;
+          const face = ctx.createLinearGradient(0, y1, 0, y1 + ry * 2);
+          face.addColorStop(0, `rgba(255,255,255,${(CY.topFaceBoost - 1) * 0.55})`);
+          face.addColorStop(1, 'rgba(255,255,255,0)');
+          ctx.globalCompositeOperation = 'screen';
+          ctx.fillStyle = face; ctx.fillRect(bx0, y1, w, ry * 2);
+        }
+      }
       // ③ 玻璃高光（只有 sprite 最亮部分，深色樽身中央 alpha = 0 → 帶中央 pixel 唔會郁）
       if (highlight) {
         ctx.globalCompositeOperation = 'screen';
@@ -945,12 +985,12 @@ export class GameView {
       else {
         const t0 = c.fade[i];
         const alpha = t0 ? clamp01((now - t0) / RENDER.frostedRevealMs) : 1;
-        drawBand(level, top, u, alpha);
+        drawBand(level, top, u, alpha, i === n - 1 && !c.extraUnits);
       }
       level += units;
     }
     // 正在倒入嘅新層
-    if (c.extraUnits > 0 && c.extraColor !== null) drawBand(level, level + c.extraUnits, c.extraColor, 1);
+    if (c.extraUnits > 0 && c.extraColor !== null) drawBand(level, level + c.extraUnits, c.extraColor, 1, true);
 
     // ⑥ 液面高光線：只落頂帶頂 3px（帶中央唔受影響），該色各通道 ×1.5，source-over
     if (topBand && topBand.y2 - topBand.y1 > SL.thickness * 2) {
@@ -1019,6 +1059,18 @@ export class GameView {
     // 跌落：前 60% 加速落到位，後 40% 回彈一下
     const fall = p < 0.6 ? Math.pow(p / 0.6, 2) : 1 - 0.10 * Math.sin(((p - 0.6) / 0.4) * Math.PI);
     const drop = -(1 - fall) * c.h * 0.22;
+    const cork = renderAssets.img.VES_cork;
+    if (cork) {
+      // v4.1 / Spec v3 §5.1：VES_cork，widthRatio 0.61（相對樽寬）、topOffset 0.035（相對樽高）
+      const bw = g.maxWidth * S;
+      const w = bw * RENDER.cork.widthRatio, h = w * (cork.naturalHeight / cork.naturalWidth);
+      const cx = fx + g.rim.cx * S, top = fy + g.content.top * S + c.h * RENDER.cork.topOffset - h * 0.55 + drop;
+      ctx.save();
+      ctx.shadowColor = rgba(COLORS.shadow, 0.5); ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
+      ctx.drawImage(cork, cx - w / 2, top, w, h);
+      ctx.restore();
+      return;
+    }
     const neckW = (g.neck.r - g.neck.l) * S;
     const w = neckW * 0.88, h = S * 0.085;
     const cx = fx + g.rim.cx * S, top = fy + (g.rim.y - 0.036) * S + drop;
