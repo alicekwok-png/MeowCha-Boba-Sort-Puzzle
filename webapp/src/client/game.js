@@ -990,8 +990,8 @@ export class GameView {
         ctx.restore();
       }
     };
-    const drawHidden = (from, to) => {
-      // `?` 隱藏格：實色黑層（圓柱，上下弧邊同液層一致，最底層底邊平），中央畫淺色襯線 ?，大小 ≈ 55% slot 高
+    // 連續隱藏格合併成一條灰柱；每格畫一個 ? （cells = 呢條包住幾多格）
+    const drawHidden = (from, to, cells) => {
       const HG = RENDER.hiddenGlyph;
       const yTop = yAt(to), yBot = yAt(from);
       const ext = extentsAt(g, (yTop + yBot) / 2);
@@ -1004,28 +1004,39 @@ export class GameView {
       ctx.fillStyle = HG.glyph;
       ctx.font = `bold ${Math.max(10, slot * S * HG.sizeRatio)}px ${FONT}`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('?', fx + ((ext.l + ext.r) / 2) * S, fy + ((yTop + yBot) / 2 + ryTop / 2) * S);
+      const cx = fx + ((ext.l + ext.r) / 2) * S, cellH = (yBot - yTop) / Math.max(1, cells);
+      for (let k = 0; k < Math.max(1, cells); k++) {
+        ctx.fillText('?', cx, fy + (yTop + cellH * (k + 0.5) + ryTop / 2) * S);
+      }
       ctx.restore();
     };
 
-    // 已有層（來源正在倒出：頂層縮短）
-    let level = 0;
+    // 用戶 2026-09-06：同色相鄰格係同一啖液體，唔可以見到分界 —— 先合併成「連續段」再逐段畫一個圓柱。
+    // 合併條件：unit key 相同 + 淡入狀態相同（`?` 樽逐格揭露時，未同步嗰格要獨立畫）；連續隱藏格（null）亦合併，但逐格畫 ?
+    const runs = [];
+    const push = (u, units, fade, cells) => {
+      const last = runs[runs.length - 1];
+      if (last && last.u === u && last.fade === fade) { last.units += units; last.cells += cells; }
+      else runs.push({ u, units, fade, cells });
+    };
     for (let i = 0; i < n; i++) {
-      const u = seg[i];
       let units = 1;
+      // 來源正在倒出：頂格縮短
       if (c.removedUnits > 0 && i >= n - Math.ceil(c.removedUnits)) units = Math.max(0, Math.min(1, (n - c.removedUnits) - i));
       if (units <= 0) continue;
-      const top = i === n - 1 && !c.extraUnits ? level + units * settleScale : level + units;
-      if (u === null) drawHidden(level, top);
-      else {
-        const t0 = c.fade[i];
-        const alpha = t0 ? clamp01((now - t0) / RENDER.hiddenRevealMs) : 1;
-        drawBand(level, top, u, alpha, i === n - 1 && !c.extraUnits);
-      }
-      level += units;
+      push(seg[i], units, c.fade[i] || 0, 1);
     }
-    // 正在倒入嘅新層
-    if (c.extraUnits > 0 && c.extraColor !== null) drawBand(level, level + c.extraUnits, c.extraColor, 1, true);
+    // 正在倒入嘅新液：同頂色一樣就併埋（倒液規則保證只會倒落同色或者空樽）
+    if (c.extraUnits > 0 && c.extraColor !== null) push(c.extraColor, c.extraUnits, 0, 1);
+
+    let level = 0;
+    for (let r = 0; r < runs.length; r++) {
+      const run = runs[r], isLast = r === runs.length - 1;
+      const top = isLast && !c.extraUnits ? level + run.units * settleScale : level + run.units;
+      if (run.u === null) drawHidden(level, top, run.cells);
+      else drawBand(level, top, run.u, run.fade ? clamp01((now - run.fade) / RENDER.hiddenRevealMs) : 1, isLast);
+      level += run.units;
+    }
   }
 
   /**
