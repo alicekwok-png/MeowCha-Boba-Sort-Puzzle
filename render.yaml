@@ -1,9 +1,11 @@
-# Render Blueprint — 喵喵茶記 Boba Cat
+# Render Blueprint — Mortar & Mew
 # 純靜態站：index.html + ES modules + fetch('levels/campaign.json')，唔需要 Node 執行期。
 # Render Dashboard → New → Blueprint → 揀呢個 repo，就會照呢個檔案建站。
+# 2026-09-05 由 meowcha-boba-sort 改名：sync 時 Render 會提示新增 mortar-and-mew / 刪除舊 service，要喺 Dashboard approve；
+# 想保留舊網址就先喺 Dashboard 將舊 service 改名做 mortar-and-mew，sync 就會對得上。
 services:
   - type: web
-    name: meowcha-boba-sort
+    name: mortar-and-mew   # Render 名只准小寫字母 / 數字 / 連字號；網址 = <name>.onrender.com（建立時定，之後唔跟改名變）
     runtime: static
     buildCommand: ""
     staticPublishPath: ./webapp
