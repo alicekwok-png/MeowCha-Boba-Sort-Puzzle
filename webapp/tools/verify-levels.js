@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// tools/verify-levels.js — 用 solver 重新驗證 levels/campaign.json 全部關卡（可解、最優步數同記錄一致）
+// tools/verify-levels.js — 用 solver 重新驗證 levels/campaign.json 全部關卡（可解、最優步數同記錄一致）+ levels/practice_pool.json 練習池
 //   node tools/verify-levels.js
 import { readFileSync } from 'node:fs';
 import { decodeBoard } from '../src/core/board.js';
@@ -8,6 +8,7 @@ import { applyMove, isSolved } from '../src/core/rules.js';
 import { queueCoversAllColors } from '../src/core/generator.js';
 import { gatingViolations } from '../src/core/difficulty.js';
 import { CAMPAIGN } from '../src/core/levels.js';
+import { existsSync } from 'node:fs';
 
 const data = JSON.parse(readFileSync(new URL('../levels/campaign.json', import.meta.url), 'utf8'));
 let bad = 0;
@@ -27,4 +28,22 @@ for (const l of data.levels) {
   console.log(`L${String(l.id).padStart(2)} ${status}${r.aborted ? ' (aborted)' : ''}  slots=${b.orders.length} queue=${(b.queue || []).length} ad=${adCups}`);
 }
 console.log(`${data.levels.length} levels, ${bad} problems, ${((Date.now() - t0) / 1000).toFixed(1)} s`);
+
+// 練習池：每個盤都要可解（只用免費槽）、最優同記錄一致、隊列涵蓋全部顏色
+const poolUrl = new URL('../levels/practice_pool.json', import.meta.url);
+if (existsSync(poolUrl)) {
+  const pool = JSON.parse(readFileSync(poolUrl, 'utf8'));
+  let pbad = 0, n = 0;
+  for (const [bucket, bk] of Object.entries(pool.buckets)) {
+    for (const l of bk.levels) {
+      n++;
+      const b = decodeBoard(l.board);
+      const r = solveEx(b, l.optimal + 2, 2_000_000);
+      const status = !queueCoversAllColors(b) ? 'QUEUE MISSING COLOUR' : !r.moves ? 'UNSOLVABLE' : r.moves.length !== l.optimal ? `OPTIMAL ${r.moves.length} != ${l.optimal}` : b.cups.length !== bk.config.cups ? `CUPS ${b.cups.length} != ${bk.config.cups}` : 'ok';
+      if (status !== 'ok') { pbad++; console.log(`practice ${bucket} ${l.seed}: ${status}`); }
+    }
+  }
+  console.log(`practice pool: ${n} boards, ${pbad} problems`);
+  bad += pbad;
+}
 process.exit(bad ? 1 : 0);

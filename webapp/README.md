@@ -28,6 +28,7 @@ Windows 可以直接雙擊 `start.cmd`。
 | `node tools/gen.js --only 12` | 只生成第 12 關（除錯） |
 | `python tools/build-assets-v2.py` | Spec v2 全部美術：`assets-raw/v2/` → `assets/v2/`（webp + 器皿幾何 `vessels.json` + `asset-check.json` 驗證 + 全套 icon） |
 | `npm run stats` | 輸出 40 關數據表（容器 / 色數 / 空瓶 / 每色平均段數 / 隱藏% / 最優 / 3★ / 上限 / 瓶種） |
+| `npm run gen:practice` | 練習池預生成（`tools/gen-practice.js`）：三桶各 30 個合格盤面 → `levels/practice_pool.json`（≈19 KB）；runtime 由池抽（0 ms、同一批唔重複），30 個用晒先 runtime 生成；`--salt` 換一批。`npm run verify` 會一併驗池 |
 | `npm run scan` | 40 關難度掃描（`tools/difficulty-scan.js`）：亂撳★2 率 = 隨機玩家喺最優 × 1.5 步內過關嘅比例（目標 L4+ 全部 < 10%）、亂撳 ≤ 2★ 門檻率、貪心率、死局率；`--trials N` / `--only 4,5` / `--json`。模擬喺 `src/core/analysis.js` |
 | `python tools/build-bg.py`、`build-assets.py`、`build-customers.py`、`extract-cup.py`、`build-icon.py` | 珍奶 / 夜市時期嘅腳本，已廢棄（build-bg 直接退出；其餘只留歷史參考） |
 | `python tools/build-icon.py` | App Icon 方向一「發光珍奶杯」程式繪製版 → `assets/icons/` 全套 + `../design/icon/` 驗收 mock（48px、深 / 淺列表、搜尋結果） |

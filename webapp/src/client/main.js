@@ -95,6 +95,36 @@ async function loadLevels() {
   return LEVELS;
 }
 
+// ---------- 練習池（levels/practice_pool.json，tools/gen-practice.js 預生成，每桶 30 個）----------
+// 用戶 2026-09-05：練習要即刻開始，runtime 生成最壞等 4 秒仲有機會失敗 → 先由池抽（0 ms），30 個用晒先 runtime 生成（混合）
+let PRACTICE_POOL = null;
+async function loadPracticePool() {
+  if (PRACTICE_POOL !== null) return PRACTICE_POOL;
+  try {
+    const res = await fetch(new URL('../../levels/practice_pool.json', import.meta.url));
+    PRACTICE_POOL = res.ok ? await res.json() : false;
+  } catch { PRACTICE_POOL = false; }
+  return PRACTICE_POOL;
+}
+const PPKEY = 'meowcha.practiceUsed';
+function practiceUsed() {
+  try { return JSON.parse(localStorage.getItem(PPKEY) || '{}'); } catch { return {}; }
+}
+/** 由池抽一個未玩過嘅盤（同一批 salt 內唔重複）；池用晒 / 載入失敗 → null */
+function pickFromPool(pool, bucket) {
+  const b = pool && pool.buckets && pool.buckets[bucket];
+  if (!b || !b.levels.length) return null;
+  const used = practiceUsed();
+  const key = pool.salt + ':' + bucket;
+  const seen = new Set(used[key] || []);
+  const fresh = b.levels.filter(l => !seen.has(l.seed));
+  if (!fresh.length) return null;
+  const pick = fresh[Math.floor(Math.random() * fresh.length)];
+  used[key] = [...seen, pick.seed];
+  try { localStorage.setItem(PPKEY, JSON.stringify(used)); } catch { /* ignore */ }
+  return { id: 'pp:' + pick.seed, title: b.config.title, board: pick.board, optimal: pick.optimal, thresholds: pick.thresholds, publicSeed: pick.seed, config: b.config };
+}
+
 // ---------- 畫面 ----------
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
@@ -726,6 +756,9 @@ function pickPractice() {
   document.querySelectorAll('[data-d]').forEach(b => b.onclick = async () => {
     const cfg = PRACTICE[b.dataset.d];
     sfx.click();
+    // 先由預生成池抽（0 ms）；池用晒先落 runtime 生成
+    const pooled = pickFromPool(await loadPracticePool(), b.dataset.d);
+    if (pooled) { closeModal(); await startLevel(pooled, { practice: true, diff: b.dataset.d }); return; }
     modal(`<img class="mascot" src="${asset('CHR_cat_idle')}" alt=""><h3>${t('extra.practice.generating')}</h3><div class="spinner"></div><p style="font-size:13px">${t('extra.practice.generatingSub')}</p>`);
     try {
       const seed = `v1:p:${b.dataset.d}:${Date.now().toString(36)}:${Math.random().toString(36).slice(2, 8)}`;
