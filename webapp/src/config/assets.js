@@ -8,7 +8,9 @@ export const ASSET_MAP = Object.freeze({
   BG_lab_full: V2 + 'bg_lab_full.webp',
   BG_lab_full_small: V2 + 'bg_lab_full_small.webp',
 
-  // 器皿（5）— 768×768 原稿，內容高度 722px；縮到 512
+  // 器皿 — v4 §2：全遊戲單一樽型。VES_bottle_std = 深色標準樽（美術未交付前由燒瓶剪影程式生成，樽身中央明度 < 80）
+  VES_bottle_std: V2 + 'bottle_std.webp',
+  // 舊 v2 器皿（曲頸 / 裂瓶已移除；flask / frosted 只留說明畫面 / 相容）
   VES_flask_empty: V2 + 'flask.webp',
   VES_flask_frosted: V2 + 'flask_frosted.webp',
   VES_flask_cracked: V2 + 'flask_cracked.webp',
@@ -62,14 +64,16 @@ export const ASSET_MAP = Object.freeze({
   company_logo: 'assets/company-logo.webp',
 });
 
-/** 器皿 kind → sprite key */
+/** 器皿 kind → sprite key（v4：除 frosted 外全部用深色標準樽；廣告樽 = std + 中央紋章；`?` = std + ? 字；已封 = std + 木塞 + 去飽和） */
 export const VESSEL_SPRITE = Object.freeze({
-  normal: 'VES_flask_empty',
+  normal: 'VES_bottle_std',
+  hidden: 'VES_bottle_std',
+  ad: 'VES_bottle_std',
+  gone: 'VES_bottle_std',
+  covered: 'VES_bottle_std',    // 布遮樽底下係標準樽（布固定尺寸，唔會露出樽型）
   frosted: 'VES_flask_frosted',
-  cracked: 'VES_flask_cracked',
-  takeaway: 'VES_retort_empty',
-  takeaway_frosted: 'VES_retort_frosted',
-  covered: 'VES_flask_empty',   // 布遮瓶底下係 flask（布固定尺寸，唔會露出瓶型）
+  cracked: 'VES_bottle_std',    // 已移除，留相容
+  takeaway: 'VES_bottle_std',   // 已移除，留相容
 });
 
 /** 委託人 key（Spec §6 解鎖順序 raven → badger → owl → hare） */

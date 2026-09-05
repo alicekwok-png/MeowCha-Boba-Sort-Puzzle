@@ -27,6 +27,7 @@
   }
  },
  "checks": {
+  "bottleStdCentreLuma": 23.2,
   "clothBboxPx": [
    265,
    199,

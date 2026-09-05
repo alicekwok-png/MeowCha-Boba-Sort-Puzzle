@@ -122,6 +122,58 @@ for key, fname in VESSELS.items():
     size = save_webp(im, f'{key}.webp', (512, 512), q=88)
     report['vessels'][key] = {'bytes': size, 'contentHeightPx': round((g['content']['bottom'] - g['content']['top']) * 768), 'liquidRows': len(g['rows'])}
     print(f'{key:16s} {size // 1024:4d} KB  content {g["content"]}  liquid {g["liquid"]}  rim {g["rim"]}  neck {g["neck"]}')
+# ---------- v4 §2.2：深色標準樽 VES_bottle_std（美術未交付 → 由燒瓶剪影程式生成；樽身中央明度必須 < 80/255）----------
+def build_dark_bottle(src_path, out_name):
+    a = np.asarray(Image.open(src_path).convert('RGBA')).astype(np.float64)
+    H, W = a.shape[:2]
+    alpha = a[..., 3]
+    brass = (a[..., 0] - a[..., 2] > 45) & (a[..., 0] > 90)
+    glass = (alpha > 200) & ~brass
+    # 玻璃區 → 深藍黑（參考 #041C2C），保留黃銅口 / 底座
+    base = np.array([8.0, 26.0, 40.0])
+    out = a.copy()
+    out[glass, :3] = base
+    # 邊緣反光：距離玻璃邊 0–7px 漸亮（用 alpha 侵蝕近似）
+    from PIL import ImageFilter as _IF
+    gm = Image.fromarray((glass * 255).astype(np.uint8), 'L')
+    inner = gm
+    edge = np.zeros((H, W))
+    for i, w in ((1, 0.55), (2, 0.42), (3, 0.30), (4, 0.20), (5, 0.12), (6, 0.06)):
+        inner = inner.filter(_IF.MinFilter(3))
+        ring = (np.asarray(gm) > 0) & (np.asarray(inner) == 0) if i == 1 else ring
+        band = (np.asarray(gm) > 0) & (np.asarray(inner) == 0)
+        edge = np.maximum(edge, band * w)
+    # 左側柔和反光柱（瓶寬 16–24%）+ 右側細反光
+    xs = np.arange(W)[None, :].repeat(H, 0)
+    rows_l = np.full((H,), -1.0); rows_r = np.full((H,), -1.0)
+    for y in range(H):
+        xg = np.where(glass[y])[0]
+        if len(xg): rows_l[y] = xg.min(); rows_r[y] = xg.max()
+    fx = (xs - rows_l[:, None]) / np.maximum(1, (rows_r - rows_l)[:, None])
+    col = np.clip(1 - np.abs(fx - 0.20) / 0.06, 0, 1) * 0.35 * glass
+    col2 = np.clip(1 - np.abs(fx - 0.86) / 0.03, 0, 1) * 0.18 * glass
+    hl = np.clip(edge * glass + col + col2, 0, 1)
+    hl = np.asarray(Image.fromarray((hl * 255).astype(np.uint8), 'L').filter(_IF.GaussianBlur(1.2))).astype(np.float64) / 255
+    for ch in range(3): out[..., ch] = np.where(glass, out[..., ch] + (255 - out[..., ch]) * hl, out[..., ch])
+    img = Image.fromarray(np.clip(out, 0, 255).astype(np.uint8), 'RGBA')
+    # 驗收：樽身中央（液體區中點）明度 < 80
+    g = geoms['flask']
+    cy = int((g['liquid']['top'] + g['liquid']['bottom']) / 2 * H); cx = int(W * 0.5)
+    c = np.asarray(img)[cy, cx, :3].astype(np.float64)
+    L = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+    size = save_webp(img, out_name, (512, 512), q=88)
+    print(f'bottle_std ← {os.path.basename(src_path)}: {size // 1024} KB  centre rgb={c.astype(int).tolist()} luma={L:.0f} (<80 {"OK" if L < 80 else "FAIL"})')
+    report['checks']['bottleStdCentreLuma'] = round(float(L), 1)
+    return L
+
+src_std = os.path.join(RAW, 'VES_bottle_std.png')
+if os.path.exists(src_std):
+    im = Image.open(src_std).convert('RGBA'); save_webp(im, 'bottle_std.webp', (512, 512), q=88)
+    geoms['bottle_std'] = vessel_geom(src_std)
+    print('bottle_std ← 美術交付 VES_bottle_std.png')
+else:
+    build_dark_bottle(src('VES_flask_empty_v3.png'), 'bottle_std.webp')
+    geoms['bottle_std'] = dict(geoms['flask'])     # 同一剪影 → 同一幾何
 with open(os.path.join(OUT, 'vessels.json'), 'w', encoding='utf-8') as f:
     json.dump(geoms, f, ensure_ascii=False, separators=(',', ':'))
 

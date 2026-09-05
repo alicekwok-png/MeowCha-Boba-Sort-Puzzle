@@ -2,6 +2,19 @@
 // 調參規則：jitterX/Y 由 0.05 開始向上調。超過 0.10 / 0.15 會由「有機」變「凌亂」。
 
 export const LAYOUT = Object.freeze({
+  // 實作指令 v4 §3.3：垂直分配（相對螢幕高度）
+  topBarTop:        0.00,
+  topBarBottom:     0.10,   // 金幣 / 關卡 / 設定
+  orderSlotsTop:    0.10,
+  orderSlotsBottom: 0.24,   // 委託槽 ×4 + 委託人
+  playfieldTop:     0.24,
+  playfieldBottom:  0.86,   // 盤面 62%
+  toolbarTop:       0.86,
+  toolbarBottom:    1.00,   // 道具列 ×4
+  // 樽尺寸（相對螢幕高度）
+  bottleHeightRatio: 0.19,  // 原本約 0.13
+  bottleAspect:      0.42,  // 寬 / 高
+
   columns: 4,
   rowOffsetRatio: 0.5,
   jitterX: 0.08,
@@ -11,6 +24,15 @@ export const LAYOUT = Object.freeze({
   maxOverlapRatio: 0.12,
   minTapTargetPt: 44,
   separationIterations: 8,
+});
+
+/** v4 §3.2：貓助手唔常駐，只喺交貨時由右下彈出 */
+export const CAT = Object.freeze({
+  mode: 'transient',
+  anchor: 'bottomRight',
+  showOnDeliver: true,
+  showDurationMs: 1200,
+  fadeOutMs: 300,
 });
 
 export const CLOTH = Object.freeze({

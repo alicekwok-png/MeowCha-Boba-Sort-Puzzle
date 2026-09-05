@@ -1,8 +1,13 @@
 // config/render.js — Spec v2 §1.3：液體 / 配料渲染常數。
 
 export const RENDER = Object.freeze({
-  // 瓶身 sprite 係淺色蝕刻線稿，正常 alpha 疊會蓋住液體
-  liquidBlend: 'multiply',
+  // v4 §1.2：液體唔經玻璃（純色 100% 填，唔乘任何嘢），玻璃只加光（screen，只取 luma > 215 嘅像素）
+  liquidBlend: 'source-over',
+  glassHighlight: Object.freeze({ lumaThreshold: 215, lumaRange: 40, strength: 0.55 }),
+  verticalHighlight: Object.freeze({ from: 0.16, to: 0.24, blur: 3, strength: 0.35 }),
+  surfaceLine: Object.freeze({ thickness: 3, boost: 1.5 }),
+  hiddenGlyph: Object.freeze({ color: '#9A8B6F' }),          // `?` 隱藏層：襯線體
+  sealedBottle: Object.freeze({ desaturate: 0.25, overlay: '#0A0806', overlayAlpha: 0.18 }),   // 已封樽
 
   patternAtlasSize: 256,
   patternUVInset: 0.5 / 256,   // 防止雙線性取樣偷到隔壁象限

@@ -100,7 +100,16 @@ describe('LevelValidation', () => {
 });
 
 describe('Render', () => {
-  test('液體 blend mode 為 multiply', () => assert.equal(RENDER.liquidBlend, 'multiply'));
+  test('v4 §1.2：液體純色填（source-over），玻璃只加光 luma>215 / range 40 / 0.55；液面線 3px ×1.5', () => {
+    assert.equal(RENDER.liquidBlend, 'source-over');
+    assert.deepEqual(RENDER.glassHighlight, { lumaThreshold: 215, lumaRange: 40, strength: 0.55 });
+    assert.deepEqual(RENDER.surfaceLine, { thickness: 3, boost: 1.5 });
+    assert.equal(LAYOUT.bottleHeightRatio, 0.19); assert.equal(LAYOUT.playfieldBottom - LAYOUT.playfieldTop, 0.62);
+  });
+  test('v4 §2.2：深色標準樽樽身中央明度 < 80/255', () => {
+    const c = JSON.parse(readFileSync(new URL('../assets/v2/asset-check.json', import.meta.url), 'utf8')).checks;
+    assert.ok(c.bottleStdCentreLuma < 80, String(c.bottleStdCentreLuma));
+  });
   test('P3 用 repeat，其餘 clamp', () => {
     assert.equal(RENDER.patternWrap.P3, 'repeat');
     assert.equal(RENDER.patternWrap.P1, 'clamp');
