@@ -6,10 +6,11 @@
   "private": true,
   "scripts": {
     "start": "node server.js",
-    "test": "node --test tests/core.test.js tests/background.test.js tests/boot.test.js tests/orders.test.js tests/difficulty.test.js tests/layout.test.js tests/i18n.test.js",
+    "test": "node --test tests/core.test.js tests/background.test.js tests/boot.test.js tests/orders.test.js tests/difficulty.test.js tests/layout.test.js tests/i18n.test.js tests/analysis.test.js",
     "gen": "node tools/gen.js --out levels/campaign.json",
     "verify": "node tools/verify-levels.js",
-    "stats": "node tools/level-stats.js"
+    "stats": "node tools/level-stats.js",
+    "scan": "node tools/difficulty-scan.js"
   },
   "engines": { "node": ">=18" }
 }

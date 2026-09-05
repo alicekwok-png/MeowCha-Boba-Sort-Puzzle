@@ -14,7 +14,7 @@ const rows = data.levels.filter(l => !want.length || want.includes(l.id)).map(l 
   const units = b.cups.reduce((a, c) => a + c.seg.length, 0);
   const segs = b.cups.reduce((a, c) => a + c.seg.filter((v, i) => i === 0 || v !== c.seg[i - 1]).length, 0);
   const empties = b.cups.filter(c => !c.seg.length).length;
-  const hidden = b.cups.reduce((a, c) => a + hiddenCount(c), 0);   // 磨砂 / 布遮瓶頂格以外
+  const hidden = b.cups.reduce((a, c) => a + hiddenCount(c), 0);   // `?` 樽 / 布遮瓶頂格以外
   const threeStar = l.thresholds ? l.thresholds.three : '';
   return {
     關卡: l.id, 容器數: b.cups.length, 色數: b.colors, 空瓶: empties, 每色平均段數: +(segs / b.colors).toFixed(2),
