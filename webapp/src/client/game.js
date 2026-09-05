@@ -883,7 +883,7 @@ export class GameView {
     const GH = RENDER.glassHighlight, VH = RENDER.verticalHighlight, SL = RENDER.surfaceLine;
     let topBand = null;   // 最後畫嘅一帶（液面線用）
 
-    const drawBand = (from, to, unit, alpha, isTop = false) => {
+    const drawBand = (from, to, unit, alpha) => {
       if (to - from <= 0.001) return;
       const yTop = yAt(to), yBot = yAt(from);
       const hex = hexOf(unit);
@@ -908,7 +908,7 @@ export class GameView {
       ctx.fillStyle = fill;
       ctx.fillRect(fx, y1, S, y2 - y1);
       // ②b 圓筒明暗（bottleMask.js v3）：邊緣暗到 sideShadeMin（中軸 1.0 → 帶中央 pixel 仍然 = hex）；
-      //     頂面橢圓只喺最頂層（+42%），由液面向下 2×ry 漸變（中間層唔畫，否則出橫紋）
+      //     頂面橢圓每一層都畫（用戶 2026-09-05：參考圖每格之間都見到淺色水面），由層頂向下 topFaceSpan × ry 漸變（+60%）
       {
         const CY = RENDER.cylinder;
         const w = bx1 - bx0, cx = (bx0 + bx1) / 2;
@@ -922,13 +922,13 @@ export class GameView {
         }
         ctx.globalCompositeOperation = 'multiply';
         ctx.fillStyle = gr; ctx.fillRect(bx0, y1, w, y2 - y1);
-        if (isTop) {
-          const ry = w * CY.ellipseRatio / 2;
-          const face = ctx.createLinearGradient(0, y1, 0, y1 + ry * 2);
+        {
+          const ry = w * CY.ellipseRatio / 2, span = ry * (CY.topFaceSpan ?? 2);
+          const face = ctx.createLinearGradient(0, y1, 0, y1 + span);
           face.addColorStop(0, `rgba(255,255,255,${(CY.topFaceBoost - 1) * 0.55})`);
           face.addColorStop(1, 'rgba(255,255,255,0)');
           ctx.globalCompositeOperation = 'screen';
-          ctx.fillStyle = face; ctx.fillRect(bx0, y1, w, ry * 2);
+          ctx.fillStyle = face; ctx.fillRect(bx0, y1, w, Math.min(span, y2 - y1));
         }
       }
       // ③ 玻璃高光（只有 sprite 最亮部分，深色樽身中央 alpha = 0 → 帶中央 pixel 唔會郁）
@@ -984,12 +984,12 @@ export class GameView {
       else {
         const t0 = c.fade[i];
         const alpha = t0 ? clamp01((now - t0) / RENDER.hiddenRevealMs) : 1;
-        drawBand(level, top, u, alpha, i === n - 1 && !c.extraUnits);
+        drawBand(level, top, u, alpha);
       }
       level += units;
     }
     // 正在倒入嘅新層
-    if (c.extraUnits > 0 && c.extraColor !== null) drawBand(level, level + c.extraUnits, c.extraColor, 1, true);
+    if (c.extraUnits > 0 && c.extraColor !== null) drawBand(level, level + c.extraUnits, c.extraColor, 1);
 
     // ⑥ 液面高光線：只落頂帶頂 3px（帶中央唔受影響），該色各通道 ×1.5，source-over
     if (topBand && topBand.y2 - topBand.y1 > SL.thickness * 2) {

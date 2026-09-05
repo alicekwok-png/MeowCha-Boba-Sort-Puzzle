@@ -12,8 +12,8 @@ export const RENDER = Object.freeze({
   cork: Object.freeze({ widthRatio: 0.61, topOffset: 0.035 }),
   deliverAnim: Object.freeze({ corkMs: 200, glowMs: 180, dustCount: [8, 12], flyMs: 440, flyScale: 0.45, flyRotDeg: 8, slotFlashMs: 140 }),
   sealAnim: Object.freeze({ corkMs: 200, desatMs: 280 }),   // 落塞同交貨一樣 200ms ease-out-back（140 太快，玩家睇唔到）
-  // bottleMask.js v3 圓筒明暗：邊緣最暗比例、頂面橢圓（只喺頂層）、左上高光柱、玻璃只加光門檻
-  cylinder: Object.freeze({ sideShadeMin: 0.72, topFaceBoost: 1.42, ellipseRatio: 0.16, specCenter: -0.48, specWidth: 0.14, specStrength: 0.40, lumaThreshold: 195, lumaRange: 60, hlStrength: 0.55 }),
+  // bottleMask.js v3 圓筒明暗：邊緣最暗比例、頂面橢圓（用戶 2026-09-05：每一層都畫，唔止頂層；boost 1.60、漸變 ry × 2.6）、左上高光柱、玻璃只加光門檻
+  cylinder: Object.freeze({ sideShadeMin: 0.72, topFaceBoost: 1.60, topFaceSpan: 2.6, ellipseRatio: 0.16, specCenter: -0.48, specWidth: 0.14, specStrength: 0.40, lumaThreshold: 195, lumaRange: 60, hlStrength: 0.55 }),
 
   patternAtlasSize: 256,
   patternUVInset: 0.5 / 256,   // 防止雙線性取樣偷到隔壁象限
