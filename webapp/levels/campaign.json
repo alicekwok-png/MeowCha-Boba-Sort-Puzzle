@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-09-05T14:39:54.160Z",
+ "generatedAt": "2026-09-05T15:09:31.521Z",
  "levels": [
   {
    "id": 1,
@@ -25,10 +25,11 @@
      0,
      0
     ],
-    "tutorialQueue": "firstDelivered"
+    "tutorialQueue": "firstDelivered",
+    "randomTwoStarMax": null
    },
-   "publicSeed": "v1:c:1:2cae47db:c4e1c796",
-   "board": "BAIBAQAAAAUMAAAAAP__AAAGBv8A_____wAGBgD_AP____8",
+   "publicSeed": "v1:c:1:208b5d6c:c4e1c796",
+   "board": "BAIBAQAAAAUABgAGAP__AAYG__8AAAAABgD_____AP____8",
    "optimal": 3,
    "thresholds": {
     "three": 6,
@@ -64,18 +65,19 @@
      0,
      0
     ],
-    "tutorialQueue": "sealThenCatchUp"
+    "tutorialQueue": "sealThenCatchUp",
+    "randomTwoStarMax": null
    },
-   "publicSeed": "v1:c:2:15082b00:61df1f14",
-   "board": "BAMBAgAAAAgEAAYA_____6D_____AAACBgaAAgIAAgD_____AAYG__8AAAD__6D_____",
-   "optimal": 5,
+   "publicSeed": "v1:c:2:e61ff2fc:61df1f14",
+   "board": "BAMBAgAAAAgEBgCg_____wAAAP__AP____8ABgYGAAD_____AAYCAgCAAgL__6D_____",
+   "optimal": 4,
    "thresholds": {
-    "three": 10,
-    "two": 15
+    "three": 9,
+    "two": 14
    },
    "moveLimit": null,
    "hiddenRatio": 0.1,
-   "hiddenCells": 3,
+   "hiddenCells": 1,
    "units": 12
   },
   {
@@ -103,10 +105,11 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": null
    },
-   "publicSeed": "v1:c:3:d4256135:4561d6b1",
-   "board": "BAMCAQAAAAcCCAgA_____wAECP__AP____8ACAgBAYAIBP__oP____8ABAQBAQ",
+   "publicSeed": "v1:c:3:e994cd21:4561d6b1",
+   "board": "BAMCAQAAAAcIAggA_____wD_____oP____8ACAj__4ABBAEIAAQEBAEACAH__w",
    "optimal": 6,
    "thresholds": {
     "three": 11,
@@ -114,14 +117,14 @@
    },
    "moveLimit": null,
    "hiddenRatio": 0.1,
-   "hiddenCells": 1,
+   "hiddenCells": 3,
    "units": 12
   },
   {
    "id": 4,
    "title": "熟手",
    "config": {
-    "cups": 6,
+    "cups": 8,
     "colors": 4,
     "empties": 1,
     "segments": 10,
@@ -144,25 +147,26 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:4:e81f1f87:6e39c52f",
-   "board": "BAQCAgAAAAgEAAYIAAgICP8AAgIA_6D_____oP____8AAgAA_4AIBgYAAAIGBv8A_____w",
-   "optimal": 8,
+   "publicSeed": "v1:c:4:ee39f0be:6e39c52f",
+   "board": "BAQCAgAAAAoADAgCAAAAAgig_____wD_____AAIC__-g_____4AGBv__AAIICACABgb__wAI____AAD___8",
+   "optimal": 7,
    "thresholds": {
-    "three": 13,
-    "two": 18
+    "three": 14,
+    "two": 19
    },
    "moveLimit": null,
    "hiddenRatio": 0.1,
-   "hiddenCells": 3,
+   "hiddenCells": 2,
    "units": 16
   },
   {
    "id": 5,
    "title": "晚更",
    "config": {
-    "cups": 6,
+    "cups": 8,
     "colors": 4,
     "empties": 1,
     "segments": 11,
@@ -185,10 +189,11 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:5:b38e489d:b17c09f0",
-   "board": "BAQCAgAAAAcSCAcBgAEBBP8A_____wAHBwn_AAkBB_8ACQkBB6D_____AAQEBP8",
+   "publicSeed": "v1:c:5:0a1de6ba:b17c09f0",
+   "board": "BAQCAgAAAAkCDgkEAAT___8A_____wAJCQcHoP____-AAQH__wAJ____AAEEBP8ACQQB_wAHB___",
    "optimal": 7,
    "thresholds": {
     "three": 12,
@@ -196,14 +201,14 @@
    },
    "moveLimit": null,
    "hiddenRatio": 0.1,
-   "hiddenCells": 2,
+   "hiddenCells": 1,
    "units": 16
   },
   {
    "id": 6,
    "title": "蓋住咗",
    "config": {
-    "cups": 7,
+    "cups": 8,
     "colors": 4,
     "empties": 1,
     "segments": 12,
@@ -226,10 +231,11 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:6:ff2bd008:d7c55cca",
-   "board": "BAQCAgAAAAkQAAMGoP____8ACAgG_wD_____oP____8ABgMD_wAABv__gAMG__8AAwj__wAACAAA",
+   "publicSeed": "v1:c:6:a1d0da7d:d7c55cca",
+   "board": "BAQCAgAAAAoQAAMGAP____-g_____wAIAAAGAAP___8AAwMI_4AGBv__AAAI__8ABgP__wAIAP__oP____8",
    "optimal": 9,
    "thresholds": {
     "three": 14,
@@ -244,7 +250,7 @@
    "id": 7,
    "title": "排隊",
    "config": {
-    "cups": 7,
+    "cups": 9,
     "colors": 5,
     "empties": 1,
     "segments": 14,
@@ -269,25 +275,26 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:7:61784ed7:3f5ab324",
-   "board": "BAUCAwAAAAgEAAYIBQACAgAAAAgGAv8ABgX__wAGAAACgAUFBv8A_____6D_____AAUICAg",
-   "optimal": 10,
+   "publicSeed": "v1:c:7:a8a826fe:3f5ab324",
+   "board": "BAUCAwAAAAoQAAIGBQAIBgL_AAX___8ABQUF_4AGBv__oP____8A_____wAGCAICgAAI__-AAgj__wAAAAD_",
+   "optimal": 9,
    "thresholds": {
-    "three": 15,
-    "two": 20
+    "three": 18,
+    "two": 23
    },
    "moveLimit": null,
    "hiddenRatio": 0.1275,
-   "hiddenCells": 2,
+   "hiddenCells": 3,
    "units": 20
   },
   {
    "id": 8,
    "title": "打烊前",
    "config": {
-    "cups": 7,
+    "cups": 9,
     "colors": 5,
     "empties": 1,
     "segments": 15,
@@ -312,25 +319,26 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:8:78f0cba5:29f68a08",
-   "board": "BAUCAwAAAAkCEAcECQD_____AAcEBAgACQQE_wAICAj_oP____8AAQEHCaD_____gAcJ__-ACQEBBw",
-   "optimal": 10,
+   "publicSeed": "v1:c:8:67bae470:29f68a08",
+   "board": "BAUCAwAAAAsOCAkIAaD_____AAQH__8A_____wAHBwn_gAcB__-AAQH__wAECAkEAAkJ__-g_____4AICP__AAEIBP8",
+   "optimal": 11,
    "thresholds": {
-    "three": 17,
-    "two": 22
+    "three": 20,
+    "two": 25
    },
    "moveLimit": null,
    "hiddenRatio": 0.135,
-   "hiddenCells": 4,
+   "hiddenCells": 3,
    "units": 20
   },
   {
    "id": 9,
    "title": "問號瓶",
    "config": {
-    "cups": 7,
+    "cups": 9,
     "colors": 5,
     "empties": 1,
     "segments": 16,
@@ -355,14 +363,15 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:9:aff61cc5:27e4c564",
-   "board": "BAUCAwAAAAgMBgAIBQD_____oP____8AA____wADBQD_AAgABQUABgYGBQAAAwgIgAAIAwY",
+   "publicSeed": "v1:c:9:1d40ffa9:27e4c564",
+   "board": "BAUCAwAAAAoQBgYABQAD____AAYI__-g_____wAD____gAAA__8AAAgGBoADBgX_AP____8ABQUAAwAFCAj_",
    "optimal": 12,
    "thresholds": {
-    "three": 17,
-    "two": 22
+    "three": 19,
+    "two": 24
    },
    "moveLimit": null,
    "hiddenRatio": 0.1425,
@@ -373,7 +382,7 @@
    "id": 10,
    "title": "曲頸瓶",
    "config": {
-    "cups": 8,
+    "cups": 9,
     "colors": 5,
     "empties": 1,
     "segments": 17,
@@ -398,25 +407,26 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:10:a802a2c8:6190c984",
-   "board": "BAUCAwAAAAoEAgcICQABAQkBAAIHCf8ABwcC_wACCP__oP____8ACP___4ACCAkHAP____-g_____wAJAQj_",
+   "publicSeed": "v1:c:10:a45edef4:6190c984",
+   "board": "BAUCAwAAAAsEEgEIB4ABAgj_oP____8A_____wAC____oP____8ABwcCBwAJCAj_AAgBB_8ACf___4ABCQH_AAkC__8",
    "optimal": 13,
    "thresholds": {
-    "three": 18,
-    "two": 23
+    "three": 20,
+    "two": 25
    },
    "moveLimit": null,
    "hiddenRatio": 0.15,
-   "hiddenCells": 3,
+   "hiddenCells": 4,
    "units": 20
   },
   {
    "id": 11,
    "title": "爆單",
    "config": {
-    "cups": 8,
+    "cups": 9,
     "colors": 6,
     "empties": 1,
     "segments": 18,
@@ -443,10 +453,11 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:11:4a60a9fd:cbc17bcf",
-   "board": "BAYCBAAAAAkSCggABgKAAgIA_wD_____AAgFBf-g_____wAJAAn_AAACAv8ABgkGCYAGCAgGAAAFBQg",
+   "publicSeed": "v1:c:11:4c5ec15c:cbc17bcf",
+   "board": "BAYCBAAAAAoKDAkACAIABQkIBYAICAAAAP____8AAgAG_wAJCAYGoP____8ABgkAAgAJ____AAIC__-ABQX__w",
    "optimal": 14,
    "thresholds": {
     "three": 21,
@@ -454,14 +465,14 @@
    },
    "moveLimit": null,
    "hiddenRatio": 0.158,
-   "hiddenCells": 5,
+   "hiddenCells": 4,
    "units": 24
   },
   {
    "id": 12,
    "title": "實驗室高峰",
    "config": {
-    "cups": 8,
+    "cups": 9,
     "colors": 6,
     "empties": 1,
     "segments": 19,
@@ -488,25 +499,26 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:12:32cf25e8:0060cb57",
-   "board": "BAYCBAAAAAoQBAQBCQcAAgIJ_wAEBwf_AAcICASg_____6D_____AP____8ABAkI_4AJCAEBAAcBAgIACQQB_w",
-   "optimal": 15,
+   "publicSeed": "v1:c:12:bb7fbfbe:0060cb57",
+   "board": "BAYCBAAAAAsOAgkEAggABAkI_4ACBwH_gAQHAgKg_____wABBwn_AAQE__8ACAkJAQD_____AAgI__8AAQcC_6D_____",
+   "optimal": 16,
    "thresholds": {
-    "three": 20,
-    "two": 25
+    "three": 23,
+    "two": 28
    },
-   "moveLimit": 27,
+   "moveLimit": 28,
    "hiddenRatio": 0.16599999999999998,
-   "hiddenCells": 3,
+   "hiddenCells": 5,
    "units": 24
   },
   {
    "id": 13,
    "title": "開爐",
    "config": {
-    "cups": 9,
+    "cups": 10,
     "colors": 6,
     "empties": 1,
     "segments": 18,
@@ -526,25 +538,26 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:13:b7c4f987:c39f2be8",
-   "board": "BAYCBAAAAAoGEAkHAAQABwkE_4ADAwf_gAcDBAQA_____wAICAgJoP____8ACQn__wAAAP__AAgA__8AAAcDBA",
-   "optimal": 13,
+   "publicSeed": "v1:c:13:629b41b3:c39f2be8",
+   "board": "BAYCBAAAAAsOEgEEAggABAcH_wAEBAH_AAkJCf8AAgn__6D_____AAgB__8ABAH__wABCAL_gAcHAgIA_____4AICP__",
+   "optimal": 11,
    "thresholds": {
-    "three": 20,
-    "two": 25
+    "three": 18,
+    "two": 23
    },
-   "moveLimit": 25,
+   "moveLimit": 23,
    "hiddenRatio": 0.174,
-   "hiddenCells": 5,
+   "hiddenCells": 4,
    "units": 24
   },
   {
    "id": 14,
    "title": "導師提示",
    "config": {
-    "cups": 9,
+    "cups": 10,
     "colors": 6,
     "empties": 1,
     "segments": 19,
@@ -564,25 +577,26 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:14:9184c2b1:c9df2b6d",
-   "board": "BAYCBAAAAAsQAAkEAwcABAADAwD_____gAgICQkACf___wAHCQQEAAMA__8ABwQA_6D_____AAgI__-g_____wAHAAcD",
-   "optimal": 14,
+   "publicSeed": "v1:c:14:a8bdc152:c9df2b6d",
+   "board": "BAYCBAAAAAwQDgMJBACg_____wAACP__AAMDA_8ABAcA_wAJCf__gAMJCf8ABwcE_wD_____gAQA__-g_____wAICAD_gAgHBP8",
+   "optimal": 12,
    "thresholds": {
-    "three": 19,
-    "two": 24
+    "three": 21,
+    "two": 26
    },
-   "moveLimit": 26,
+   "moveLimit": 24,
    "hiddenRatio": 0.182,
-   "hiddenCells": 3,
+   "hiddenCells": 5,
    "units": 24
   },
   {
    "id": 15,
    "title": "裂瓶",
    "config": {
-    "cups": 9,
+    "cups": 10,
     "colors": 6,
     "empties": 1,
     "segments": 19,
@@ -602,25 +616,26 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:15:ca422967:6ef76e03",
-   "board": "BAYCBAAAAAoSBgYIBQAABQkD_6D_____gAAGAwUABgYDBQAICP__gAYF__8ACQkDAIAACf__AAgIAP8A_____w",
-   "optimal": 15,
+   "publicSeed": "v1:c:15:46896cc2:6ef76e03",
+   "board": "BAYCBAAAAAsABAYICQUABgYGAAAIBf__AP____8AAgn__4AICQj_AAICAv8ABf___6D_____gAkIBv8ABQAJ_4AFAAD_",
+   "optimal": 14,
    "thresholds": {
-    "three": 24,
-    "two": 29
+    "three": 23,
+    "two": 28
    },
-   "moveLimit": 27,
+   "moveLimit": 26,
    "hiddenRatio": 0.19,
-   "hiddenCells": 5,
+   "hiddenCells": 6,
    "units": 24
   },
   {
    "id": 16,
    "title": "睇唔到嘅底",
    "config": {
-    "cups": 9,
+    "cups": 10,
     "colors": 6,
     "empties": 1,
     "segments": 19,
@@ -640,25 +655,26 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:16:9184c2b1:ec9e18f8",
-   "board": "BAYCBAAAAAsIBAEICQcA_____wAJCAf_AAEJ__8ACf___wAIBAIEAAcHAgKg_____wAECQEBgAIHBP-ACAgB_6D_____",
-   "optimal": 14,
+   "publicSeed": "v1:c:16:a8bdc152:ec9e18f8",
+   "board": "BAYCBAAAAAwEDgkIAQQA_____wAHAgT_AAkJCQKg_____6D_____AAH___-AAgn__4ABAv__gAQEBwcABAgICAAHAQj_AAH___8",
+   "optimal": 13,
    "thresholds": {
-    "three": 21,
-    "two": 26
+    "three": 22,
+    "two": 27
    },
-   "moveLimit": 26,
+   "moveLimit": 25,
    "hiddenRatio": 0.198,
-   "hiddenCells": 4,
+   "hiddenCells": 5,
    "units": 24
   },
   {
    "id": 17,
    "title": "兩張委託",
    "config": {
-    "cups": 9,
+    "cups": 10,
     "colors": 6,
     "empties": 1,
     "segments": 19,
@@ -678,25 +694,26 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:17:ca422967:e8a534d3",
-   "board": "BAYCBAAAAAoQAgUJAgYAAgYCBgAFBgn_AAgIBf8ABgUF_6D_____gAgICQkA_____wAJAf__AAEB__-AAgEC_w",
+   "publicSeed": "v1:c:17:46896cc2:e8a534d3",
+   "board": "BAYCBAAAAAsACgMGCQiAAwn__wD_____gAUDA_8ABgAICAAJBgn_oP____8ACAgFBoAAAP__AAMFBf8ACf___wAABv__",
    "optimal": 13,
    "thresholds": {
-    "three": 20,
-    "two": 25
+    "three": 22,
+    "two": 27
    },
    "moveLimit": 25,
    "hiddenRatio": 0.206,
-   "hiddenCells": 5,
+   "hiddenCells": 4,
    "units": 24
   },
   {
    "id": 18,
    "title": "排長龍",
    "config": {
-    "cups": 9,
+    "cups": 10,
     "colors": 6,
     "empties": 1,
     "segments": 19,
@@ -716,25 +733,26 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:18:9184c2b1:ba09e9d7",
-   "board": "BAYCBAAAAAsGEAYJAAWg_____wAJCQX_AAUFA_8A_____6D_____AAAACf8AAwgF_wAA____AAYJCAiAAwgDBoAGBgD_",
+   "publicSeed": "v1:c:18:a8bdc152:ba09e9d7",
+   "board": "BAYCBAAAAAwIEAYAAgkACQIA_wAGCQn_gAIICf-ABgIE_4AECP__oP____-g_____4AGAv__AAQE__8ACAgA_wAAAAb_AP____8",
    "optimal": 14,
    "thresholds": {
-    "three": 21,
-    "two": 26
+    "three": 25,
+    "two": 30
    },
    "moveLimit": 26,
    "hiddenRatio": 0.214,
-   "hiddenCells": 5,
+   "hiddenCells": 6,
    "units": 24
   },
   {
    "id": 19,
    "title": "布遮瓶",
    "config": {
-    "cups": 9,
+    "cups": 10,
     "colors": 6,
     "empties": 1,
     "segments": 19,
@@ -754,16 +772,17 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:19:2a99a6c6:6d323667",
-   "board": "BAYCBAAAAAoSBAYFAAgABQYCAgAJ____oP____-ACQn__4AIBgYAAAgAAAUABQYF_yQCAgD_AP____8ACAgJ_w",
-   "optimal": 15,
+   "publicSeed": "v1:c:19:7af7b057:6d323667",
+   "board": "BAYCBAAAAAsMCgkACAIAAAYGBiQIAggFAAkJ__-ABQkA_wAGAv__AAD___-g_____wAFBQj_AP____8AAAIC_4AICf__",
+   "optimal": 14,
    "thresholds": {
-    "three": 22,
-    "two": 27
+    "three": 21,
+    "two": 26
    },
-   "moveLimit": 27,
+   "moveLimit": 26,
    "hiddenRatio": 0.222,
    "hiddenCells": 6,
    "units": 24
@@ -772,7 +791,7 @@
    "id": 20,
    "title": "全家福",
    "config": {
-    "cups": 9,
+    "cups": 10,
     "colors": 6,
     "empties": 1,
     "segments": 20,
@@ -792,16 +811,17 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:20:2d74e05e:bfd4e194",
-   "board": "BAYCBAAAAAsKAAkCBgiAAAkJ_wAABQUCgAgIBf-ACQD__6D_____JAIG__8A_____6D_____AAkGAP8ABgIICAACBQb_",
-   "optimal": 15,
+   "publicSeed": "v1:c:20:05360592:bfd4e194",
+   "board": "BAYCBAAAAAwCBAkIBQYA_____6D_____oP____-AAgIJ_wAGBf__AAgFBf8AAQEGCQAB____JAUICf8ACAkI_4AGBgH_AAIC__8",
+   "optimal": 14,
    "thresholds": {
-    "three": 24,
-    "two": 29
+    "three": 21,
+    "two": 26
    },
-   "moveLimit": 27,
+   "moveLimit": 26,
    "hiddenRatio": 0.22999999999999998,
    "hiddenCells": 6,
    "units": 24
@@ -810,7 +830,7 @@
    "id": 21,
    "title": "夜更開始",
    "config": {
-    "cups": 9,
+    "cups": 11,
     "colors": 6,
     "empties": 1,
     "segments": 20,
@@ -830,31 +850,32 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:21:655378fb:0d001ad8",
-   "board": "BAYCBAAAAAoIEgYDCACACAT__wAG____gAAEAP-g_____wAACQgGgAADAwYABggJ_wAJCAMDAAkEBP8A_____w",
-   "optimal": 17,
+   "publicSeed": "v1:c:21:222abf8f:0d001ad8",
+   "board": "BAYCBAAAAAwGEAAJBgWACQYJ_wAG____AAUF__8ABgUD_wD_____oP____8ABv___wAICf__gAUDCQAACAgI_4ADAwD_AAAA__8",
+   "optimal": 13,
    "thresholds": {
-    "three": 26,
-    "two": 31
+    "three": 22,
+    "two": 27
    },
-   "moveLimit": 27,
+   "moveLimit": 23,
    "hiddenRatio": 0.238,
-   "hiddenCells": 6,
+   "hiddenCells": 7,
    "units": 24
   },
   {
    "id": 22,
    "title": "兩隻問號",
    "config": {
-    "cups": 9,
+    "cups": 11,
     "colors": 6,
     "empties": 1,
     "segments": 20,
     "hidden": 2,
     "covered": 0,
-    "ad": 2,
+    "ad": 1,
     "orders": 2,
     "optimalMin": 12,
     "optimalMax": 28,
@@ -868,16 +889,17 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:22:19b09fc9:f8755fca",
-   "board": "BAYCBAAAAAsKDAkIAwAABQUFBgAJBQAGoP____-ACQgI_4ADBgj_AAn___8AAwD__wD_____AAkIBgCAAwMA_6D_____",
-   "optimal": 17,
+   "publicSeed": "v1:c:22:76bbaeeb:f8755fca",
+   "board": "BAYCBAAAAAwMBAQICQGACAYC_wAEBP__AP____-AAgEG_4ABBAj_AAEB__8AAv___wAICP__AAYE__8ACQkJBqD_____AAkC__8",
+   "optimal": 13,
    "thresholds": {
-    "three": 26,
-    "two": 31
+    "three": 22,
+    "two": 27
    },
-   "moveLimit": 27,
+   "moveLimit": 23,
    "hiddenRatio": 0.246,
    "hiddenCells": 6,
    "units": 24
@@ -886,7 +908,7 @@
    "id": 23,
    "title": "布遮曲頸",
    "config": {
-    "cups": 9,
+    "cups": 11,
     "colors": 6,
     "empties": 1,
     "segments": 20,
@@ -906,31 +928,32 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:23:b7bea7d4:bfe59e7b",
-   "board": "BAYCBAAAAAoMBAkIAQQAAgYCBgAECf__gAgGCAKACQb__wD_____JAECAf-g_____wABAQkJAAQECP-ABAj__w",
-   "optimal": 17,
+   "publicSeed": "v1:c:23:26727d21:bfe59e7b",
+   "board": "BAYCBAAAAAwIEgIGCACg_____yQICAD_AP____8ABAL__4AIAgT_AAkA__-ACQkI_wAABgICAAT___8AAP___wAE____AAYGBgk",
+   "optimal": 14,
    "thresholds": {
-    "three": 26,
-    "two": 31
+    "three": 21,
+    "two": 26
    },
-   "moveLimit": 27,
+   "moveLimit": 24,
    "hiddenRatio": 0.254,
-   "hiddenCells": 7,
+   "hiddenCells": 6,
    "units": 24
   },
   {
    "id": 24,
    "title": "裂瓶再現",
    "config": {
-    "cups": 9,
+    "cups": 11,
     "colors": 6,
     "empties": 1,
     "segments": 20,
     "hidden": 1,
     "covered": 0,
-    "ad": 2,
+    "ad": 1,
     "orders": 2,
     "optimalMin": 12,
     "optimalMax": 28,
@@ -944,10 +967,11 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:24:9cdebe9c:7eb5eb08",
-   "board": "BAYCBAAAAAsMAgkCCAUABgH__wAC____AAYBCAYA_____4ABBQX_gAgIAv8AAgUFCAAGCQkJoP____-g_____4AJAgH_",
+   "publicSeed": "v1:c:24:222abf8f:7eb5eb08",
+   "board": "BAYCBAAAAAwGCgkIBgAACAgG_wAF____gAUF__8A_____wAJ____gAMDCQYAAP___wAJAwMGoP____8ACQb__wAIAAD_gAAFCP8",
    "optimal": 14,
    "thresholds": {
     "three": 23,
@@ -962,7 +986,7 @@
    "id": 25,
    "title": "蠟封",
    "config": {
-    "cups": 9,
+    "cups": 11,
     "colors": 6,
     "empties": 1,
     "segments": 21,
@@ -982,16 +1006,17 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:25:35ccd427:1fedb828",
-   "board": "BAYCBAAAAAoGAAkEBggkAwMECAADCQYIoP____-ABgkE_wAIBgn_AAQIBgMA_____wAA____AAQAAP-ACQD__w",
-   "optimal": 16,
+   "publicSeed": "v1:c:25:00d86e21:1fedb828",
+   "board": "BAYCBAAAAAwOCAkACAMACAgE_4AJAAMDAAn___8AB____6D_____AP____8ACAQHByQAAAP_AAQD__8ACQQH_4AICf__AAD___8",
+   "optimal": 15,
    "thresholds": {
-    "three": 23,
-    "two": 28
+    "three": 22,
+    "two": 27
    },
-   "moveLimit": 26,
+   "moveLimit": 25,
    "hiddenRatio": 0.27,
    "hiddenCells": 6,
    "units": 24
@@ -1000,13 +1025,13 @@
    "id": 26,
    "title": "夜更深",
    "config": {
-    "cups": 9,
+    "cups": 11,
     "colors": 6,
     "empties": 1,
     "segments": 21,
     "hidden": 1,
     "covered": 0,
-    "ad": 2,
+    "ad": 1,
     "orders": 2,
     "optimalMin": 13,
     "optimalMax": 29,
@@ -1020,25 +1045,26 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:26:deb37b66:b65a4130",
-   "board": "BAYCBAAAAAsQCAMJBwCABwgHAAD_____AAf___8AAwj__6D_____gAMJAAkAAwMACQAEBAcAAAgJCP8ABAT__6D_____",
-   "optimal": 17,
+   "publicSeed": "v1:c:26:e86e3903:b65a4130",
+   "board": "BAYCBAAAAAwQEgAEBgOAAwgG_4AGA___AAgA__-AAwME_wAG____AP____-AAAAJ_wAIAP__AAkE__-g_____wAJCf__AAgEBgQ",
+   "optimal": 16,
    "thresholds": {
-    "three": 24,
-    "two": 29
+    "three": 27,
+    "two": 32
    },
-   "moveLimit": 27,
+   "moveLimit": 26,
    "hiddenRatio": 0.278,
-   "hiddenCells": 6,
+   "hiddenCells": 7,
    "units": 24
   },
   {
    "id": 27,
    "title": "雙問號",
    "config": {
-    "cups": 9,
+    "cups": 11,
     "colors": 6,
     "empties": 1,
     "segments": 21,
@@ -1058,14 +1084,15 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:27:4e5d6528:857c9b91",
-   "board": "BAYCBAAAAAoOCAgBAgmABwEH_4ACAQkCAAQECP8AAgkJ_6D_____AP____8ACP___wAICAn_AAEBBwSABwIE_w",
+   "publicSeed": "v1:c:27:5d1304b4:857c9b91",
+   "board": "BAYCBAAAAAwCEgYIAgUACP___4AGCf__oP____8ABQUGBgD_____AAkBAv8AAQb__wACCf__gAUCCf-AAQgB_4AICP__gAIF__8",
    "optimal": 15,
    "thresholds": {
-    "three": 24,
-    "two": 29
+    "three": 28,
+    "two": 33
    },
    "moveLimit": 25,
    "hiddenRatio": 0.28600000000000003,
@@ -1076,13 +1103,13 @@
    "id": 28,
    "title": "三種瓶",
    "config": {
-    "cups": 9,
+    "cups": 11,
     "colors": 6,
     "empties": 1,
     "segments": 21,
     "hidden": 1,
     "covered": 1,
-    "ad": 2,
+    "ad": 1,
     "orders": 2,
     "optimalMin": 13,
     "optimalMax": 29,
@@ -1096,10 +1123,11 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:28:7c1b66c3:4d31b676",
-   "board": "BAYCBAAAAAsQCAcCAQmABAkC_wD_____gAgCAf8AAgkBAaD_____oP____8ACAf__4AHAgn_JAEEBP8ACQcE_wAICAf_",
+   "publicSeed": "v1:c:28:00d86e21:4d31b676",
+   "board": "BAYCBAAAAAwSAAQIBgMACf___wAGCAMDgAYABP8A_____4ADCP__AAkE__-g_____yQICAkGAAQACQAAAP___4ADBv__AAT___8",
    "optimal": 16,
    "thresholds": {
     "three": 25,
@@ -1107,14 +1135,14 @@
    },
    "moveLimit": 26,
    "hiddenRatio": 0.29400000000000004,
-   "hiddenCells": 8,
+   "hiddenCells": 7,
    "units": 24
   },
   {
    "id": 29,
    "title": "一隻空瓶",
    "config": {
-    "cups": 9,
+    "cups": 11,
     "colors": 6,
     "empties": 1,
     "segments": 21,
@@ -1134,16 +1162,17 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:29:ee473e30:9bdd1fa6",
-   "board": "BAYCBAAAAAoMBAUBCAkA_____4AFCAj_AAEIAf-g_____wAGAQn_AAUCBgYACQUF_4ACAgn_gAgC__-AAQYJ_w",
-   "optimal": 14,
+   "publicSeed": "v1:c:29:e86e3903:9bdd1fa6",
+   "board": "BAYCBAAAAAwQBAEEBwkA_____4ABBwICAAj___8ACAkEAqD_____gAcEB_8ACf___wACCP__gAkBCP8ABAQHAQAB____AAn___8",
+   "optimal": 16,
    "thresholds": {
     "three": 25,
     "two": 30
    },
-   "moveLimit": 24,
+   "moveLimit": 26,
    "hiddenRatio": 0.302,
    "hiddenCells": 7,
    "units": 24
@@ -1152,13 +1181,13 @@
    "id": 30,
    "title": "布遮雙問號",
    "config": {
-    "cups": 9,
+    "cups": 11,
     "colors": 6,
     "empties": 1,
     "segments": 22,
     "hidden": 2,
     "covered": 1,
-    "ad": 2,
+    "ad": 1,
     "orders": 2,
     "optimalMin": 14,
     "optimalMax": 30,
@@ -1172,25 +1201,26 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:30:23a3cf68:3acb849c",
-   "board": "BAYCBAAAAAsIEgIIAQeACAIE_wABBwkJoP____8kBAEI_wD_____oP____-ACQcH_wAC____AAQBCP8AAgcE_wAIAgEJ",
-   "optimal": 17,
+   "publicSeed": "v1:c:30:6ea1b1ba:3acb849c",
+   "board": "BAYCBAAAAAwSDgQAAwgkAwP__6D_____AP____-AAAj__wAJBAkIgAcA__-ACQgD_4ADCf__gAQH__8ABAAHBAAACP__AAf___8",
+   "optimal": 18,
    "thresholds": {
-    "three": 24,
-    "two": 29
+    "three": 31,
+    "two": 36
    },
-   "moveLimit": 27,
+   "moveLimit": 28,
    "hiddenRatio": 0.31,
-   "hiddenCells": 6,
+   "hiddenCells": 7,
    "units": 24
   },
   {
    "id": 31,
    "title": "六色全開",
    "config": {
-    "cups": 9,
+    "cups": 11,
     "colors": 6,
     "empties": 1,
     "segments": 22,
@@ -1210,31 +1240,32 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:31:c1aa70ea:00b4d972",
-   "board": "BAYCBAAAAAoSCgIGCAEACAYFCKD_____AAUGAQEAAgn__wACAv__gAIB__-ACQYJBQD_____gAUJCAgAAQb__w",
-   "optimal": 17,
+   "publicSeed": "v1:c:31:c9ba2e02:00b4d972",
+   "board": "BAYCBAAAAAwKBAAJCAYABf___wAJ____AAgCBf8AAAIF_wAI____AAn___-ABgUG_6D_____AP____8AAAkA_4AJAggIgAACBgY",
+   "optimal": 18,
    "thresholds": {
-    "three": 26,
-    "two": 31
+    "three": 27,
+    "two": 32
    },
-   "moveLimit": 25,
+   "moveLimit": 26,
    "hiddenRatio": 0.318,
-   "hiddenCells": 7,
+   "hiddenCells": 8,
    "units": 24
   },
   {
    "id": 32,
    "title": "六色問號",
    "config": {
-    "cups": 9,
+    "cups": 11,
     "colors": 6,
     "empties": 1,
     "segments": 22,
     "hidden": 1,
     "covered": 0,
-    "ad": 2,
+    "ad": 1,
     "orders": 2,
     "optimalMin": 14,
     "optimalMax": 30,
@@ -1248,25 +1279,26 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:32:61ab9838:64fab357",
-   "board": "BAYCBAAAAAsADggJBAOAAAkA_6D_____oP____8AAAkD_wD_____gAQI__-ABAMDBwAEAwAJAAf___-ACAQI_wAJBwcI",
+   "publicSeed": "v1:c:32:c9ba2e02:64fab357",
+   "board": "BAYCBAAAAAwIDgMACQgABAgA_wAD____gAMHCP-ABwD__4ADAAD_AAME__8AB____wD_____gAcI__-ACAkJBAAJBAn_oP____8",
    "optimal": 17,
    "thresholds": {
-    "three": 28,
-    "two": 33
+    "three": 30,
+    "two": 35
    },
    "moveLimit": 25,
    "hiddenRatio": 0.32599999999999996,
-   "hiddenCells": 8,
+   "hiddenCells": 9,
    "units": 24
   },
   {
    "id": 33,
    "title": "八隻瓶",
    "config": {
-    "cups": 8,
+    "cups": 11,
     "colors": 6,
     "empties": 1,
     "segments": 22,
@@ -1286,31 +1318,32 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:33:a25446c0:0fba6630",
-   "board": "BAYCBAAAAAkEAgYFCAmg_____wAIBQUCgAEGBf-AAgYJ_wABCAEJAAYCAv8A_____wAICAH_JAkGBQk",
-   "optimal": 17,
+   "publicSeed": "v1:c:33:04e8f52f:0fba6630",
+   "board": "BAYCBAAAAAwGCggGCQAAAP___wAACf__oP____8ACQUF_wAIA___JAP___-ACAAACYAFCQb_gAYDCAUA_____wAG____AAgGA_8",
+   "optimal": 16,
    "thresholds": {
-    "three": 24,
-    "two": 29
+    "three": 25,
+    "two": 30
    },
-   "moveLimit": 25,
+   "moveLimit": 24,
    "hiddenRatio": 0.33399999999999996,
-   "hiddenCells": 7,
+   "hiddenCells": 8,
    "units": 24
   },
   {
    "id": 34,
    "title": "曲頸夜更",
    "config": {
-    "cups": 8,
+    "cups": 11,
     "colors": 6,
     "empties": 1,
     "segments": 22,
     "hidden": 1,
     "covered": 0,
-    "ad": 2,
+    "ad": 1,
     "orders": 2,
     "optimalMin": 14,
     "optimalMax": 30,
@@ -1324,16 +1357,17 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:34:62004fee:5e12eaf7",
-   "board": "BAYCBAAAAAoCCggJAgYA_____wACBQYGAAUJAgGACAYB_6D_____gAkICQWg_____4AICAIGAAUBAf-ACQL__w",
-   "optimal": 17,
+   "publicSeed": "v1:c:34:c9ba2e02:5e12eaf7",
+   "board": "BAYCBAAAAAwQBAcJBACABwf__wAC____gAgE__-AAAQA_4AIAv__gAkH__8AAAQJAAD_____AAgJAv-ABwn__6D_____gAgEAv8",
+   "optimal": 18,
    "thresholds": {
-    "three": 28,
-    "two": 33
+    "three": 35,
+    "two": 40
    },
-   "moveLimit": 25,
+   "moveLimit": 26,
    "hiddenRatio": 0.34199999999999997,
    "hiddenCells": 9,
    "units": 24
@@ -1342,7 +1376,7 @@
    "id": 35,
    "title": "師傅考牌",
    "config": {
-    "cups": 8,
+    "cups": 11,
     "colors": 6,
     "empties": 1,
     "segments": 22,
@@ -1362,31 +1396,32 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:35:9e6bc1aa:4c32b092",
-   "board": "BAYCBAAAAAkQDgEEAgmABAf__wD_____AAcHCQSAAQEIAYAJAgkCJAgCBP8ACQQCCAAHCAH_oP____8",
-   "optimal": 18,
+   "publicSeed": "v1:c:35:6ea1b1ba:4c32b092",
+   "board": "BAYCBAAAAAwSDAUIAgEABv___wD_____AAb___8AAQIC_wAFCAj_gAEI__-AAQb__6D_____JAgJ__8ABQYC_4AJAQn_gAIFCQU",
+   "optimal": 16,
    "thresholds": {
     "three": 27,
     "two": 32
    },
-   "moveLimit": 26,
+   "moveLimit": 24,
    "hiddenRatio": 0.35,
-   "hiddenCells": 9,
+   "hiddenCells": 8,
    "units": 24
   },
   {
    "id": 36,
    "title": "導師訓話",
    "config": {
-    "cups": 8,
+    "cups": 11,
     "colors": 6,
     "empties": 1,
     "segments": 23,
     "hidden": 2,
     "covered": 0,
-    "ad": 2,
+    "ad": 1,
     "orders": 3,
     "optimalMin": 15,
     "optimalMax": 31,
@@ -1400,25 +1435,26 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:36:8d97c3fc:34b5476f",
-   "board": "BAYDAwAAAAoOEhADBACg_____4ADBAgJgAcDAAAABAf__4AICQT_oP____8ACQcACAAACQQDAP____-AAwgH_w",
-   "optimal": 18,
+   "publicSeed": "v1:c:36:00c34123:34b5476f",
+   "board": "BAYDAwAAAAwMEAoDAAmABQkJ_6D_____AAb___8ABQj__wAABQD_AAP___8A_____wAG____gAkAA_-ACAAD_wAIAwUJgAYIBv8",
+   "optimal": 17,
    "thresholds": {
-    "three": 29,
-    "two": 34
+    "three": 28,
+    "two": 33
    },
-   "moveLimit": 26,
+   "moveLimit": 25,
    "hiddenRatio": 0.358,
-   "hiddenCells": 10,
+   "hiddenCells": 8,
    "units": 24
   },
   {
    "id": 37,
    "title": "布遮雙問號 II",
    "config": {
-    "cups": 8,
+    "cups": 11,
     "colors": 6,
     "empties": 1,
     "segments": 23,
@@ -1438,31 +1474,32 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:37:264f3429:4988ddd5",
-   "board": "BAYDAwAAAAkSABAEBgOAAwkI_6D_____gAYJAwYA_____yQDCAAGAAQABAAACQQE_wAIBggJAAAD__8",
-   "optimal": 18,
+   "publicSeed": "v1:c:37:a8a820de:4988ddd5",
+   "board": "BAYDAwAAAAwEAg4JCASACAgE_wAHAgH_AAn___8AAQQH_4AECQn_gAgEAQmg_____yQH____AAIH__-AAgEI_wD_____AAL___8",
+   "optimal": 16,
    "thresholds": {
-    "three": 25,
-    "two": 30
+    "three": 27,
+    "two": 32
    },
-   "moveLimit": 26,
+   "moveLimit": 24,
    "hiddenRatio": 0.366,
-   "hiddenCells": 8,
+   "hiddenCells": 9,
    "units": 24
   },
   {
    "id": 38,
    "title": "全部瓶種",
    "config": {
-    "cups": 9,
+    "cups": 11,
     "colors": 6,
     "empties": 1,
     "segments": 23,
     "hidden": 1,
     "covered": 1,
-    "ad": 2,
+    "ad": 1,
     "orders": 3,
     "optimalMin": 15,
     "optimalMax": 31,
@@ -1476,14 +1513,15 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:38:a52a9d87:4254c226",
-   "board": "BAYDAwAAAAsSDAYIBACg_____4AGAwj_AAADBv8AAAMEAAD_____JAYGCQQABAn__wAECP__oP____-ACQAI_4AIAwn_",
+   "publicSeed": "v1:c:38:bfdb90d4:4254c226",
+   "board": "BAYDAwAAAAwAEg4ECAKAAggJ_yQIAAcHgAgAB_8ABAD__6D_____AAT___8ACf___4ACCP__AP____-ABAf__wACAgn_AAkEAP8",
    "optimal": 18,
    "thresholds": {
-    "three": 27,
-    "two": 32
+    "three": 29,
+    "two": 34
    },
    "moveLimit": 26,
    "hiddenRatio": 0.374,
@@ -1494,7 +1532,7 @@
    "id": 39,
    "title": "最後衝刺",
    "config": {
-    "cups": 8,
+    "cups": 11,
     "colors": 6,
     "empties": 1,
     "segments": 23,
@@ -1514,16 +1552,17 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:39:264f3429:4f36b995",
-   "board": "BAYDAwAAAAkMABAFAwkACAgF_4ADBQkAJAkICQWg_____wAABgMFAP____8AAwAGA4AGBgAJAAj___8",
-   "optimal": 18,
+   "publicSeed": "v1:c:39:a8a820de:4f36b995",
+   "board": "BAYDAwAAAAwGABAEBwmABAgI_wADCAcEoP____-AAwD__wAAA___AP____-ACQkIB4AEA___JAQH__8ACf___4AJAP__AAcA__8",
+   "optimal": 17,
    "thresholds": {
-    "three": 25,
-    "two": 30
+    "three": 30,
+    "two": 35
    },
-   "moveLimit": 26,
+   "moveLimit": 25,
    "hiddenRatio": 0.382,
    "hiddenCells": 9,
    "units": 24
@@ -1532,13 +1571,13 @@
    "id": 40,
    "title": "實驗室之光",
    "config": {
-    "cups": 9,
+    "cups": 11,
     "colors": 6,
     "empties": 1,
     "segments": 23,
     "hidden": 2,
     "covered": 1,
-    "ad": 2,
+    "ad": 1,
     "orders": 3,
     "optimalMin": 15,
     "optimalMax": 31,
@@ -1552,10 +1591,11 @@
      0,
      0
     ],
-    "tutorialQueue": null
+    "tutorialQueue": null,
+    "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:40:709716bd:1bf410ff",
-   "board": "BAYDAwAAAAsSAhAFAgYABQn__yQCBQECAAUIAQkABQYJ_6D_____gAEI__8ACQb__6D_____AP____-ABgICBoABCAj_",
+   "publicSeed": "v1:c:40:a8a820de:1bf410ff",
+   "board": "BAYDAwAAAAwMEgACBQgkCQgIBgAG____gAUGBf8ACP___wAAAv__gAkACf8ACAX__wAFCf__oP____8A_____4AAAgD_AAYCAv8",
    "optimal": 17,
    "thresholds": {
     "three": 26,
