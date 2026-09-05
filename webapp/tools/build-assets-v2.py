@@ -195,7 +195,17 @@ def bottle_geom_and_opaque(path):
     for y in range(H):
         xs = np.where(mask[y])[0]
         if len(xs): rowL[y] = xs.min(); rowR[y] = xs.max()
-    liquid_top = int(round(H * 0.26)); liquid_bottom = bottom - int(round(H * 0.015))
+    liquid_top = int(round(H * 0.26))
+    # 液體底（用戶 2026-09-06「樽底穿崩」）：唔可以用「剪影底 − 1.5%」——樽底圓角嗰 3.4% 高度玻璃由 100% 闊收到 66%，
+    # 液體跟住收就變成一個尖楔加一條暗腳。改為由下向上搵返最低嗰行「仲有 ≥ 97% 最闊」，液體底就係一條平而闊嘅邊，
+    # 下面剩返嘅係樽底玻璃本身（美術嘅一部分）。
+    widths = (rowR - rowL + 1).astype(float)
+    wmax = float(widths[top:bottom + 1].max())
+    liquid_bottom = bottom - int(round(H * 0.015))
+    for y in range(bottom, liquid_top, -1):
+        if rowL[y] >= 0 and widths[y] >= wmax * 0.97:
+            liquid_bottom = min(liquid_bottom, y)
+            break
     sample = []
     for y in list(range(liquid_top, liquid_bottom + 1, 8)) + [liquid_bottom]:
         if rowL[y] < 0: continue
