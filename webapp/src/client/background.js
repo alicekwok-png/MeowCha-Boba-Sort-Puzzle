@@ -8,7 +8,7 @@
 // SAFE_TOP / SAFE_BOTTOM / FADE / BackgroundManager（setStage / preload / preloadAround / transitionTo /
 // onPour / setAmbientEnabled / setMaskAlpha / drawMask / destroy）。
 
-import { ASSET_MAP } from '../config/assets.js';
+import { ASSET_MAP, versioned } from '../config/assets.js';
 import { COLORS } from '../config/theme.js';
 
 export const SAFE_TOP = 0.25;       // 600 / 2400（工單 #4：委託人區放大，安全區上界由 470 移到 600）
@@ -43,7 +43,7 @@ const hexToRgb = (hex) => [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 
 
 /** 背景圖 URL（相對本模組：src/client/ → webapp 根 → ASSET_MAP 路徑） */
 export function backgroundUrl() {
-  return new URL('../../' + ASSET_MAP.BG_lab_full, import.meta.url).href;
+  return new URL('../../' + versioned(ASSET_MAP.BG_lab_full), import.meta.url).href;
 }
 
 export class BackgroundManager {

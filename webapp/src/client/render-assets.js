@@ -6,13 +6,13 @@
 // 「高光圖」：每像素 alpha = clamp((luma − 215) / 40, 0, 1)、rgb 全白；game.js 用 screen @ 0.55 疊落液體上。
 // LIQ_base 已經唔需要（v4 §1.2），唔再載入。
 
-import { ASSET_MAP, VESSEL_SPRITE } from '../config/assets.js';
+import { ASSET_MAP, VESSEL_SPRITE , versioned } from '../config/assets.js';
 import { RENDER } from '../config/render.js';
 
 const ROOT = new URL('../../', import.meta.url);
 
 /** 邏輯名 → 絕對 URL（相對 webapp 根目錄，唔靠 document 位置） */
-export const assetUrl = (key) => new URL(ASSET_MAP[key], ROOT).href;
+export const assetUrl = (key) => new URL(versioned(ASSET_MAP[key]), ROOT).href;
 
 /** kind → vessels.json 幾何 key（v4：全部 kind 都用深色標準樽 bottle_std） */
 export function geomKey() {

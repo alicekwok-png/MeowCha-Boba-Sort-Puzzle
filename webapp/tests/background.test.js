@@ -60,7 +60,7 @@ describe('background (Spec v2 單張背景)', () => {
     assert.deepEqual(check.bgSize, [1170, 2532]);
     // 細圖（標題 / loading）都要喺度
     assert.ok(statSync(root(ASSET_MAP.BG_lab_full_small)).size > 10 * 1024);
-    assert.ok(backgroundUrl().endsWith('/assets/v2/bg_lab_full.webp'));
+    assert.ok(backgroundUrl().includes('/assets/v2/bg_lab_full.webp?v='), backgroundUrl());   // 帶資產版本號（Safari cache 事故）
   });
 
   test('(b) 只有一個階段覆蓋 1–9999；40 / 120 / 250 / 450 之後唔再過渡', () => {
@@ -104,7 +104,7 @@ describe('background (Spec v2 單張背景)', () => {
     for (const id of ['bg-far-next', 'bg-mid', 'bg-ambient']) assert.equal(r.els[id].hidden, true, id + ' 應收埋');
     bg.setStage(stageForLevel(1));
     const far = r.els['bg-far'];
-    assert.ok(far.src.endsWith('/assets/v2/bg_lab_full.webp'));
+    assert.ok(far.src.includes('/assets/v2/bg_lab_full.webp?v='), far.src);
     assert.equal(far.style.objectFit, 'cover');
     assert.equal(far.style.objectPosition, 'center 40%');
     assert.equal(far.hidden, false);

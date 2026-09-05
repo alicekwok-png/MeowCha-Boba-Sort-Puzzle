@@ -1,4 +1,5 @@
 // client/i18n.js — 多語言字串（i18n/strings.json 係唯一來源；用戶交付 v1.0 + extra 區補齊未覆蓋嘅字串）。
+import { versioned } from '../config/assets.js';
 //  - locale：localStorage `meowcha.lang` → navigator.languages（zh-TW/zh-HK/zh-Hant → zh-Hant；zh-CN/zh-SG/zh-Hans → zh-Hans；其餘 en）
 //  - t('menu.start')；t('hud.level', { n: 3 }) 做 {n} 插值；搵唔到就 fallback en，再搵唔到就回傳 key（console.warn 一次）
 //  - zh-Hant 係書面中文（台灣為主），唔係廣東話；zh-Hans 係大陸用語（strings.json _meta.note）
@@ -21,7 +22,7 @@ export function detectLocale() {
 }
 
 /** 載入字串表（fetch 相對 webapp 根）；失敗就用空表（t() 會回傳 key，唔會掉） */
-export async function initI18n(url = new URL('../../i18n/strings.json', import.meta.url)) {
+export async function initI18n(url = new URL('../../' + versioned('i18n/strings.json'), import.meta.url)) {
   try {
     const r = await fetch(url, { cache: 'no-cache' });
     state.strings = await r.json();

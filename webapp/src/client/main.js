@@ -13,7 +13,7 @@ import { BackgroundManager, stageForLevel } from './background.js';
 import { BootFlow, decideEntry } from './boot.js';
 import { ads, adsAllowedForLevel, adBottleTappable } from './ads.js';
 import { hiddenRatio, UNLOCK_LEVEL } from '../core/difficulty.js';
-import { ASSET_MAP, CLIENT_SPRITE } from '../config/assets.js';
+import { ASSET_MAP, CLIENT_SPRITE , versioned } from '../config/assets.js';
 import { CAT } from '../config/layout.js';
 import { AD_SLOTS, assertAdSlotLimit, CLIENT_ORDER, CLIENT_FILTER, CLIENT_GLOW } from '../config/render.js';
 import { initI18n, t, has, setLocale, getLocale, getLocales, onLocaleChange, applyDom } from './i18n.js';
@@ -21,7 +21,7 @@ import { initI18n, t, has, setLocale, getLocale, getLocales, onLocaleChange, app
 const $ = (s) => document.querySelector(s);
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 /** 邏輯資產名 → 絕對 URL（全部經 ASSET_MAP，舊 assets/*.webp 唔再引用） */
-const asset = (key) => new URL('../../' + ASSET_MAP[key], import.meta.url).href;
+const asset = (key) => new URL('../../' + versioned(ASSET_MAP[key]), import.meta.url).href;
 
 // Spec v2 §6：同屏最多 2 個廣告入口 — 啟動即驗，超過就直接炸
 assertAdSlotLimit(AD_SLOTS);
@@ -50,7 +50,7 @@ const CONFIG = {
 };
 async function loadConfig() {
   try {
-    const r = await fetch(new URL('../../config.json', import.meta.url), { cache: 'no-cache' });
+    const r = await fetch(new URL('../../' + versioned('config.json'), import.meta.url), { cache: 'no-cache' });
     if (r.ok) Object.assign(CONFIG, await r.json());
   } catch { /* 用預設 */ }
 }
@@ -101,7 +101,7 @@ function totalStars() { return Object.values(progress.stars).reduce((a, b) => a 
 let LEVELS = null;
 async function loadLevels() {
   if (LEVELS) return LEVELS;
-  const res = await fetch(new URL('../../levels/campaign.json', import.meta.url));
+  const res = await fetch(new URL('../../' + versioned('levels/campaign.json'), import.meta.url));
   const data = await res.json();
   LEVELS = new Map(data.levels.map(l => [l.id, l]));
   return LEVELS;
@@ -113,7 +113,7 @@ let PRACTICE_POOL = null;
 async function loadPracticePool() {
   if (PRACTICE_POOL !== null) return PRACTICE_POOL;
   try {
-    const res = await fetch(new URL('../../levels/practice_pool.json', import.meta.url));
+    const res = await fetch(new URL('../../' + versioned('levels/practice_pool.json'), import.meta.url));
     PRACTICE_POOL = res.ok ? await res.json() : false;
   } catch { PRACTICE_POOL = false; }
   return PRACTICE_POOL;

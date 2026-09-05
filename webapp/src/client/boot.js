@@ -1,7 +1,7 @@
 // client/boot.js — 開場流程（開場規格）：Boot → 公司 Logo → Loading → 關卡。Spec v2：資源清單全部經 ASSET_MAP。
 // 核心原則：資源下載同 Logo 播放並行。純函數（決策 / 載入）同 DOM 流程分開，方便測試。
 
-import { ASSET_MAP } from '../config/assets.js';
+import { ASSET_MAP , versioned } from '../config/assets.js';
 import { t } from './i18n.js';
 
 export const LOGO_FIRST_MS = 2000;
@@ -15,9 +15,9 @@ export const TIPS = ['extra.boot.tip1', 'extra.boot.tip2', 'extra.boot.tip3', 'e
 const randomTip = () => t(TIPS[Math.floor(Math.random() * TIPS.length)]);
 
 /** 批次 2 — 遊戲核心（阻塞 GameLoading）。全部由 ASSET_MAP（Spec v2 §7）出；bytes 係估算，用嚟加權進度。 */
-const A = (key, bytes) => ({ url: ASSET_MAP[key], bytes });
+const A = (key, bytes) => ({ url: versioned(ASSET_MAP[key]), bytes });
 export const CORE_ASSETS = [
-  { url: 'levels/campaign.json', bytes: 20_000 },
+  { url: versioned('levels/campaign.json'), bytes: 20_000 },
   A('BG_lab_full', 206_000),
   A('VES_geometry', 11_000),
   // v4 §2 單一樽型：首屏只需要深色標準樽；flask 只留說明畫面用（批次 3）
@@ -36,7 +36,7 @@ export const DEFERRED_ASSETS = [
   'BG_lab_full_small', 'CHR_doctor_silhouette', 'VES_flask_empty',
   'UI_btn_secondary', 'UI_btn_danger', 'UI_btn_disabled', 'UI_panel_dialog', 'UI_panel_info',
   'UI_item_swap', 'UI_sys_settings', 'UI_sys_daily', 'UI_sys_codex', 'UI_progressbar',
-].map(k => ASSET_MAP[k]);
+].map(k => versioned(ASSET_MAP[k]));
 
 // ---------------- 決策（純函數） ----------------
 

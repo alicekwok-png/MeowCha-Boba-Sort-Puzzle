@@ -1,7 +1,19 @@
 // config/assets.js — Spec v2 §7 最終資產清單 → 實際路徑（ASSET_MAP，集中管理；舊 v1 路徑唔好再引用）。
 // 產生方法：python tools/build-assets-v2.py（由 assets-raw/v2/ 出）。
 
+import { ASSET_VERSION } from './asset-version.js';
+
 const V2 = 'assets/v2/';
+
+/**
+ * 資產版本（2026-09-05 iOS Safari 事故）：boot.js 用 cache: 'force-cache' 預載，資產 URL 又冇版本號，
+ * Safari 就一直用舊 cache —— 舊 vessels.json（燒瓶剪影幾何：液面 0.4466、樽身 0.27–0.73）配新 bottle_std sprite（0.26 / 0.336–0.663），
+ * 液帶就變成比玻璃闊嘅六角形。所有資產 / 關卡 / 設定 URL 一律經 versioned() 帶 ?v=。
+ * ASSET_VERSION = 檔案內容 hash（tools/asset-version.js 自動生成，npm run gen / gen:practice / version:assets 會更新；
+ * tests/assets.test.js 驗 hash 同檔案一致 + index.html / styles.css 靜態引用同步，漏跑就炸）。
+ */
+export { ASSET_VERSION };
+export const versioned = (path) => path + (path.includes('?') ? '&' : '?') + 'v=' + ASSET_VERSION;
 
 export const ASSET_MAP = Object.freeze({
   // 背景（1）— 單張，視差已取消

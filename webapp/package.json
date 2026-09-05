@@ -6,9 +6,10 @@
   "private": true,
   "scripts": {
     "start": "node server.js",
-    "test": "node --test tests/core.test.js tests/background.test.js tests/boot.test.js tests/orders.test.js tests/difficulty.test.js tests/layout.test.js tests/i18n.test.js tests/analysis.test.js",
-    "gen": "node tools/gen.js --out levels/campaign.json",
-    "gen:practice": "node tools/gen-practice.js",
+    "test": "node --test tests/core.test.js tests/background.test.js tests/boot.test.js tests/orders.test.js tests/difficulty.test.js tests/layout.test.js tests/i18n.test.js tests/analysis.test.js tests/assets.test.js",
+    "gen": "node tools/gen.js --out levels/campaign.json && node tools/asset-version.js",
+    "gen:practice": "node tools/gen-practice.js && node tools/asset-version.js",
+    "version:assets": "node tools/asset-version.js",
     "verify": "node tools/verify-levels.js",
     "stats": "node tools/level-stats.js",
     "scan": "node tools/difficulty-scan.js"
