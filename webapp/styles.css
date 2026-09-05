@@ -39,7 +39,7 @@
   --orange: var(--accent);
   --orange-2: var(--accent-2);
   --dark: var(--ink);
-  --font: "Segoe UI", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", "Helvetica Neue", Arial, sans-serif;
+  --font: "Noto Serif TC", "Source Han Serif TC", "Noto Serif CJK TC", "Songti TC", "PMingLiU", Georgia, "Times New Roman", serif;   /* 用戶 2026-09-05：全站襯線（思源宋體 / Noto Serif TC），唔用圓體黑體 */
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -358,7 +358,7 @@ body {
 .boot-loading.in { opacity: 1; }
 .boot-loading.fade { opacity: 0; }
 .boot-wordmark { position: absolute; top: 28%; left: 50%; width: 80%; max-width: 420px; transform: translate(-50%, -50%); text-align: center; display: flex; flex-direction: column; gap: 6px; }
-.boot-wordmark .wm-main { font-family: Georgia, "Times New Roman", "Noto Serif TC", serif; font-size: clamp(34px, 9vw, 52px); font-weight: 700; letter-spacing: 1px; color: var(--brass-light); text-shadow: 0 0 18px rgba(255,169,77,.35), 0 3px 0 var(--brass-dark), 0 8px 16px rgba(0,0,0,.6); }
+.boot-wordmark .wm-main { font-family: var(--font); font-size: clamp(34px, 9vw, 52px); font-weight: 700; letter-spacing: 1px; color: var(--brass-light); text-shadow: 0 0 18px rgba(255,169,77,.35), 0 3px 0 var(--brass-dark), 0 8px 16px rgba(0,0,0,.6); }
 .boot-wordmark .wm-sub { font-size: 13px; font-weight: 700; letter-spacing: 3px; color: var(--text-secondary); }
 .boot-mocha { position: absolute; top: 50%; left: 50%; height: 32%; width: auto; transform: translate(-50%, -50%); filter: drop-shadow(0 8px 16px rgba(10,8,6,0.7)); animation: bootBob 2.4s ease-in-out infinite; }
 @keyframes bootBob { 0%, 100% { transform: translate(-50%, -50%) } 50% { transform: translate(-50%, calc(-50% - 8px)) } }

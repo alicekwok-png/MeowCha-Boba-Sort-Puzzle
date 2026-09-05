@@ -15,8 +15,11 @@
   <!-- 批次 1：開場必需，喺 HTML 層 preload，唔經遊戲 loader（Spec v2：導師貓單張 CHR_cat_idle） -->
   <link rel="preload" as="image" href="assets/company-logo.webp">
   <link rel="preload" as="image" href="assets/v2/cat_idle.webp">
-  <link rel="modulepreload" href="src/client/main.js?v=6">
-  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="modulepreload" href="src/client/main.js?v=7">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&display=swap">
+  <link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body>
 <div id="app">
@@ -106,6 +109,6 @@
   <div id="modal" class="modal hidden"><div class="card" id="modal-card"></div></div>
   <div id="toast" class="toast hidden"></div>
 </div>
-<script type="module" src="src/client/main.js?v=6"></script>
+<script type="module" src="src/client/main.js?v=7"></script>
 </body>
 </html>

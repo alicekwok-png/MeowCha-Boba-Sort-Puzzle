@@ -21,7 +21,7 @@ const backOut = t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow
 const clamp01 = t => Math.max(0, Math.min(1, t));
 const lerp = (a, b, t) => a + (b - a) * t;
 const DEG = Math.PI / 180;
-const FONT = '"Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif';
+const FONT = '"Noto Serif TC", "Source Han Serif TC", "Noto Serif CJK TC", "Songti TC", "PMingLiU", Georgia, "Times New Roman", serif';   // 同 styles.css --font 一致：襯線
 
 /** unit key → 液體 hex（colour 可能係 unit key，亦兼容純 colorId） */
 const hexOf = (u) => (PALETTE[unitColor(u)] || PALETTE[0]).hex;
