@@ -166,14 +166,88 @@ def build_dark_bottle(src_path, out_name):
     report['checks']['bottleStdCentreLuma'] = round(float(L), 1)
     return L
 
+def bottle_geom_and_opaque(path):
+    """美術交付嘅 VES_bottle_std（半透明玻璃，562×1715）：
+    幾何用剪影（bottleMask.js v3 buildBodyMask：由四角 flood fill，alpha > 5 當牆）；液體區 = 0.26h → 剪影底 − 1.5% h（getLayerRect）；
+    底圖 = 樽內填實 BOTTLE_INTERIOR #0E121A 再疊返玻璃筆觸（buildOpaqueBase）——sprite 本身透明會令顏色顯得淡。"""
+    from collections import deque
+    im0 = Image.open(path).convert('RGBA')
+    # 渲染器假設正方形 frame（x / y 同一比例）：高身樽補白成正方形（水平置中）
+    side = max(im0.size)
+    im = Image.new('RGBA', (side, side), (0, 0, 0, 0)); im.paste(im0, ((side - im0.width) // 2, side - im0.height))
+    a = np.asarray(im).astype(np.int32)
+    H, W = a.shape[:2]
+    solid = a[..., 3] > 5
+    outside = np.zeros((H, W), bool)
+    q = deque()
+    for x in range(W):
+        for y in (0, H - 1):
+            if not solid[y, x] and not outside[y, x]: outside[y, x] = True; q.append((y, x))
+    for y in range(H):
+        for x in (0, W - 1):
+            if not solid[y, x] and not outside[y, x]: outside[y, x] = True; q.append((y, x))
+    while q:
+        y, x = q.popleft()
+        for ny, nx in ((y - 1, x), (y + 1, x), (y, x - 1), (y, x + 1)):
+            if 0 <= ny < H and 0 <= nx < W and not outside[ny, nx] and not solid[ny, nx]:
+                outside[ny, nx] = True; q.append((ny, nx))
+    mask = ~outside
+    ys = np.where(mask.any(1))[0]; top, bottom = int(ys.min()), int(ys.max())
+    rowL = np.full(H, -1); rowR = np.full(H, -1)
+    for y in range(H):
+        xs = np.where(mask[y])[0]
+        if len(xs): rowL[y] = xs.min(); rowR[y] = xs.max()
+    liquid_top = int(round(H * 0.26)); liquid_bottom = bottom - int(round(H * 0.015))
+    sample = []
+    for y in list(range(liquid_top, liquid_bottom + 1, 8)) + [liquid_bottom]:
+        if rowL[y] < 0: continue
+        sample.append([round(y / H, 4), round(rowL[y] / W, 4), round((rowR[y] + 1) / W, 4)])
+    ry = top + 6
+    ny_ = int(H * 0.15)
+    geom = {
+        'frame': W,
+        'content': {'top': round(top / H, 4), 'bottom': round((bottom + 1) / H, 4)},
+        'liquid': {'top': round(liquid_top / H, 4), 'bottom': round((liquid_bottom + 1) / H, 4)},
+        'rows': sample,
+        'rim': {'y': round(ry / H, 4), 'cx': round((rowL[ry] + rowR[ry]) / 2 / W, 4), 'rx': round((rowR[ry] - rowL[ry]) / 2 / W, 4), 'ry': round((rowR[ry] - rowL[ry]) / 2 * 0.16 / H, 4)},
+        'neck': {'l': round(rowL[ny_] / W, 4), 'r': round((rowR[ny_] + 1) / W, 4)},
+        'base': {'top': round((liquid_bottom + 1) / H, 4)},
+        'maxWidth': round(float((rowR - rowL).max() + 1) / W, 4),
+        'ellipseRatio': 0.16,
+    }
+    # 不透明底圖
+    interior = np.array([14, 18, 26], dtype=np.float64)
+    al = a[..., 3:4] / 255.0
+    rgb = a[..., :3].astype(np.float64)
+    out = a.astype(np.float64).copy()
+    m3 = mask[..., None]
+    out[..., :3] = np.where(m3, interior * (1 - al) + rgb * al, rgb)
+    out[..., 3] = np.where(mask, 255, a[..., 3])
+    img = Image.fromarray(np.clip(out, 0, 255).astype(np.uint8), 'RGBA')
+    cy = int((geom['liquid']['top'] + geom['liquid']['bottom']) / 2 * H); cx = W // 2
+    c = np.asarray(img)[cy, cx, :3].astype(np.float64)
+    L = 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+    report['checks']['bottleStdCentreLuma'] = round(float(L), 1)
+    return geom, img, L
+
 src_std = os.path.join(RAW, 'VES_bottle_std.png')
 if os.path.exists(src_std):
-    im = Image.open(src_std).convert('RGBA'); save_webp(im, 'bottle_std.webp', (512, 512), q=88)
-    geoms['bottle_std'] = vessel_geom(src_std)
-    print('bottle_std ← 美術交付 VES_bottle_std.png')
+    geom, img, L = bottle_geom_and_opaque(src_std)
+    size = save_webp(img, 'bottle_std.webp', (1024, 1024), q=88)   # 正方形 frame，樽高 = frame 高
+    geoms['bottle_std'] = geom
+    print(f'bottle_std ← 美術交付 VES_bottle_std.png（{img.width}×{img.height}）: {size // 1024} KB  centre luma={L:.0f} (<80 {"OK" if L < 80 else "FAIL"})  liquid {geom["liquid"]}')
 else:
     build_dark_bottle(src('VES_flask_empty_v3.png'), 'bottle_std.webp')
     geoms['bottle_std'] = dict(geoms['flask'])     # 同一剪影 → 同一幾何
+# v4.1 §6 第 11 步：木塞 VES_cork（交貨 / 封存時落塞；疊放 widthRatio 0.61、topOffset 0.035）
+src_cork = os.path.join(RAW, 'VES_cork.png')
+if os.path.exists(src_cork):
+    ck = Image.open(src_cork).convert('RGBA')
+    ca = np.asarray(ck).copy()
+    if ca[2, 2, 3] > 200 and ca[2, 2, :3].min() > 235:          # 白底交付 → 去白
+        white = ca[..., :3].min(2) > 235; ca[..., 3] = np.where(white, 0, ca[..., 3]); ck = Image.fromarray(ca, 'RGBA')
+    save_webp(ck, 'cork.webp', None, q=88)
+    report['checks']['cork'] = list(ck.size)
 with open(os.path.join(OUT, 'vessels.json'), 'w', encoding='utf-8') as f:
     json.dump(geoms, f, ensure_ascii=False, separators=(',', ':'))
 

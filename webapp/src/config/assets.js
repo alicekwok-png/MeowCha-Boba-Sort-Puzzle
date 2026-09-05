@@ -10,6 +10,7 @@ export const ASSET_MAP = Object.freeze({
 
   // 器皿 — v4 §2：全遊戲單一樽型。VES_bottle_std = 深色標準樽（美術未交付前由燒瓶剪影程式生成，樽身中央明度 < 80）
   VES_bottle_std: V2 + 'bottle_std.webp',
+  VES_cork: V2 + 'cork.webp',           // v4.1：木塞（交貨 / 封存落塞）
   // 舊 v2 器皿（曲頸 / 裂瓶已移除；flask / frosted 只留說明畫面 / 相容）
   VES_flask_empty: V2 + 'flask.webp',
   VES_flask_frosted: V2 + 'flask_frosted.webp',
