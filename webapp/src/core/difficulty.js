@@ -34,15 +34,13 @@ export const UNLOCK_LEVEL = {
   secondOrder: 3,   // 第二免費槽（Spec v3 §7：L3 兩個槽同時開）
   adOrderSlot: 11,  // 廣告委託槽（Spec v3 adSlots，每關最多 2）
   covered: 19,      // 布遮樽（鎖死 + 蠟封提示）
-  thirdOrder: 36,   // 第三委託槽
-};
+};   // 第三免費委託槽（原 L36）2026-09-05 取消：免費 2 + 廣告 2 到底，後期難度靠段數同隱藏密度推，唔可以喺最後五關鬆返
 
 /** 該關最多幾多個固定訂單槽 */
 export function maxOrders(levelId) {
   if (levelId < UNLOCK_LEVEL.orders) return 0;
   if (levelId < UNLOCK_LEVEL.secondOrder) return 1;
-  if (levelId < UNLOCK_LEVEL.thirdOrder) return 2;
-  return 3;
+  return 2;
 }
 
 /** 檢查一個關卡 config 有冇提早出現機制；回傳違規清單（空 = 合格） */

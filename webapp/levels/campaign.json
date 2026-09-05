@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-09-05T15:09:31.521Z",
+ "generatedAt": "2026-09-05T15:30:27.859Z",
  "levels": [
   {
    "id": 1,
@@ -1422,7 +1422,7 @@
     "hidden": 2,
     "covered": 0,
     "ad": 1,
-    "orders": 3,
+    "orders": 2,
     "optimalMin": 15,
     "optimalMax": 31,
     "title": "導師訓話",
@@ -1438,16 +1438,16 @@
     "tutorialQueue": null,
     "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:36:00c34123:34b5476f",
-   "board": "BAYDAwAAAAwMEAoDAAmABQkJ_6D_____AAb___8ABQj__wAABQD_AAP___8A_____wAG____gAkAA_-ACAAD_wAIAwUJgAYIBv8",
+   "publicSeed": "v1:c:36:4fedb3eb:34b5476f",
+   "board": "BAYCBAAAAAwCBAkGCAUAAf___4AIBv__gAkGAv-g_____4AGAQL_AAEIBv8ACQj__4AFAv__AAEFBf8A_____wAJ____gAIFCQg",
    "optimal": 17,
    "thresholds": {
-    "three": 28,
-    "two": 33
+    "three": 30,
+    "two": 35
    },
    "moveLimit": 25,
    "hiddenRatio": 0.358,
-   "hiddenCells": 8,
+   "hiddenCells": 9,
    "units": 24
   },
   {
@@ -1461,7 +1461,7 @@
     "hidden": 2,
     "covered": 1,
     "ad": 1,
-    "orders": 3,
+    "orders": 2,
     "optimalMin": 15,
     "optimalMax": 31,
     "title": "布遮雙問號 II",
@@ -1477,14 +1477,14 @@
     "tutorialQueue": null,
     "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:37:a8a820de:4988ddd5",
-   "board": "BAYDAwAAAAwEAg4JCASACAgE_wAHAgH_AAn___8AAQQH_4AECQn_gAgEAQmg_____yQH____AAIH__-AAgEI_wD_____AAL___8",
-   "optimal": 16,
+   "publicSeed": "v1:c:37:028cd146:4988ddd5",
+   "board": "BAYCBAAAAAwOEAEEAgkABP___4AJB___AAII__-AAQgJ_yQCAv__AP____8AAQEI_4AHCf__gAcIBP8ABAkE_6D_____gAEHAv8",
+   "optimal": 17,
    "thresholds": {
-    "three": 27,
-    "two": 32
+    "three": 30,
+    "two": 35
    },
-   "moveLimit": 24,
+   "moveLimit": 25,
    "hiddenRatio": 0.366,
    "hiddenCells": 9,
    "units": 24
@@ -1500,7 +1500,7 @@
     "hidden": 1,
     "covered": 1,
     "ad": 1,
-    "orders": 3,
+    "orders": 2,
     "optimalMin": 15,
     "optimalMax": 31,
     "title": "全部瓶種",
@@ -1516,16 +1516,16 @@
     "tutorialQueue": null,
     "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:38:bfdb90d4:4254c226",
-   "board": "BAYDAwAAAAwAEg4ECAKAAggJ_yQIAAcHgAgAB_8ABAD__6D_____AAT___8ACf___4ACCP__AP____-ABAf__wACAgn_AAkEAP8",
+   "publicSeed": "v1:c:38:db09f826:4254c226",
+   "board": "BAYCBAAAAAwSCAcAAwgACAD__4AEBwP_AAkA__-g_____4AJAAP_AP____8kCP___4AEBP__gAQJ__-ABwj__4ADBwADAAcJCP8",
    "optimal": 18,
    "thresholds": {
-    "three": 29,
-    "two": 34
+    "three": 33,
+    "two": 38
    },
    "moveLimit": 26,
    "hiddenRatio": 0.374,
-   "hiddenCells": 9,
+   "hiddenCells": 10,
    "units": 24
   },
   {
@@ -1539,7 +1539,7 @@
     "hidden": 2,
     "covered": 1,
     "ad": 1,
-    "orders": 3,
+    "orders": 2,
     "optimalMin": 15,
     "optimalMax": 31,
     "title": "最後衝刺",
@@ -1555,14 +1555,14 @@
     "tutorialQueue": null,
     "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:39:a8a820de:4f36b995",
-   "board": "BAYDAwAAAAwGABAEBwmABAgI_wADCAcEoP____-AAwD__wAAA___AP____-ACQkIB4AEA___JAQH__8ACf___4AJAP__AAcA__8",
-   "optimal": 17,
+   "publicSeed": "v1:c:39:028cd146:4f36b995",
+   "board": "BAYCBAAAAAwQEgIEAAeAAgkIBwAIBAn_AP____8ABP___wAHCQQHgAcC__-AAgn__yQC____oP____8ACP___4AAAAj_gAAEAP8",
+   "optimal": 18,
    "thresholds": {
-    "three": 30,
-    "two": 35
+    "three": 31,
+    "two": 36
    },
-   "moveLimit": 25,
+   "moveLimit": 26,
    "hiddenRatio": 0.382,
    "hiddenCells": 9,
    "units": 24
@@ -1578,7 +1578,7 @@
     "hidden": 2,
     "covered": 1,
     "ad": 1,
-    "orders": 3,
+    "orders": 2,
     "optimalMin": 15,
     "optimalMax": 31,
     "title": "實驗室之光",
@@ -1594,16 +1594,16 @@
     "tutorialQueue": null,
     "randomTwoStarMax": 0.1
    },
-   "publicSeed": "v1:c:40:a8a820de:1bf410ff",
-   "board": "BAYDAwAAAAwMEgACBQgkCQgIBgAG____gAUGBf8ACP___wAAAv__gAkACf8ACAX__wAFCf__oP____8A_____4AAAgD_AAYCAv8",
-   "optimal": 17,
+   "publicSeed": "v1:c:40:028cd146:1bf410ff",
+   "board": "BAYCBAAAAAwACAkCBwig_____4AJB___AAQHBP-AAgD__4AACAT_JAIJ__-ACAAJ_wAI____AAQJB_-AAAj__4ACBwL_AP____8",
+   "optimal": 19,
    "thresholds": {
-    "three": 26,
-    "two": 31
+    "three": 34,
+    "two": 39
    },
-   "moveLimit": 25,
+   "moveLimit": 27,
    "hiddenRatio": 0.39,
-   "hiddenCells": 9,
+   "hiddenCells": 10,
    "units": 24
   }
  ]

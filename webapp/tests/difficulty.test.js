@@ -49,9 +49,9 @@ describe('隱藏密度', () => {
 });
 
 describe('機制登場表', () => {
-  test('免費訂單槽上限（Spec v3 §7）：L1–2 → 1，L3–35 → 2，36+ → 3', () => {
+  test('免費訂單槽上限：L1–2 → 1，L3+ → 2（第三免費槽已取消，L36+ 免費 2 + 廣告 2）', () => {
     assert.equal(maxOrders(1), 1); assert.equal(maxOrders(2), 1); assert.equal(maxOrders(3), 2);
-    assert.equal(maxOrders(17), 2); assert.equal(maxOrders(35), 2); assert.equal(maxOrders(36), 3);
+    assert.equal(maxOrders(17), 2); assert.equal(maxOrders(35), 2); assert.equal(maxOrders(36), 2); assert.equal(maxOrders(40), 2);
   });
   test('關卡表 40 關全部冇提早出現機制', () => {
     CAMPAIGN.forEach((cfg, i) => {
@@ -60,7 +60,7 @@ describe('機制登場表', () => {
     });
   });
   test('登場表數值', () => {
-    assert.deepEqual(UNLOCK_LEVEL, { hidden: 2, adBottle: 2, undo: 5, orders: 1, adEmptyCup: 11, moveLimit: 12, hint: 14, secondOrder: 3, adOrderSlot: 11, covered: 19, thirdOrder: 36 });
+    assert.deepEqual(UNLOCK_LEVEL, { hidden: 2, adBottle: 2, undo: 5, orders: 1, adEmptyCup: 11, moveLimit: 12, hint: 14, secondOrder: 3, adOrderSlot: 11, covered: 19 });
   });
   test('登場（v4）：L1–3 教學 2 隻空樽、L4 起 1 隻；L2 起 `?` 樽 + 廣告樽（L2 兩隻）；全部 capacity 4；第 12 關限步；第 19 關布遮樽（campaign.json 實際盤面）', () => {
     const d = JSON.parse(readFileSync(new URL('../levels/campaign.json', import.meta.url), 'utf8'));
