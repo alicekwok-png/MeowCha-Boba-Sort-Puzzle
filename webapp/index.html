@@ -4,17 +4,16 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
   <meta name="theme-color" content="#12100D">
-  <title>喵喵茶記 Boba Cat</title>
+  <title>Mortar &amp; Mew</title>
   <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
   <link rel="icon" type="image/png" sizes="64x64" href="assets/icons/favicon-64.png">
   <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="喵喵茶記">
+  <meta name="apple-mobile-web-app-title" content="Mortar & Mew">
   <!-- 批次 1：開場必需，喺 HTML 層 preload，唔經遊戲 loader（Spec v2：導師貓單張 CHR_cat_idle） -->
   <link rel="preload" as="image" href="assets/company-logo.webp">
-  <link rel="preload" as="image" href="assets/meowcha-wordmark.webp">
   <link rel="preload" as="image" href="assets/v2/cat_idle.webp">
   <link rel="modulepreload" href="src/client/main.js?v=6">
   <link rel="stylesheet" href="styles.css?v=6">
@@ -29,7 +28,8 @@
 
   <!-- ===== 開場：遊戲 Loading（深色工房）===== -->
   <section id="screen-loading" class="screen boot-loading">
-    <img class="boot-wordmark" src="assets/meowcha-wordmark.webp" alt="喵喵茶記">
+    <!-- 開場字標：舊圖係珍奶時期嘅「喵喵茶記」，新 wordmark 圖未交付，暫用文字 -->
+    <div class="boot-wordmark" aria-label="Mortar &amp; Mew"><span class="wm-main">Mortar &amp; Mew</span><span class="wm-sub">煉金工房 · 試劑分類</span></div>
     <img id="boot-mocha" class="boot-mocha" src="assets/v2/cat_idle.webp" alt="">
     <div class="boot-bar"><div id="boot-fill" class="boot-fill"></div><span class="boot-straw"></span></div>
     <div id="boot-tip" class="boot-tip">正在點蠟燭…</div>
@@ -42,7 +42,7 @@
     <div class="title-content">
       <div id="cafe-banner" class="cafe-banner" hidden></div>
       <img class="title-mascot" src="assets/v2/cat_idle.webp" alt="導師">
-      <h1 class="logo"><span class="logo-main">喵喵茶記</span><span class="logo-sub">Boba Cat · 煉金工房試劑分類</span></h1>
+      <h1 class="logo"><span class="logo-main">Mortar &amp; Mew</span><span class="logo-sub">煉金工房 · 試劑分類解謎</span></h1>
       <div class="menu">
         <button id="btn-continue" class="btn primary">開始</button>
         <button id="btn-levels" class="btn">關卡選擇</button>

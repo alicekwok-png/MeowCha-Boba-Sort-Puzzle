@@ -1,4 +1,4 @@
-# 喵喵茶記 Boba Cat — Webapp
+# Mortar & Mew — Webapp
 
 依照兩份規格實作嘅可玩 webapp：
 
@@ -94,7 +94,7 @@ webapp/
 ## 開場流程（開場規格）
 
 ```
-撳 MeowCha → Boot（讀 flag / ?host=app，即刻並行下載批次 2）
+撳 icon → Boot（讀 flag / ?host=app，即刻並行下載批次 2）
           → 公司 Logo（純白，首次 2.0s，之後 1.2s，host=app 跳過；撳邊度都可跳過）
           → Loading（奶白：字標 + 摩卡三幀 loop + 隨機色注液進度條 + 文案輪播，最少 0.8s）
           → 直接落上次關卡（唔問、唔彈窗）
@@ -114,14 +114,14 @@ webapp/
 | 素材 | 做法 |
 |---|---|
 | 全部 v2 美術（單張背景、5 種器皿、液體底 / 配料 tile、布遮 + 蠟封 + 黃銅框、導師貓 ×3、委託人 ×4、博士剪影、UI ×17） | 跑 `python tools/build-assets-v2.py`（需要 Pillow + numpy）→ `webapp/assets/v2/`，同時量度器皿液體幾何寫入 `assets/v2/vessels.json`（每種瓶：content / liquid 上下界、逐行玻璃內壁 l/r、rim、neck、base，全部係 768 frame 嘅 0–1 比例） |
-| 邏輯名 → 路徑 | `src/config/assets.js` 嘅 `ASSET_MAP`（`VES_flask_empty`、`CHR_cat_idle`、`UI_ad_crest` …）。client 全部經 `ASSET_MAP` 取路徑，**唔准再引用舊 `assets/*.webp`**（`cup-*`、`customer-*`、`mocha-*`、`bg/`、`bg-04.jpg` 已廢棄；只有 `company-logo` / `meowcha-wordmark` 仍然用喺開場畫面） |
+| 邏輯名 → 路徑 | `src/config/assets.js` 嘅 `ASSET_MAP`（`VES_flask_empty`、`CHR_cat_idle`、`UI_ad_crest` …）。client 全部經 `ASSET_MAP` 取路徑，**唔准再引用舊 `assets/*.webp`**（`cup-*`、`customer-*`、`mocha-*`、`bg/`、`bg-04.jpg` 已廢棄；只有 `company-logo` 仍然用喺開場畫面；舊 `meowcha-wordmark` 已由文字字標取代，等新 wordmark 圖） |
 | 主題常數 | `src/config/theme.js`（`COLORS` 黃銅 / 深木 / 燭光、`LIQUID_COLORS` A–J 唔准改 hex、`FROSTED_GLASS`）、`src/config/layout.js`（`LAYOUT` 抖動版面、`CLOTH`）、`src/config/render.js`（`RENDER` multiply / 配料 UV / 揭開時長、`AD_SLOTS`、`CLIENT_ORDER`） |
 
 ### 用戶決定（覆蓋 Spec v2 嘅地方）
 
 1. **遮蓋**：`none` 全部可見；`frosted` 磨砂瓶只見頂格，倒走一格露一格（逐格 160 ms 淡入）；`cloth` 布遮瓶（kind `covered`）全部隱藏、蠟封顯示頂層色、**鎖死**，每交 2 單解開一隻（server event `{type:'unlock', cup}` → 繩鬆 60 ms → 布滑上 160 ms → 塵粒 400 ms → 顏色同圖案一齊淡入 160 ms）。Spec 嘅「清空先揭開」同「盲磨砂」作廢。
 2. **器皿**：燒瓶 = normal（4 格）、曲頸瓶 = takeaway（3 格，永遠裝唔滿一色）、裂瓶 = cracked（只出不入，第 15 關起）、布遮瓶 = covered（布蓋喺燒瓶上）。冇獨立「封膜杯」。
-3. **文案**：客人→委託人、出單→交貨、訂單→委託、杯→瓶；飲品變試劑（硫黃 / 琥珀 / 薔薇 / 硃砂 / 龍膽 / 紫晶 / 淡藍 / 群青 / 銅綠 / 蛋白石）；吉祥物係「導師」（煉金貓 idle / happy / cheer）。遊戲名暫時仍然係喵喵茶記。
+3. **文案**：客人→委託人、出單→交貨、訂單→委託、杯→瓶；飲品變試劑（硫黃 / 琥珀 / 薔薇 / 硃砂 / 龍膽 / 紫晶 / 淡藍 / 群青 / 銅綠 / 蛋白石）；吉祥物係「導師」（煉金貓 idle / happy / cheer）。遊戲名 2026-09-05 起改為 **Mortar & Mew**（存檔 key `meowcha.*` 唔改，保住進度）。
 4. **廣告**：第 1–10 關零廣告（`ads.js adsAllowedForLevel` 硬鎖）；同屏最多 2 個入口（`assertAdSlotLimit` 啟動即驗）：委託人區 `unlockOrder`（紋章只出喺下一個可解鎖嘅委託人 raven → badger → owl → hare，其餘灰態）、玩區 `addEmptyBottle`（第 11 關起、冇空瓶時右下角出紋章，每關一次，`LocalServer.addEmptyCup` 記 `extraCups` 同步重放）。視覺一律 `UI_ad_crest`。
 5. **背景**：單張 `BG_lab_full`，冇視差 / 階段過渡 / 氛圍粒子（`BackgroundManager` 保留做 no-op 接口）。
 6. **液體**：喺器皿 sprite 入面用 `multiply` 畫，clip 到 `vessels.json` 嘅玻璃內壁多邊形；配料由 `PAT_tile_large / small` 四象限取樣（P3 橫向 repeat），墨色 = 該層色 −28% 明度。

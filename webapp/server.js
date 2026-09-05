@@ -27,4 +27,4 @@ createServer(async (req, res) => {
     res.writeHead(e.code === 'ENOENT' ? 404 : 500, { 'Content-Type': 'text/plain' });
     res.end(e.code === 'ENOENT' ? 'Not found' : 'Error');
   }
-}).listen(PORT, () => console.log(`喵喵茶記 dev server → http://localhost:${PORT}`));
+}).listen(PORT, () => console.log(`Mortar & Mew dev server → http://localhost:${PORT}`));

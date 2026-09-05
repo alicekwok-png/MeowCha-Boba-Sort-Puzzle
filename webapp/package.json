@@ -1,7 +1,7 @@
 {
   "name": "meowcha-boba-sort",
   "version": "1.0.0",
-  "description": "喵喵茶記 Boba Cat — boba sort puzzle webapp",
+  "description": "Mortar & Mew — alchemy sort puzzle webapp",
   "type": "module",
   "private": true,
   "scripts": {

@@ -58,9 +58,8 @@ export const ASSET_MAP = Object.freeze({
   UI_star_dim: V2 + 'ui_star_dim.webp',
   UI_progressbar: V2 + 'ui_progressbar.webp',
 
-  // 未換嘅舊素材（公司 logo / 字標仍然用）
+  // 未換嘅舊素材（公司 logo 仍然用喺開場畫面）
   company_logo: 'assets/company-logo.webp',
-  wordmark: 'assets/meowcha-wordmark.webp',
 });
 
 /** 器皿 kind → sprite key */
