@@ -22,6 +22,7 @@ import { safeLayout, computeLayout, chooseColumns, columnsFor } from '../core/la
 import { renderAssets, preloadRenderAssets, geomFor, spriteKey, extentsAt, bandPolygon } from './render-assets.js';
 
 const cubicInOut = t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+const easeOutBack = t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };   // 落塞：衝過位少少再回彈
 const cubicOut = t => 1 - Math.pow(1 - t, 3);
 const backOut = t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
 const clamp01 = t => Math.max(0, Math.min(1, t));
@@ -1049,8 +1050,8 @@ export class GameView {
     const ctx = this.ctx;
     const { g, S, fx, fy } = this._frame(c);
     const p = c.seal.cork;
-    // 跌落：前 60% 加速落到位，後 40% 回彈一下
-    const fall = p < 0.6 ? Math.pow(p / 0.6, 2) : 1 - 0.10 * Math.sin(((p - 0.6) / 0.4) * Math.PI);
+    // 跌落（200ms ease-out-back）：由上方落到位，衝過少少（塞深一格）再回彈到樽口
+    const fall = easeOutBack(clamp01(p));
     const drop = -(1 - fall) * c.h * 0.22;
     const cork = renderAssets.img.VES_cork;
     if (cork) {
