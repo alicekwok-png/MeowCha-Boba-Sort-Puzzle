@@ -2,18 +2,20 @@
 // 調參規則：jitterX/Y 由 0.05 開始向上調。超過 0.10 / 0.15 會由「有機」變「凌亂」。
 
 export const LAYOUT = Object.freeze({
-  // 垂直分配（相對螢幕高度）— 用戶 2026-09-05 第二版：HUD 5.5% / 委託人 10%（必須拎足，唔可以被 HUD 或訂單槽壓）/ 訂單槽 4.5% / 盤面 70% / 道具列 10%
-  // 3 行 × 0.19 = 0.57，盤面 70% 仲有 0.13 分俾行距 + 上下邊距；如果要多退一步 fallback 就接受——寧願壓訂單槽都唔壓角色
+  // 垂直分配（相對螢幕高度）— 用戶 2026-09-06 第三版：HUD 5.5% / 委託人 13.5% / 訂單槽 4.5% / 盤面 69.5% / 道具列 7%
+  // 道具列早期關只有一粒「重來」，10% 係浪費 → 縮到 7%（44px 掣 + 邊距啱啱夠），空間畀委託人，樽整體向下移。
+  // 委託人實際高度受槽闊限制（4 個槽並排，角色圖正方形）：420 闊手機每槽 ≈ 99px，CSS 准角色圖闊到 118% 槽闊（略疊隔籬）。
+  // 3 行 × 0.19 = 0.57，盤面 69.5% 仲有 0.125 分俾行距 + 上下邊距（360–430 闊手機驗過仍然 fallback 1、樽高 0.19）
   topBarTop:        0.00,
   topBarBottom:     0.055,  // HUD（金幣 / 關卡 + 步數 / 剩餘訂單 + 設定）
   clientsTop:       0.055,
-  clientsBottom:    0.155,  // 委託人半身 10%
-  orderSlotsTop:    0.155,
-  orderSlotsBottom: 0.20,   // 訂單槽（托盤）4.5%
-  playfieldTop:     0.20,
-  playfieldBottom:  0.90,   // 盤面 70%
-  toolbarTop:       0.90,
-  toolbarBottom:    1.00,   // 道具列 ×4，10%
+  clientsBottom:    0.19,   // 委託人半身 13.5%
+  orderSlotsTop:    0.19,
+  orderSlotsBottom: 0.235,  // 訂單槽（托盤）4.5%
+  playfieldTop:     0.235,
+  playfieldBottom:  0.93,   // 盤面 69.5%
+  toolbarTop:       0.93,
+  toolbarBottom:    1.00,   // 道具列 ×4，7%
   // 樽尺寸（相對螢幕高度）
   bottleHeightRatio: 0.19,  // 原本約 0.13
   bottleAspect:      0.42,  // 寬 / 高

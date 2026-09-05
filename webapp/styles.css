@@ -168,20 +168,20 @@ body {
   position: relative; z-index: 40;
   height: 100%; width: 100%;
   display: grid; grid-template-columns: minmax(0, 1fr);   /* 唔可以跟 min-content 撐闊：頂欄多咗設定掣，360px 手機會溢出 */
-  /* src/config/layout.js LAYOUT（用戶 2026-09-05 第二版）：頂區 0–20% = HUD 5.5% + 委託人 10% + 訂單槽 4.5% · 盤面 20–90%（70%）· 道具列 90–100%。
+  /* src/config/layout.js LAYOUT（用戶 2026-09-06 第三版）：頂區 0–23.5% = HUD 5.5% + 委託人 13.5% + 訂單槽 4.5% · 盤面 23.5–93%（69.5%）· 道具列 93–100%（7%）。
      貓助手唔再佔行（transient overlay 喺 .zone-board 右下） */
-  grid-template-rows: 20% 70% 10%;
+  grid-template-rows: 23.5% 69.5% 7%;
 }
 @media (min-aspect-ratio: 3/4) {
   .game-col { width: min(100%, 68vh); }
 }
 .zone { position: relative; min-height: 0; }
 
-/* 頂區（20% = HUD 5.5% + 委託人 10% + 訂單槽 4.5%）：HUD 一條（左 = 返回 + 金幣 · 中 = 關卡 + 步數 · 右 = 剩餘訂單 + 設定）
-   玻璃層（#12100D @ 55% + 8px 高斯模糊）固定佔頂 27.5%（= 5.5% 螢幕），唔再疊喺委託人頭頂——委託人必須拎足 10% */
+/* 頂區（23.5% = HUD 5.5% + 委託人 13.5% + 訂單槽 4.5%）：HUD 一條（左 = 返回 + 金幣 · 中 = 關卡 + 步數 · 右 = 剩餘訂單 + 設定）
+   玻璃層（#12100D @ 55% + 8px 高斯模糊）固定佔頂 23.4%（= 5.5% 螢幕），唔疊喺委託人頭頂 */
 .zone-orders { position: relative; z-index: 60; }
 .hud {
-  position: absolute; top: 0; left: 0; right: 0; height: 27.5%; box-sizing: border-box; z-index: 61;
+  position: absolute; top: 0; left: 0; right: 0; height: 23.4%; box-sizing: border-box; z-index: 61;
   display: flex; align-items: center; justify-content: space-between; gap: 6px;
   padding: max(2px, env(safe-area-inset-top)) 8px 2px;
   background: rgba(18, 16, 13, 0.55);
@@ -225,15 +225,15 @@ body {
 .zone-board { grid-row: 2; }
 .zone-actions { grid-row: 3; }
 .customers {
-  position: absolute; top: 27.5%; bottom: 0; left: 0; right: 0; overflow: visible;   /* HUD 以下：委託人 10% + 托盤 4.5% */
+  position: absolute; top: 23.4%; bottom: 0; left: 0; right: 0; overflow: visible;   /* HUD 以下：委託人 13.5% + 托盤 4.5% */
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; padding: 0 5px 0; align-items: end;
 }
-.slot { position: relative; height: 100%; min-width: 0; --label-h: 31%; }   /* 托盤 = 4.5% 螢幕（4.5 / 14.5 = 31% 槽高）；委託人拎餘下 10% */
+.slot { position: relative; height: 100%; min-width: 0; --label-h: 25%; }   /* 托盤 = 4.5% 螢幕（4.5 / 18 = 25% 槽高）；委託人拎餘下 13.5% */
 .slot:nth-child(1) { z-index: 1 } .slot:nth-child(2) { z-index: 2 } .slot:nth-child(3) { z-index: 3 } .slot:nth-child(4) { z-index: 4 }
 /* 委託人半身圖（512 方格）：底邊釘喺托盤頂 */
 .slot img.body {
   position: absolute; bottom: var(--label-h); left: 50%; transform: translateX(-50%);
-  max-width: 100%; height: auto; max-height: calc(100% - var(--label-h));
+  max-width: 118%; height: auto; max-height: calc(100% - var(--label-h));   /* 准闊過槽 18%（略疊隔籬，z-index 已分層）：手機槽闊先係角色高度嘅瓶頸 */
   filter: drop-shadow(0 4px 8px rgba(10,8,6,0.6)); transition: filter .3s;
 }
 /* 三個狀態（config/render.js CLIENT_FILTER → CSS 變數）：active 推高飽和 / 亮度，locked / adlocked 灰態；done（槽收工）喺 active 上再壓少少 */
@@ -315,9 +315,9 @@ body {
 .cat-bubble::after { content: ""; position: absolute; right: -6px; bottom: 11px; border: 6px solid transparent; border-left-color: var(--panel-solid); border-right: 0; }
 
 /* 道具列（z 60，10%，四件）：撤銷 / 提示 / +樽 / 重來；貼圖 UI_item_undo / UI_item_hint / UI_item_addflask，重來保留字形 */
-.zone-actions { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 3px 10px max(4px, env(safe-area-inset-bottom)); z-index: 60; }
+.zone-actions { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 2px 10px max(3px, env(safe-area-inset-bottom)); z-index: 60; }
 .act {
-  font: inherit; flex: 1 1 0; max-width: 88px; min-width: 0; min-height: 44px; max-height: 100%; padding: 5px 0 4px; border-radius: 16px; border: 1px solid var(--panel-border);
+  font: inherit; flex: 1 1 0; max-width: 88px; min-width: 0; min-height: 44px; max-height: 100%; padding: 3px 0 3px; border-radius: 16px; border: 1px solid var(--panel-border);
   background: var(--panel); color: var(--ink); box-shadow: var(--panel-inset), 0 4px 0 var(--brass-dark); cursor: pointer;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; font-weight: 800; font-size: 12px;
 }
