@@ -5,15 +5,19 @@ export const RENDER = Object.freeze({
   liquidBlend: 'source-over',
   glassHighlight: Object.freeze({ lumaThreshold: 215, lumaRange: 40, strength: 0.55 }),
   verticalHighlight: Object.freeze({ from: 0.16, to: 0.24, blur: 3, strength: 0.35 }),
-  surfaceLine: Object.freeze({ thickness: 3, boost: 1.5 }),
   hiddenGlyph: Object.freeze({ color: '#9A8B6F' }),          // `?` 隱藏層：襯線體
   sealedBottle: Object.freeze({ desaturate: 0.25, overlay: '#0A0806', overlayAlpha: 0.18 }),   // 已封樽
   // v4.1 §6 第 11 步：交貨動畫時序（ms）+ 木塞疊放
   cork: Object.freeze({ widthRatio: 0.61, topOffset: 0.035 }),
   deliverAnim: Object.freeze({ corkMs: 200, glowMs: 180, dustCount: [8, 12], flyMs: 440, flyScale: 0.45, flyRotDeg: 8, slotFlashMs: 140 }),
   sealAnim: Object.freeze({ corkMs: 200, desatMs: 280 }),   // 落塞同交貨一樣 200ms ease-out-back（140 太快，玩家睇唔到）
-  // bottleMask.js v3 圓筒明暗：邊緣最暗比例、頂面橢圓（用戶 2026-09-05：每一層都畫，唔止頂層；boost 1.60、漸變 ry × 2.6）、左上高光柱、玻璃只加光門檻
-  cylinder: Object.freeze({ sideShadeMin: 0.72, topFaceBoost: 1.60, topFaceSpan: 2.6, ellipseRatio: 0.16, specCenter: -0.48, specWidth: 0.14, specStrength: 0.40, lumaThreshold: 195, lumaRange: 60, hlStrength: 0.55 }),
+  // 液層圓柱模型（用戶 2026-09-06，直接參考同類遊戲）：每一層係一個實心圓柱 ——
+  //   層頂 / 層底都係向下彎嘅正面弧（ry = 內壁闊 × ryRatio，中央最低、兩邊為 0），層與層之間嘅分界係弧線唔係平線；
+  //   最頂層再畫一個完整橢圓做頂面（該層色向白色 mix lighten，實色、硬邊、唔要漸變）；最底層底邊平（樽底）。
+  //   帶中央 pixel（nominal 層矩形正中）仍然喺圓柱體內 → 仍然 = 色板 hex（ry < 層高 / 2）。
+  surfaceEllipse: Object.freeze({ ryRatio: 0.14, lighten: 0.32 }),
+  // bottleMask.js v3 圓筒明暗：邊緣最暗比例、左上高光柱、玻璃只加光門檻
+  cylinder: Object.freeze({ sideShadeMin: 0.72, specCenter: -0.48, specWidth: 0.14, specStrength: 0.40, lumaThreshold: 195, lumaRange: 60, hlStrength: 0.55 }),
 
   patternAtlasSize: 256,
   patternUVInset: 0.5 / 256,   // 防止雙線性取樣偷到隔壁象限
@@ -29,8 +33,6 @@ export const RENDER = Object.freeze({
 
   // 發光三件套（用戶 2026-09-05）：冇呢三樣，再鮮嘅色都係一塊平色
   glow: Object.freeze({
-    surfaceLineL: 0.35,        // 液面高光線：該層色 +35% 明度
-    surfaceLinePx: 2,          //   2px，layer 頂邊
     rimAlpha: 0.40,            // 液體外緣 rim glow：該層色 @ 40%
     rimPx: 2,                  //   2px
     backAlpha: 0.12,           // 整瓶背後柔光：該色 @ 12%

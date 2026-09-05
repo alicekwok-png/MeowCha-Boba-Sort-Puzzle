@@ -45,11 +45,6 @@ function rgba(hex, alpha) {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
-/** 液面高光線（v4 §1.2 第 4 步）：各通道 × boost，clamp 255 */
-function boostRgb([r, g, b], boost) {
-  const f = v => Math.min(255, Math.round(v * boost));
-  return `rgb(${f(r)},${f(g)},${f(b)})`;
-}
 
 /** 已封樽液色（v4 §2.2）：去飽和 desaturate × k，再疊 overlay @ overlayAlpha × k（k = 動畫進度 0–1）→ [r, g, b] */
 function sealedRgb(hex, k) {
@@ -860,6 +855,35 @@ export class GameView {
   }
 
   /**
+   * 液層圓柱路徑（frame 單位 → canvas）：上邊 / 下邊各自可以係正面弧（向下彎 ryTop / ryBot，中央最低、兩邊為 0），兩側沿內壁 rows。
+   * 上下都用同一方向嘅弧 → 層與層之間分界係弧線，成塊液體係「圓柱側面」（唔係菱形）。
+   */
+  _layerPath(g, S, fx, fy, yTop, yBot, ryTop, ryBot) {
+    const ctx = this.ctx;
+    const N = 14;
+    const top = extentsAt(g, yTop), bot = extentsAt(g, yBot);
+    const P = (u, v) => [fx + u * S, fy + v * S];
+    ctx.beginPath();
+    // 上邊：左 → 右，沿弧
+    for (let k = 0; k <= N; k++) {
+      const t = k / N, nx = 2 * t - 1;
+      const [x, y] = P(top.l + (top.r - top.l) * t, yTop + ryTop * Math.sqrt(Math.max(0, 1 - nx * nx)));
+      if (k) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+    }
+    // 右邊：向下沿 rows
+    for (const r of g.rows) if (r[0] > yTop && r[0] < yBot) { const [x, y] = P(r[2], r[0]); ctx.lineTo(x, y); }
+    // 下邊：右 → 左，沿弧
+    for (let k = N; k >= 0; k--) {
+      const t = k / N, nx = 2 * t - 1;
+      const [x, y] = P(bot.l + (bot.r - bot.l) * t, yBot + ryBot * Math.sqrt(Math.max(0, 1 - nx * nx)));
+      ctx.lineTo(x, y);
+    }
+    // 左邊：向上沿 rows
+    for (let i = g.rows.length - 1; i >= 0; i--) { const r = g.rows[i]; if (r[0] > yTop && r[0] < yBot) { const [x, y] = P(r[1], r[0]); ctx.lineTo(x, y); } }
+    ctx.closePath();
+  }
+
+  /**
    * 液體（v4 §1.2）：第 i 格 = 內壁 liquid.bottom 向上第 i 個 slot。每帶：
    *  ① rim glow 描邊（帶外，該色 @ 40%）
    *  ② 純色填滿（source-over，alpha 1，唔乘任何嘢）
@@ -880,10 +904,12 @@ export class GameView {
     const baseAlpha = ctx.globalAlpha * c.layerAlpha;
     const sealK = c.seal ? c.seal.desat : 0;
     const highlight = renderAssets.highlight[spriteKey(c.kind === 'covered' ? 'normal' : c.kind)];
-    const GH = RENDER.glassHighlight, VH = RENDER.verticalHighlight, SL = RENDER.surfaceLine;
-    let topBand = null;   // 最後畫嘅一帶（液面線用）
+    const GH = RENDER.glassHighlight, VH = RENDER.verticalHighlight, SE = RENDER.surfaceEllipse;
+    // 圓柱模型：正面弧 ry = 內壁闊 × ryRatio（frame 單位）；最底層底邊平（樽底）
+    const innerW = (() => { const e = extentsAt(g, (g.liquid.top + g.liquid.bottom) / 2); return e.r - e.l; })();
+    const ryF = innerW * SE.ryRatio;
 
-    const drawBand = (from, to, unit, alpha) => {
+    const drawBand = (from, to, unit, alpha, isTop) => {
       if (to - from <= 0.001) return;
       const yTop = yAt(to), yBot = yAt(from);
       const hex = hexOf(unit);
@@ -892,23 +918,26 @@ export class GameView {
       const y1 = fy + yTop * S, y2 = fy + yBot * S;
       const ext = extentsAt(g, (yTop + yBot) / 2);
       const bx0 = fx + ext.l * S, bx1 = fx + ext.r * S;
+      const ryTop = Math.min(ryF, (yBot - yTop) / 2);           // 薄層（倒緊）弧唔可以高過半層
+      const ryBot = from <= 0.001 ? 0 : ryTop;                    // 最底層：底邊平
+      const ryPx = ryTop * S;
       // ① rim glow：先畫描邊，再填色，內半邊會被液體蓋住、外半邊留喺玻璃上
       ctx.save();
       ctx.globalAlpha = baseAlpha * alpha;
-      this._bandPath(g, S, fx, fy, yTop, yBot);
+      this._layerPath(g, S, fx, fy, yTop, yBot, ryTop, ryBot);
       ctx.strokeStyle = rgba(hex, RENDER.glow.rimAlpha); ctx.lineWidth = RENDER.glow.rimPx * 2; ctx.lineJoin = 'round';
       ctx.stroke();
       ctx.restore();
       ctx.save();
       ctx.globalAlpha = baseAlpha * alpha;
-      this._bandPath(g, S, fx, fy, yTop, yBot);
+      this._layerPath(g, S, fx, fy, yTop, yBot, ryTop, ryBot);
       ctx.clip();
-      // ② 純色：已經 clip 住內壁多邊形 → 全闊填色
+      // ② 純色：已經 clip 住圓柱側面 → 全闊填色（連底弧凸出嘅 ryPx）
       ctx.globalCompositeOperation = RENDER.liquidBlend;
       ctx.fillStyle = fill;
-      ctx.fillRect(fx, y1, S, y2 - y1);
+      ctx.fillRect(fx, y1, S, y2 - y1 + ryPx);
       // ②b 圓筒明暗（bottleMask.js v3）：邊緣暗到 sideShadeMin（中軸 1.0 → 帶中央 pixel 仍然 = hex）；
-      //     頂面橢圓每一層都畫（用戶 2026-09-05：參考圖每格之間都見到淺色水面），由層頂向下 topFaceSpan × ry 漸變（+60%）
+      //     水面帶（RENDER.surfaceBand）每一層都畫：實色、硬邊、下邊沿橢圓弧（見下面 ②c）
       {
         const CY = RENDER.cylinder;
         const w = bx1 - bx0, cx = (bx0 + bx1) / 2;
@@ -921,15 +950,7 @@ export class GameView {
           gr.addColorStop(k / 8, `rgb(${v},${v},${v})`);
         }
         ctx.globalCompositeOperation = 'multiply';
-        ctx.fillStyle = gr; ctx.fillRect(bx0, y1, w, y2 - y1);
-        {
-          const ry = w * CY.ellipseRatio / 2, span = ry * (CY.topFaceSpan ?? 2);
-          const face = ctx.createLinearGradient(0, y1, 0, y1 + span);
-          face.addColorStop(0, `rgba(255,255,255,${(CY.topFaceBoost - 1) * 0.55})`);
-          face.addColorStop(1, 'rgba(255,255,255,0)');
-          ctx.globalCompositeOperation = 'screen';
-          ctx.fillStyle = face; ctx.fillRect(bx0, y1, w, Math.min(span, y2 - y1));
-        }
+        ctx.fillStyle = gr; ctx.fillRect(bx0, y1, w, y2 - y1 + ryPx);
       }
       // ③ 玻璃高光（只有 sprite 最亮部分，深色樽身中央 alpha = 0 → 帶中央 pixel 唔會郁）
       if (highlight) {
@@ -949,14 +970,25 @@ export class GameView {
         gr.addColorStop(1, 'rgba(255,255,255,0)');
         ctx.globalCompositeOperation = 'screen';
         ctx.globalAlpha = baseAlpha * alpha;
-        ctx.fillStyle = gr; ctx.fillRect(x0 - soft, y1, x1 - x0 + soft * 2, y2 - y1);
+        ctx.fillStyle = gr; ctx.fillRect(x0 - soft, y1, x1 - x0 + soft * 2, y2 - y1 + ryPx);
       }
       ctx.globalCompositeOperation = 'source-over';
       ctx.restore();
       // ⑤ 配料圖案（該層色 −28% L）
       const p = unitPattern(unit);
       if (p > 0) this.drawPattern(c, p, hex, bx0, y1, bx1 - bx0, y2 - y1, baseAlpha * alpha, g, S, fx, fy, yTop, yBot);
-      topBand = { yTop, yBot, y1, y2, rgb, alpha };
+      // ⑥ 頂面：最頂層畫完整橢圓（該層色向白 mix lighten，實色硬邊），clip 喺玻璃內壁；上半突出層頂 ry，下半蓋住圓柱頂
+      if (isTop && ryTop > 0.0005) {
+        const lit = rgb.map(v => Math.round(v + (255 - v) * SE.lighten));
+        ctx.save();
+        ctx.globalAlpha = baseAlpha * alpha;
+        this._bandPath(g, S, fx, fy, Math.max(g.content.top, yTop - ryTop), yTop + ryTop); ctx.clip();
+        ctx.fillStyle = `rgb(${lit[0]},${lit[1]},${lit[2]})`;
+        ctx.beginPath();
+        ctx.ellipse((bx0 + bx1) / 2, y1, (bx1 - bx0) / 2, ryPx, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
     };
     const drawHidden = (from, to) => {
       // `?` 隱藏格（v4 §5）：唔填色，喺深色玻璃上畫襯線 ?，大小 ≈ 55% slot 高
@@ -984,23 +1016,12 @@ export class GameView {
       else {
         const t0 = c.fade[i];
         const alpha = t0 ? clamp01((now - t0) / RENDER.hiddenRevealMs) : 1;
-        drawBand(level, top, u, alpha);
+        drawBand(level, top, u, alpha, i === n - 1 && !c.extraUnits);
       }
       level += units;
     }
     // 正在倒入嘅新層
-    if (c.extraUnits > 0 && c.extraColor !== null) drawBand(level, level + c.extraUnits, c.extraColor, 1);
-
-    // ⑥ 液面高光線：只落頂帶頂 3px（帶中央唔受影響），該色各通道 ×1.5，source-over
-    if (topBand && topBand.y2 - topBand.y1 > SL.thickness * 2) {
-      ctx.save();
-      ctx.globalAlpha = baseAlpha * topBand.alpha;
-      this._bandPath(g, S, fx, fy, topBand.yTop, topBand.yBot); ctx.clip();
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.fillStyle = boostRgb(topBand.rgb, SL.boost);
-      ctx.fillRect(fx, topBand.y1, S, SL.thickness);
-      ctx.restore();
-    }
+    if (c.extraUnits > 0 && c.extraColor !== null) drawBand(level, level + c.extraUnits, c.extraColor, 1, true);
   }
 
   /**
