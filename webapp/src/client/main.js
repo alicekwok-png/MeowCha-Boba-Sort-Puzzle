@@ -107,6 +107,20 @@ async function loadLevels() {
   return LEVELS;
 }
 
+// ---------- 委託人圖尺寸（Safari 百分比高度鏈計唔到 → 直接量 px）----------
+// 角色圖係正方形 sprite：邊長 = min(委託人區（槽高 − 托盤）× 1.0, 槽闊 × 1.18)；resize / 轉向重新量
+function sizeClients() {
+  const el = $('#customers'); const slot = el && el.querySelector('.slot');
+  if (!el || !slot) return;
+  const r = el.getBoundingClientRect(), sr = slot.getBoundingClientRect();
+  if (r.height < 10 || sr.width < 10) return;
+  const trayH = r.height * 0.25;                      // --label-h: 25%（styles.css .slot）
+  const size = Math.floor(Math.min(r.height - trayH, sr.width * 1.18));
+  document.documentElement.style.setProperty('--client-size', size + 'px');
+}
+window.addEventListener('resize', () => sizeClients());
+window.addEventListener('orientationchange', () => setTimeout(sizeClients, 50));
+
 // ---------- 練習池（levels/practice_pool.json，tools/gen-practice.js 預生成，每桶 30 個）----------
 // 用戶 2026-09-05：練習要即刻開始，runtime 生成最壞等 4 秒仲有機會失敗 → 先由池抽（0 ms），30 個用晒先 runtime 生成（混合）
 let PRACTICE_POOL = null;
@@ -141,6 +155,7 @@ function pickFromPool(pool, bucket) {
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
   if (id === 'screen-game' && G.view) G.view.resize();
+  if (id === 'screen-game') sizeClients();
 }
 function refreshTitle() {
   const n = nextLevelId();
@@ -266,6 +281,7 @@ function renderClients(popColor = null, enterIndex = -1, flyingIndex = -1, opts 
   const orders = (opts.board || G.board).orders;
   const flashIndex = opts.flashIndex ?? -1;
   el.innerHTML = '';
+  requestAnimationFrame(sizeClients);   // 槽建好後量一次（首次 / 語言切換 / 轉向）
   const lockedAds = Math.max(0, G.adTotal - G.adUnlocked);
   const adsOk = !G.practice && adsAllowedForLevel(G.level && G.level.id);
   for (let i = 0; i < SLOT_COUNT; i++) {

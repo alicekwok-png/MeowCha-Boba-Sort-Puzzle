@@ -233,7 +233,9 @@ body {
 /* 委託人半身圖（512 方格）：底邊釘喺托盤頂 */
 .slot img.body {
   position: absolute; bottom: var(--label-h); left: 50%; transform: translateX(-50%);
-  max-width: 118%; height: auto; max-height: calc(100% - var(--label-h));   /* 准闊過槽 18%（略疊隔籬，z-index 已分層）：手機槽闊先係角色高度嘅瓶頸 */
+  /* 尺寸由 main.js sizeClients() 量度後寫入 --client-size（px，正方形 sprite）：
+     = min(委託人區高度 × 0.75, 槽闊 × 1.18)。唔用百分比鏈（Safari 對 grid 格 → slot → img 嘅 % 高度計唔到，角色會衝出頂邊） */
+  width: var(--client-size, 80px); height: var(--client-size, 80px); object-fit: contain;
   filter: drop-shadow(0 4px 8px rgba(10,8,6,0.6)); transition: filter .3s;
 }
 /* 三個狀態（config/render.js CLIENT_FILTER → CSS 變數）：active 推高飽和 / 亮度，locked / adlocked 灰態；done（槽收工）喺 active 上再壓少少 */
