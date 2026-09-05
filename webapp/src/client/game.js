@@ -750,9 +750,11 @@ export class GameView {
         ctx.globalCompositeOperation = 'source-over';
         // 淺色試劑（蛋白石 L 92）multiply 落近白玻璃後同空瓶冇分別：加一層微染 + 深色描邊，令佢仲係「一格液體」
         if (isLight(hex)) {
-          ctx.fillStyle = shiftL(hex, -0.30, 0.16); ctx.fillRect(fx, y1, S, y2 - y1);
+          // 唔可以用「同色壓暗」：蛋白石色相 44° 壓暗會變橙黃，同琥珀（29°）撞樣（用戶實測誤以為同色）。
+          // 改為：奶白提亮（令佢比空玻璃更白、更實）+ 中性暖灰描邊（讀成「白色液體」）
+          ctx.fillStyle = 'rgba(255,255,255,0.30)'; ctx.fillRect(fx, y1, S, y2 - y1);
           this._bandPath(g, S, fx, fy, yTop, yBot);
-          ctx.strokeStyle = shiftL(hex, -0.35, 0.7); ctx.lineWidth = 3; ctx.stroke();
+          ctx.strokeStyle = 'rgba(88,80,72,0.62)'; ctx.lineWidth = 2.5; ctx.stroke();
         }
       }
       if (y2 - y1 > lineW * 2) {
