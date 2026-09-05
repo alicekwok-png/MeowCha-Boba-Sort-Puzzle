@@ -168,11 +168,6 @@
       "zh-Hant": "裂紋瓶",
       "zh-Hans": "裂纹瓶"
     },
-    "frosted": {
-      "en": "Frosted flask",
-      "zh-Hant": "磨砂瓶",
-      "zh-Hans": "磨砂瓶"
-    },
     "cloth": {
       "en": "Shrouded vial",
       "zh-Hant": "布罩瓶",
@@ -300,11 +295,6 @@
       "en": "Only the same liquid can be poured together.",
       "zh-Hant": "只有相同的藥劑才能倒在一起。",
       "zh-Hans": "只有相同的药剂才能倒在一起。"
-    },
-    "frosted": {
-      "en": "Frosted glass hides all but the top layer.",
-      "zh-Hant": "磨砂玻璃只露出最上層。",
-      "zh-Hans": "磨砂玻璃只露出最上层。"
     },
     "cloth": {
       "en": "Shrouded vials stay sealed until two orders are delivered.",
@@ -606,9 +596,9 @@
         "zh-Hans": "晚班"
       },
       "l6": {
-        "en": "Frosted Over",
-        "zh-Hant": "蒙上霧氣",
-        "zh-Hans": "蒙上雾气"
+        "en": "Covered Up",
+        "zh-Hant": "蓋住了",
+        "zh-Hans": "盖住了"
       },
       "l7": {
         "en": "In the Queue",
@@ -621,9 +611,9 @@
         "zh-Hans": "打烊前"
       },
       "l9": {
-        "en": "Frosted Flask",
-        "zh-Hant": "磨砂瓶",
-        "zh-Hans": "磨砂瓶"
+        "en": "Question Mark",
+        "zh-Hant": "問號瓶",
+        "zh-Hans": "问号瓶"
       },
       "l10": {
         "en": "Retort",
@@ -686,9 +676,9 @@
         "zh-Hans": "夜班开始"
       },
       "l22": {
-        "en": "Two Frosted",
-        "zh-Hant": "兩個磨砂瓶",
-        "zh-Hans": "两个磨砂瓶"
+        "en": "Two Question Marks",
+        "zh-Hant": "兩個問號瓶",
+        "zh-Hans": "两个问号瓶"
       },
       "l23": {
         "en": "Shroud and Retort",
@@ -711,9 +701,9 @@
         "zh-Hans": "夜更深"
       },
       "l27": {
-        "en": "Double Frost",
-        "zh-Hant": "雙重磨砂",
-        "zh-Hans": "双重磨砂"
+        "en": "Double Mystery",
+        "zh-Hant": "雙重問號",
+        "zh-Hans": "双重问号"
       },
       "l28": {
         "en": "Three Vessels",
@@ -726,9 +716,9 @@
         "zh-Hans": "只有一个空瓶"
       },
       "l30": {
-        "en": "Shroud and Double Frost",
-        "zh-Hant": "布罩與雙磨砂",
-        "zh-Hans": "布罩与双磨砂"
+        "en": "Shroud and Double Mystery",
+        "zh-Hant": "布罩與雙問號",
+        "zh-Hans": "布罩与双问号"
       },
       "l31": {
         "en": "All Six Colours",
@@ -736,9 +726,9 @@
         "zh-Hans": "六色齐发"
       },
       "l32": {
-        "en": "Six Colours, Frosted",
-        "zh-Hant": "六色磨砂",
-        "zh-Hans": "六色磨砂"
+        "en": "Six Colours, Unknown",
+        "zh-Hant": "六色問號",
+        "zh-Hans": "六色问号"
       },
       "l33": {
         "en": "Eight Vessels",
@@ -761,9 +751,9 @@
         "zh-Hans": "导师训话"
       },
       "l37": {
-        "en": "Shroud and Double Frost II",
-        "zh-Hant": "布罩與雙磨砂 II",
-        "zh-Hans": "布罩与双磨砂 II"
+        "en": "Shroud and Double Mystery II",
+        "zh-Hant": "布罩與雙問號 II",
+        "zh-Hans": "布罩与双问号 II"
       },
       "l38": {
         "en": "Every Vessel",
@@ -1233,11 +1223,6 @@
         "en": "Clear glass, everything visible, 4 measures.",
         "zh-Hant": "透明，內容全部可見，4 格。",
         "zh-Hans": "透明，内容全部可见，4 格。"
-      },
-      "frostedDesc": {
-        "en": "Only the top measure shows; pour one away to reveal the next.",
-        "zh-Hant": "只看得到最上面一格，倒走一格才露出下一格。",
-        "zh-Hans": "只看得到最上面一格，倒走一格才露出下一格。"
       },
       "clothDesc": {
         "en": "Fully hidden; the wax seal shows the top colour. Sealed and untouchable until 2 orders are delivered per bottle.",

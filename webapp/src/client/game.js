@@ -984,7 +984,7 @@ export class GameView {
       if (u === null) drawHidden(level, top);
       else {
         const t0 = c.fade[i];
-        const alpha = t0 ? clamp01((now - t0) / RENDER.frostedRevealMs) : 1;
+        const alpha = t0 ? clamp01((now - t0) / RENDER.hiddenRevealMs) : 1;
         drawBand(level, top, u, alpha, i === n - 1 && !c.extraUnits);
       }
       level += units;

@@ -8,7 +8,7 @@ import { PALETTE, colorsCompatible, unitsCompatible, MAX_COLORS_BY_HUE } from '.
 
 /**
  * @typedef {{cups:number, colors:number, empties:number, segments:number,
- *            frosted:number, covered:number, takeaway:number, cracked:number, orders:number,
+ *            hidden:number, covered:number, ad:number, orders:number,
  *            optimalMin:number, optimalMax:number, palette?:number[], patterns?:number[], hiddenRatio?:number}} LevelConfig
  *  colors = 元素數（色 × 圖案）；patterns = 每個元素嘅 patternId（預設全部 P0）
  */
@@ -219,7 +219,7 @@ export function ordersReachable(b) {
 }
 
 /** 檢查 7：隱藏層樽 / 布遮樽唔可以有 3 格以上連續同色（否則隱藏冇意義） */
-export function frostedMeaningful(b) {
+export function hiddenMeaningful(b) {
   return b.cups.filter(c => hiddenCount(c) > 0).every(c => {
     let run = 1;
     for (let i = 1; i < c.seg.length; i++) {
@@ -237,7 +237,7 @@ export function countHidden(b) {
 
 /** 三星門檻：無隱藏關卡 = 最優 + 3；有隱藏 = 最優 + 3 + (`?` 樽數 × 2) */
 export function starThresholds(optimal, board) {
-  const q = board.cups.filter(c => c.kind === 'hidden' || c.kind === 'frosted').length;
+  const q = board.cups.filter(c => c.kind === 'hidden').length;
   const three = optimal + 3 + q * 2;
   return { three, two: three + 5 };
 }
@@ -250,7 +250,7 @@ export function generateLevelEx(cfg, seed, opts = {}) {
   validateConfig(cfg);
   const rng = mulberry32(seed);
   const maxAttempts = opts.maxAttempts ?? 400;
-  const rejects = { shape: 0, segments: 0, unsolvable: 0, length: 0, unique: 0, opening: 0, color: 0, orders: 0, frosted: 0, aborted: 0 };
+  const rejects = { shape: 0, segments: 0, unsolvable: 0, length: 0, unique: 0, opening: 0, color: 0, orders: 0, hidden: 0, aborted: 0 };
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     if (opts.deadline && Date.now() > opts.deadline) { rejects.aborted++; return null; }   // 牆鐘預算（練習關即時生成用）
@@ -264,7 +264,7 @@ export function generateLevelEx(cfg, seed, opts = {}) {
     if (!colorSafe(b)) { rejects.color++; continue; }
     if (!queueCoversAllColors(b)) { rejects.orders++; continue; }
     if (!ordersReachable(b)) { rejects.orders++; continue; }
-    if (!frostedMeaningful(b)) { rejects.frosted++; continue; }
+    if (!hiddenMeaningful(b)) { rejects.hidden++; continue; }
 
     // 檢查 2：可解，且步數落喺目標區間
     const r = solveEx(b, cfg.optimalMax + 2, opts.maxNodes ?? 150_000);

@@ -124,7 +124,6 @@ save(frame(1.01, 0.99, 1.5), 'mocha-idle-03.webp')
 
 # ---------------- 杯種（教學畫面用） ----------------
 # 新嘅白磨砂杯（白底白杯）同透明有蓋杯（膠身透出格仔）去唔到背，教學畫面沿用舊素材
-sprite(raw('legacy/cup-frosted.png'), 320, 'cup-frosted.webp')                 # 磨砂杯（舊素材，已去背）
 sprite(raw('*transparent_552031458084114438.jpg'), 320, 'cup-takeaway.webp')   # 杯套外帶杯（新）
 sprite(raw('legacy/cup-sealed.png'), 320, 'cup-sealed.webp')                   # 封膜杯（舊素材，已去背）
 

@@ -481,7 +481,7 @@ async function startLevel(levelData, { practice = false, diff = null } = {}) {
   catHide();
   refreshTitle();
   // v4 §5 教學：第一次見 `?` 隱藏層樽（L2），貓彈出一句「倒走上面先知下面係咩」；布遮樽第一次出現同樣講一次
-  const hidden = G.board.cups.some(c => c.kind === 'hidden' || c.kind === 'frosted');
+  const hidden = G.board.cups.some(c => c.kind === 'hidden');
   const covered = G.board.cups.some(c => c.kind === 'covered' && c.locked);
   let seenHidden = G.hiddenTipShown, seenCovered = false;
   try { seenHidden = seenHidden || localStorage.getItem('mc_tut_hidden') === '1'; seenCovered = localStorage.getItem('mc_tut_covered') === '1'; } catch { /* ignore */ }
@@ -520,7 +520,7 @@ function trayRectFor(orderIndex) {
 
 /**
  * 完成樽冇委託（v4 §7）：純色滿、kind normal、冇未完成同色委託、而且上一步未完成 → 加塞封存動畫。
- * 只用遮罩盤面判斷（隱藏格 null 唔算完成；server 對 frosted 滿樽會全露出）。
+ * 只用遮罩盤面判斷（隱藏格 null 唔算完成；server 對 hidden 滿樽會全露出）。
  */
 function newlySealed(prevBoard, board) {
   const out = [];

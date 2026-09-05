@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-09-05T14:15:30.371Z",
+ "generatedAt": "2026-09-05T14:39:54.160Z",
  "levels": [
   {
    "id": 1,
@@ -28,7 +28,7 @@
     "tutorialQueue": "firstDelivered"
    },
    "publicSeed": "v1:c:1:2cae47db:c4e1c796",
-   "board": "AwIBAQAAAAUMAAAAAP__AAAGBv8A_____wAGBgD_AP____8",
+   "board": "BAIBAQAAAAUMAAAAAP__AAAGBv8A_____wAGBgD_AP____8",
    "optimal": 3,
    "thresholds": {
     "three": 6,
@@ -67,7 +67,7 @@
     "tutorialQueue": "sealThenCatchUp"
    },
    "publicSeed": "v1:c:2:15082b00:61df1f14",
-   "board": "AwMBAgAAAAgEAAYA_____8D_____AAACBgagAgIAAgD_____AAYG__8AAAD__8D_____",
+   "board": "BAMBAgAAAAgEAAYA_____6D_____AAACBgaAAgIAAgD_____AAYG__8AAAD__6D_____",
    "optimal": 5,
    "thresholds": {
     "three": 10,
@@ -106,7 +106,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:3:d4256135:4561d6b1",
-   "board": "AwMCAQAAAAcCCAgA_____wAECP__AP____8ACAgBAaAIBP__wP____8ABAQBAQ",
+   "board": "BAMCAQAAAAcCCAgA_____wAECP__AP____8ACAgBAYAIBP__oP____8ABAQBAQ",
    "optimal": 6,
    "thresholds": {
     "three": 11,
@@ -147,7 +147,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:4:e81f1f87:6e39c52f",
-   "board": "AwQCAgAAAAgEAAYIAAgICP8AAgIA_8D_____wP____8AAgAA_6AIBgYAAAIGBv8A_____w",
+   "board": "BAQCAgAAAAgEAAYIAAgICP8AAgIA_6D_____oP____8AAgAA_4AIBgYAAAIGBv8A_____w",
    "optimal": 8,
    "thresholds": {
     "three": 13,
@@ -188,7 +188,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:5:b38e489d:b17c09f0",
-   "board": "AwQCAgAAAAcSCAcBoAEBBP8A_____wAHBwn_AAkBB_8ACQkBB8D_____AAQEBP8",
+   "board": "BAQCAgAAAAcSCAcBgAEBBP8A_____wAHBwn_AAkBB_8ACQkBB6D_____AAQEBP8",
    "optimal": 7,
    "thresholds": {
     "three": 12,
@@ -229,7 +229,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:6:ff2bd008:d7c55cca",
-   "board": "AwQCAgAAAAkQAAMGwP____8ACAgG_wD_____wP____8ABgMD_wAABv__oAMG__8AAwj__wAACAAA",
+   "board": "BAQCAgAAAAkQAAMGoP____8ACAgG_wD_____oP____8ABgMD_wAABv__gAMG__8AAwj__wAACAAA",
    "optimal": 9,
    "thresholds": {
     "three": 14,
@@ -272,7 +272,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:7:61784ed7:3f5ab324",
-   "board": "AwUCAwAAAAgEAAYIBQACAgAAAAgGAv8ABgX__wAGAAACoAUFBv8A_____8D_____AAUICAg",
+   "board": "BAUCAwAAAAgEAAYIBQACAgAAAAgGAv8ABgX__wAGAAACgAUFBv8A_____6D_____AAUICAg",
    "optimal": 10,
    "thresholds": {
     "three": 15,
@@ -315,7 +315,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:8:78f0cba5:29f68a08",
-   "board": "AwUCAwAAAAkCEAcECQD_____AAcEBAgACQQE_wAICAj_wP____8AAQEHCcD_____oAcJ__-gCQEBBw",
+   "board": "BAUCAwAAAAkCEAcECQD_____AAcEBAgACQQE_wAICAj_oP____8AAQEHCaD_____gAcJ__-ACQEBBw",
    "optimal": 10,
    "thresholds": {
     "three": 17,
@@ -328,7 +328,7 @@
   },
   {
    "id": 9,
-   "title": "磨砂瓶",
+   "title": "問號瓶",
    "config": {
     "cups": 7,
     "colors": 5,
@@ -340,7 +340,7 @@
     "orders": 2,
     "optimalMin": 12,
     "optimalMax": 24,
-    "title": "磨砂瓶",
+    "title": "問號瓶",
     "palette": [
      0,
      6,
@@ -358,7 +358,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:9:aff61cc5:27e4c564",
-   "board": "AwUCAwAAAAgMBgAIBQD_____wP____8AA____wADBQD_AAgABQUABgYGBQAAAwgIoAAIAwY",
+   "board": "BAUCAwAAAAgMBgAIBQD_____oP____8AA____wADBQD_AAgABQUABgYGBQAAAwgIgAAIAwY",
    "optimal": 12,
    "thresholds": {
     "three": 17,
@@ -401,7 +401,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:10:a802a2c8:6190c984",
-   "board": "AwUCAwAAAAoEAgcICQABAQkBAAIHCf8ABwcC_wACCP__wP____8ACP___6ACCAkHAP_____A_____wAJAQj_",
+   "board": "BAUCAwAAAAoEAgcICQABAQkBAAIHCf8ABwcC_wACCP__oP____8ACP___4ACCAkHAP____-g_____wAJAQj_",
    "optimal": 13,
    "thresholds": {
     "three": 18,
@@ -446,7 +446,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:11:4a60a9fd:cbc17bcf",
-   "board": "AwYCBAAAAAkSCggABgKgAgIA_wD_____AAgFBf_A_____wAJAAn_AAACAv8ABgkGCaAGCAgGAAAFBQg",
+   "board": "BAYCBAAAAAkSCggABgKAAgIA_wD_____AAgFBf-g_____wAJAAn_AAACAv8ABgkGCYAGCAgGAAAFBQg",
    "optimal": 14,
    "thresholds": {
     "three": 21,
@@ -491,7 +491,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:12:32cf25e8:0060cb57",
-   "board": "AwYCBAAAAAoQBAQBCQcAAgIJ_wAEBwf_AAcICATA_____8D_____AP____8ABAkI_6AJCAEBAAcBAgIACQQB_w",
+   "board": "BAYCBAAAAAoQBAQBCQcAAgIJ_wAEBwf_AAcICASg_____6D_____AP____8ABAkI_4AJCAEBAAcBAgIACQQB_w",
    "optimal": 15,
    "thresholds": {
     "three": 20,
@@ -529,7 +529,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:13:b7c4f987:c39f2be8",
-   "board": "AwYCBAAAAAoGEAkHAAQABwkE_6ADAwf_oAcDBAQA_____wAICAgJwP____8ACQn__wAAAP__AAgA__8AAAcDBA",
+   "board": "BAYCBAAAAAoGEAkHAAQABwkE_4ADAwf_gAcDBAQA_____wAICAgJoP____8ACQn__wAAAP__AAgA__8AAAcDBA",
    "optimal": 13,
    "thresholds": {
     "three": 20,
@@ -567,7 +567,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:14:9184c2b1:c9df2b6d",
-   "board": "AwYCBAAAAAsQAAkEAwcABAADAwD_____oAgICQkACf___wAHCQQEAAMA__8ABwQA_8D_____AAgI___A_____wAHAAcD",
+   "board": "BAYCBAAAAAsQAAkEAwcABAADAwD_____gAgICQkACf___wAHCQQEAAMA__8ABwQA_6D_____AAgI__-g_____wAHAAcD",
    "optimal": 14,
    "thresholds": {
     "three": 19,
@@ -605,7 +605,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:15:ca422967:6ef76e03",
-   "board": "AwYCBAAAAAoSBgYIBQAABQkD_8D_____oAAGAwUABgYDBQAICP__oAYF__8ACQkDAKAACf__AAgIAP8A_____w",
+   "board": "BAYCBAAAAAoSBgYIBQAABQkD_6D_____gAAGAwUABgYDBQAICP__gAYF__8ACQkDAIAACf__AAgIAP8A_____w",
    "optimal": 15,
    "thresholds": {
     "three": 24,
@@ -643,7 +643,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:16:9184c2b1:ec9e18f8",
-   "board": "AwYCBAAAAAsIBAEICQcA_____wAJCAf_AAEJ__8ACf___wAIBAIEAAcHAgLA_____wAECQEBoAIHBP-gCAgB_8D_____",
+   "board": "BAYCBAAAAAsIBAEICQcA_____wAJCAf_AAEJ__8ACf___wAIBAIEAAcHAgKg_____wAECQEBgAIHBP-ACAgB_6D_____",
    "optimal": 14,
    "thresholds": {
     "three": 21,
@@ -681,7 +681,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:17:ca422967:e8a534d3",
-   "board": "AwYCBAAAAAoQAgUJAgYAAgYCBgAFBgn_AAgIBf8ABgUF_8D_____oAgICQkA_____wAJAf__AAEB__-gAgEC_w",
+   "board": "BAYCBAAAAAoQAgUJAgYAAgYCBgAFBgn_AAgIBf8ABgUF_6D_____gAgICQkA_____wAJAf__AAEB__-AAgEC_w",
    "optimal": 13,
    "thresholds": {
     "three": 20,
@@ -719,7 +719,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:18:9184c2b1:ba09e9d7",
-   "board": "AwYCBAAAAAsGEAYJAAXA_____wAJCQX_AAUFA_8A_____8D_____AAAACf8AAwgF_wAA____AAYJCAigAwgDBqAGBgD_",
+   "board": "BAYCBAAAAAsGEAYJAAWg_____wAJCQX_AAUFA_8A_____6D_____AAAACf8AAwgF_wAA____AAYJCAiAAwgDBoAGBgD_",
    "optimal": 14,
    "thresholds": {
     "three": 21,
@@ -757,7 +757,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:19:2a99a6c6:6d323667",
-   "board": "AwYCBAAAAAoSBAYFAAgABQYCAgAJ____wP____-gCQn__6AIBgYAAAgAAAUABQYF_0QCAgD_AP____8ACAgJ_w",
+   "board": "BAYCBAAAAAoSBAYFAAgABQYCAgAJ____oP____-ACQn__4AIBgYAAAgAAAUABQYF_yQCAgD_AP____8ACAgJ_w",
    "optimal": 15,
    "thresholds": {
     "three": 22,
@@ -795,7 +795,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:20:2d74e05e:bfd4e194",
-   "board": "AwYCBAAAAAsKAAkCBgigAAkJ_wAABQUCoAgIBf-gCQD__8D_____RAIG__8A_____8D_____AAkGAP8ABgIICAACBQb_",
+   "board": "BAYCBAAAAAsKAAkCBgiAAAkJ_wAABQUCgAgIBf-ACQD__6D_____JAIG__8A_____6D_____AAkGAP8ABgIICAACBQb_",
    "optimal": 15,
    "thresholds": {
     "three": 24,
@@ -833,7 +833,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:21:655378fb:0d001ad8",
-   "board": "AwYCBAAAAAoIEgYDCACgCAT__wAG____oAAEAP_A_____wAACQgGoAADAwYABggJ_wAJCAMDAAkEBP8A_____w",
+   "board": "BAYCBAAAAAoIEgYDCACACAT__wAG____gAAEAP-g_____wAACQgGgAADAwYABggJ_wAJCAMDAAkEBP8A_____w",
    "optimal": 17,
    "thresholds": {
     "three": 26,
@@ -846,7 +846,7 @@
   },
   {
    "id": 22,
-   "title": "兩隻磨砂",
+   "title": "兩隻問號",
    "config": {
     "cups": 9,
     "colors": 6,
@@ -858,7 +858,7 @@
     "orders": 2,
     "optimalMin": 12,
     "optimalMax": 28,
-    "title": "兩隻磨砂",
+    "title": "兩隻問號",
     "palette": null,
     "patterns": [
      0,
@@ -871,7 +871,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:22:19b09fc9:f8755fca",
-   "board": "AwYCBAAAAAsKDAkIAwAABQUFBgAJBQAGwP____-gCQgI_6ADBgj_AAn___8AAwD__wD_____AAkIBgCgAwMA_8D_____",
+   "board": "BAYCBAAAAAsKDAkIAwAABQUFBgAJBQAGoP____-ACQgI_4ADBgj_AAn___8AAwD__wD_____AAkIBgCAAwMA_6D_____",
    "optimal": 17,
    "thresholds": {
     "three": 26,
@@ -909,7 +909,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:23:b7bea7d4:bfe59e7b",
-   "board": "AwYCBAAAAAoMBAkIAQQAAgYCBgAECf__oAgGCAKgCQb__wD_____RAECAf_A_____wABAQkJAAQECP-gBAj__w",
+   "board": "BAYCBAAAAAoMBAkIAQQAAgYCBgAECf__gAgGCAKACQb__wD_____JAECAf-g_____wABAQkJAAQECP-ABAj__w",
    "optimal": 17,
    "thresholds": {
     "three": 26,
@@ -947,7 +947,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:24:9cdebe9c:7eb5eb08",
-   "board": "AwYCBAAAAAsMAgkCCAUABgH__wAC____AAYBCAYA_____6ABBQX_oAgIAv8AAgUFCAAGCQkJwP_____A_____6AJAgH_",
+   "board": "BAYCBAAAAAsMAgkCCAUABgH__wAC____AAYBCAYA_____4ABBQX_gAgIAv8AAgUFCAAGCQkJoP____-g_____4AJAgH_",
    "optimal": 14,
    "thresholds": {
     "three": 23,
@@ -985,7 +985,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:25:35ccd427:1fedb828",
-   "board": "AwYCBAAAAAoGAAkEBghEAwMECAADCQYIwP____-gBgkE_wAIBgn_AAQIBgMA_____wAA____AAQAAP-gCQD__w",
+   "board": "BAYCBAAAAAoGAAkEBggkAwMECAADCQYIoP____-ABgkE_wAIBgn_AAQIBgMA_____wAA____AAQAAP-ACQD__w",
    "optimal": 16,
    "thresholds": {
     "three": 23,
@@ -1023,7 +1023,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:26:deb37b66:b65a4130",
-   "board": "AwYCBAAAAAsQCAMJBwCgBwgHAAD_____AAf___8AAwj__8D_____oAMJAAkAAwMACQAEBAcAAAgJCP8ABAT__8D_____",
+   "board": "BAYCBAAAAAsQCAMJBwCABwgHAAD_____AAf___8AAwj__6D_____gAMJAAkAAwMACQAEBAcAAAgJCP8ABAT__6D_____",
    "optimal": 17,
    "thresholds": {
     "three": 24,
@@ -1036,7 +1036,7 @@
   },
   {
    "id": 27,
-   "title": "雙磨砂",
+   "title": "雙問號",
    "config": {
     "cups": 9,
     "colors": 6,
@@ -1048,7 +1048,7 @@
     "orders": 2,
     "optimalMin": 13,
     "optimalMax": 29,
-    "title": "雙磨砂",
+    "title": "雙問號",
     "palette": null,
     "patterns": [
      0,
@@ -1061,7 +1061,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:27:4e5d6528:857c9b91",
-   "board": "AwYCBAAAAAoOCAgBAgmgBwEH_6ACAQkCAAQECP8AAgkJ_8D_____AP____8ACP___wAICAn_AAEBBwSgBwIE_w",
+   "board": "BAYCBAAAAAoOCAgBAgmABwEH_4ACAQkCAAQECP8AAgkJ_6D_____AP____8ACP___wAICAn_AAEBBwSABwIE_w",
    "optimal": 15,
    "thresholds": {
     "three": 24,
@@ -1099,7 +1099,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:28:7c1b66c3:4d31b676",
-   "board": "AwYCBAAAAAsQCAcCAQmgBAkC_wD_____oAgCAf8AAgkBAcD_____wP____8ACAf__6AHAgn_RAEEBP8ACQcE_wAICAf_",
+   "board": "BAYCBAAAAAsQCAcCAQmABAkC_wD_____gAgCAf8AAgkBAaD_____oP____8ACAf__4AHAgn_JAEEBP8ACQcE_wAICAf_",
    "optimal": 16,
    "thresholds": {
     "three": 25,
@@ -1137,7 +1137,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:29:ee473e30:9bdd1fa6",
-   "board": "AwYCBAAAAAoMBAUBCAkA_____6AFCAj_AAEIAf_A_____wAGAQn_AAUCBgYACQUF_6ACAgn_oAgC__-gAQYJ_w",
+   "board": "BAYCBAAAAAoMBAUBCAkA_____4AFCAj_AAEIAf-g_____wAGAQn_AAUCBgYACQUF_4ACAgn_gAgC__-AAQYJ_w",
    "optimal": 14,
    "thresholds": {
     "three": 25,
@@ -1150,7 +1150,7 @@
   },
   {
    "id": 30,
-   "title": "布遮雙磨砂",
+   "title": "布遮雙問號",
    "config": {
     "cups": 9,
     "colors": 6,
@@ -1162,7 +1162,7 @@
     "orders": 2,
     "optimalMin": 14,
     "optimalMax": 30,
-    "title": "布遮雙磨砂",
+    "title": "布遮雙問號",
     "palette": null,
     "patterns": [
      0,
@@ -1175,7 +1175,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:30:23a3cf68:3acb849c",
-   "board": "AwYCBAAAAAsIEgIIAQegCAIE_wABBwkJwP____9EBAEI_wD_____wP____-gCQcH_wAC____AAQBCP8AAgcE_wAIAgEJ",
+   "board": "BAYCBAAAAAsIEgIIAQeACAIE_wABBwkJoP____8kBAEI_wD_____oP____-ACQcH_wAC____AAQBCP8AAgcE_wAIAgEJ",
    "optimal": 17,
    "thresholds": {
     "three": 24,
@@ -1213,7 +1213,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:31:c1aa70ea:00b4d972",
-   "board": "AwYCBAAAAAoSCgIGCAEACAYFCMD_____AAUGAQEAAgn__wACAv__oAIB__-gCQYJBQD_____oAUJCAgAAQb__w",
+   "board": "BAYCBAAAAAoSCgIGCAEACAYFCKD_____AAUGAQEAAgn__wACAv__gAIB__-ACQYJBQD_____gAUJCAgAAQb__w",
    "optimal": 17,
    "thresholds": {
     "three": 26,
@@ -1226,7 +1226,7 @@
   },
   {
    "id": 32,
-   "title": "六色磨砂",
+   "title": "六色問號",
    "config": {
     "cups": 9,
     "colors": 6,
@@ -1238,7 +1238,7 @@
     "orders": 2,
     "optimalMin": 14,
     "optimalMax": 30,
-    "title": "六色磨砂",
+    "title": "六色問號",
     "palette": null,
     "patterns": [
      0,
@@ -1251,7 +1251,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:32:61ab9838:64fab357",
-   "board": "AwYCBAAAAAsADggJBAOgAAkA_8D_____wP____8AAAkD_wD_____oAQI__-gBAMDBwAEAwAJAAf___-gCAQI_wAJBwcI",
+   "board": "BAYCBAAAAAsADggJBAOAAAkA_6D_____oP____8AAAkD_wD_____gAQI__-ABAMDBwAEAwAJAAf___-ACAQI_wAJBwcI",
    "optimal": 17,
    "thresholds": {
     "three": 28,
@@ -1289,7 +1289,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:33:a25446c0:0fba6630",
-   "board": "AwYCBAAAAAkEAgYFCAnA_____wAIBQUCoAEGBf-gAgYJ_wABCAEJAAYCAv8A_____wAICAH_RAkGBQk",
+   "board": "BAYCBAAAAAkEAgYFCAmg_____wAIBQUCgAEGBf-AAgYJ_wABCAEJAAYCAv8A_____wAICAH_JAkGBQk",
    "optimal": 17,
    "thresholds": {
     "three": 24,
@@ -1327,7 +1327,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:34:62004fee:5e12eaf7",
-   "board": "AwYCBAAAAAoCCggJAgYA_____wACBQYGAAUJAgGgCAYB_8D_____oAkICQXA_____6AICAIGAAUBAf-gCQL__w",
+   "board": "BAYCBAAAAAoCCggJAgYA_____wACBQYGAAUJAgGACAYB_6D_____gAkICQWg_____4AICAIGAAUBAf-ACQL__w",
    "optimal": 17,
    "thresholds": {
     "three": 28,
@@ -1365,7 +1365,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:35:9e6bc1aa:4c32b092",
-   "board": "AwYCBAAAAAkQDgEEAgmgBAf__wD_____AAcHCQSgAQEIAaAJAgkCRAgCBP8ACQQCCAAHCAH_wP____8",
+   "board": "BAYCBAAAAAkQDgEEAgmABAf__wD_____AAcHCQSAAQEIAYAJAgkCJAgCBP8ACQQCCAAHCAH_oP____8",
    "optimal": 18,
    "thresholds": {
     "three": 27,
@@ -1403,7 +1403,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:36:8d97c3fc:34b5476f",
-   "board": "AwYDAwAAAAoOEhADBADA_____6ADBAgJoAcDAAAABAf__6AICQT_wP____8ACQcACAAACQQDAP____-gAwgH_w",
+   "board": "BAYDAwAAAAoOEhADBACg_____4ADBAgJgAcDAAAABAf__4AICQT_oP____8ACQcACAAACQQDAP____-AAwgH_w",
    "optimal": 18,
    "thresholds": {
     "three": 29,
@@ -1416,7 +1416,7 @@
   },
   {
    "id": 37,
-   "title": "布遮雙磨砂 II",
+   "title": "布遮雙問號 II",
    "config": {
     "cups": 8,
     "colors": 6,
@@ -1428,7 +1428,7 @@
     "orders": 3,
     "optimalMin": 15,
     "optimalMax": 31,
-    "title": "布遮雙磨砂 II",
+    "title": "布遮雙問號 II",
     "palette": null,
     "patterns": [
      0,
@@ -1441,7 +1441,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:37:264f3429:4988ddd5",
-   "board": "AwYDAwAAAAkSABAEBgOgAwkI_8D_____oAYJAwYA_____0QDCAAGAAQABAAACQQE_wAIBggJAAAD__8",
+   "board": "BAYDAwAAAAkSABAEBgOAAwkI_6D_____gAYJAwYA_____yQDCAAGAAQABAAACQQE_wAIBggJAAAD__8",
    "optimal": 18,
    "thresholds": {
     "three": 25,
@@ -1479,7 +1479,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:38:a52a9d87:4254c226",
-   "board": "AwYDAwAAAAsSDAYIBADA_____6AGAwj_AAADBv8AAAMEAAD_____RAYGCQQABAn__wAECP__wP____-gCQAI_6AIAwn_",
+   "board": "BAYDAwAAAAsSDAYIBACg_____4AGAwj_AAADBv8AAAMEAAD_____JAYGCQQABAn__wAECP__oP____-ACQAI_4AIAwn_",
    "optimal": 18,
    "thresholds": {
     "three": 27,
@@ -1517,7 +1517,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:39:264f3429:4f36b995",
-   "board": "AwYDAwAAAAkMABAFAwkACAgF_6ADBQkARAkICQXA_____wAABgMFAP____8AAwAGA6AGBgAJAAj___8",
+   "board": "BAYDAwAAAAkMABAFAwkACAgF_4ADBQkAJAkICQWg_____wAABgMFAP____8AAwAGA4AGBgAJAAj___8",
    "optimal": 18,
    "thresholds": {
     "three": 25,
@@ -1555,7 +1555,7 @@
     "tutorialQueue": null
    },
    "publicSeed": "v1:c:40:709716bd:1bf410ff",
-   "board": "AwYDAwAAAAsSAhAFAgYABQn__0QCBQECAAUIAQkABQYJ_8D_____oAEI__8ACQb__8D_____AP____-gBgICBqABCAj_",
+   "board": "BAYDAwAAAAsSAhAFAgYABQn__yQCBQECAAUIAQkABQYJ_6D_____gAEI__8ACQb__6D_____AP____-ABgICBoABCAj_",
    "optimal": 17,
    "thresholds": {
     "three": 26,

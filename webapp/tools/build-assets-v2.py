@@ -37,10 +37,8 @@ def lum(rgb):
 # ---------- 器皿幾何 ----------
 VESSELS = {
     'flask':          'VES_flask_empty_v3.png',
-    'flask_frosted':  'VES_flask_frosted_v3.png',
     'flask_cracked':  'VES_flask_cracked_v3.png',
     'retort':         'VES_retort_empty_v4.png',
-    'retort_frosted': 'VES_retort_frosted_v3.png',
 }
 
 def vessel_geom(path):
@@ -50,7 +48,7 @@ def vessel_geom(path):
     L = lum(a[..., :3].astype(np.float64))
     ys = np.where(alpha.max(1) > 20)[0]
     top, bottom = int(ys.min()), int(ys.max())
-    # 玻璃 = 不透明 + 非黃銅（黃銅 = 暖色：R − B > 45；磨砂玻璃係灰綠，R − B < 0）
+    # 玻璃 = 不透明 + 非黃銅（黃銅 = 暖色：R − B > 45；玻璃偏冷，R − B < 0）
     brass = (a[..., 0] - a[..., 2] > 45) & (a[..., 0] > 90)
     glass = (alpha > 200) & ~brass
     rows = []

@@ -2,7 +2,7 @@
 // 同關互斥規則（夜市 brief A3 / Spec v2 EXCLUSIVE_PAIRS）：A↔B、C↔D、E↔F、G↔H、B↔D 禁止；F↔H 只准 ≤4 色關。
 // 推論：純靠顏色最多 6 色同關；7 色以上要靠圖案（patternId）做第二辨識維度。
 
-import { LIQUID_COLORS, EXCLUSIVE_PAIRS, CAUTION_PAIRS as CAUTION_KEYS, PATTERNS, PATTERN_EXCLUSIVE, MAX_PATTERNS_PER_LEVEL, FROSTED_GLASS } from '../config/theme.js';
+import { LIQUID_COLORS, EXCLUSIVE_PAIRS, CAUTION_PAIRS as CAUTION_KEYS, PATTERNS, PATTERN_EXCLUSIVE, MAX_PATTERNS_PER_LEVEL } from '../config/theme.js';
 import { unitColor, unitPattern } from './board.js';
 
 export const PALETTE = Object.keys(LIQUID_COLORS).map((key, id) => {
@@ -14,7 +14,7 @@ export const BY_KEY = Object.fromEntries(PALETTE.map(p => [p.key, p.id]));
 export const HUE = PALETTE.map(p => p.H);
 export const LIGHT = PALETTE.map(p => p.L);
 export const LSTAR = LIGHT;   // 舊介面名（UI 文字對比用）
-export { FROSTED_GLASS, PATTERNS };
+export { PATTERNS };
 
 /** 色相距（0–180°） */
 export function hueDist(a, b) {

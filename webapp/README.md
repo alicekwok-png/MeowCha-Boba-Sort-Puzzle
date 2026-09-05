@@ -46,7 +46,7 @@ webapp/
     layout.js            Spec v2 §4 瓶子排列（seed = levelId、抖動、分離、z-order）+ R2 驗證 + fallback
     difficulty.js        步數上限 / 隱藏密度 / 機制登場表
   src/config/
-    theme.js             COLORS（黃銅 / 深木 / 燭光）、LIQUID_COLORS A–J（唔准改 hex）、互斥對、圖案、FROSTED_GLASS
+    theme.js             COLORS（黃銅 / 深木 / 燭光）、LIQUID_COLORS A–J（唔准改 hex）、互斥對、圖案
     layout.js            LAYOUT（v4 §3.3 垂直比例 10 / 14 / 62 / 14%、樽高 19%、抖動）、CAT（貓 transient）、CLOTH 布遮尺寸
     render.js            RENDER（multiply、配料 UV / wrap / inset、揭開時長、發光三件套）、AD_SLOTS、CLIENT_ORDER
     assets.js            ASSET_MAP（邏輯名 → assets/v2 路徑）、VESSEL_SPRITE、CLIENT_SPRITE
@@ -115,11 +115,11 @@ webapp/
 |---|---|
 | 全部 v2 美術（單張背景、5 種器皿、液體底 / 配料 tile、布遮 + 蠟封 + 黃銅框、導師貓 ×3、委託人 ×4、博士剪影、UI ×17） | 跑 `python tools/build-assets-v2.py`（需要 Pillow + numpy）→ `webapp/assets/v2/`，同時量度器皿液體幾何寫入 `assets/v2/vessels.json`（每種瓶：content / liquid 上下界、逐行玻璃內壁 l/r、rim、neck、base，全部係 768 frame 嘅 0–1 比例） |
 | 邏輯名 → 路徑 | `src/config/assets.js` 嘅 `ASSET_MAP`（`VES_flask_empty`、`CHR_cat_idle`、`UI_ad_crest` …）。client 全部經 `ASSET_MAP` 取路徑，**唔准再引用舊 `assets/*.webp`**（`cup-*`、`customer-*`、`mocha-*`、`bg/`、`bg-04.jpg` 已廢棄；只有 `company-logo` 仍然用喺開場畫面；舊 `meowcha-wordmark` 已由文字字標取代，等新 wordmark 圖） |
-| 主題常數 | `src/config/theme.js`（`COLORS` 黃銅 / 深木 / 燭光、`LIQUID_COLORS` A–J 唔准改 hex、`FROSTED_GLASS`）、`src/config/layout.js`（`LAYOUT` 抖動版面、`CLOTH`）、`src/config/render.js`（`RENDER` multiply / 配料 UV / 揭開時長、`AD_SLOTS`、`CLIENT_ORDER`） |
+| 主題常數 | `src/config/theme.js`（`COLORS` 黃銅 / 深木 / 燭光、`LIQUID_COLORS` A–J 唔准改 hex）、`src/config/layout.js`（`LAYOUT` 抖動版面、`CLOTH`）、`src/config/render.js`（`RENDER` multiply / 配料 UV / 揭開時長、`AD_SLOTS`、`CLIENT_ORDER`） |
 
 ### 用戶決定（覆蓋 Spec v2 嘅地方）
 
-1. **遮蓋**：`none` 全部可見；`frosted` 磨砂瓶只見頂格，倒走一格露一格（逐格 160 ms 淡入）；`cloth` 布遮瓶（kind `covered`）全部隱藏、蠟封顯示頂層色、**鎖死**，每交 2 單解開一隻（server event `{type:'unlock', cup}` → 繩鬆 60 ms → 布滑上 160 ms → 塵粒 400 ms → 顏色同圖案一齊淡入 160 ms）。Spec 嘅「清空先揭開」同「盲磨砂」作廢。
+1. **遮蓋**：`none` 全部可見；`hidden` `?` 隱藏層樽只見頂格，倒走一格露一格（逐格 160 ms 淡入）；`cloth` 布遮瓶（kind `covered`）全部隱藏、蠟封顯示頂層色、**鎖死**，每交 2 單解開一隻（server event `{type:'unlock', cup}` → 繩鬆 60 ms → 布滑上 160 ms → 塵粒 400 ms → 顏色同圖案一齊淡入 160 ms）。Spec 嘅「清空先揭開」同「盲磨砂」作廢。
 2. **器皿**：燒瓶 = normal（4 格）、曲頸瓶 = takeaway（3 格，永遠裝唔滿一色）、裂瓶 = cracked（只出不入，第 15 關起）、布遮瓶 = covered（布蓋喺燒瓶上）。冇獨立「封膜杯」。
 3. **文案**：客人→委託人、出單→交貨、訂單→委託、杯→瓶；飲品變試劑（硫黃 / 琥珀 / 薔薇 / 硃砂 / 龍膽 / 紫晶 / 淡藍 / 群青 / 銅綠 / 蛋白石）；吉祥物係「導師」（煉金貓 idle / happy / cheer）。遊戲名 2026-09-05 起改為 **Mortar & Mew**（存檔 key `meowcha.*` 唔改，保住進度）。
 4. **廣告**：三個觸點，視覺一律 `UI_ad_crest`：
@@ -130,7 +130,7 @@ webapp/
 5. **背景**：單張 `BG_lab_full`，冇視差 / 階段過渡 / 氛圍粒子（`BackgroundManager` 保留做 no-op 接口）。
 6. **液體**：喺器皿 sprite 入面用 `multiply` 畫，clip 到 `vessels.json` 嘅玻璃內壁多邊形；配料由 `PAT_tile_large / small` 四象限取樣（P3 橫向 repeat），墨色 = 該層色 −28% 明度。
 7. **版面**（實作指令 v4 §3）：CSS grid 四行 **10% 頂欄（金幣 / 關卡 + 步數 / 設定）· 14% 委託人 + 托盤 · 62% 盤面 · 14% 道具列（撤銷 / 提示 / +樽 / 重來）**；貓助手唔再佔行，只喺交貨（`CAT.showDurationMs` 1.2 s）同教學句（≈2.5 s）由盤面右下滑入再淡出（`#cat-pop`，pointer-events none）。`src/core/layout.js safeLayout()` 以關卡號做種子（練習關用 seed hash），R2 永不遮液體；`?jitter=0` 強制純網格除錯。
-8. **單一樽型 + 訂單隊列**（v4 §2 / §5 / §7）：全部樽 `VES_bottle_std` 深色、capacity 4（retort / cracked / frosted 已唔再生成）。`hidden` = `?` 隱藏層樽（頂層可見，下面畫 `?`，倒走頂層 160 ms 逐格揭露，L2 起；第一次見會彈教學句 `extra.tutor.hidden`）。交貨 = 樽加塞 → `animateFlyToSlot` 飛向該委託人托盤（✓ 等飛到先出）→ kind `gone` 釋放位置；完成樽冇委託 = `animateSeal` 加塞去飽和留喺盤面（main.js `newlySealed` 比對前後盤面觸發），之後同色委託出現會由 server 自動交貨。
+8. **單一樽型 + 訂單隊列**（v4 §2 / §5 / §7）：全部樽 `VES_bottle_std` 深色、capacity 4（retort / cracked 已唔再生成；磨砂 kind 2026-09-05 已刪走，唔留相容）。`hidden` = `?` 隱藏層樽（頂層可見，下面畫 `?`，倒走頂層 160 ms 逐格揭露，L2 起；第一次見會彈教學句 `extra.tutor.hidden`）。交貨 = 樽加塞 → `animateFlyToSlot` 飛向該委託人托盤（✓ 等飛到先出）→ kind `gone` 釋放位置；完成樽冇委託 = `animateSeal` 加塞去飽和留喺盤面（main.js `newlySealed` 比對前後盤面觸發），之後同色委託出現會由 server 自動交貨。
 
 ## 關卡節奏（2026-09-05）
 

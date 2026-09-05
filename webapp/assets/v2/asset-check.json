@@ -5,11 +5,6 @@
    "contentHeightPx": 722,
    "liquidRows": 77
   },
-  "flask_frosted": {
-   "bytes": 40222,
-   "contentHeightPx": 722,
-   "liquidRows": 95
-  },
   "flask_cracked": {
    "bytes": 35128,
    "contentHeightPx": 722,
@@ -19,11 +14,6 @@
    "bytes": 22586,
    "contentHeightPx": 722,
    "liquidRows": 72
-  },
-  "retort_frosted": {
-   "bytes": 28880,
-   "contentHeightPx": 722,
-   "liquidRows": 78
   }
  },
  "checks": {

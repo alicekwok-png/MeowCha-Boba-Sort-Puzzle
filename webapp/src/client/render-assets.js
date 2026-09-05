@@ -14,9 +14,9 @@ const ROOT = new URL('../../', import.meta.url);
 /** 邏輯名 → 絕對 URL（相對 webapp 根目錄，唔靠 document 位置） */
 export const assetUrl = (key) => new URL(ASSET_MAP[key], ROOT).href;
 
-/** kind → vessels.json 幾何 key（v4：除 frosted 外全部用深色標準樽 bottle_std） */
-export function geomKey(kind) {
-  return kind === 'frosted' ? 'flask_frosted' : 'bottle_std';
+/** kind → vessels.json 幾何 key（v4：全部 kind 都用深色標準樽 bottle_std） */
+export function geomKey() {
+  return 'bottle_std';
 }
 
 /** kind → ASSET_MAP sprite key */
@@ -151,7 +151,7 @@ function inkMask(img) {
 }
 
 /** 器皿 sprite（每張都會生成高光圖） */
-const VESSEL_KEYS = ['VES_bottle_std', 'VES_flask_frosted'];
+const VESSEL_KEYS = ['VES_bottle_std'];
 const IMAGE_KEYS = [
   'VES_cork',
   ...VESSEL_KEYS,

@@ -25,7 +25,7 @@ export const RENDER = Object.freeze({
   patternIconOnlyBelowPx: 32,  // 層高 <32px 唔顯示圖案，改為層中央顯示單一配料 icon
   patternLumShift: -0.28,      // 配料圖案 = 該層色 −28% 明度
 
-  frostedRevealMs: 160,        // 磨砂瓶逐格 fade in
+  hiddenRevealMs: 160,         // `?` 隱藏層樽新露出嘅格逐格 fade in
 
   // 發光三件套（用戶 2026-09-05）：冇呢三樣，再鮮嘅色都係一塊平色
   glow: Object.freeze({

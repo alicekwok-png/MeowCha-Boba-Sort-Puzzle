@@ -79,6 +79,6 @@ describe('機制登場表', () => {
     assert.ok(d.levels[11].moveLimit > 0);
     for (let id = 1; id <= 18; id++) assert.ok(!kinds(id).includes('covered'), `L${id} covered`);
     assert.ok(kinds(19).includes('covered'));
-    for (const l of d.levels) for (const c of decodeBoard(l.board).cups) { assert.equal(c.cap, 4, `L${l.id} capacity 4`); assert.ok(!['takeaway', 'cracked', 'frosted', 'sealed'].includes(c.kind), `L${l.id} ${c.kind}`); }
+    for (const l of d.levels) for (const c of decodeBoard(l.board).cups) { assert.equal(c.cap, 4, `L${l.id} capacity 4`); assert.ok(!['takeaway', 'cracked', 'sealed'].includes(c.kind), `L${l.id} ${c.kind}`); }
   });
 });

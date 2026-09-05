@@ -161,8 +161,8 @@ export class LocalServer {
       const src = s.board.cups[m.from], dst = s.board.cups[m.to];
       const events = [];
       const poured = pourAmount(s.board, m.from, m.to);
-      // 倒入磨砂瓶：原本可見嘅頂格同新倒入嘅格玩家都見過 → 永久露出（否則倒滿都唔算完成、撤銷後又遮返）
-      if (HIDDEN_KINDS.has(dst.kind)) {   // hidden / frosted / covered：倒入嘅格同原頂格玩家見過 → 永久露出（1 格嘅 ? 樽 hiddenCount 係 0，要用 kind 判）
+      // 倒入 `?` 樽：原本可見嘅頂格同新倒入嘅格玩家都見過 → 永久露出（否則倒滿都唔算完成、撤銷後又遮返）
+      if (HIDDEN_KINDS.has(dst.kind)) {   // hidden / covered：倒入嘅格同原頂格玩家見過 → 永久露出（1 格嘅 ? 樽 hiddenCount 係 0，要用 kind 判）
         if (dst.seg.length > 0) s.revealed.add(m.to + ':' + (dst.seg.length - 1));
         for (let i = dst.seg.length; i < dst.seg.length + poured; i++) s.revealed.add(m.to + ':' + i);
       }

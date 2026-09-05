@@ -37,8 +37,8 @@ describe('rules', () => {
     assert.deepEqual(n.cups[1].seg, [3, 3, 1, 1]);
     assert.equal(n.moveCount, 1);
   });
-  test('倒空 frosted 杯後降級為 normal', () => {
-    const b = B([makeCup('frosted', [1, 1]), N([1]), N([])], 1);
+  test('倒空 hidden 杯後降級為 normal', () => {
+    const b = B([makeCup('hidden', [1, 1]), N([1]), N([])], 1);
     const n = applyMove(b, { from: 0, to: 1 });
     assert.equal(n.cups[0].kind, 'normal');
     assert.equal(n.cups[0].seg.length, 0);
@@ -171,8 +171,8 @@ describe('v4：廣告樽 / 交貨飛走 / `?` 隱藏層', () => {
 });
 
 describe('board encoding', () => {
-  test('encode/decode 盤面 round-trip（含 frosted / covered / takeaway / cracked / 圖案 unit key / 訂單）', () => {
-    const b = B([makeCup('frosted', [1, 2]), makeCup('covered', [3, 3, 4, 5], true), makeCup('takeaway', [6]), N([]), makeCup('cracked', [7, 8, 9, 10]), makeCup('normal', [makeUnit(1, 3), makeUnit(1, 3), makeUnit(9, 4)])], 10, [1, makeUnit(9, 4)]);
+  test('encode/decode 盤面 round-trip（含 hidden / covered / takeaway / cracked / 圖案 unit key / 訂單）', () => {
+    const b = B([makeCup('hidden', [1, 2]), makeCup('covered', [3, 3, 4, 5], true), makeCup('takeaway', [6]), N([]), makeCup('cracked', [7, 8, 9, 10]), makeCup('normal', [makeUnit(1, 3), makeUnit(1, 3), makeUnit(9, 4)])], 10, [1, makeUnit(9, 4)]);
     b.orders[1].filled = true; b.delivered = 1; b.moveCount = 300;
     const d = decodeBoard(encodeBoard(b));
     assert.deepEqual(d, b);
@@ -181,8 +181,8 @@ describe('board encoding', () => {
     const m = [{ from: 0, to: 15 }, { from: 7, to: 3 }, { from: 12, to: 12 }];
     assert.deepEqual(decodeMoves(encodeMoves(m)), m);
   });
-  test('mask 只露出磨砂杯頂格；revealed 集合可補露', () => {
-    const b = B([makeCup('frosted', [1, 2, 3]), N([4])], 4);
+  test('mask 只露出`?` 樽頂格；revealed 集合可補露', () => {
+    const b = B([makeCup('hidden', [1, 2, 3]), N([4])], 4);
     const m = mask(b);
     assert.deepEqual(m.cups[0].seg, [null, null, 3]);
     assert.deepEqual(m.cups[1].seg, [4]);
@@ -383,8 +383,8 @@ describe('server', () => {
     assert.equal(ok.verified, true);
     assert.equal(ok.stars, 3);
   });
-  test('reveal 磨砂瓶：倒走頂格露出下一格；曾經露出 / 倒出過嘅格撤銷後唔會再遮返', () => {
-    const b = B([makeCup('frosted', [1, 2, 2]), N([2]), N([])], 2);
+  test('reveal `?` 樽：倒走頂格露出下一格；曾經露出 / 倒出過嘅格撤銷後唔會再遮返', () => {
+    const b = B([makeCup('hidden', [1, 2, 2]), N([2]), N([])], 2);
     const srv = new LocalServer();
     const st = srv.start({ id: 't', board: encodeBoard(b), optimal: 3, thresholds: { three: 6, two: 11 } });
     assert.deepEqual(st.maskedBoard.cups[0].seg, [null, null, 2]);
@@ -392,13 +392,13 @@ describe('server', () => {
     assert.deepEqual(r.maskedBoard.cups[0].seg, [1]);
     const back = srv.reveal(st.sessionId, []);          // 撤銷
     assert.deepEqual(back.maskedBoard.cups[0].seg, [1, 2, 2]);
-    const b2 = B([makeCup('frosted', [1, 3, 2]), N([2]), N([])], 3);
+    const b2 = B([makeCup('hidden', [1, 3, 2]), N([2]), N([])], 3);
     const st2 = srv.start({ id: 't', board: encodeBoard(b2), optimal: 3, thresholds: { three: 6, two: 11 } });
     srv.reveal(st2.sessionId, [{ from: 0, to: 1 }]);
     assert.deepEqual(srv.reveal(st2.sessionId, []).maskedBoard.cups[0].seg, [null, 3, 2]);
   });
-  test('reveal 只露出磨砂杯新頂格，唔會下發隱藏層', () => {
-    const b = B([makeCup('frosted', [1, 2, 2]), N([2]), N([])], 2);
+  test('reveal 只露出`?` 樽新頂格，唔會下發隱藏層', () => {
+    const b = B([makeCup('hidden', [1, 2, 2]), N([2]), N([])], 2);
     const srv = new LocalServer();
     const st = srv.start({ id: 't', board: encodeBoard(b), optimal: 3, thresholds: { three: 6, two: 11 } });
     assert.deepEqual(st.maskedBoard.cups[0].seg, [null, null, 2]);
@@ -420,20 +420,20 @@ describe('server', () => {
   });
 });
 
-describe('server：倒入磨砂瓶嘅露出', () => {
-  test('倒入磨砂瓶：原本頂格同新倒入嘅格永久露出；倒滿純色時全部露出（client 先判到完成）', () => {
-    const b = B([makeCup('frosted', [2, 2]), N([2, 2]), N([1]), N([])], 2);   // 磨砂 [2,2]：底格隱藏
+describe('server：倒入`?` 樽嘅露出', () => {
+  test('倒入`?` 樽：原本頂格同新倒入嘅格永久露出；倒滿純色時全部露出（client 先判到完成）', () => {
+    const b = B([makeCup('hidden', [2, 2]), N([2, 2]), N([1]), N([])], 2);   // `?` 樽 [2,2]：底格隱藏
     const srv = new LocalServer();
     const st = srv.start({ id: 't', board: encodeBoard(b), optimal: 3, thresholds: { three: 6, two: 11 } });
     assert.deepEqual(st.maskedBoard.cups[0].seg, [null, 2]);
-    const r = srv.reveal(st.sessionId, [{ from: 1, to: 0 }]);          // 倒 2,2 入磨砂瓶 → 真實 [2,2,2,2]
+    const r = srv.reveal(st.sessionId, [{ from: 1, to: 0 }]);          // 倒 2,2 入`?` 樽 → 真實 [2,2,2,2]
     assert.deepEqual(r.maskedBoard.cups[0].seg, [2, 2, 2, 2]);         // 純色滿瓶：全部露出
     assert.equal(isComplete(r.maskedBoard.cups[0]), true);
     const back = srv.reveal(st.sessionId, []);                          // 撤銷：曾經見過嘅格唔再遮
     assert.deepEqual(back.maskedBoard.cups[0].seg, [2, 2]);
   });
-  test('倒入磨砂瓶（未滿）：原本可見頂格保持可見，唔會變成「浮起一格」', () => {
-    const b = B([makeCup('frosted', [1, 2]), N([2]), N([])], 2);
+  test('倒入`?` 樽（未滿）：原本可見頂格保持可見，唔會變成「浮起一格」', () => {
+    const b = B([makeCup('hidden', [1, 2]), N([2]), N([])], 2);
     const srv = new LocalServer();
     const st = srv.start({ id: 't', board: encodeBoard(b), optimal: 3, thresholds: { three: 6, two: 11 } });
     const r = srv.reveal(st.sessionId, [{ from: 1, to: 0 }]);

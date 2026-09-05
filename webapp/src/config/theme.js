@@ -34,6 +34,3 @@ export const CAUTION_PAIRS = [['F', 'H']];          // 只准 ≤4 色關卡
 export const PATTERNS = ['P0', 'P1', 'P2', 'P3', 'P4'];
 export const PATTERN_EXCLUSIVE = [['P2', 'P3']];    // 只准 ≤5 元素關卡
 export const MAX_PATTERNS_PER_LEVEL = 3;            // 含 P0（驗收測試：冇關卡超過 3 種圖案）
-
-// 磨砂玻璃色 — 已驗證同 10 隻液體色全部無衝突，唔准改
-export const FROSTED_GLASS = '#9AA59B';

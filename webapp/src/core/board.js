@@ -12,17 +12,16 @@ export const PATTERN_COUNT = 5;          // P0–P4
 /** 器皿種類（實作指令 v4：全遊戲單一樽型，capacity 固定 4）：
  *  normal   標準樽（全部可見）
  *  hidden   `?` 隱藏層樽（只顯示頂層，下面畫 ?；倒走頂層下一層即刻揭露）— v4 §5，L2 起
- *  frosted  磨砂樽（v4：整枝睇唔到；資產未交、用戶早前否決盲倒 → 暫不生成，引擎行為同 hidden）
  *  covered  布遮樽 cloth（全部隱藏，蠟封顯示頂層色；鎖死，交兩單解鎖 → 變 normal）
  *  ad       廣告樽（v4 §4：空、鎖死，撳一下睇廣告 → 變 normal 空樽；關卡唔解鎖都必須可解）
  *  gone     已交貨飛走（v4 §7：交貨後盤面釋放位置，唔留空樽）
  *  takeaway / cracked：v4 已移除（只留 decode 相容，唔會再生成）
  */
-export const KINDS = ['normal', 'frosted', 'covered', 'takeaway', 'cracked', 'hidden', 'ad', 'gone'];
-export const HIDDEN_KINDS = new Set(['hidden', 'frosted', 'covered']);
+export const KINDS = ['normal', 'covered', 'takeaway', 'cracked', 'hidden', 'ad', 'gone'];   // 索引入編碼（kind << 5），改次序要 bump VERSION
+export const HIDDEN_KINDS = new Set(['hidden', 'covered']);
 export const INERT_KINDS = new Set(['ad', 'gone']);   // 唔可以倒入亦唔可以倒出
 
-/** @typedef {'normal'|'frosted'|'covered'|'takeaway'|'cracked'} CupKind */
+/** @typedef {'normal'|'covered'|'takeaway'|'cracked'|'hidden'|'ad'|'gone'} CupKind */
 /** @typedef {{kind:CupKind, cap:number, seg:number[], locked:boolean}} Cup  — seg 由底至頂，每格一個 unit key */
 /** @typedef {{color:number, filled:boolean}} OrderSlot  — color 係 unit key；Spec v3：filled = 隊列已空、呢個槽收工（empty）
  *  訂單槽（orders）= 已開放嘅槽（免費槽 + 已解鎖嘅廣告槽）；queue = 未派出嘅訂單色（必須涵蓋關內全部顏色）。
@@ -45,7 +44,7 @@ export function makeCup(kind = 'normal', seg = [], locked = false) {
   };
 }
 
-/** 隱藏格數（由底數起）：hidden / frosted / covered = 頂格以外全部（布遮頂格由蠟封提示）；其餘 0 */
+/** 隱藏格數（由底數起）：hidden / covered = 頂格以外全部（布遮頂格由蠟封提示）；其餘 0 */
 export function hiddenCount(c) {
   if (HIDDEN_KINDS.has(c.kind)) return Math.max(0, c.seg.length - 1);
   return 0;
@@ -107,7 +106,7 @@ export function mask(board, revealed = null) {
 // 每隻杯: 1 byte 標頭 (kind<<5 | locked<<2 | capFlag) + cap byte，每格 1 byte unit key（EMPTY=255 補位）
 //   capFlag：0 = cap 4，1 = cap 3（曲頸瓶）
 
-const VERSION = 3;
+const VERSION = 4;   // v4：KINDS 刪走磨砂 kind（索引移位）
 
 function toBase64Url(bytes) {
   let bin = '';

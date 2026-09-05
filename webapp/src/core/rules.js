@@ -64,8 +64,8 @@ export function applyMove(b, m, events = null) {
   next.cups[m.from].seg.splice(-n, n);
   for (let i = 0; i < n; i++) next.cups[m.to].seg.push(color);
 
-  // hidden / frosted 樽倒空之後降級為 normal（冇嘢再需要隱藏）
-  if ((next.cups[m.from].kind === 'frosted' || next.cups[m.from].kind === 'hidden') && next.cups[m.from].seg.length === 0) next.cups[m.from].kind = 'normal';
+  // hidden 樽倒空之後降級為 normal（冇嘢再需要隱藏）
+  if (next.cups[m.from].kind === 'hidden' && next.cups[m.from].seg.length === 0) next.cups[m.from].kind = 'normal';
 
   next.moveCount++;
   settleOrders(next, events);

@@ -20,7 +20,7 @@ export const CORE_ASSETS = [
   { url: 'levels/campaign.json', bytes: 20_000 },
   A('BG_lab_full', 206_000),
   A('VES_geometry', 11_000),
-  // v4 §2 單一樽型：首屏只需要深色標準樽；flask / frosted 只留說明畫面用（批次 3）
+  // v4 §2 單一樽型：首屏只需要深色標準樽；flask 只留說明畫面用（批次 3）
   A('VES_bottle_std', 40_000),
   A('VES_cloth_cover', 12_000), A('VES_wax_seal', 123_000), A('VES_wax_ring', 133_000),
   A('LIQ_base', 23_000), A('PAT_tile_large', 18_000), A('PAT_tile_small', 23_000),
@@ -33,7 +33,7 @@ export const CORE_ASSETS = [
 
 /** 批次 3 — 延後（進入關卡後閒時載）：主畫面細背景、博士剪影、其餘 UI */
 export const DEFERRED_ASSETS = [
-  'BG_lab_full_small', 'CHR_doctor_silhouette', 'VES_flask_empty', 'VES_flask_frosted',
+  'BG_lab_full_small', 'CHR_doctor_silhouette', 'VES_flask_empty',
   'UI_btn_secondary', 'UI_btn_danger', 'UI_btn_disabled', 'UI_panel_dialog', 'UI_panel_info',
   'UI_item_swap', 'UI_sys_settings', 'UI_sys_daily', 'UI_sys_codex', 'UI_progressbar',
 ].map(k => ASSET_MAP[k]);

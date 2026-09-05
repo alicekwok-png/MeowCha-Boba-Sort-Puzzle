@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { computeLayout, validateNoLiquidOcclusion, safeLayout, allInBounds, minCenterDistance } from '../src/core/layout.js';
 import { LAYOUT, CLOTH } from '../src/config/layout.js';
 import { RENDER, PATTERN_UV, patternUV, AD_SLOTS, assertAdSlotLimit } from '../src/config/render.js';
-import { LIQUID_COLORS, EXCLUSIVE_PAIRS, FROSTED_GLASS } from '../src/config/theme.js';
+import { LIQUID_COLORS, EXCLUSIVE_PAIRS } from '../src/config/theme.js';
 import { decodeBoard, unitColor, unitPattern } from '../src/core/board.js';
 import { PALETTE, colorsCompatible, patternsCompatible } from '../src/core/palette.js';
 
@@ -94,7 +94,6 @@ describe('LevelValidation', () => {
     assert.equal(LIQUID_COLORS.A.hex, '#E8BD13'); assert.equal(LIQUID_COLORS.F.hex, '#4A3FD4'); assert.equal(LIQUID_COLORS.J.hex, '#E8DCC0');   // v4 §1.1
     for (const k of Object.keys(LIQUID_COLORS)) if (k !== 'J') assert.ok(LIQUID_COLORS[k].lum >= 42 && LIQUID_COLORS[k].lum <= 54, k + ' 中明度');
     for (const [x, y] of EXCLUSIVE_PAIRS) assert.ok(x !== y);   // 色相冇郁過 → 互斥表照舊
-    assert.equal(FROSTED_GLASS, '#9AA59B');
     assert.equal(PALETTE.length, 10);
   });
 });
