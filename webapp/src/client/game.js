@@ -157,7 +157,7 @@ export class GameView {
   setLevelId(id) {
     this.levelId = Number(id) || 1;
     this.cups = []; this.drawOrder = []; this.streams = []; this.hintArrow = null;
-    this.particles = []; this.floaters = [];   // 上一關嘅過關彩紙 / 浮字唔好帶入新關
+    this.particles = []; this.floaters = []; this.won = false;   // 上一關嘅粒子 / 浮字唔好帶入新關
   }
 
   /**
@@ -577,8 +577,15 @@ export class GameView {
     c.reveal = null; c.glow = 0;
   }
 
-  /** 過關：用戶 2026-09-06 拎走彩帶（過關 modal 本身已經有星同貓）。留空方法，main.js 照樣叫得。 */
-  async animateWin() {}
+  /**
+   * 過關：用戶 2026-09-06 拎走彩帶。除咗唔再放新粒子，仲要即刻清走盤面上殘留嘅
+   * 倒液水花 / 交貨星塵 / 浮字 —— 否則過關嗰刻仲有幾十粒彩色點喺度飄，同彩帶冇分別。
+   */
+  async animateWin() {
+    this.won = true;                 // 之後仲有交貨 / 封存動畫想放粒子都唔畀（見 frame）
+    this.particles.length = 0;
+    this.floaters.length = 0;
+  }
 
   // ---------- 主循環 ----------
   frame(now) {
@@ -608,7 +615,8 @@ export class GameView {
     this.drawStreams();
     this.drawHint(now);
 
-    // 粒子
+    // 粒子（過關之後一粒都唔留：用戶 2026-09-06 唔要過關彩紙）
+    if (this.won) { this.particles.length = 0; this.floaters.length = 0; }
     this.particles = this.particles.filter(p => (p.life += dt * 1000) < p.dur);
     for (const p of this.particles) {
       p.vy += (p.gravity ?? 520) * dt; p.x += p.vx * dt; p.y += p.vy * dt;
