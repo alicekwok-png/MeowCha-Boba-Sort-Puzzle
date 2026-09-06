@@ -33,11 +33,12 @@ export const LAYOUT = Object.freeze({
   separationIterations: 8,
 });
 
-/** v4 §3.2：貓助手唔常駐，只喺交貨時由右下彈出 */
+/** v4 §3.2：貓助手唔常駐。用戶 2026-09-06：交貨都唔好彈（每單彈一次太煩、阻住盤面）→ showOnDeliver false，
+ *  貓只留喺標題畫面同過關 modal。想加返就改返 true，catPop 機制原封不動。 */
 export const CAT = Object.freeze({
   mode: 'transient',
   anchor: 'bottomRight',
-  showOnDeliver: true,
+  showOnDeliver: false,
   showDurationMs: 1200,
   fadeOutMs: 300,
 });

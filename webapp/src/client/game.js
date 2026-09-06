@@ -577,20 +577,8 @@ export class GameView {
     c.reveal = null; c.glow = 0;
   }
 
-  async animateWin() {
-    const colors = [COLORS.brassLight, PALETTE[0].hex, PALETTE[9].hex, COLORS.candleGlow, PALETTE[6].hex];
-    for (let k = 0; k < 3; k++) {
-      for (let i = 0; i < 26; i++) {
-        this.particles.push({
-          x: Math.random() * this.W, y: this.H + 10,
-          vx: (Math.random() - 0.5) * 160, vy: -260 - Math.random() * 260,
-          life: 0, dur: 1100 + Math.random() * 500, r: 3 + Math.random() * 3,
-          color: colors[i % 5], star: i % 3 === 0, gravity: 220,
-        });
-      }
-      await new Promise(r => setTimeout(r, 180));
-    }
-  }
+  /** 過關：用戶 2026-09-06 拎走彩帶（過關 modal 本身已經有星同貓）。留空方法，main.js 照樣叫得。 */
+  async animateWin() {}
 
   // ---------- 主循環 ----------
   frame(now) {
