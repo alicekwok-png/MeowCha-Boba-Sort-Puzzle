@@ -3,7 +3,7 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { computeMoveLimit, hiddenRatio, maxOrders, gatingViolations, UNLOCK_LEVEL } from '../src/core/difficulty.js';
-import { CAMPAIGN } from '../src/core/levels.js';
+import { CAMPAIGN, bottlesPerColorFor } from '../src/core/levels.js';
 import { makeCup, makeBoard, encodeBoard } from '../src/core/board.js';
 import * as decodeMod from '../src/core/board.js';
 import { LocalServer, MIN_MS_PER_MOVE } from '../src/client/local-server.js';
@@ -70,7 +70,7 @@ describe('機制登場表', () => {
   test('登場表數值', () => {
     assert.deepEqual(UNLOCK_LEVEL, { hidden: 2, adBottle: 2, orders: 1, adEmptyCup: 11, moveLimit: 12, secondOrder: 3, adOrderSlot: 11, covered: 19 });   // 提示 / 撤銷 2026-09-06 拎走
   });
-  test('登場：每關 2 隻空樽（空位 = 2 樽先輸得到）、真樽 = 色數 + 2；L2 起 `?` 樽 + 廣告樽（L2 兩隻）；全部 capacity 4；第 12 關限步；第 19 關布遮樽（campaign.json 實際盤面）', () => {
+  test('登場：每關 2 隻空樽（空位 = 2 樽先輸得到）、真樽 = 色數 × 每色樽數 + 2；L2 起 `?` 樽 + 廣告樽（L2 兩隻）；全部 capacity 4；第 12 關限步；第 19 關布遮樽（campaign.json 實際盤面）', () => {
     const d = JSON.parse(readFileSync(new URL('../levels/campaign.json', import.meta.url), 'utf8'));
     const { decodeBoard } = decodeMod;
     const board = id => decodeBoard(d.levels[id - 1].board);
@@ -78,12 +78,15 @@ describe('機制登場表', () => {
     const empties = id => board(id).cups.filter(c => c.seg.length === 0).length;
     const empties2 = id => board(id).cups.filter(c => c.seg.length === 0 && c.kind === 'normal').length;
     const ads = id => board(id).cups.filter(c => c.kind === 'ad').length;
-    // 用戶 2026-09-06：空樽固定 2 隻、真樽 = 色數 + 2（每隻色啱啱裝滿一樽）→ 空位多過 2 樽就永遠輸唔到
+    // 用戶 2026-09-06：空樽固定 2 隻；真樽 = 色數 × 每色樽數 + 2（每隻色啱啱裝滿佢嘅樽）
+    //   → 空位多過 2 樽就永遠輸唔到。L27 起一色兩樽，盤面 15 → 21 隻。
     for (let id = 1; id <= 40; id++) {
       const b = board(id);
       const real = b.cups.filter(c => c.kind !== 'ad');
+      const bpc = bottlesPerColorFor(id);
       assert.equal(real.filter(c => c.seg.length === 0).length, 2, `L${id} 兩隻空樽`);
-      assert.equal(real.length, b.colors + 2, `L${id} 真樽 = 色數 + 2`);
+      assert.equal(real.length, b.colors * bpc + 2, `L${id} 真樽 = 色數 × ${bpc} + 2`);
+      assert.equal(real.reduce((a, c) => a + c.seg.length, 0), b.colors * 4 * bpc, `L${id} 液體格數`);
     }
     assert.equal(kinds(1).includes('hidden'), false); assert.equal(ads(1), 0); assert.equal(d.levels[0].hiddenCells, 0);
     assert.ok(kinds(2).includes('hidden'), 'L2 `?`'); assert.equal(ads(2), 2, 'L2 兩隻廣告樽');

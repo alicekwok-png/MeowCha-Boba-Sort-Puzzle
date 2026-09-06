@@ -9,7 +9,7 @@ import { PALETTE, colorsCompatible, unitsCompatible, MAX_COLORS_BY_HUE } from '.
 
 /**
  * @typedef {{cups:number, colors:number, empties:number, segments:number,
- *            hidden:number, covered:number, ad:number, orders:number,
+ *            hidden:number, covered:number, ad:number, orders:number, bottlesPerColor?:number,
  *            optimalMin:number, optimalMax:number, palette?:number[], patterns?:number[], hiddenRatio?:number,
  *            randomTwoStarMax?:number|null, minFatalRate?:number|null}} LevelConfig
  *  randomTwoStarMax = 亂撳★2 率上限；null = 唔篩（緊湊盤面同呢個指標本質衝突，2026-09-06 起唔再用）
@@ -19,9 +19,10 @@ import { PALETTE, colorsCompatible, unitsCompatible, MAX_COLORS_BY_HUE } from '.
 
 /** v4：單一樽型（capacity 4）。cfg.hidden = `?` 隱藏層樽最少數量（hiddenRatio 會補足）；cfg.ad = 廣告樽數（額外、鎖死、空）；cfg.covered = 布遮樽 */
 export function validateConfig(cfg) {
+  const bpc = cfg.bottlesPerColor || 1;   // 每隻色佔幾多樽（用戶 2026-09-06：後期關一色兩樽）
   const filled = cfg.cups - cfg.empties;
   const capacity = filled * CAP_NORMAL;
-  const units = cfg.colors * CAP_NORMAL;
+  const units = cfg.colors * CAP_NORMAL * bpc;
   if ((cfg.takeaway || 0) > 0 || (cfg.cracked || 0) > 0) throw new Error('v4：曲頸瓶 / 裂瓶已移除，全遊戲單一樽型');
   const patterns = cfg.patterns || new Array(cfg.colors).fill(0);
   if (patterns.length !== cfg.colors) throw new Error('patterns length != colors');
@@ -31,7 +32,7 @@ export function validateConfig(cfg) {
   if (cfg.palette && !unitsCompatible(cfg.palette.map((c, i) => makeUnit(c, patterns[i])))) throw new Error('palette 指定色組唔符合互斥 / 圖案規則');
   if (distinctColors > MAX_COLORS_BY_HUE) throw new Error(`distinct colors > ${MAX_COLORS_BY_HUE}`);
   if (cfg.empties < 1) throw new Error('need at least 1 empty cup');
-  if (filled < cfg.colors) throw new Error('filled cups < colors');
+  if (filled < cfg.colors * bpc) throw new Error('filled cups < colors × bottlesPerColor');
   if (capacity < units) throw new Error(`capacity ${capacity} < units ${units}`);
   if (capacity - units > filled * 2) throw new Error('too much slack: cups would be nearly empty');
   const covered = cfg.covered || 0, hidden = cfg.hidden || 0, ad = cfg.ad || 0;
@@ -39,7 +40,7 @@ export function validateConfig(cfg) {
   if (cfg.orders < 1) throw new Error('Spec v3：每關最少 1 個免費訂單槽（過關 = 交晒全部顏色）');
   if (cfg.orders > cfg.colors) throw new Error('orders > colors');
   if (cfg.segments < cfg.colors || cfg.segments > units) throw new Error('segments out of range');
-  if (cfg.cups + ad > 16) throw new Error('max 16 cups incl. ad bottles (4-bit move encoding)');
+  if (cfg.cups + ad > 255) throw new Error('max 255 cups incl. ad bottles (move encoding)');
   return true;
 }
 
@@ -86,7 +87,8 @@ export function randomFill(cfg, rng) {
   const caps = kinds.map(() => CAP_NORMAL);
   const sizes = caps.slice();
   const minSize = kinds.map(k => (k === 'hidden' ? 2 : 1));
-  const units = cfg.colors * CAP_NORMAL;
+  const bpc = cfg.bottlesPerColor || 1;
+  const units = cfg.colors * CAP_NORMAL * bpc;
   let slack = sizes.reduce((a, b) => a + b, 0) - units;
   let guard = 0;
   while (slack > 0 && guard++ < 1000) {
@@ -96,20 +98,27 @@ export function randomFill(cfg, rng) {
   if (slack > 0) return null;
 
   // 段數控制：先決定每色分成幾多段（總數 = 目標段數），再隨機組合
+  const perColorCells = CAP_NORMAL * bpc;                    // 一色 4 格（一樽）或 8 格（兩樽）
   const runsPerColor = new Array(cfg.colors).fill(1);
   let extra = cfg.segments - cfg.colors;
   guard = 0;
-  while (extra > 0 && guard++ < 1000) {
+  while (extra > 0 && guard++ < 2000) {
     const i = randInt(rng, 0, cfg.colors - 1);
-    if (runsPerColor[i] < CAP_NORMAL) { runsPerColor[i]++; extra--; }
+    if (runsPerColor[i] < perColorCells) { runsPerColor[i]++; extra--; }
   }
+  const cutPool = Array.from({ length: perColorCells - 1 }, (_, i) => i + 1);
   const runs = [];
   for (let ci = 0; ci < cfg.colors; ci++) {
-    // 將 4 格拆成 k 段（每段 ≥ 1）
+    // 將 perColorCells 格拆成 k 段（每段 ≥ 1）
     const k = runsPerColor[ci];
-    const cuts = shuffle([1, 2, 3], rng).slice(0, k - 1).sort((a, b) => a - b);
+    const cuts = shuffle(cutPool.slice(), rng).slice(0, k - 1).sort((a, b) => a - b);
     let prev = 0;
-    for (const c of [...cuts, CAP_NORMAL]) { runs.push({ color: colors[ci], n: c - prev }); prev = c; }
+    for (const c of [...cuts, perColorCells]) {
+      // 一段長過一樽容量就切開：段本身唔可以跨樽做成「一格都倒唔郁」
+      let left = c - prev;
+      while (left > 0) { const n = Math.min(CAP_NORMAL, left); runs.push({ color: colors[ci], n }); left -= n; }
+      prev = c;
+    }
   }
   shuffle(runs, rng);
 
@@ -253,10 +262,10 @@ export function countHidden(b) {
   return b.cups.reduce((a, c) => a + hiddenCount(c), 0);
 }
 
-/** 三星門檻：無隱藏關卡 = 最優 + 3；有隱藏 = 最優 + 3 + (`?` 樽數 × 2) */
+/** 三星門檻：無隱藏關卡 = 最優 + 3；有隱藏 = 最優 + 3 + (`?` 樽數 × 2，封頂 +12) */
 export function starThresholds(optimal, board) {
   const q = board.cups.filter(c => c.kind === 'hidden').length;
-  const three = optimal + 3 + q * 2;
+  const three = optimal + 3 + Math.min(12, q * 2);
   return { three, two: three + 5 };
 }
 
@@ -331,16 +340,20 @@ export function generateLevelEx(cfg, seed, opts = {}) {
     if (cfg.minFatalRate != null) {
       // 兩段：先平嘅 80 局粗篩（要高過門檻 1.6 倍，抵銷「揀最好嗰次」嘅偏差），
       // 過到先跑 250 局確認。單靠 80 局會漏網（L11 / L12 曾經跌返落 1%）。
-      const rough = fatalMistakeRate(b, { steps: 8, trials: FATAL_TRIALS, seed: attempt + 11, maxNodes: 200_000 });
+      // 局數跟盤面大細收縮：每一局要跑一次 solver，20 隻樽一次 solve ≈ 0.1s，
+      // 用返細盤面嗰個局數會變成每個候選幾十秒。
+      const big = cfg.cups > 12;
+      const rough = fatalMistakeRate(b, { steps: 8, trials: big ? 30 : FATAL_TRIALS, seed: attempt + 11, maxNodes: big ? 80_000 : 200_000 });
       if (rough.fatal < cfg.minFatalRate * 1.6) { rejects.fatal++; continue; }
-      const confirm = fatalMistakeRate(b, { steps: 10, trials: FATAL_CONFIRM, seed: attempt + 977, maxNodes: 200_000 });
+      const confirm = fatalMistakeRate(b, { steps: 10, trials: big ? 90 : FATAL_CONFIRM, seed: attempt + 977, maxNodes: big ? 80_000 : 200_000 });
       if (confirm.fatal < cfg.minFatalRate * 1.3) { rejects.fatal++; continue; }   // 留 margin：重掃（其他 seed）先唔會跌返落門檻下
     }
-    // 檢查 4：起手安全區
-    const K = cfg.cups <= 8 ? 3 : 2;
+    // 檢查 4：起手安全區。深度成本係 (合法步數)^K × 一次 solve —— 20 隻樽有成百合法步，
+    // K=2 就係幾千次 solve，生成會慢到停唔到。大盤面收到 K=1（第一步唔可以即死）。
+    const K = cfg.cups <= 8 ? 3 : cfg.cups <= 12 ? 2 : 1;
     if (!safeOpening(b, K, sol.length + 4, 150_000, opts.deadline || 0)) { rejects.opening++; if (opts.deadline && Date.now() > opts.deadline) { rejects.aborted++; return null; } continue; }
 
-    return { board: b, optimal: sol.length, solution: sol, thresholds: starThresholds(sol.length, b), attempts: attempt, rejects, hiddenCells: countHidden(b), units: cfg.colors * CAP_NORMAL };
+    return { board: b, optimal: sol.length, solution: sol, thresholds: starThresholds(sol.length, b), attempts: attempt, rejects, hiddenCells: countHidden(b), units: cfg.colors * CAP_NORMAL * (cfg.bottlesPerColor || 1) };
   }
   return null;
 }

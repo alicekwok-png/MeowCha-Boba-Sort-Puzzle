@@ -104,8 +104,8 @@ describe('廣告加空瓶（Spec v2 §6 addEmptyBottle）', () => {
     assert.deepEqual(back.maskedBoard.cups[4].seg, []);
     assert.deepEqual(back.maskedBoard.cups[3].seg, []);
   });
-  test('16 隻瓶封頂（走步編碼 4 bit）', () => {
-    const cups = Array.from({ length: 16 }, (_, i) => (i < 2 ? N([1, 1]) : N([])));
+  test('24 隻瓶封頂（走步編碼 1 byte / 索引；一色兩樽盤面去到 21 隻）', () => {
+    const cups = Array.from({ length: 24 }, (_, i) => (i < 2 ? N([1, 1]) : N([])));
     const b = makeBoard(cups, 1, []);
     const srv = new LocalServer();
     const st = srv.start({ id: 20, board: encodeBoard(b), optimal: 1, thresholds: { three: 4, two: 9 } });

@@ -18,6 +18,13 @@ export function columnsFor(bottleCount) {
   return LAYOUT.fallbackColumns;
 }
 
+/** chooseColumns 會同「細一級」比較；細一級 = columnsByCount 入面前一個值 */
+export function prevColumns(cols) {
+  const all = LAYOUT.columnsByCount.map(([, c]) => c);
+  const i = all.indexOf(cols);
+  return i > 0 ? all[i - 1] : LAYOUT.fallbackColumns;
+}
+
 /** 呢個欄數下，樽要統一縮幾多先放得落（1 = 唔使縮）：行高 × 行數 ≤ 區域高；格闊 ≥ 樽闊 × minDistanceRatio（R3） */
 export function fitScale(input, columns) {
   const rows = Math.max(1, Math.ceil(input.bottleCount / columns));
@@ -177,7 +184,8 @@ export function safeLayout(input, warn = null, opts = {}) {
  */
 export function chooseColumns(input, warn = null, opts = {}) {
   const base = columnsFor(input.bottleCount);
-  const candidates = base > LAYOUT.fallbackColumns ? [base, LAYOUT.fallbackColumns] : [base];
+  const prev = prevColumns(base);
+  const candidates = prev !== base ? [base, prev] : [base];
   let best = null;
   for (const columns of candidates) {
     const r = safeLayout(input, null, { ...opts, columns });

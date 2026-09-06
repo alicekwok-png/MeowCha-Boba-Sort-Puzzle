@@ -175,11 +175,19 @@ export function decodeBoard(s) {
   return { cups, colors, orders, queue, delivered, moveCount };
 }
 
-/** 走步：from 4 bit + to 4 bit = 1 byte */
+/**
+ * 走步：from 1 byte + to 1 byte（用戶 2026-09-06 一色兩樽 → 盤面去到 20+ 隻樽，
+ * 舊嘅 4 bit 索引封頂 16 隻樽，唔夠用）。走步只喺 session 內傳，冇持久化，所以直接換格式。
+ */
 export function encodeMoves(moves) {
-  return toBase64Url(moves.map(m => (m.from << 4) | m.to));
+  const bytes = [];
+  for (const m of moves) { bytes.push(m.from & 0xff, m.to & 0xff); }
+  return toBase64Url(bytes);
 }
 
 export function decodeMoves(s) {
-  return Array.from(fromBase64Url(s), v => ({ from: v >> 4, to: v & 15 }));
+  const b = fromBase64Url(s);
+  const out = [];
+  for (let i = 0; i + 1 < b.length; i += 2) out.push({ from: b[i], to: b[i + 1] });
+  return out;
 }

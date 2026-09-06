@@ -9,7 +9,7 @@ import { hash32 } from '../core/prng.js';
 import { computeMoveLimit } from '../core/difficulty.js';
 
 export const MIN_MS_PER_MOVE = 180;   // 含倒液動畫最短時長
-export const MAX_CUPS = 16;           // 走步編碼 from/to 各 4 bit → 最多 16 隻瓶（含廣告加嘅空瓶）
+export const MAX_CUPS = 24;           // 走步編碼 from/to 各 1 byte（2026-09-06 一色兩樽，盤面去到 21 隻）；24 留少少頭位畀廣告加樽
 
 /** 節奏風險評分（0–100）。人類 CV 通常 > 0.35；bot 固定 delay 接近 0。 */
 export function rhythmRisk(ts) {

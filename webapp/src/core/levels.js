@@ -20,15 +20,16 @@ const MIN_FATAL_RATE = 0.05;
 /** 4–5 色嘅早期關盤面細，本質上冇咁易入死胡同 → 門檻放低啲（L4–L10） */
 const MIN_FATAL_EARLY = 0.03;
 
-const L = (cups, colors, empties, segments, hidden, covered, ad, orders, optimalMin, optimalMax, title, palette = null, tutorialQueue = null, minFatalRate = null) =>
-  ({ cups, colors, empties, segments, hidden, covered, ad, orders, optimalMin, optimalMax, title, palette, patterns: new Array(colors).fill(0), tutorialQueue, randomTwoStarMax: null, minFatalRate });
+const L = (cups, colors, empties, segments, hidden, covered, ad, orders, optimalMin, optimalMax, title, palette = null, tutorialQueue = null, minFatalRate = null, bottlesPerColor = 1) =>
+  ({ cups, colors, empties, segments, hidden, covered, ad, orders, optimalMin, optimalMax, title, palette, patterns: new Array(colors).fill(0), tutorialQueue, randomTwoStarMax: null, minFatalRate, bottlesPerColor });
 
 const P = (keys) => keys.split('').map(k => BY_KEY[k]);
 
-/** 13 關起每色段數 3.0 → 3.9 漸進（工單 #5 A），封頂 4 段 / 色 */
-export function segmentsFor(id, colors) {
-  const ratio = 3.0 + (id - 11) * (0.9 / 29);
-  return Math.min(4 * colors, Math.round(colors * ratio));
+/** 每色段數 3.0 → 3.9 漸進（工單 #5 A），封頂 = 該色格數（一色一樽 4、一色兩樽 8） */
+export function segmentsFor(id, colors, bpc = 1) {
+  const cells = 4 * bpc;
+  const ratio = (3.0 + (id - 11) * (0.9 / 29)) * bpc;
+  return Math.min(cells * colors, Math.round(colors * ratio));
 }
 
 /**
@@ -39,8 +40,8 @@ export function segmentsFor(id, colors) {
 export const EMPTY_BOTTLES = 2;
 export function emptiesFor() { return EMPTY_BOTTLES; }
 
-/** 螢幕上限：真樽 + 廣告樽 ≤ 12（版面 3 行 × 4 欄保住樽高 0.19） */
-export const MAX_BOTTLES_ON_SCREEN = 12;
+/** 螢幕上限：真樽 + 廣告樽 ≤ 21（20 真樽 + 1 廣告；6 欄 × 4 行，樽高縮到 0.142） */
+export const MAX_BOTTLES_ON_SCREEN = 21;
 
 /**
  * 每關色數（用戶 2026-09-06 新色板：10 隻互相相容，唔再卡死喺 6）。
@@ -55,12 +56,27 @@ export function colorsFor(id) {
   if (id <= 12) return 6;
   if (id <= 16) return 7;
   if (id <= 22) return 8;
+  if (id <= 26) return MAX_COLORS_PER_LEVEL;
+  // L27 起一色兩樽：色數重新由 6 行上去，樽數反而繼續升（14 → 20）
+  if (id <= 30) return 6;
+  if (id <= 34) return 7;
+  if (id <= 37) return 8;
   return MAX_COLORS_PER_LEVEL;
 }
 
-/** 真樽數（唔計廣告樽）= 色數 + 2 隻空樽 */
-export function cupsFor(id, colors = colorsFor(id)) {
-  return colors + EMPTY_BOTTLES;
+/**
+ * 每隻色佔幾多樽（用戶 2026-09-06，對齊參考遊戲嘅盤面規模）。
+ * L27 起一色兩樽：一隻色要裝滿兩樽先算做完，所以同樣色數可以鋪多一倍樽。
+ * 代價（實測）：盤面越大，貪心玩家越難撞死自己 —— 14 隻樽嘅致命錯步率只得 ~2%，
+ * 8 隻樽嗰陣係 20–50%。所以呢批大盤面唔再靠「行錯一步就玩唔到」，改為靠步數上限 + 隱藏密度。
+ */
+export function bottlesPerColorFor(id) {
+  return id >= 27 ? 2 : 1;
+}
+
+/** 真樽數（唔計廣告樽）= 色數 × 每色樽數 + 2 隻空樽 */
+export function cupsFor(id, colors = colorsFor(id), bpc = bottlesPerColorFor(id)) {
+  return colors * bpc + EMPTY_BOTTLES;
 }
 
 /** 廣告樽數：v4「第二關已經有兩隻」；之後雙數關 2 隻、單數關 1 隻（L1 冇）；受螢幕上限 12 隻夾住 */
@@ -72,9 +88,13 @@ export function adBottlesFor(id, cups = cupsFor(id)) {
 /** 13 關後嘅行：色數固定 6，樽數 / 段數 / 空樽 / 廣告樽 / 最優區間由公式推 */
 const R = (id, hidden, covered, orders, title) => {
   const colors = colorsFor(id);
-  const cups = cupsFor(id, colors);
-  const segments = segmentsFor(id, colors);
-  return L(cups, colors, emptiesFor(id), segments, hidden, covered, adBottlesFor(id, cups), orders, Math.max(3, segments - colors - 2), segments + 8, title, null, null, MIN_FATAL_RATE);
+  const bpc = bottlesPerColorFor(id);
+  const cups = cupsFor(id, colors, bpc);
+  const segments = segmentsFor(id, colors, bpc);
+  // 一色兩樽（L27+）：盤面太大，致命錯步本質上出唔到，篩選亦慢到不可行 → 唔要求；難度靠步數上限 + 隱藏密度
+  const fatal = bpc > 1 ? null : MIN_FATAL_RATE;
+  return L(cups, colors, emptiesFor(id), segments, hidden, covered, adBottlesFor(id, cups), orders,
+    Math.max(3, segments - colors * bpc - 2), segments + 8 + (bpc - 1) * 10, title, null, null, fatal, bpc);
 };
 
 export const CAMPAIGN = [
