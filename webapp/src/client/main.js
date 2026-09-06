@@ -611,13 +611,9 @@ async function onCupTap(idx) {
   if (!served) renderClients();
 
   if (isSolved(G.board)) { await onSolved(); return; }
+  // 用戶 2026-09-06：唔好一發現盤面無解就彈窗 —— 玩家應該自己識開廣告樽 / 開委託槽救返，
+  // 真係一步都行唔到（isDead）先彈。`LocalServer.solvable` 保留做工具用，UI 唔會叫。
   if (isDead(G.board)) { sfx.stuck(); await sleep(350); showStuck(); return; }
-  // 用戶 2026-09-06：行錯一步真係會玩唔到 —— 一發現盤面已經冇得解就即刻話畀玩家聽，
-  // 唔好等佢哋盲摸落去。（solver 喺 server 側真實盤面上跑；aborted 當仲有得解，寧縱毋枉。）
-  try {
-    const chk = await server.solvable(G.session.sessionId, G.moves);
-    if (!chk.solvable && !chk.aborted) { sfx.stuck(); await sleep(250); showUnsolvable(); return; }
-  } catch { /* 檢查失敗就當仲有得解 */ }
   if (G.session.moveLimit !== null && G.moves.length >= G.session.moveLimit) { sfx.stuck(); await sleep(350); showOutOfMoves(); return; }
 }
 
@@ -676,22 +672,6 @@ async function onSolved() {
   $('#m-menu').onclick = () => { closeModal(); refreshTitle(); show('screen-title'); };
   if ($('#m-next')) $('#m-next').onclick = () => { closeModal(); playCampaign(G.level.id + 1); };
   if ($('#m-practice')) $('#m-practice').onclick = () => { closeModal(); pickPractice(); };
-}
-
-/** 盤面已經冇得解（仲有合法步，但點行都贏唔到）：畀重來，有廣告空樽就順便畀佢救返 */
-function showUnsolvable() {
-  const canAd = canOfferEmptyCup();
-  modal(`
-    <img class="mascot" src="${asset('CHR_cat_idle')}" alt="">
-    <h3>${t('extra.modals.unsolvable')}</h3>
-    <p>${t('extra.modals.unsolvableBody')}</p>
-    <div class="row">
-      ${canAd ? `<button class="btn" id="m-addcup">${t('extra.hud.addCup')}</button>` : ''}
-      <button class="btn primary" id="m-restart">↻ ${t('actions.restart')}</button>
-    </div>
-  `);
-  if (canAd && $('#m-addcup')) $('#m-addcup').onclick = () => { closeModal(); addEmptyCup(); };
-  $('#m-restart').onclick = () => { closeModal(); restart(); };
 }
 
 function showStuck() {
