@@ -15,6 +15,7 @@
 import { t } from './i18n.js';
 import { PALETTE } from '../core/palette.js';
 import { unitColor, unitPattern } from '../core/board.js';
+import { CLOTH_UNLOCK_ORDERS } from '../core/rules.js';
 import { COLORS } from '../config/theme.js';
 import { LAYOUT, CLOTH } from '../config/layout.js';
 import { RENDER, patternUV } from '../config/render.js';
@@ -232,12 +233,12 @@ export class GameView {
   setBoard(board) {
     const prev = this.cups;
     const now = performance.now();
-    let lockedIdx = 0;
+    const clothIn = Math.max(1, CLOTH_UNLOCK_ORDERS - (board.delivered || 0));
     this.cups = board.cups.map((c, i) => {
       const old = prev[i] || null;
-      // 布遮瓶：第 k 隻鎖住嘅瓶喺交付第 2(k+1) 單時揭開 → 仲要交幾多單（main.js 有畀 unlockIn 就用佢）
+      // 布遮瓶：交夠 CLOTH_UNLOCK_ORDERS 單一次過全開（rules.js），所以每隻嘅數字一樣
       const isLocked = c.kind === 'covered' && c.locked;
-      const unlockIn = c.unlockIn ?? (isLocked ? Math.max(1, 2 * (++lockedIdx) - (board.delivered || 0)) : 0);
+      const unlockIn = c.unlockIn ?? (isLocked ? clothIn : 0);
       const seg = c.seg.slice();
       const cup = {
         kind: c.kind, cap: c.cap, locked: !!c.locked, seg, unlockIn: Math.max(1, unlockIn || 1),

@@ -107,6 +107,16 @@ export function settleOrders(b, events = null) {
   }
 }
 
+/**
+ * 仲要交幾多單，布遮樽先會揭開（UI 徽章「N 單」用；≤ 0 代表已經到期）。
+ * 規則係「交夠 CLOTH_UNLOCK_ORDERS 單一次過全開」（v4.1 §5.1，見 unlockAllCloth），
+ * 所以每隻布遮樽嘅數字都一樣。用戶 2026-09-07 報過：徽章寫住 2 / 4 / 6 / 8 / 10 單，
+ * 但實際全部喺第 2 單一齊開 —— UI 講大話，唔可以。
+ */
+export function clothUnlockIn(b) {
+  return Math.max(0, CLOTH_UNLOCK_ORDERS - (b.delivered || 0));
+}
+
 /** Spec v3 §2.4：一個槽交完貨，只有嗰個槽補新訂單；隊列空 → 槽收工（filled） */
 export function advanceQueue(b, slot, events = null) {
   if (b.queue && b.queue.length) {

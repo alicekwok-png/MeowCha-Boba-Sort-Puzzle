@@ -4,7 +4,7 @@
 import { CAMPAIGN, CHAPTERS, PRACTICE } from '../core/levels.js';
 import { PALETTE } from '../core/palette.js';
 import { unitColor, canInteract } from '../core/board.js';
-import { canPour, isSolved, isDead, isComplete } from '../core/rules.js';
+import { canPour, isSolved, isDead, isComplete, clothUnlockIn } from '../core/rules.js';
 import { hash32 } from '../core/prng.js';
 import { LocalServer } from './local-server.js';
 import { GameView } from './game.js';
@@ -439,12 +439,13 @@ const G = {
 
 /**
  * 遮罩盤面 → 標註 → 交畀 GameView。
- * cup.unlockIn：第 k 隻仲鎖住嘅布遮瓶（按 index 順序）會喺第 k 次解鎖時揭開；解鎖發生喺 delivered 去到下一個偶數時。
+ * cup.unlockIn：仲要交幾多單先揭布。全部布遮樽同一個數 —— 規則係「交夠 2 單一次過全開」
+ * （rules.js unlockAllCloth）。舊寫法逐隻遞增（2 / 4 / 6 / 8 / 10 單）同規則對唔上，
+ * 5 隻布遮樽嘅後期關特別明顯（用戶 2026-09-07 報）。
  */
 function annotateBoard(board) {
-  const d = board.delivered || 0;
-  let k = 0;
-  for (const c of board.cups) c.unlockIn = (c.kind === 'covered' && c.locked) ? (2 * Math.floor(d / 2) + 2 * (++k) - d) : 0;
+  const n = clothUnlockIn(board);
+  for (const c of board.cups) c.unlockIn = (c.kind === 'covered' && c.locked) ? Math.max(1, n) : 0;
   return board;
 }
 function applyBoard(board) {
@@ -580,7 +581,19 @@ async function onCupTap(idx) {
   }
 
   // ---- 樂觀執行 ----
+  // 用戶 2026-09-07 報 bug（盤面撳極都冇反應）：G.busy 只喺呢個函數尾解返，
+  // 中間任何一個 await 掟 error（動畫 / renderClients / server）都會令鎖永遠留喺 true。
+  // 由呢度起全部包 try/finally，鎖一定解得返。
   G.busy = true; G.selected = null; G.view.select(null); G.view.clearHint();
+  try {
+    await doMove(m, idx, cup);
+  } finally {
+    if (!G.solved) G.busy = false;
+  }
+}
+
+/** onCupTap 嘅實際執行段（拆出嚟係為咗 try/finally 一定解得返 G.busy） */
+async function doMove(m, idx, cup) {
   $('#btn-add-cup').hidden = true;
   const src = G.board.cups[m.from];
   const unitKey = src.seg[src.seg.length - 1];
@@ -599,7 +612,7 @@ async function onCupTap(idx) {
     console.warn('[move] server rejected', err);
     try { applyBoard(server.reveal(G.session.sessionId, G.moves).maskedBoard); } catch { /* ignore */ }
     G.view.shake(idx); sfx.shake();
-    G.busy = false; updateAddCupButton();
+    updateAddCupButton();
     return;
   }
 
@@ -619,7 +632,7 @@ async function onCupTap(idx) {
     await Promise.all(sealed.map(i => G.view.animateSeal(i)));
   }
   G.view.setBoard(G.board);
-  G.busy = false;
+  G.busy = false;   // 動畫做完就即刻收返鎖；下面仲有 await（彈窗）唔應該再擋輸入
   updatePace();
   updateAddCupButton();
   if (!served) renderClients();
@@ -629,7 +642,11 @@ async function onCupTap(idx) {
   // 真係一步都行唔到（isDead）先彈。`LocalServer.solvable` 保留做工具用，UI 唔會叫。
   // 「無路可走」只可以喺真係一條路都冇嗰陣先彈（用戶 2026-09-06）：
   // 盤面仲有未開嘅廣告樽、未開嘅廣告委託槽、或者仲用得嘅「+樽」，都算有出路 —— 逼人重來係搶咗玩家嘅選擇。
-  if (isDead(G.board) && !hasRescue()) { sfx.stuck(); await sleep(350); showStuck(); return; }
+  // 用戶 2026-09-07 報 bug：「交完單、布遮樽開咗之後就喐唔到」。成因就係呢一行舊寫法
+  // `isDead && !hasRescue()` —— 盤面已經一步都行唔到，但只要仲有未開嘅廣告樽 / 委託槽 / 「+樽」
+  // 就咩都唔彈，玩家撳邊隻樽都冇反應，睇落就係死咗機。冇合法步一定要話佢知，
+  // 有救就喺同一個窗俾佢救（唔係逼重來）。
+  if (isDead(G.board)) { sfx.stuck(); await sleep(350); showStuck(); return; }
   if (G.session.moveLimit !== null && G.moves.length >= G.session.moveLimit) { sfx.stuck(); await sleep(350); showOutOfMoves(); return; }
 }
 
@@ -691,15 +708,31 @@ async function onSolved() {
 }
 
 /** 真・無路可走：冇合法步，而且廣告樽 / 廣告委託槽 / +樽 全部用晒 */
+/**
+ * 一步都行唔到（isDead）。兩種情況：
+ *  - 仲有出路（未開嘅廣告樽 / 開得到嘅廣告委託槽 / 未用嘅「+樽」）→ 講明係邊一種，primary 就係嗰個動作
+ *  - 真係乜都冇 → 只可以重來
+ * 唔可以好似舊版咁「有出路就唔彈」：玩家唔會知道自己而家一步都行唔到。
+ */
 function showStuck() {
+  const adCup = G.board ? G.board.cups.findIndex(c => c.kind === 'ad') : -1;
+  const adsOk = !G.practice && G.level && adsAllowedForLevel(G.level.id);
+  let action = null;
+  if (adsOk && adCup >= 0) action = { label: t('extra.modals.stuckAdBottle'), run: () => unlockAdCup(adCup) };
+  else if (adsOk && G.adUnlocked < G.adTotal && G.session && server.canAddOrder(G.session.sessionId, G.moves))
+    action = { label: t('extra.modals.stuckAdSlot'), run: () => unlockOrderSlot() };
+  else if (canOfferEmptyCup()) action = { label: t('extra.modals.stuckAddCup'), run: () => addEmptyCup() };
+
   modal(`
     <img class="mascot" src="${asset('CHR_cat_idle')}" alt="">
     <h3>${t('results.noMoves')}</h3>
-    <p>${t('extra.modals.stuckBody')}</p>
+    <p>${action ? t('extra.modals.stuckRescueBody') : t('extra.modals.stuckBody')}</p>
     <div class="row">
-      <button class="btn primary" id="m-restart">↻ ${t('actions.restart')}</button>
+      ${action ? `<button class="btn primary" id="m-rescue">${action.label}</button>` : ''}
+      <button class="btn${action ? ' ghost' : ' primary'}" id="m-restart">↻ ${t('actions.restart')}</button>
     </div>
   `);
+  if (action) $('#m-rescue').onclick = () => { closeModal(); action.run(); };
   $('#m-restart').onclick = () => { closeModal(); restart(); };
 }
 

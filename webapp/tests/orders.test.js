@@ -2,7 +2,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { makeCup, makeBoard, encodeBoard } from '../src/core/board.js';
-import { applyMove, isSolved } from '../src/core/rules.js';
+import { applyMove, isSolved, isDead, legalMoves, clothUnlockIn } from '../src/core/rules.js';
 import { solve } from '../src/core/solver.js';
 import { LocalServer, MIN_MS_PER_MOVE } from '../src/client/local-server.js';
 
@@ -74,6 +74,28 @@ describe('廣告訂單槽（Spec v3 §3：由隊列攞下一單，當關有效�
     assert.ok(n.cups[4].locked && n.cups[5].locked);
     n = applyMove(n, { from: 3, to: 2 });
     assert.ok(!n.cups[4].locked && !n.cups[5].locked && n.cups[4].kind === 'normal' && n.cups[5].kind === 'normal');
+  });
+
+  // 用戶 2026-09-07 報：徽章寫住「2 / 4 / 6 / 8 / 10 單」，但規則係第 2 單一次過全開 —— UI 講大話。
+  test('clothUnlockIn = 徽章數字，同實際解鎖點一致（每隻布遮樽同一個數）', () => {
+    const b = makeBoard([N([1, 1, 1]), N([1]), N([2, 2, 2]), N([2]), makeCup('covered', [3, 3, 4, 4], true), makeCup('covered', [4, 4, 3, 3], true), N([])], 4, [1, 2], [3, 4]);
+    assert.equal(clothUnlockIn(b), 2);
+    let n = applyMove(b, { from: 1, to: 0 });
+    assert.equal(clothUnlockIn(n), 1);
+    assert.ok(n.cups[4].locked, '仲差一單 → 仲鎖住');
+    n = applyMove(n, { from: 3, to: 2 });
+    assert.equal(clothUnlockIn(n), 0);
+    assert.ok(!n.cups[4].locked && !n.cups[5].locked, '數字歸零嗰一刻全部揭開');
+  });
+});
+
+describe('無路可走（用戶 2026-09-07 報：交完單之後盤面撳極都冇反應）', () => {
+  test('盤面一步都行唔到，就算仲有未開嘅廣告樽，isDead 都係 true —— UI 一定要彈窗話玩家知', () => {
+    // 三隻樽全部滿而且色唔同 → 冇任何合法倒液；剩低嗰隻係鎖住嘅廣告樽（唔可以做目標）
+    const b = makeBoard([N([1, 1, 1, 1].map((_, i) => (i < 2 ? 1 : 2))), N([2, 2, 1, 1]), N([3, 3, 3, 1]), makeCup('ad', [], true)], 3, [9]);
+    assert.equal(legalMoves(b).length, 0, '真係一步都行唔到');
+    assert.equal(isDead(b), true);
+    assert.ok(b.cups.some(c => c.kind === 'ad'), '仲有廣告樽 —— 舊版就係喺呢個情況咩都唔彈');
   });
 });
 

@@ -1431,6 +1431,26 @@
         "en": "Some liquid got poured where it can no longer be sorted out. Restart the level and plan the order of your pours.",
         "zh-Hant": "有藥劑倒咗落一個再分唔返出嚟嘅位。重來一次，諗定倒液嘅次序先。",
         "zh-Hans": "有药剂倒到了一个再分不出来的位置。重来一次，先想好倒液的顺序。"
+      },
+      "stuckRescueBody": {
+        "en": "Nothing can be poured any more — but you still have a way out.",
+        "zh-Hant": "而家一格都倒唔到喇。不過你仲有出路：",
+        "zh-Hans": "现在一格都倒不了了。不过你还有出路："
+      },
+      "stuckAdBottle": {
+        "en": "Open a bottle (ad)",
+        "zh-Hant": "睇廣告開一隻樽",
+        "zh-Hans": "看广告开一只瓶"
+      },
+      "stuckAdSlot": {
+        "en": "One more order slot (ad)",
+        "zh-Hant": "睇廣告開多個委託槽",
+        "zh-Hans": "看广告开多个委托槽"
+      },
+      "stuckAddCup": {
+        "en": "Add an empty bottle (ad)",
+        "zh-Hant": "睇廣告加隻空樽",
+        "zh-Hans": "看广告加只空瓶"
       }
     },
     "help": {
