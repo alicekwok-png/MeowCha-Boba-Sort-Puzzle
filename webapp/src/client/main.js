@@ -305,6 +305,20 @@ function renderClients(popColor = null, enterIndex = -1, flyingIndex = -1, opts 
 async function runEvents(events, prevBoard) {
   let served = false;
   for (const ev of events) {
+    try {
+      served = await runEvent(ev, prevBoard) || served;
+    } catch (e) {
+      // 單一事件嘅動畫爆咗（例如樽已經飛走 / 托盤量唔到）唔可以令淨低嘅事件唔結算
+      console.error('[event] failed', ev, e);
+      if (ev.type === 'deliver') served = true;
+    }
+  }
+  return served;
+}
+
+async function runEvent(ev, prevBoard) {
+  let served = false;
+  {
     if (ev.type === 'deliver') {
       served = true; sfx.deliver();
       const orderIdx = ev.slot ?? prevBoard.orders.findIndex(o => o.color === ev.color);
@@ -544,6 +558,25 @@ function trayRectFor(orderIndex) {
  * 完成樽冇委託（v4 §7）：純色滿、kind normal、冇未完成同色委託、而且上一步未完成 → 加塞封存動畫。
  * 只用遮罩盤面判斷（隱藏格 null 唔算完成；server 對 hidden 滿樽會全露出）。
  */
+/** 一步最多俾幾耐做完（倒液 + 交貨 + 解鎖動畫全部加埋約 2 秒；10 秒 = 一定係掛咗） */
+const MOVE_WATCHDOG_MS = 10_000;
+class MoveTimeout extends Error { constructor() { super('move watchdog'); this.name = 'MoveTimeout'; } }
+const watchdog = (ms) => new Promise((_, rej) => setTimeout(() => rej(new MoveTimeout()), ms));
+
+/**
+ * 由 server 攞返權威盤面重畫（client 出錯之後兜底）。
+ * server 係權威，client 手上只係遮罩盤面，所以任何時候都可以由 G.moves 重建。
+ */
+function resyncBoard() {
+  try {
+    if (!G.session) return false;
+    applyBoard(server.reveal(G.session.sessionId, G.moves).maskedBoard);
+    G.view.setBoard(G.board);
+    renderClients();
+    return true;
+  } catch (e) { console.error('[resync] failed', e); return false; }
+}
+
 function newlySealed(prevBoard, board) {
   const out = [];
   const openColours = new Set(board.orders.filter(o => !o.filled).map(o => o.color));
@@ -586,9 +619,19 @@ async function onCupTap(idx) {
   // 由呢度起全部包 try/finally，鎖一定解得返。
   G.busy = true; G.selected = null; G.view.select(null); G.view.clearHint();
   try {
-    await doMove(m, idx, cup);
+    // 用戶 2026-09-07：盤面撳極冇反應，但 Console 冇 error。try/catch 兜唔到呢一種 ——
+    // 動畫 promise 掛住唔 resolve（rAF 被凍住、tween 死等）就冇 error 可捉，鎖永遠解唔返。
+    // 所以要同時計時：超過 MOVE_WATCHDOG_MS 就當佢死咗，由 server 重新同步盤面繼續玩。
+    await Promise.race([doMove(m, idx, cup), watchdog(MOVE_WATCHDOG_MS)]);
+  } catch (err) {
+    // 用戶 2026-09-07：盤面撳極冇反應。成因係呢條 await 鏈掟咗 error，鎖解唔返。
+    // 而家唔淨止解鎖，仲要由 server 重新同步盤面（動畫可能停咗喺半路），再報畀玩家知。
+    console.error('[move] failed', err);
+    resyncBoard();
+    toast(t('extra.toast.renderGlitch'));
   } finally {
     if (!G.solved) G.busy = false;
+    updateAddCupButton();
   }
 }
 
@@ -957,6 +1000,20 @@ async function startApp() {
   else await enterCafe(entry);
   $('#cafe-banner').onclick = () => { $('#cafe-banner').hidden = true; };
 }
+
+// 全域兜底（用戶 2026-09-07）：任何走漏嘅 error 都唔可以令盤面靜靜咁卡死。
+// 有咗呢個，就算將來出現新嘅崩潰路徑，玩家見到嘅係一個 toast + 盤面同步返，唔係一隻死咗嘅 game。
+function recoverFromCrash(where, detail) {
+  console.error('[crash]', where, detail);
+  if (!G.session || G.solved) return;
+  if (!G.busy) return;                 // 唔關走步事，唔好無端端重畫
+  G.busy = false;
+  resyncBoard();
+  updateAddCupButton();
+  toast(t('extra.toast.renderGlitch'));
+}
+window.addEventListener('error', (e) => recoverFromCrash('error', e.error || e.message));
+window.addEventListener('unhandledrejection', (e) => recoverFromCrash('rejection', e.reason));
 
 // 除錯 / 自動化測試用（正式版可移除）
 window.meowcha = { G, server, bg, CONFIG, playCampaign, onCupTap, restart, progress, enterCafe, unlockOrderSlot, addEmptyCup, unlockAdCup, catPop, setLocale, getLocale, t, showSettings, showHelp };

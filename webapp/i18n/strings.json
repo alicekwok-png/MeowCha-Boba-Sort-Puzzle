@@ -1245,6 +1245,11 @@
         "en": "Couldn't unlock this bottle right now",
         "zh-Hant": "暫時無法解鎖這個瓶",
         "zh-Hans": "暂时无法解锁这个瓶"
+      },
+      "renderGlitch": {
+        "en": "Something glitched — the board has been re-synced.",
+        "zh-Hant": "動畫出咗錯，盤面已經同步返。",
+        "zh-Hans": "动画出错了，盘面已经同步回来。"
       }
     },
     "ads": {
