@@ -2,17 +2,25 @@
 // 生成器（tools/gen.js → generator.js）同 client 都由呢度讀，唔會出現「寫咗但冇接上」。
 // 實作指令 v4（2026-09-05）：單一樽型；`?` 隱藏層同廣告樽 L2 起；限步 12；13 關後沿用工單 #5（布遮 19、訂單槽 7 / 17 / 36）。
 
-/** 步數上限：≤11 關冇上限（brief：第 12 關「夜市高峰」先首次限步）；之後按最優步加固定餘量
- *  12–20 +12 · 21–30 +10 · 31–40 +8 · 41–55 +7 · 56–70 +6 · 71+ +5 */
-export function computeMoveLimit(levelId, optimal) {
+/**
+ * 步數上限：≤11 關冇上限（brief：第 12 關「夜市高峰」先首次限步）。
+ *
+ * 餘量係加喺「2★ 門檻」之上，唔係加喺最優步之上（用戶 2026-09-07 喺 L30 撞到）——
+ * 三星門檻本身有隱藏格加成（樽越多 `?`、門檻越鬆，因為睇唔到就一定要試探蝕步數），
+ * 但舊公式係死板嘅「最優 + N」，冇跟。結果 L20 之後每一關嘅步數上限都低過 2★ 門檻：
+ * 玩家行到仲有 2 星嘅步數，已經被判死。星星同限步各講各話，一定要以鬆嗰個為準。
+ *
+ * 餘量：12–20 +12 · 21–30 +10 · 31–40 +8 · 41–55 +7 · 56–70 +6 · 71+ +5
+ */
+export function computeMoveLimit(levelId, optimal, twoStar = optimal) {
   if (!levelId || levelId < UNLOCK_LEVEL.moveLimit) return null;
-  if (levelId <= 20) return optimal + 12;
-  if (levelId <= 30) return optimal + 10;
-  if (levelId <= 40) return optimal + 8;
-  // L41–80（用戶 2026-09-06 加多 40 關）：盤面已經頂到上限，餘量收窄係仲推得郁嘅槓桿之一
-  if (levelId <= 55) return optimal + 7;
-  if (levelId <= 70) return optimal + 6;
-  return optimal + 5;
+  const base = Math.max(optimal, twoStar || 0);
+  if (levelId <= 20) return base + 12;
+  if (levelId <= 30) return base + 10;
+  if (levelId <= 40) return base + 8;
+  if (levelId <= 55) return base + 7;
+  if (levelId <= 70) return base + 6;
+  return base + 5;
 }
 
 /**

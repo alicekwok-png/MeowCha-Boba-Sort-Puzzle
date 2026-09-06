@@ -1403,9 +1403,9 @@
         "zh-Hans": "步数用完了……"
       },
       "outOfMovesBody": {
-        "en": "This level allows {n} moves. Undo a few and rethink, or start over?",
-        "zh-Hant": "這一關上限 {n} 步。撤銷幾步再想想，或重新開始？",
-        "zh-Hans": "这一关上限 {n} 步。撤销几步再想想，或重新开始？"
+        "en": "This level allows {n} moves. Start over and try a different route?",
+        "zh-Hant": "這一關上限 {n} 步。重新開始，換條路試試？",
+        "zh-Hans": "这一关上限 {n} 步。重新开始，换条路试试？"
       },
       "verifyFailed": {
         "en": "Verification failed",

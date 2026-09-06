@@ -10,7 +10,7 @@ import { LocalServer, MIN_MS_PER_MOVE } from '../src/client/local-server.js';
 import { solve } from '../src/core/solver.js';
 
 describe('步數上限', () => {
-  test('公式：≤11 無上限（brief 第 12 關先限步）；12–20 +12；21–30 +10；31–40 +8；41–55 +7；56–70 +6；71+ +5', () => {
+  test('公式：≤11 無上限（brief 第 12 關先限步）；餘量加喺 2★ 門檻之上；12–20 +12；21–30 +10；31–40 +8；41–55 +7；56–70 +6；71+ +5', () => {
     assert.equal(computeMoveLimit(1, 5), null);
     assert.equal(computeMoveLimit(11, 9), null);
     assert.equal(computeMoveLimit(12, 10), 22);
@@ -21,10 +21,16 @@ describe('步數上限', () => {
     assert.equal(computeMoveLimit(41, 30), 37);
     assert.equal(computeMoveLimit(56, 30), 36);
     assert.equal(computeMoveLimit(71, 30), 35);
+    // 用戶 2026-09-07：L30 行到 58 步就死，但 2★ 門檻係 68 —— 上限唔可以低過 2★ 門檻
+    assert.equal(computeMoveLimit(30, 48, 68), 78);
+    assert.ok(computeMoveLimit(30, 48, 68) > 68);
   });
   test('campaign.json 每關都寫咗 moveLimit，同公式一致', () => {
     const d = JSON.parse(readFileSync(new URL('../levels/campaign.json', import.meta.url), 'utf8'));
-    for (const l of d.levels) assert.equal(l.moveLimit, computeMoveLimit(l.id, l.optimal), `L${l.id}`);
+    for (const l of d.levels) {
+      assert.equal(l.moveLimit, computeMoveLimit(l.id, l.optimal, l.thresholds.two), `L${l.id}`);
+      if (l.moveLimit !== null) assert.ok(l.moveLimit > l.thresholds.two, `L${l.id} 上限要高過 2★ 門檻`);
+    }
   });
   test('server 亦驗步數上限：超過上限嘅完成提交被拒', () => {
     const N = (seg) => makeCup('normal', seg);

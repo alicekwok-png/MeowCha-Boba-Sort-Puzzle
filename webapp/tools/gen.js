@@ -62,7 +62,7 @@ for (let i = 0; i < CAMPAIGN.length; i++) {
     board: encodeBoard(res.board),
     optimal: res.optimal,
     thresholds: res.thresholds,
-    moveLimit: computeMoveLimit(id, res.optimal),   // 工單 #5：步數上限（≤10 關 null）
+    moveLimit: computeMoveLimit(id, res.optimal, res.thresholds.two),   // 工單 #5：步數上限（≤11 關 null；餘量加喺 2★ 門檻之上）
     hiddenRatio: hiddenRatio(id), hiddenCells: res.hiddenCells, units: res.units,   // 工單 #5：隱藏密度（目標 / 實際）
   });
 }
