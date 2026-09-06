@@ -475,7 +475,8 @@ function updatePace() {
   const pace = $('#pace');
   pace.classList.remove('warn', 'danger');
   if (limit === null || limit === undefined) {
-    $('#pace-moves').textContent = t('hud.moves', { n });
+    // 用戶 2026-09-07「拎走，冇步數計」：冇上限就唔顯示步數，HUD 只剩即時星等（同參考遊戲一樣）
+    $('#pace-moves').textContent = '';
   } else {
     // 步數上限（工單 #5）：剩 5 步變琥珀，剩 2 步變紅 + 脈動；Undo 會扣返（n = G.moves.length）
     const left = limit - n;

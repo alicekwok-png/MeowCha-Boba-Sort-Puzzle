@@ -2,7 +2,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { computeMoveLimit, hiddenRatio, maxOrders, gatingViolations, UNLOCK_LEVEL } from '../src/core/difficulty.js';
+import { computeMoveLimit, hiddenRatio, maxOrders, gatingViolations, UNLOCK_LEVEL, MOVE_LIMIT_ENABLED } from '../src/core/difficulty.js';
 import { CAMPAIGN, bottlesPerColorFor, emptiesFor } from '../src/core/levels.js';
 import { makeCup, makeBoard, encodeBoard } from '../src/core/board.js';
 import * as decodeMod from '../src/core/board.js';
@@ -10,25 +10,17 @@ import { LocalServer, MIN_MS_PER_MOVE } from '../src/client/local-server.js';
 import { solve } from '../src/core/solver.js';
 
 describe('步數上限', () => {
-  test('公式：≤11 無上限（brief 第 12 關先限步）；餘量加喺 2★ 門檻之上；12–20 +12；21–30 +10；31–40 +8；41–55 +7；56–70 +6；71+ +5', () => {
-    assert.equal(computeMoveLimit(1, 5), null);
-    assert.equal(computeMoveLimit(11, 9), null);
-    assert.equal(computeMoveLimit(12, 10), 22);
-    assert.equal(computeMoveLimit(20, 18), 30);
-    assert.equal(computeMoveLimit(21, 18), 28);
-    assert.equal(computeMoveLimit(30, 20), 30);
-    assert.equal(computeMoveLimit(40, 29), 37);
-    assert.equal(computeMoveLimit(41, 30), 37);
-    assert.equal(computeMoveLimit(56, 30), 36);
-    assert.equal(computeMoveLimit(71, 30), 35);
-    // 用戶 2026-09-07：L30 行到 58 步就死，但 2★ 門檻係 68 —— 上限唔可以低過 2★ 門檻
-    assert.equal(computeMoveLimit(30, 48, 68), 78);
-    assert.ok(computeMoveLimit(30, 48, 68) > 68);
+  // 用戶 2026-09-07：「拎走，冇步數計」——限步整條關掉（MOVE_LIMIT_ENABLED = false）。
+  // 難度由隱藏密度 / 盤面規模 / 布遮樽出，星星照計；想恢復就將 flag 改返 true。
+  test('限步已停用：全部關卡都冇上限', () => {
+    assert.equal(MOVE_LIMIT_ENABLED, false);
+    for (const id of [1, 11, 12, 20, 30, 40, 55, 70, 80]) assert.equal(computeMoveLimit(id, 30, 50), null, `L${id}`);
   });
   test('campaign.json 每關都寫咗 moveLimit，同公式一致', () => {
     const d = JSON.parse(readFileSync(new URL('../levels/campaign.json', import.meta.url), 'utf8'));
     for (const l of d.levels) {
       assert.equal(l.moveLimit, computeMoveLimit(l.id, l.optimal, l.thresholds.two), `L${l.id}`);
+      // 限步一日開返，上限都唔可以低過 2★ 門檻（用戶 2026-09-07 喺 L30 撞過：58 步判死但 2★ 門檻 68）
       if (l.moveLimit !== null) assert.ok(l.moveLimit > l.thresholds.two, `L${l.id} 上限要高過 2★ 門檻`);
     }
   });
@@ -81,7 +73,7 @@ describe('機制登場表', () => {
   test('登場表數值', () => {
     assert.deepEqual(UNLOCK_LEVEL, { hidden: 2, adBottle: 2, orders: 1, adEmptyCup: 11, moveLimit: 12, secondOrder: 3, adOrderSlot: 11, covered: 13 });   // 提示 / 撤銷 2026-09-06 拎走
   });
-  test('登場：空樽 L1–12 兩隻 / L13 起一隻（自由格 = 空樽 × 4，難度唯一有效桿）、真樽 = 色數 × 每色樽數 + 空樽；L2 起 `?` 樽 + 廣告樽（L2 兩隻）；全部 capacity 4；第 12 關限步；第 19 關布遮樽（campaign.json 實際盤面）', () => {
+  test('登場：空樽 L1–12 兩隻 / L13 起一隻（自由格 = 空樽 × 4，難度唯一有效桿）、真樽 = 色數 × 每色樽數 + 空樽；L2 起 `?` 樽 + 廣告樽（L2 兩隻）；全部 capacity 4；限步已停用；第 13 關布遮樽（campaign.json 實際盤面）', () => {
     const d = JSON.parse(readFileSync(new URL('../levels/campaign.json', import.meta.url), 'utf8'));
     const { decodeBoard } = decodeMod;
     const board = id => decodeBoard(d.levels[id - 1].board);
@@ -104,8 +96,8 @@ describe('機制登場表', () => {
     assert.equal(kinds(1).includes('hidden'), false); assert.equal(ads(1), 0); assert.equal(d.levels[0].hiddenCells, 0);
     assert.ok(kinds(2).includes('hidden'), 'L2 `?`'); assert.equal(ads(2), 2, 'L2 兩隻廣告樽');
     for (let id = 2; id <= CAMPAIGN.length; id++) assert.ok(ads(id) >= 1, `L${id} ad`);
-    for (let id = 1; id <= 11; id++) assert.equal(d.levels[id - 1].moveLimit, null, `L${id} limit`);
-    assert.ok(d.levels[11].moveLimit > 0);
+    // 限步 2026-09-07 整條停用（用戶：「拎走，冇步數計」）→ 每一關都係 null
+    for (const l of d.levels) assert.equal(l.moveLimit, null, `L${l.id} limit`);
     for (let id = 1; id <= 12; id++) assert.ok(!kinds(id).includes('covered'), `L${id} covered`);
     assert.ok(kinds(13).includes('covered'));   // 2026-09-06 由 L19 提前到 L13
     for (const l of d.levels) for (const c of decodeBoard(l.board).cups) { assert.equal(c.cap, 4, `L${l.id} capacity 4`); assert.ok(!['takeaway', 'cracked', 'sealed'].includes(c.kind), `L${l.id} ${c.kind}`); }

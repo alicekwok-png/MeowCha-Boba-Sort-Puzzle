@@ -12,7 +12,17 @@
  *
  * 餘量：12–20 +12 · 21–30 +10 · 31–40 +8 · 41–55 +7 · 56–70 +6 · 71+ +5
  */
+/**
+ * 用戶 2026-09-07：「拎走，冇步數計」。
+ * 難度而家係由「睇唔到（隱藏 45–72%）＋ 盤面大（最多 24 樽）＋ 布遮樽」出，
+ * 限步只係第二層失敗條件 —— 而且同星星系統打交（見下面），參考遊戲個 HUD 亦都冇步數。
+ * 星星照計（三星門檻仍然睇步數），所以效率壓力仲喺度，只係唔會再「行多幾步就判死」。
+ * 想恢復：呢個 flag 改返 true 就得，公式原封不動。
+ */
+export const MOVE_LIMIT_ENABLED = false;
+
 export function computeMoveLimit(levelId, optimal, twoStar = optimal) {
+  if (!MOVE_LIMIT_ENABLED) return null;
   if (!levelId || levelId < UNLOCK_LEVEL.moveLimit) return null;
   const base = Math.max(optimal, twoStar || 0);
   if (levelId <= 20) return base + 12;
