@@ -203,9 +203,15 @@ def bottle_geom_and_opaque(path):
     # 底部圓角要密啲取樣（每 2px）先至唔會變成幾條直線斜邊
     taper = int(round(H * 0.05))
     ys_sample = sorted(set(list(range(liquid_top, max(liquid_top, liquid_bottom - taper), 8)) + list(range(max(liquid_top, liquid_bottom - taper), liquid_bottom + 1, 2)) + [liquid_bottom]))
+    # 液體要坐喺玻璃**內壁**入面，唔係貼住剪影最外邊（用戶 2026-09-06「穿崩」：液體蓋住玻璃壁，
+    # 睇落就似溢咗出樽外）。壁厚由明度剖面量到：由剪影邊向內約 2.4% frame 闊就見到內壁高光。
+    # 樽底圓角行本身好窄，用 30% 行闊封頂，唔會縮到冇。
+    wall = W * 0.024
     for y in ys_sample:
         if rowL[y] < 0: continue
-        sample.append([round(y / H, 4), round(rowL[y] / W, 4), round((rowR[y] + 1) / W, 4)])
+        l, r = float(rowL[y]), float(rowR[y] + 1)
+        ins = min(wall, (r - l) * 0.30)
+        sample.append([round(y / H, 4), round((l + ins) / W, 4), round((r - ins) / W, 4)])
     ry = top + 6
     ny_ = int(H * 0.15)
     geom = {

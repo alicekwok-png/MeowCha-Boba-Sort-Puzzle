@@ -39,7 +39,9 @@ describe('液體幾何（vessels.json bottle_std）', () => {
     // 樽身內壁：唔係圓肚（舊燒瓶幾何嘅症狀），中段闊度變化 < 2%
     const mid = g.rows.filter(r => r[0] > 0.35 && r[0] < 0.9).map(r => r[2] - r[1]);
     assert.ok(Math.max(...mid) - Math.min(...mid) < 0.02, 'body width nearly constant');
+    // 液體坐喺玻璃內壁：明顯窄過樽身剪影（每邊縮走壁厚），但唔可以縮到得返一條
     const e = extentsAt(g, (g.liquid.top + g.liquid.bottom) / 2);
-    assert.ok(e.r - e.l > 0.3 && e.r - e.l <= g.maxWidth);
+    const ratio = (e.r - e.l) / g.maxWidth;
+    assert.ok(ratio > 0.75 && ratio < 0.95, `液體闊度 / 樽身闊度 = ${ratio.toFixed(3)}`);
   });
 });
