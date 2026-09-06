@@ -1148,9 +1148,9 @@
         "zh-Hans": "再玩一次"
       },
       "stuckBody": {
-        "en": "Nothing can be poured. Undo a few steps, or start over?",
-        "zh-Hant": "所有瓶都倒不了。撤銷幾步，或重新開始？",
-        "zh-Hans": "所有瓶都倒不了。撤销几步，或重新开始？"
+        "en": "Nothing can be poured, and every bottle and order slot is already open. Start over?",
+        "zh-Hant": "所有瓶都倒不了，樽同委託槽亦已經全部開晒。重新開始？",
+        "zh-Hans": "所有瓶都倒不了，瓶和委托槽也已经全部开完。重新开始？"
       },
       "outOfMoves": {
         "en": "Out of moves…",

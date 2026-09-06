@@ -376,6 +376,19 @@ async function addEmptyCup() {
  * 「+樽」出現條件：非練習、≥ 第 11 關、該關容許廣告入口、未用過、盤面冇可用空樽（只計 kind normal 嘅空樽 —
  * gone 係已飛走嘅位、ad 係鎖住嘅），而且盤面冇廣告樽剩低（v2 同屏 ≤ 2 個廣告觸點：有 ad 樽就先撳 ad 樽）。
  */
+/**
+ * 仲有冇「開得到嘅出路」？（廣告樽 / 廣告委託槽 / +樽）
+ * 三樣任何一樣仲喺度，就唔算無路可走 —— 開完就會有新嘅合法步。
+ */
+function hasRescue() {
+  if (!G.level || !G.board) return false;
+  const adsOk = !G.practice && adsAllowedForLevel(G.level.id);
+  if (adsOk && G.board.cups.some(c => c.kind === 'ad')) return true;                       // 盤面仲有廣告樽未開
+  if (adsOk && G.adUnlocked < G.adTotal && G.session
+      && server.canAddOrder(G.session.sessionId, G.moves)) return true;                     // 仲開得到廣告委託槽
+  return canOfferEmptyCup();                                                                // 仲用得「+樽」
+}
+
 function canOfferEmptyCup() {
   if (!G.level || G.practice || G.cupAdded) return false;
   if (!adsAllowedForLevel(G.level.id) || G.level.id < UNLOCK_LEVEL.adEmptyCup) return false;
@@ -613,7 +626,9 @@ async function onCupTap(idx) {
   if (isSolved(G.board)) { await onSolved(); return; }
   // 用戶 2026-09-06：唔好一發現盤面無解就彈窗 —— 玩家應該自己識開廣告樽 / 開委託槽救返，
   // 真係一步都行唔到（isDead）先彈。`LocalServer.solvable` 保留做工具用，UI 唔會叫。
-  if (isDead(G.board)) { sfx.stuck(); await sleep(350); showStuck(); return; }
+  // 「無路可走」只可以喺真係一條路都冇嗰陣先彈（用戶 2026-09-06）：
+  // 盤面仲有未開嘅廣告樽、未開嘅廣告委託槽、或者仲用得嘅「+樽」，都算有出路 —— 逼人重來係搶咗玩家嘅選擇。
+  if (isDead(G.board) && !hasRescue()) { sfx.stuck(); await sleep(350); showStuck(); return; }
   if (G.session.moveLimit !== null && G.moves.length >= G.session.moveLimit) { sfx.stuck(); await sleep(350); showOutOfMoves(); return; }
 }
 
@@ -674,6 +689,7 @@ async function onSolved() {
   if ($('#m-practice')) $('#m-practice').onclick = () => { closeModal(); pickPractice(); };
 }
 
+/** 真・無路可走：冇合法步，而且廣告樽 / 廣告委託槽 / +樽 全部用晒 */
 function showStuck() {
   modal(`
     <img class="mascot" src="${asset('CHR_cat_idle')}" alt="">
