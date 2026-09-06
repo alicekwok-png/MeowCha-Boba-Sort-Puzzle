@@ -921,11 +921,14 @@ export class GameView {
       const ryTop = Math.min(ryF, (yBot - yTop) / 2);           // 薄層（倒緊）弧唔可以高過半層
       const ryBot = from <= 0.001 ? 0 : ryTop;                    // 最底層：底邊平
       const ryPx = ryTop * S;
-      // ① rim glow：先畫描邊，再填色，內半邊會被液體蓋住、外半邊留喺玻璃上
+      // ① rim glow：沿液體邊界描邊，但 **clip 喺路徑之內**（用戶 2026-09-06「樽底穿崩」：
+      //    原本一半描邊落喺路徑外面，喺深背景上就似液體溢咗出玻璃）。lineWidth ×2 令內半邊仍然係 rimPx 闊。
       ctx.save();
       ctx.globalAlpha = baseAlpha * alpha;
       this._layerPath(g, S, fx, fy, yTop, yBot, ryTop, ryBot);
-      ctx.strokeStyle = rgba(hex, RENDER.glow.rimAlpha); ctx.lineWidth = RENDER.glow.rimPx * 2; ctx.lineJoin = 'round';
+      ctx.clip();
+      this._layerPath(g, S, fx, fy, yTop, yBot, ryTop, ryBot);
+      ctx.strokeStyle = rgba(hex, RENDER.glow.rimAlpha); ctx.lineWidth = RENDER.glow.rimPx * 4; ctx.lineJoin = 'round';
       ctx.stroke();
       ctx.restore();
       ctx.save();

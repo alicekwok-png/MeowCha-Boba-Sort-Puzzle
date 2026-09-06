@@ -114,8 +114,8 @@ function sizeClients() {
   if (!el || !slot) return;
   const r = el.getBoundingClientRect(), sr = slot.getBoundingClientRect();
   if (r.height < 10 || sr.width < 10) return;
-  const trayH = r.height * 0.25;                      // --label-h: 25%（styles.css .slot）
-  const GAP = 10;                                     // 用戶 2026-09-06：頭頂唔可以貼住 HUD
+  const trayH = r.height * 0.23;                      // --label-h: 23%（styles.css .slot）
+  const GAP = 20;                                     // 用戶 2026-09-06：頭頂唔可以貼住 HUD（委託人區已加大 1.5% 補返，角色唔會細咗）
   const size = Math.floor(Math.min(r.height - trayH - GAP, sr.width * 1.18));
   document.documentElement.style.setProperty('--client-size', size + 'px');
 }

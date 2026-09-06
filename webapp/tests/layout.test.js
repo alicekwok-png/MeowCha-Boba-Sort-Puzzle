@@ -119,7 +119,7 @@ describe('Render', () => {
     assert.equal(RENDER.liquidBlend, 'source-over');
     assert.deepEqual(RENDER.glassHighlight, { lumaThreshold: 215, lumaRange: 40, strength: 0.55 });
     assert.deepEqual(RENDER.surfaceEllipse, { ryRatio: 0.14, lighten: 0.32 });   // 液面線已由圓柱頂面橢圓取代（2026-09-06）
-    assert.equal(LAYOUT.bottleHeightRatio, 0.19); assert.equal(+(LAYOUT.playfieldBottom - LAYOUT.playfieldTop).toFixed(3), 0.695); assert.equal(LAYOUT.topBarBottom, 0.055); assert.equal(+(LAYOUT.clientsBottom - LAYOUT.clientsTop).toFixed(3), 0.135); assert.equal(+(LAYOUT.orderSlotsBottom - LAYOUT.orderSlotsTop).toFixed(3), 0.045); assert.equal(LAYOUT.toolbarTop, 0.93);
+    assert.equal(LAYOUT.bottleHeightRatio, 0.19); assert.equal(+(LAYOUT.playfieldBottom - LAYOUT.playfieldTop).toFixed(3), 0.68); assert.equal(LAYOUT.topBarBottom, 0.055); assert.equal(+(LAYOUT.clientsBottom - LAYOUT.clientsTop).toFixed(3), 0.15); assert.equal(+(LAYOUT.orderSlotsBottom - LAYOUT.orderSlotsTop).toFixed(3), 0.045); assert.equal(LAYOUT.toolbarTop, 0.93);
   });
   test('v4 §2.2：深色標準樽樽身中央明度 < 80/255', () => {
     const c = JSON.parse(readFileSync(new URL('../assets/v2/asset-check.json', import.meta.url), 'utf8')).checks;
