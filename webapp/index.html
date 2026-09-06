@@ -92,9 +92,7 @@
             <div class="level-title"><b id="game-level-no">第 1 關</b><span id="game-level-title"></span></div>
             <div class="pace" id="pace" title="步數 / 三星門檻" data-i18n-key="extra.hud.paceStatic" data-i18n-attr="title"><span class="pace-stars" id="pace-stars"></span><span class="pace-moves" id="pace-moves">0 步</span></div>
           </div>
-          <div class="top-right">
-            <span class="queue-left" id="hud-queue" hidden></span>
-          </div>
+          <div class="top-right"></div>   <!-- 保留做平衡，令中間關卡 / 步數置中（「尚有 N 單」2026-09-06 拎走） -->
         </div>
         <div class="customers" id="customers"></div>
       </header>
@@ -102,13 +100,11 @@
         <canvas id="board"></canvas>
         <!-- v4 §3.2 貓助手 transient：只喺交貨 / 教學句時由右下滑入，CAT.showDurationMs 後淡出；其餘時間完全唔佔位 -->
         <div id="cat-pop" class="cat-pop" aria-live="polite" hidden>
-          <div id="cat-bubble" class="cat-bubble" hidden></div>
           <img id="cat-img" src="assets/v2/cat_cheer.webp?v=1c456084" alt="導師" data-i18n-key="extra.title.mascotAlt" data-i18n-attr="alt">
         </div>
       </div>
-      <!-- 道具列（用戶 2026-09-06：拎走「提示」，設定由頂欄搬到「重來」右邊）：撤銷（L5 起）· +樽（廣告加空樽，L11 起、盤面冇廣告樽剩低先出）· 重來 · 設定 -->
+      <!-- 道具列（用戶 2026-09-06：拎走「提示」同「撤銷」，設定由頂欄搬落嚟）：+樽（廣告加空樽，L11 起、盤面冇廣告樽剩低先出）· 重來 · 設定 -->
       <footer class="zone zone-actions">
-        <button class="act" id="btn-undo"><img src="assets/v2/ui_item_undo.webp?v=1c456084" alt=""><span data-i18n="actions.undo">撤銷</span></button>
         <button class="act ad" id="btn-add-cup" type="button" hidden aria-label="睇廣告加一隻空樽" title="睇廣告加一隻空樽" data-i18n-key="extra.hud.addCupAria" data-i18n-attr="aria-label|title"><img src="assets/v2/ui_item_addflask.webp?v=1c456084" alt=""><span data-i18n="extra.hud.addCup">+樽</span></button>
         <button class="act" id="btn-restart"><i>↻</i><span data-i18n="actions.restart">重來</span></button>
         <button class="act" id="btn-settings-game" aria-label="設定" title="設定" data-i18n-key="menu.settings" data-i18n-attr="aria-label|title"><img src="assets/v2/ui_sys_settings.webp?v=1c456084" alt=""><span data-i18n="menu.settings">設定</span></button>

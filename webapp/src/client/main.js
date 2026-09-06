@@ -219,35 +219,19 @@ function toast(text, ms = 1600) {
 // ---------- 導師（煉金貓）— v4 §3.2 transient ----------
 // 貓唔再常駐：只喺交貨（CHR_cat_cheer，CAT.showDurationMs）同教學 / 事件句（≈2.5 s）由盤面右下滑入，之後 CAT.fadeOutMs 淡出。
 // 對白全部係 i18n key（strings.json catLines / tutorial + extra.tutor），顯示時先 t()
-const LINES = {
-  serve: ['extra.tutor.serve1', 'extra.tutor.serve2', 'extra.tutor.serve3', 'catLines.good'],
-  almost: ['extra.tutor.almost1', 'extra.tutor.almost2'],
-  stuck: ['catLines.stuck', 'extra.tutor.stuck2'],
-  clear: ['extra.tutor.clear1', 'extra.tutor.clear2'],
-  hidden: ['extra.tutor.hidden'],        // v4 §5：L2 第一次見 `?` 樽
-  covered: ['extra.tutor.covered'],
-  unlock: ['extra.tutor.unlock'],
-  adBottle: ['extra.tutor.adBottle'],    // v4 §4：廣告樽解鎖
-  sealed: ['extra.tutor.sealed'],        // v4 §7：完成樽冇委託 → 封存
-  addCup: ['extra.tutor.addCup'],
-};
-/** 某組對白：指定 index 或隨機一句（已翻譯） */
-const line = (mood, i = null) => t(LINES[mood][i === null ? Math.floor(Math.random() * LINES[mood].length) : i]);
 /** 導師貓三態：idle · happy（交貨 / 好事）· cheer（交貨彈出用 cheer，v4 §8 建議） */
 const CAT_SRC = { idle: 'CHR_cat_idle', happy: 'CHR_cat_happy', cheer: 'CHR_cat_cheer' };
-const CAT_LINE_MS = 2500;   // 有對白時最少停留
 let catTimer = null, catSeq = 0;
 /**
- * 彈出貓：由右下滑入 → 停 ms → 淡出。text 省略就淨係貓（交貨）。
+ * 彈出貓：由右下滑入 → 停 ms → 淡出。冇對白（用戶 2026-09-06 拎走貓嘅所有提示對白，只剩交貨時嘅慶祝動作）。
  * 連續觸發會重置停留時間（唔會閃兩次）。pointer-events none，唔會遮住瓶嘅點擊。
  */
-function catPop(state = 'cheer', text = undefined, ms = null) {
-  const pop = $('#cat-pop'), img = $('#cat-img'), bubble = $('#cat-bubble');
+function catPop(state = 'cheer', ms = null) {
+  const pop = $('#cat-pop'), img = $('#cat-img');
   if (!pop) return;
   const src = asset(CAT_SRC[state] || CAT_SRC.cheer);
   if (img.src !== src) img.src = src;
-  if (text) { bubble.textContent = text; bubble.hidden = false; } else { bubble.hidden = true; }
-  const hold = ms ?? (text ? Math.max(CAT.showDurationMs, CAT_LINE_MS) : CAT.showDurationMs);
+  const hold = ms ?? CAT.showDurationMs;
   const seq = ++catSeq;
   clearTimeout(catTimer);
   pop.classList.remove('out');
@@ -261,14 +245,6 @@ function catPop(state = 'cheer', text = undefined, ms = null) {
 }
 /** 即刻收起（換關 / 過關 modal） */
 function catHide() { clearTimeout(catTimer); catSeq++; const pop = $('#cat-pop'); if (pop) { pop.hidden = true; pop.classList.remove('in', 'out'); } }
-/** 舊呼叫名（serve / stuck / almost / clear …）→ 一律 transient；冇對白嘅 idle / pouring 唔再彈貓（v4：平時盤面冇貓） */
-const MOOD = { idle: 'idle', pouring: 'idle', stuck: 'idle', almost: 'happy', serve: 'happy', clear: 'cheer' };
-function mocha(mood, text) {
-  const txt = text !== undefined ? text : LINES[mood] ? line(mood) : undefined;
-  if (!txt) return;
-  catPop(MOOD[mood] || 'idle', txt);
-}
-
 // ---------- 委託人區（Spec v2 §6）----------
 const SLOT_COUNT = 4;   // 四位委託人固定顯示：slot i = CLIENT_ORDER[i]（raven → badger → owl → hare）
 
@@ -319,10 +295,6 @@ function renderClients(popColor = null, enterIndex = -1, flyingIndex = -1, opts 
     const s = document.createElement('span'); s.className = 'customers-note'; s.textContent = t('extra.hud.noOrders');
     el.appendChild(s);
   }
-  // Spec v3：隊列仲有幾多單（client 只知數量，唔知色）— 顯示喺 HUD 右邊（設定掣旁），唔壓住委託人
-  const left = G.board.queueLeft || 0;
-  const q = $('#hud-queue');
-  if (q) { q.textContent = left > 0 ? t('extra.hud.queueLeft', { n: left }) : ''; q.hidden = !(left > 0); }
 }
 
 /**
@@ -337,7 +309,7 @@ async function runEvents(events, prevBoard) {
       const orderIdx = ev.slot ?? prevBoard.orders.findIndex(o => o.color === ev.color);
       // 飛行途中：托盤仍然顯示舊訂單色（用 prevBoard 渲染），✓ / 新色等落地先出
       renderClients(null, -1, orderIdx, { board: prevBoard });
-      if (CAT.showOnDeliver) catPop('cheer', undefined, CAT.showDurationMs);
+      if (CAT.showOnDeliver) catPop('cheer', CAT.showDurationMs);
       const rect = orderIdx >= 0 ? trayRectFor(orderIdx) : null;
       if (rect && typeof G.view.animateFlyToSlot === 'function') await G.view.animateFlyToSlot(ev.cup, rect);
       else await G.view.animateDeliver(ev.cup, `✓ ${liquidName(ev.color)} ${t('clients.deliver')}`);
@@ -345,7 +317,7 @@ async function runEvents(events, prevBoard) {
       renderClients(ev.color, -1, -1, { flashIndex: orderIdx });
       await sleep(140);
     } else if (ev.type === 'unlock') {
-      sfx.unlock(); mocha('unlock', line('unlock', 0));
+      sfx.unlock();
       await G.view.animateUnlock(ev.cup);
       renderClients();
     } else if (ev.type === 'order') {
@@ -370,7 +342,6 @@ async function unlockOrderSlot() {
   G.adUnlocked++;
   const prevBoard = G.board;
   applyBoard(r.maskedBoard);
-  mocha('serve', t('extra.ads.newClient', { liquid: liquidName(r.color) }));
   renderClients(null, G.board.orders.length - 1);   // 入場動畫：由頂部滑落 + 托盤淡入
   await sleep(500);
   // Spec v3 §2.3：新單嘅色如果係已封樽 → server 已即刻交貨（events），要播返飛走動畫
@@ -397,7 +368,6 @@ async function addEmptyCup() {
   G.selected = null; G.view.select(null); G.view.clearHint();
   applyBoard(r.maskedBoard);
   sfx.unlock();
-  mocha('serve', line('addCup', 0));
   await sleep(400);
   G.busy = false;
   updatePace();
@@ -434,7 +404,6 @@ async function unlockAdCup(idx) {
   applyBoard(r.maskedBoard);
   sfx.unlock();
   if (typeof G.view.animateAdUnlock === 'function') await G.view.animateAdUnlock(idx);
-  mocha('adBottle', line('adBottle', 0));
   G.busy = false;
   updatePace();
   updateAddCupButton();
@@ -452,7 +421,6 @@ const G = {
   cupAdded: false,             // 廣告空瓶：每關只一次
   practiceDiff: null,          // 練習難度（easy / medium / hard）→ 副標題用 extra.practice.*
   modalName: null,             // 而家開住嘅 modal（help / settings）：語言切換時重繪
-  hiddenTipShown: false,       // v4 §5：`?` 樽教學句只講一次（存 localStorage mc_tut_hidden）
 };
 
 /**
@@ -486,21 +454,18 @@ function updatePace() {
     if (left <= 2) pace.classList.add('danger'); else if (left <= 5) pace.classList.add('warn');
   }
   pace.title = limit ? t('extra.hud.paceTitleLimit', { n, max: limit, three: th.three, opt: G.session.optimalMoves }) : t('extra.hud.paceTitle', { n, three: th.three, opt: G.session.optimalMoves });
-  $('#btn-undo').disabled = G.moves.length === 0 || G.busy;
 }
 
-/** 步數用晒（未過關）：只可以撤銷或重來 */
+/** 步數用晒（未過關）：只可以重來 */
 function showOutOfMoves() {
   modal(`
     <img class="mascot" src="${asset('CHR_cat_idle')}" alt="">
     <h3>${t('extra.modals.outOfMoves')}</h3>
     <p>${t('extra.modals.outOfMovesBody', { n: G.session.moveLimit })}</p>
     <div class="row">
-      ${$('#btn-undo').hidden ? '' : `<button class="btn" id="m-undo">↶ ${t('actions.undo')}</button>`}
       <button class="btn primary" id="m-restart">↻ ${t('actions.restart')}</button>
     </div>
   `);
-  if ($('#m-undo')) $('#m-undo').onclick = () => { closeModal(); undo(); };
   $('#m-restart').onclick = () => { closeModal(); restart(); };
 }
 
@@ -515,12 +480,11 @@ async function startLevel(levelData, { practice = false, diff = null } = {}) {
   G.level = levelData; G.practice = practice; G.practiceDiff = practice ? (diff || G.practiceDiff) : null;
   const st = server.start(levelData);
   G.session = st;
-  G.moves = []; G.ts = []; G.history = []; G.selected = null; G.busy = false; G.solved = false;
+  G.moves = []; G.ts = []; G.selected = null; G.busy = false; G.solved = false;
   G.adTotal = practice ? 0 : adSlotsFor(levelData.id); G.adUnlocked = 0; G.cupAdded = false;
   G.startedAt = performance.now();
   if (!practice) { progress.last = levelData.id; saveProgress(); }   // 續玩：下次直接落返呢關
   // 機制登場表：Undo 第 5 關起、提示第 14 關起先顯示（練習模式全部開）
-  $('#btn-undo').hidden = !practice && levelData.id < UNLOCK_LEVEL.undo;
   if (!G.view) G.view = new GameView($('#board'), { onCupTap });
   if (typeof G.view.setLevelId === 'function') G.view.setLevelId(layoutSeedFor(levelData));   // 版面（safeLayout）以關卡號做種子，同關每次一樣
   applyBoard(st.maskedBoard);
@@ -536,19 +500,6 @@ async function startLevel(levelData, { practice = false, diff = null } = {}) {
   renderClients();
   catHide();
   refreshTitle();
-  // v4 §5 教學：第一次見 `?` 隱藏層樽（L2），貓彈出一句「倒走上面先知下面係咩」；布遮樽第一次出現同樣講一次
-  const hidden = G.board.cups.some(c => c.kind === 'hidden');
-  const covered = G.board.cups.some(c => c.kind === 'covered' && c.locked);
-  let seenHidden = G.hiddenTipShown, seenCovered = false;
-  try { seenHidden = seenHidden || localStorage.getItem('mc_tut_hidden') === '1'; seenCovered = localStorage.getItem('mc_tut_covered') === '1'; } catch { /* ignore */ }
-  if (hidden && !seenHidden) {
-    G.hiddenTipShown = true;
-    try { localStorage.setItem('mc_tut_hidden', '1'); } catch { /* ignore */ }
-    setTimeout(() => { if (G.level === levelData) catPop('idle', line('hidden', 0)); }, 400);
-  } else if (covered && !seenCovered) {
-    try { localStorage.setItem('mc_tut_covered', '1'); } catch { /* ignore */ }
-    setTimeout(() => { if (G.level === levelData) catPop('idle', line('covered', 0)); }, 400);
-  }
 }
 
 async function playCampaign(id) {
@@ -616,7 +567,7 @@ async function onCupTap(idx) {
 
   // ---- 樂觀執行 ----
   G.busy = true; G.selected = null; G.view.select(null); G.view.clearHint();
-  $('#btn-undo').disabled = true; $('#btn-add-cup').hidden = true;
+  $('#btn-add-cup').hidden = true;
   const src = G.board.cups[m.from];
   const unitKey = src.seg[src.seg.length - 1];
   const prevBoard = G.board;
@@ -634,11 +585,11 @@ async function onCupTap(idx) {
     console.warn('[move] server rejected', err);
     try { applyBoard(server.reveal(G.session.sessionId, G.moves).maskedBoard); } catch { /* ignore */ }
     G.view.shake(idx); sfx.shake();
-    G.busy = false; $('#btn-undo').disabled = G.moves.length === 0; updateAddCupButton();
+    G.busy = false; updateAddCupButton();
     return;
   }
 
-  G.moves = nextMoves; G.ts.push(Math.round(performance.now() - G.startedAt)); G.history.push(prevBoard);
+  G.moves = nextMoves; G.ts.push(Math.round(performance.now() - G.startedAt));
   sfx.pour(n);
   bg.onPour();                                   // 單張背景下係 no-op，保留接口
   await G.view.animatePour(m.from, m.to, n, unitKey);
@@ -652,7 +603,6 @@ async function onCupTap(idx) {
   const sealed = newlySealed(prevBoard, G.board);
   if (sealed.length && typeof G.view.animateSeal === 'function') {
     await Promise.all(sealed.map(i => G.view.animateSeal(i)));
-    if (!served && G.board.orders.length) mocha('sealed', line('sealed', 0));
   }
   G.view.setBoard(G.board);
   G.busy = false;
@@ -661,19 +611,8 @@ async function onCupTap(idx) {
   if (!served) renderClients();
 
   if (isSolved(G.board)) { await onSolved(); return; }
-  if (isDead(G.board)) { mocha('stuck'); sfx.stuck(); await sleep(350); showStuck(); return; }
-  if (G.session.moveLimit !== null && G.moves.length >= G.session.moveLimit) { mocha('stuck', t('extra.tutor.outOfMoves')); sfx.stuck(); await sleep(350); showOutOfMoves(); return; }
-}
-
-async function undo() {
-  if (G.busy || !G.moves.length || $('#btn-undo').hidden) return;
-  G.moves.pop(); G.ts.pop();
-  G.history.pop();
-  const r = server.reveal(G.session.sessionId, G.moves);   // 由 server 取回同步後嘅遮罩盤面（已露出嘅格保留）
-  G.selected = null; G.view.select(null); G.view.clearHint();
-  applyBoard(r.maskedBoard);
-  sfx.undo();
-  updatePace(); renderClients();
+  if (isDead(G.board)) { sfx.stuck(); await sleep(350); showStuck(); return; }
+  if (G.session.moveLimit !== null && G.moves.length >= G.session.moveLimit) { sfx.stuck(); await sleep(350); showOutOfMoves(); return; }
 }
 
 function restart() {
@@ -739,11 +678,9 @@ function showStuck() {
     <h3>${t('results.noMoves')}</h3>
     <p>${t('extra.modals.stuckBody')}</p>
     <div class="row">
-      ${$('#btn-undo').hidden ? '' : `<button class="btn" id="m-undo">↶ ${t('actions.undo')}</button>`}
       <button class="btn primary" id="m-restart">↻ ${t('actions.restart')}</button>
     </div>
   `);
-  if ($('#m-undo')) $('#m-undo').onclick = () => { closeModal(); undo(); };
   $('#m-restart').onclick = () => { closeModal(); restart(); };
 }
 
@@ -884,7 +821,7 @@ function refreshTexts() {
     renderLevelHeader();
     updatePace();
     renderClients();
-    catHide();   // 對白係另一種語言：直接收起（貓本身唔常駐）
+    catHide();   // 換語言：直接收起（貓本身唔常駐）
   }
   syncMute();
   if (G.modalName === 'help') showHelp();
@@ -909,7 +846,6 @@ function bind() {
     sfx.click(); refreshTitle();
     show('screen-title');
   };
-  $('#btn-undo').onclick = undo;
   $('#btn-restart').onclick = restart;
   $('#btn-add-cup').onclick = addEmptyCup;
   syncMute();   // 音效掣已搬入設定 modal（頂欄 10% 只留 金幣 / 關卡 / 設定）
@@ -919,7 +855,6 @@ function bind() {
   document.addEventListener('keydown', (e) => {
     if (!$('#screen-game').classList.contains('active') || !$('#modal').classList.contains('hidden')) return;
     if (e.key === 'Escape') { G.selected = null; G.view && G.view.select(null); }
-    else if (e.key === 'u' || e.key === 'z') undo();
     else if (e.key === 'r') restart();
     else if (/^[1-9]$/.test(e.key)) { const i = Number(e.key) - 1; if (G.board && i < G.board.cups.length) onCupTap(i); }
   });
@@ -971,5 +906,5 @@ async function startApp() {
 }
 
 // 除錯 / 自動化測試用（正式版可移除）
-window.meowcha = { G, server, bg, CONFIG, playCampaign, onCupTap, undo, restart, progress, enterCafe, unlockOrderSlot, addEmptyCup, unlockAdCup, catPop, setLocale, getLocale, t, showSettings, showHelp };
+window.meowcha = { G, server, bg, CONFIG, playCampaign, onCupTap, restart, progress, enterCafe, unlockOrderSlot, addEmptyCup, unlockAdCup, catPop, setLocale, getLocale, t, showSettings, showHelp };
 startApp();

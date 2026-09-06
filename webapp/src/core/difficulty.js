@@ -32,7 +32,6 @@ export const MIN_HIDDEN_DEPTH = 2;
 export const UNLOCK_LEVEL = {
   hidden: 2,        // `?` 隱藏層樽 — v4 §5「L2 就出現」
   adBottle: 2,      // 廣告樽（一開波喺盤面）— v4 §4「第二關已經有兩隻」；廣告政策見 ads.js（冇強制廣告、冇零廣告關）
-  undo: 5,          // Undo 按鈕
   orders: 1,        // 委託槽（Spec v3：L1 就有 1 個免費槽）
   adEmptyCup: 11,   // 道具列「+樽」
   moveLimit: 12,    // 步數上限
