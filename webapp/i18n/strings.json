@@ -1250,11 +1250,6 @@
         "en": "Something glitched — the board has been re-synced.",
         "zh-Hant": "動畫出咗錯，盤面已經同步返。",
         "zh-Hans": "动画出错了，盘面已经同步回来。"
-      },
-      "clothLockedColor": {
-        "en": "Deliver a {name} order to lift this cloth.",
-        "zh-Hant": "交一單「{name}」就揭到呢塊布。",
-        "zh-Hans": "交一单「{name}」就能揭开这块布。"
       }
     },
     "ads": {

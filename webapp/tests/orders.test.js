@@ -1,7 +1,7 @@
 // tests/orders.test.js — 工單 #4 任務 3：廣告解鎖訂單槽（server 端）
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { makeCup, makeBoard, encodeBoard, decodeBoard } from '../src/core/board.js';
+import { makeCup, makeBoard, encodeBoard } from '../src/core/board.js';
 import { applyMove, isSolved, isDead, legalMoves, clothUnlockIn } from '../src/core/rules.js';
 import { solve } from '../src/core/solver.js';
 import { LocalServer, MIN_MS_PER_MOVE } from '../src/client/local-server.js';
@@ -89,27 +89,6 @@ describe('廣告訂單槽（Spec v3 §3：由隊列攞下一單，當關有效�
   });
 });
 
-describe('布遮樽鑰匙色（用戶 2026-09-07：交咗一單 Tiffany 就開曬兩隻布遮樽）', () => {
-  test('只有鑰匙色嗰單交出先揭布；其他色交幾多單都唔開', () => {
-    // 兩隻布遮樽：鑰匙色分別係 1 同 2。先交 1 → 只開第一隻。
-    const cloth1 = makeCup('covered', [3, 3, 4, 4], true, 0, 1);
-    const cloth2 = makeCup('covered', [4, 4, 3, 3], true, 0, 2);
-    const b = makeBoard([N([1, 1, 1]), N([1]), N([2, 2, 2]), N([2]), cloth1, cloth2, N([])], 4, [1, 2], [3, 4]);
-    let n = applyMove(b, { from: 1, to: 0 });          // 交出色 1
-    assert.equal(n.cups[4].locked, false, '鑰匙色 1 → 第一隻揭開');
-    assert.equal(n.cups[5].locked, true, '鑰匙色 2 未交 → 第二隻仍然鎖住');
-    n = applyMove(n, { from: 3, to: 2 });              // 交出色 2
-    assert.equal(n.cups[5].locked, false, '交埋色 2 → 第二隻先揭開');
-  });
-
-  test('編碼／解碼保住鑰匙色（v6）', () => {
-    const b = makeBoard([N([1, 1, 1]), makeCup('covered', [3, 3, 4, 4], true, 0, 2), N([])], 4, [1], [3, 4]);
-    const back = decodeBoard(encodeBoard(b));
-    assert.equal(back.cups[1].unlockColor, 2);
-    assert.equal(back.cups[0].unlockColor, null, '普通樽冇鑰匙色');
-  });
-});
-
 describe('無路可走（用戶 2026-09-07 報：交完單之後盤面撳極都冇反應）', () => {
   test('盤面一步都行唔到，就算仲有未開嘅廣告樽，isDead 都係 true —— UI 一定要彈窗話玩家知', () => {
     // 三隻樽全部滿而且色唔同 → 冇任何合法倒液；剩低嗰隻係鎖住嘅廣告樽（唔可以做目標）
@@ -128,7 +107,7 @@ describe('廣告加空瓶（Spec v2 §6 addEmptyBottle）', () => {
     const r = srv.addEmptyCup(st.sessionId, []);
     assert.equal(r.ok, true);
     assert.equal(r.maskedBoard.cups.length, 5);
-    assert.deepEqual(r.maskedBoard.cups[4], { kind: 'normal', cap: 4, locked: false, hid: 0, unlockColor: null, seg: [] });
+    assert.deepEqual(r.maskedBoard.cups[4], { kind: 'normal', cap: 4, locked: false, hid: 0, seg: [] });
     // 用新瓶（index 4）：瓶 2 = [2,1]（頂係 1）→ 1 落新瓶、2 落原本空瓶，再各自倒滿 → 兩色完成
     const moves = [{ from: 2, to: 4 }, { from: 2, to: 3 }, { from: 0, to: 4 }, { from: 1, to: 3 }];
     srv.sessions.get(st.sessionId).startedAt -= moves.length * MIN_MS_PER_MOVE + 1000;

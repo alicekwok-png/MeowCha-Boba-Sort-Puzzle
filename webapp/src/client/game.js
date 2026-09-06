@@ -242,7 +242,6 @@ export class GameView {
       const seg = c.seg.slice();
       const cup = {
         kind: c.kind, cap: c.cap, locked: !!c.locked, seg, unlockIn: Math.max(1, unlockIn || 1),
-        unlockColor: c.unlockColor ?? null,   // 布遮樽鑰匙色（用戶 2026-09-07）：布罩上面畫住嗰個彩色印
         x: old?.x ?? 0, y: old?.y ?? 0, hx: old?.hx ?? 0, hy: old?.hy ?? 0, w: old?.w ?? 60, h: old?.h ?? 120,
         rot0: old?.rot0 ?? 0, rotA: old?.rotA ?? 0, z: old?.z ?? i, placed: old?.placed ?? false,
         lift: old?.lift ?? 0, scale: 1, alpha: 1, glow: 0, anim: null,
@@ -717,16 +716,9 @@ export class GameView {
       shadowOn();
       this.drawCloth(c);
       shadowOff();
-      // 蠟封印 = 鑰匙色（交出呢隻色就揭布）。舊盤面冇鑰匙色先退回「布下面頂格色」做內容提示。
-      // 用戶 2026-09-07：印住個色但實際係「交夠 2 單全部一齊開」，兩者對唔上先係問題根源。
-      const hint = c.unlockColor ?? (r ? r.hint : (c.clothHold ? c.clothHold.hint : (c.seg[c.seg.length - 1] ?? null)));
+      const hint = r ? r.hint : (c.clothHold ? c.clothHold.hint : (c.seg[c.seg.length - 1] ?? null));
       this.drawSeal(c, hint, r ? 1 - r.rope * 0.6 : 1);
-      // 有鑰匙色就唔畫文字徽章（用戶 2026-09-07：「好核突」）——蠟封印本身就係訊號，
-      // 撳落去仲有 toast 講明係邊隻色。只有舊嘅「N 單」規則先需要文字。
-      if (!r && c.unlockColor == null) {
-        const label = (c.unlockIn || 1) === 1 ? t('extra.badges.order1') : t('hud.orders', { n: c.unlockIn });
-        this.drawBadge(label, 0, this._clothRect(c).y + this._clothRect(c).h * 0.55 + this._clothRect(c).w * 0.36 + 12);
-      }
+      if (!r) this.drawBadge(((c.unlockIn || 1) === 1 ? t('extra.badges.order1') : t('hud.orders', { n: c.unlockIn })), 0, this._clothRect(c).y + this._clothRect(c).h * 0.55 + this._clothRect(c).w * 0.36 + 12);
       ctx.restore();
     }
     ctx.restore();
