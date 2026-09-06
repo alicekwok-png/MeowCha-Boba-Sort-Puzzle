@@ -567,6 +567,46 @@
         "en": "Tutor Tier",
         "zh-Hant": "導師級",
         "zh-Hans": "导师级"
+      },
+      "c9": {
+        "en": "Head Apothecary",
+        "zh-Hant": "首席藥師",
+        "zh-Hans": "首席药师"
+      },
+      "c10": {
+        "en": "The Vault",
+        "zh-Hant": "密室",
+        "zh-Hans": "密室"
+      },
+      "c11": {
+        "en": "Old Recipes",
+        "zh-Hant": "古方",
+        "zh-Hans": "古方"
+      },
+      "c12": {
+        "en": "Eclipse",
+        "zh-Hant": "月蝕",
+        "zh-Hans": "月蚀"
+      },
+      "c13": {
+        "en": "Frostfall",
+        "zh-Hant": "霜降",
+        "zh-Hans": "霜降"
+      },
+      "c14": {
+        "en": "The Long Night",
+        "zh-Hant": "長夜",
+        "zh-Hans": "长夜"
+      },
+      "c15": {
+        "en": "Philosopher's Stone",
+        "zh-Hant": "賢者之石",
+        "zh-Hans": "贤者之石"
+      },
+      "c16": {
+        "en": "Daybreak",
+        "zh-Hant": "破曉",
+        "zh-Hans": "破晓"
       }
     },
     "levels": {
@@ -769,6 +809,206 @@
         "en": "Light of the Lab",
         "zh-Hant": "實驗室之光",
         "zh-Hans": "实验室之光"
+      },
+      "l41": {
+        "en": "Handover",
+        "zh-Hant": "交接班",
+        "zh-Hans": "交接班"
+      },
+      "l42": {
+        "en": "The Head's Bench",
+        "zh-Hant": "首席的檯",
+        "zh-Hans": "首席的台"
+      },
+      "l43": {
+        "en": "All Ten Hues",
+        "zh-Hant": "十色齊備",
+        "zh-Hans": "十色齐备"
+      },
+      "l44": {
+        "en": "Cloth Upon Cloth",
+        "zh-Hant": "布下加布",
+        "zh-Hans": "布下加布"
+      },
+      "l45": {
+        "en": "The Head's Test",
+        "zh-Hant": "首席考驗",
+        "zh-Hans": "首席考验"
+      },
+      "l46": {
+        "en": "The Vault Opens",
+        "zh-Hant": "密室門開",
+        "zh-Hans": "密室门开"
+      },
+      "l47": {
+        "en": "Dusty Shelves",
+        "zh-Hant": "塵封的架",
+        "zh-Hans": "尘封的架"
+      },
+      "l48": {
+        "en": "Unlabelled",
+        "zh-Hant": "冇標籤",
+        "zh-Hans": "没标签"
+      },
+      "l49": {
+        "en": "Four Shrouds",
+        "zh-Hant": "四重布罩",
+        "zh-Hans": "四重布罩"
+      },
+      "l50": {
+        "en": "Deep in the Vault",
+        "zh-Hant": "密室深處",
+        "zh-Hans": "密室深处"
+      },
+      "l51": {
+        "en": "A Torn Recipe",
+        "zh-Hant": "殘缺古方",
+        "zh-Hans": "残缺古方"
+      },
+      "l52": {
+        "en": "Reverse Order",
+        "zh-Hant": "逆序調配",
+        "zh-Hans": "逆序调配"
+      },
+      "l53": {
+        "en": "Shattered Layers",
+        "zh-Hant": "碎裂的層",
+        "zh-Hans": "碎裂的层"
+      },
+      "l54": {
+        "en": "The Codex",
+        "zh-Hant": "手抄本",
+        "zh-Hans": "手抄本"
+      },
+      "l55": {
+        "en": "Recipe Restored",
+        "zh-Hant": "古方還原",
+        "zh-Hans": "古方还原"
+      },
+      "l56": {
+        "en": "Eclipse Night",
+        "zh-Hant": "月蝕之夜",
+        "zh-Hans": "月蚀之夜"
+      },
+      "l57": {
+        "en": "Sorting in Shadow",
+        "zh-Hant": "影下分色",
+        "zh-Hans": "影下分色"
+      },
+      "l58": {
+        "en": "Ten Layers of Fog",
+        "zh-Hant": "十層迷霧",
+        "zh-Hans": "十层迷雾"
+      },
+      "l59": {
+        "en": "Umbra",
+        "zh-Hant": "蝕相未明",
+        "zh-Hans": "蚀相未明"
+      },
+      "l60": {
+        "en": "Totality",
+        "zh-Hant": "全蝕",
+        "zh-Hans": "全蚀"
+      },
+      "l61": {
+        "en": "Frostfall",
+        "zh-Hant": "霜降",
+        "zh-Hans": "霜降"
+      },
+      "l62": {
+        "en": "The Condenser",
+        "zh-Hant": "冷凝管",
+        "zh-Hans": "冷凝管"
+      },
+      "l63": {
+        "en": "Frozen Cork",
+        "zh-Hant": "凍住嘅塞",
+        "zh-Hans": "冻住的塞"
+      },
+      "l64": {
+        "en": "Ice Crackle",
+        "zh-Hant": "冰裂紋",
+        "zh-Hans": "冰裂纹"
+      },
+      "l65": {
+        "en": "Deep Frost",
+        "zh-Hant": "深霜",
+        "zh-Hans": "深霜"
+      },
+      "l66": {
+        "en": "Triple Batch",
+        "zh-Hant": "三倍份量",
+        "zh-Hans": "三倍份量"
+      },
+      "l67": {
+        "en": "The Long Night",
+        "zh-Hant": "長夜開始",
+        "zh-Hans": "长夜开始"
+      },
+      "l68": {
+        "en": "Three of a Kind",
+        "zh-Hant": "三瓶一色",
+        "zh-Hans": "三瓶一色"
+      },
+      "l69": {
+        "en": "Sleepless",
+        "zh-Hant": "不眠",
+        "zh-Hans": "不眠"
+      },
+      "l70": {
+        "en": "Midnight Bell",
+        "zh-Hant": "夜半鐘",
+        "zh-Hans": "夜半钟"
+      },
+      "l71": {
+        "en": "Philosopher's Stone",
+        "zh-Hant": "賢者之石",
+        "zh-Hans": "贤者之石"
+      },
+      "l72": {
+        "en": "Five Shrouds",
+        "zh-Hant": "五重布罩",
+        "zh-Hans": "五重布罩"
+      },
+      "l73": {
+        "en": "Endless Layers",
+        "zh-Hant": "無盡分層",
+        "zh-Hans": "无尽分层"
+      },
+      "l74": {
+        "en": "The Last Formula",
+        "zh-Hant": "最後配方",
+        "zh-Hans": "最后配方"
+      },
+      "l75": {
+        "en": "The Stone Forms",
+        "zh-Hant": "石成",
+        "zh-Hans": "石成"
+      },
+      "l76": {
+        "en": "Before Dawn",
+        "zh-Hant": "破曉前",
+        "zh-Hans": "破晓前"
+      },
+      "l77": {
+        "en": "Darkest Hour",
+        "zh-Hant": "最深嘅夜",
+        "zh-Hans": "最深的夜"
+      },
+      "l78": {
+        "en": "Threes All the Way",
+        "zh-Hant": "三瓶到底",
+        "zh-Hans": "三瓶到底"
+      },
+      "l79": {
+        "en": "The Last Order",
+        "zh-Hant": "最後一單",
+        "zh-Hans": "最后一单"
+      },
+      "l80": {
+        "en": "Daybreak",
+        "zh-Hant": "天光",
+        "zh-Hans": "天光"
       }
     },
     "hud": {

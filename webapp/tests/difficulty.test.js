@@ -10,7 +10,7 @@ import { LocalServer, MIN_MS_PER_MOVE } from '../src/client/local-server.js';
 import { solve } from '../src/core/solver.js';
 
 describe('步數上限', () => {
-  test('公式：≤11 無上限（brief 第 12 關先限步）；12–20 +12；21–30 +10；31–40 +8；41+ +6', () => {
+  test('公式：≤11 無上限（brief 第 12 關先限步）；12–20 +12；21–30 +10；31–40 +8；41–55 +7；56–70 +6；71+ +5', () => {
     assert.equal(computeMoveLimit(1, 5), null);
     assert.equal(computeMoveLimit(11, 9), null);
     assert.equal(computeMoveLimit(12, 10), 22);
@@ -18,7 +18,9 @@ describe('步數上限', () => {
     assert.equal(computeMoveLimit(21, 18), 28);
     assert.equal(computeMoveLimit(30, 20), 30);
     assert.equal(computeMoveLimit(40, 29), 37);
-    assert.equal(computeMoveLimit(41, 30), 36);
+    assert.equal(computeMoveLimit(41, 30), 37);
+    assert.equal(computeMoveLimit(56, 30), 36);
+    assert.equal(computeMoveLimit(71, 30), 35);
   });
   test('campaign.json 每關都寫咗 moveLimit，同公式一致', () => {
     const d = JSON.parse(readFileSync(new URL('../levels/campaign.json', import.meta.url), 'utf8'));
@@ -84,7 +86,7 @@ describe('機制登場表', () => {
     // 用戶 2026-09-06：自由格數係難度唯一有效桿（實測同一盤面 8 格 → 致命錯步 0–15%、4 格 → 78–98%）。
     // L1–12 兩隻空樽（學規則），L13 起一隻。L13 起用倒推生成，自由格會散落喺唔同樽頂，
     // 所以驗嘅係「自由格總數」，唔係「有幾多隻樽係全空」。
-    for (let id = 1; id <= 40; id++) {
+    for (let id = 1; id <= CAMPAIGN.length; id++) {
       const b = board(id);
       const real = b.cups.filter(c => c.kind !== 'ad');
       const bpc = bottlesPerColorFor(id);
@@ -95,7 +97,7 @@ describe('機制登場表', () => {
     }
     assert.equal(kinds(1).includes('hidden'), false); assert.equal(ads(1), 0); assert.equal(d.levels[0].hiddenCells, 0);
     assert.ok(kinds(2).includes('hidden'), 'L2 `?`'); assert.equal(ads(2), 2, 'L2 兩隻廣告樽');
-    for (let id = 2; id <= 40; id++) assert.ok(ads(id) >= 1, `L${id} ad`);
+    for (let id = 2; id <= CAMPAIGN.length; id++) assert.ok(ads(id) >= 1, `L${id} ad`);
     for (let id = 1; id <= 11; id++) assert.equal(d.levels[id - 1].moveLimit, null, `L${id} limit`);
     assert.ok(d.levels[11].moveLimit > 0);
     for (let id = 1; id <= 12; id++) assert.ok(!kinds(id).includes('covered'), `L${id} covered`);

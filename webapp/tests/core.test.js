@@ -130,7 +130,7 @@ describe('palette', () => {
       assert.deepEqual(used, ids, `L${i + 1} 生成盤面`);
     });
   });
-  test('40 關每關色組都符合互斥規則且 ≤ 6 色', () => {
+  test('每關色組都符合互斥規則且 ≤ 10 色', () => {
     const d = JSON.parse(readFileSync(new URL('../levels/campaign.json', import.meta.url), 'utf8'));
     for (const l of d.levels) {
       const used = [...new Set(decodeBoard(l.board).cups.flatMap(c => c.seg))];

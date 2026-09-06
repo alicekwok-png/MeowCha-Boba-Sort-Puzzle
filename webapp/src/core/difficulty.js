@@ -2,13 +2,17 @@
 // 生成器（tools/gen.js → generator.js）同 client 都由呢度讀，唔會出現「寫咗但冇接上」。
 // 實作指令 v4（2026-09-05）：單一樽型；`?` 隱藏層同廣告樽 L2 起；限步 12；13 關後沿用工單 #5（布遮 19、訂單槽 7 / 17 / 36）。
 
-/** 步數上限：≤11 關冇上限（brief：第 12 關「夜市高峰」先首次限步）；之後按最優步加固定餘量 */
+/** 步數上限：≤11 關冇上限（brief：第 12 關「夜市高峰」先首次限步）；之後按最優步加固定餘量
+ *  12–20 +12 · 21–30 +10 · 31–40 +8 · 41–55 +7 · 56–70 +6 · 71+ +5 */
 export function computeMoveLimit(levelId, optimal) {
   if (!levelId || levelId < UNLOCK_LEVEL.moveLimit) return null;
   if (levelId <= 20) return optimal + 12;
   if (levelId <= 30) return optimal + 10;
   if (levelId <= 40) return optimal + 8;
-  return optimal + 6;
+  // L41–80（用戶 2026-09-06 加多 40 關）：盤面已經頂到上限，餘量收窄係仲推得郁嘅槓桿之一
+  if (levelId <= 55) return optimal + 7;
+  if (levelId <= 70) return optimal + 6;
+  return optimal + 5;
 }
 
 /**

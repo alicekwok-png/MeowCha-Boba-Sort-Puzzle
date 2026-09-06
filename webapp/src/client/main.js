@@ -79,7 +79,8 @@ function levelTitle(level, practice = false) {
 /** 章節標題：第 N 章 · 名（中文用漢字數字） */
 function chapterHeading(i) {
   const zh = getLocale().startsWith('zh');
-  const n = zh ? ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十'][i] || String(i + 1) : String(i + 1);
+  const n = zh ? ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十',
+    '十一', '十二', '十三', '十四', '十五', '十六'][i] || String(i + 1) : String(i + 1);
   return t('extra.chapters.heading', { n, name: t('extra.chapters.c' + (i + 1)) });
 }
 
