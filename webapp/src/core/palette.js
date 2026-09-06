@@ -1,6 +1,8 @@
 // core/palette.js — 液體色板（由 config/theme.js 嘅 LIQUID_COLORS 派生，hex 唔准改）。
-// 同關互斥規則（夜市 brief A3 / Spec v2 EXCLUSIVE_PAIRS）：A↔B、C↔D、E↔F、G↔H、B↔D 禁止；F↔H 只准 ≤4 色關。
-// 推論：純靠顏色最多 6 色同關；7 色以上要靠圖案（patternId）做第二辨識維度。
+// 用戶 2026-09-06 新色板：10 隻互相相容，冇硬互斥對。通用規則（色相差 <40° 且明度差 <25 → 互斥）保留，
+// 因為佢係色板本身嘅驗收條件；tests/layout.test.js 會驗實際 hex 全部通過。
+// 圖案系統（P0–P4）**唔會**因為色數增加而取消：淺色層四隻靠明度分，但深色層六隻仍然靠色相，
+// 色盲模式一樣要靠圖案做第二辨識維度。
 
 import { LIQUID_COLORS, EXCLUSIVE_PAIRS, CAUTION_PAIRS as CAUTION_KEYS, PATTERNS, PATTERN_EXCLUSIVE, MAX_PATTERNS_PER_LEVEL } from '../config/theme.js';
 import { unitColor, unitPattern } from './board.js';
@@ -35,8 +37,8 @@ export function isExclusive(a, b) {
   return pairIn(EXCLUSIVE, a, b) || (hueDist(a, b) < 40 && Math.abs(LIGHT[a] - LIGHT[b]) < 25);
 }
 
-/** 純靠顏色嘅同關色數上限 */
-export const MAX_COLORS_BY_HUE = 6;
+/** 純靠顏色嘅同關色數上限（新色板 10 隻全部互相相容） */
+export const MAX_COLORS_BY_HUE = 10;
 
 /** 一組顏色 id 係咪可以同關出現 */
 export function colorsCompatible(ids) {

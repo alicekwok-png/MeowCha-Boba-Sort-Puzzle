@@ -43,7 +43,7 @@ webapp/
     solver.js            IDA*（可採納 heuristic、正規化、剪枝）、countOptimalPaths、safeOpening
     generator.js         randomFill + 7 項質量檢查、starThresholds
     prng.js              mulberry32 確定性亂數
-    palette.js           由 config/theme.js 派生嘅 10 色液體色板 + 互斥 / 圖案規則（純色最多 6 色同關）
+    palette.js           由 config/theme.js 派生嘅 10 色液體色板 + 互斥 / 圖案規則（2026-09-06 新色板：10 隻全部互相相容）
     levels.js            Campaign 1–40 關 LevelConfig 表（含每關色組 palette / patterns）、練習模式 config
     layout.js            Spec v2 §4 瓶子排列（seed = levelId、抖動、分離、z-order）+ R2 驗證 + fallback
     difficulty.js        步數上限 / 隱藏密度 / 機制登場表
@@ -91,7 +91,7 @@ webapp/
 ## 主題歷史
 
 珍奶茶記（引擎規格 + 工單 #1–#5）→ 夜市奶茶 brief（高飽和 10 色 + 互斥規則、深底發光）→ **Spec v2 煉金實驗室**（現行）。
-每次轉主題都係整套換：色板 hex 由 `config/theme.js` 一個地方管；互斥規則（色相距 < 40° 且明度差 < 25%；F × H 只准 ≤ 4 色）同 6 色上限由夜市 brief 起沿用至今；夜市 brief 嘅「隱藏層 ?」機制已刪（改用磨砂瓶）。
+每次轉主題都係整套換：色板 hex 由 `config/theme.js` 一個地方管。互斥規則（色相距 < 40° 且明度差 < 25）仍然係色板嘅驗收條件，但 **2026-09-06 換咗新色板之後冇任何一對觸發**：深色層 A–F（HSL L 42–50，靠色相分）、淺色層 G–J（L 77–88，靠明度分），兩層邊際 27 點。同關色數上限由 6 升到 10，關卡實際用到 9 色。
 
 ## 開場流程（開場規格）
 
@@ -141,7 +141,8 @@ webapp/
 - **真樽 = 色數 + 2 隻空樽**（`levels.js cupsFor` / `EMPTY_BOTTLES`）。2026-09-06 實測：空位 3 樽以上，貪心玩家亂行 10 步之後盤面無解率係 **0%** —— 即係字面意義上輸唔到，玩家講「唔使用腦」就係呢個原因；空位收到 2 樽先有 4–52%。
 - 目標指標由「亂撳★2 率」換成 **致命錯步率**（貪心玩家行 10 步後盤面已經無解嘅比例）：L4–L10 ≥ 3%、L11+ ≥ 5%，generator 逐個候選盤兩段驗（80 局粗篩 + 250 局確認，門檻 ×1.3 留 margin），`npm run scan` 覆核。舊嘅亂撳★2 率仍然報，但唔再做通過條件 —— 要壓低佢就要加好多空樽，而嗰樣正正令關卡輸唔到。
 - 盤面冇得解**唔會**自動彈窗（用戶 2026-09-06）：玩家應該自己識開廣告樽 / 開委託槽救返，真係一步都行唔到（`isDead`）先彈 `showStuck`。`LocalServer.solvable` 保留做工具 / 測試用，UI 唔叫。
-- 色組 L1–12 照夜市 brief A4 分配表（每 3 關換組）；13 關後 6 色封頂，難度靠樽數、每色段數 3.0→3.9、隱藏密度推。
+- 色數階梯（`levels.js colorsFor`）：L1 2 色 → L4 4 → L7 5 → L11 6 → L13 7 → L17 8 → L23 起 9 色封頂（樽 = 色 + 2，再加 1 隻廣告樽啱啱 12 隻螢幕上限）。L1–12 色組照夜市 brief A4 分配表。
+- 圖案系統 P0–P4 保留（用戶 2026-09-06 明確要求）：淺色層四隻靠明度分，色盲玩家反而易讀，但深色層六隻仍然靠色相，所以圖案仍然係色盲模式嘅第二辨識維度。現時關卡全部 P0，機制未啟用。
 - 改遮蓋規則 / 樽數後要重生成（`npm run gen`）再 `npm run verify` + `npm run scan`。
 
 ## 玩法

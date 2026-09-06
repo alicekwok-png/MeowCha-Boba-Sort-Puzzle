@@ -8,7 +8,7 @@ import { heuristic, solve, solveEx, canonical } from '../src/core/solver.js';
 import { generateLevelEx, colorSafe, randomFill, pickColors } from '../src/core/generator.js';
 import { CAMPAIGN, PRACTICE } from '../src/core/levels.js';
 import { mulberry32 } from '../src/core/prng.js';
-import { PALETTE, isExclusive, colorsCompatible, hueDist, BY_KEY, MAX_COLORS_BY_HUE } from '../src/core/palette.js';
+import { PALETTE, isExclusive, colorsCompatible, hueDist, BY_KEY, MAX_COLORS_BY_HUE, PATTERNS, patternsCompatible } from '../src/core/palette.js';
 import { readFileSync } from 'node:fs';
 import { LocalServer, rhythmRisk, MIN_MS_PER_MOVE } from '../src/client/local-server.js';
 
@@ -93,23 +93,30 @@ describe('palette', () => {
     const d = JSON.parse(readFileSync(new URL('../levels/campaign.json', import.meta.url), 'utf8'));
     for (const l of d.levels) for (const c of decodeBoard(l.board).cups) for (const v of c.seg) assert.ok(PALETTE[v] && PALETTE[v].hex, `L${l.id} colour id ${v} has no hex`);
   });
-  test('Spec v2 EXCLUSIVE_PAIRS：A↔B、C↔D、E↔F、G↔H、B↔D 禁止；J 蛋白石同任何色都安全', () => {
-    const K = BY_KEY;
-    for (const [x, y] of [['A', 'B'], ['C', 'D'], ['E', 'F'], ['G', 'H'], ['B', 'D']]) assert.ok(isExclusive(K[x], K[y]), `${x}↔${y}`);
-    assert.ok(!isExclusive(K.F, K.H), 'F↔H 係慎用，唔係禁止');
-    for (const p of PALETTE) if (p.key !== 'J') assert.ok(!isExclusive(K.J, p.id), 'J vs ' + p.key);
-    assert.equal(hueDist(K.A, K.B), 19); assert.equal(hueDist(K.C, K.D), 24); assert.equal(hueDist(K.F, K.H), 15);   // v4 色板
+  test('新色板（2026-09-06）：10 隻全部互相相容，冇硬互斥對；規則本身仲喺度', () => {
+    for (let a = 0; a < PALETTE.length; a++)
+      for (let b = a + 1; b < PALETTE.length; b++)
+        assert.ok(!isExclusive(a, b), `${PALETTE[a].key}↔${PALETTE[b].key} 唔應該互斥`);
+    // 規則冇拆走：人造一對「色相差 <40° 且明度差 <25」嘅色仍然判互斥
+    assert.ok(hueDist(BY_KEY.A, BY_KEY.J) < 40 && Math.abs(PALETTE[BY_KEY.A].L - PALETTE[BY_KEY.J].L) >= 25, 'A / J 靠明度差拉開');
   });
-  test('F×H 只可以喺 ≤4 色關同關', () => {
-    const K = BY_KEY;
-    assert.ok(colorsCompatible([K.F, K.H, K.A, K.I]));
-    assert.ok(!colorsCompatible([K.F, K.H, K.A, K.I, K.J]));
+  test('深色層 A–F（L 42–50）／淺色層 G–J（L 77–88）：兩層邊際 ≥ 25', () => {
+    const deep = ['A', 'B', 'C', 'D', 'E', 'F'].map(k => PALETTE[BY_KEY[k]].L);
+    const light = ['G', 'H', 'I', 'J'].map(k => PALETTE[BY_KEY[k]].L);
+    assert.ok(Math.max(...deep) <= 50 && Math.min(...deep) >= 42, '深色層 L ' + deep.join('/'));
+    assert.ok(Math.max(...light) <= 88 && Math.min(...light) >= 74, '淺色層 L ' + light.join('/'));   // 74 = 唔可以再低（否則邊際跌穿 25）
+    assert.ok(Math.min(...light) - Math.max(...deep) >= 25, '兩層邊際');
   });
-  test('純靠顏色最多 6 色同關：pickColors(6) 一定得，pickColors(7) 一定唔得', () => {
+  test('同關色數上限 10：pickColors(10) 一定得', () => {
     const rng = mulberry32(11);
-    for (let i = 0; i < 20; i++) { const cs = pickColors(6, rng); assert.ok(cs && cs.length === 6); assert.ok(colorSafe(B(cs.map(c => N([c])), 6))); }
-    assert.equal(pickColors(7, rng), null);
-    assert.equal(MAX_COLORS_BY_HUE, 6);
+    for (let i = 0; i < 20; i++) { const cs = pickColors(9, rng); assert.ok(cs && cs.length === 9); assert.ok(colorSafe(B(cs.map(c => N([c])), 9))); }
+    assert.ok(pickColors(10, rng));
+    assert.equal(MAX_COLORS_BY_HUE, 10);
+  });
+  test('圖案系統保留（色盲第二辨識維度，唔可以因為色數增加就取消）', () => {
+    assert.deepEqual(PATTERNS, ['P0', 'P1', 'P2', 'P3', 'P4']);
+    assert.ok(patternsCompatible([0, 1, 2], 6));
+    assert.ok(!patternsCompatible([0, 1, 2, 3], 6), '每關最多 3 種圖案');
   });
   test('第 1–12 關色組照 brief A4 分配表', () => {
     const want = ['AG', 'AGC', 'IEB', 'AGCI', 'BHEJ', 'AGDI', 'AGCIF', 'BHEIJ', 'AGDFI', 'BHCIJ', 'AGCIFJ', 'BHEIJC'];
@@ -249,6 +256,35 @@ function randomSmallBoard(rng) {
 }
 
 describe('solver', () => {
+  test('一色兩樽：兩個底段都當最終家（舊公式會高估 → IDA* 會剪走真最優）', () => {
+    // 色 1 有 8 格（兩樽份），已經完美分好 → h 必須係 0
+    const done = makeBoard([N([1, 1, 1, 1]), N([1, 1, 1, 1]), N([2, 2, 2, 2]), N([])], 2, [], []);
+    assert.equal(heuristic(done), 0);
+    // 差一步
+    const one = makeBoard([N([1, 1, 1, 1]), N([1, 1, 1]), N([2, 2, 2, 2]), N([1])], 2, [], []);
+    assert.equal(heuristic(one), 1);
+    assert.equal(solve(one, 10, 200_000).length, 1);
+    // 一色三樽（12 格）都要啱
+    const three = makeBoard([N([1, 1, 1, 1]), N([1, 1, 1, 1]), N([1, 1, 1, 1]), N([])], 1, [], []);
+    assert.equal(heuristic(three), 0);
+  });
+  test('heuristic 從不高估（一色多樽盤面）：隨機 800 局，h ≤ BFS 最優', () => {
+    const rng = mulberry32(31);
+    let checked = 0;
+    for (let i = 0; i < 800; i++) {
+      // 兩隻色、每色 8 格（兩樽份）、散喺 4–5 隻樽
+      const cells = [...Array(8).fill(1), ...Array(8).fill(2)];
+      for (let k = cells.length - 1; k > 0; k--) { const j = Math.floor(rng() * (k + 1)); [cells[k], cells[j]] = [cells[j], cells[k]]; }
+      const cups = [[], [], [], [], []];
+      cells.forEach((v, idx) => cups[idx % 4].push(v));
+      const b = makeBoard(cups.map(s => N(s)), 2, [], []);
+      const opt = bfsOptimal(b, 60_000);
+      if (opt === null) continue;
+      assert.ok(heuristic(b) <= opt, `h=${heuristic(b)} > opt=${opt}`);
+      checked++;
+    }
+    assert.ok(checked > 100, '檢查咗 ' + checked + ' 局');
+  });
   test('heuristic 從不高估：隨機 3000 局，h ≤ 實際最優步', () => {
     const rng = mulberry32(7);
     let checked = 0;
@@ -315,8 +351,8 @@ describe('generator', () => {
     assert.equal(encodeBoard(a.board), encodeBoard(b.board));
     assert.equal(a.optimal, b.optimal);
   });
-  test('7 色 config 直接被 validateConfig 拒絕（要等 P3 圖案系統）', () => {
-    assert.throws(() => generateLevelEx({ cups: 10, colors: 7, empties: 2, segments: 21, hidden: 0, covered: 0, ad: 0, orders: 2, optimalMin: 3, optimalMax: 40 }, 1), /colors > 6/);
+  test('11 色 config 被 validateConfig 拒絕（色板得 10 隻）', () => {
+    assert.throws(() => generateLevelEx({ cups: 13, colors: 11, empties: 2, segments: 33, hidden: 0, covered: 0, ad: 0, orders: 2, optimalMin: 3, optimalMax: 60 }, 1), /colors > 10/);
   });
   test('7 元素靠圖案：同色唔同圖案可以同關（unit key 唔同就唔合併）', () => {
     const cfg = { cups: 10, colors: 7, empties: 2, segments: 18, hidden: 0, covered: 0, ad: 0, orders: 2, optimalMin: 3, optimalMax: 40,

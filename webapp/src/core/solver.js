@@ -1,33 +1,44 @@
 // core/solver.js — IDA* 求解。永遠喺完整資訊（真實盤面）上運行。
 
 import { applyMove, isSolved, isDead, legalMoves, isUniform, isComplete, topColor, topRun, pourAmount } from './rules.js';
-import { INERT_KINDS } from './board.js';
+import { INERT_KINDS, CAP_NORMAL } from './board.js';
 
 const FOUND = -1;
 const INF = Number.MAX_SAFE_INTEGER;
 
 /**
  * 可採納啟發函數。
- * 每隻顏色最終只可以留喺一隻杯（或者被交付），而留低嘅嗰段必須係某隻非外帶杯嘅底段。
- * 所以：h = Σ_color ( 該色段數 − (該色有冇底段 ? 1 : 0) )。
- * 每步最多令 h 減 1（合併減一段；倒入空杯製造一個新底段），故此永不高估。
- * 呢個比「段數 − 色數」更緊，因為冇底段嘅顏色全部段都要郁。
+ *
+ * 每隻顏色最終要佔 homes = ceil(該色格數 / 樽容量) 隻樽（一色 4 格 → 1 隻；一色 8 格 → 2 隻，用戶 2026-09-06）。
+ * 已經坐喺某隻合資格樽最底嘅段可以原地不動當「最終家」，但最多只可以認 homes 個。
+ * 所以：h = Σ_color ( 該色段數 − min(該色底段數, homes) )。
+ *
+ * 仍然唔會高估：倒一次液最多令 h 減 1 ——
+ *   · 倒落同色頂 → 合併，段數 −1，底段數唔變；
+ *   · 倒落空樽 → 來源少一段、目標多一段（段數淨變 0），最多多認一個家 → −1。
+ * homes 封頂係關鍵：冇佢，一色兩樽嘅盤面會扣多咗，變成高估，IDA* 會剪走真正最優解。
  */
 export function heuristic(b) {
   // unit key = color | pattern<<4，最大 15 | 4<<4 = 79 → 陣列 128 夠用
   const segs = new Uint8Array(128);
-  const hasBottom = new Uint8Array(128);
+  const bottoms = new Uint8Array(128);
+  const cells = new Uint8Array(128);
   for (const c of b.cups) {
     const s = c.seg;
     const n = s.length;
     if (n === 0) continue;
-    if (c.cap === 4 && c.kind !== 'cracked') hasBottom[s[0]] = 1;   // 裂瓶只出不入：底段唔可以做最終家（除非已經純色滿）
-    else if (c.kind === 'cracked' && n === 4 && isUniform(c)) hasBottom[s[0]] = 1;
+    if (c.cap === CAP_NORMAL && c.kind !== 'cracked') bottoms[s[0]]++;   // 裂瓶只出不入：底段唔可以做最終家（除非已經純色滿）
+    else if (c.kind === 'cracked' && n === CAP_NORMAL && isUniform(c)) bottoms[s[0]]++;
     segs[s[0]]++;
-    for (let i = 1; i < n; i++) if (s[i] !== s[i - 1]) segs[s[i]]++;
+    cells[s[0]]++;
+    for (let i = 1; i < n; i++) { if (s[i] !== s[i - 1]) segs[s[i]]++; cells[s[i]]++; }
   }
   let h = 0;
-  for (let k = 0; k < 128; k++) if (segs[k]) h += segs[k] - hasBottom[k];
+  for (let k = 0; k < 128; k++) {
+    if (!segs[k]) continue;
+    const homes = Math.ceil(cells[k] / CAP_NORMAL);
+    h += segs[k] - Math.min(bottoms[k], homes);
+  }
   return h;
 }
 

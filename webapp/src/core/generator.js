@@ -26,7 +26,7 @@ export function validateConfig(cfg) {
   const patterns = cfg.patterns || new Array(cfg.colors).fill(0);
   if (patterns.length !== cfg.colors) throw new Error('patterns length != colors');
   const distinctColors = cfg.palette ? new Set(cfg.palette).size : cfg.colors;
-  if (!cfg.palette && cfg.colors > MAX_COLORS_BY_HUE && patterns.every(p => p === 0)) throw new Error(`colors > ${MAX_COLORS_BY_HUE}: 純靠顏色最多 6 色同關（7 色以上要圖案）`);
+  if (!cfg.palette && cfg.colors > MAX_COLORS_BY_HUE && patterns.every(p => p === 0)) throw new Error(`colors > ${MAX_COLORS_BY_HUE}: 純靠顏色最多 ${MAX_COLORS_BY_HUE} 色同關（再多要靠圖案做第二維度）`);
   if (cfg.palette && cfg.palette.length !== cfg.colors) throw new Error('palette length != colors');
   if (cfg.palette && !unitsCompatible(cfg.palette.map((c, i) => makeUnit(c, patterns[i])))) throw new Error('palette 指定色組唔符合互斥 / 圖案規則');
   if (distinctColors > MAX_COLORS_BY_HUE) throw new Error(`distinct colors > ${MAX_COLORS_BY_HUE}`);

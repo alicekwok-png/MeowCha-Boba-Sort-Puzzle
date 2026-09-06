@@ -77,7 +77,7 @@ body {
    貼圖 512×160 入面黃銅框只佔 x 23–76% / y 14–83%，兩側係不透明黑邊，所以用 background-size 放大裁走黑邊，令框邊貼住按鈕邊。
    面板係深綠，深色字讀唔到 → 用淺字 + 深影。 */
 .btn.primary {
-  background: url("assets/v2/ui_btn_primary.webp?v=f343e023") center / 190% 147% no-repeat, var(--brass-main);
+  background: url("assets/v2/ui_btn_primary.webp?v=eca3efd1") center / 190% 147% no-repeat, var(--brass-main);
   color: #F3E6C8; border-color: transparent; min-height: 56px; border-radius: 6px;
   text-shadow: 0 1px 2px rgba(10,8,6,0.9), 0 0 8px rgba(10,8,6,0.6); box-shadow: 0 4px 0 var(--brass-dark), var(--glow);
 }
@@ -107,7 +107,7 @@ body {
 #screen-title { align-items: center; justify-content: center; }
 .title-bg {
   position: absolute; inset: 0;
-  background: url("assets/v2/bg_lab_full_small.webp?v=f343e023") center 30% / cover no-repeat;
+  background: url("assets/v2/bg_lab_full_small.webp?v=eca3efd1") center 30% / cover no-repeat;
   transform: scale(1.03);
 }
 .title-bg::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(18,16,13,0.15), rgba(18,16,13,0.88) 72%); }
@@ -150,7 +150,7 @@ body {
 /* ==================================================
    遊戲：單張背景（Spec v2 §7 BG_lab_full，無視差 / 無階段 / 無氛圍粒子）+ 9:20 版面欄
    ================================================== */
-#screen-game { background: url("assets/v2/bg_lab_full.webp?v=f343e023") center / cover no-repeat, var(--bg-bottom); align-items: center; }
+#screen-game { background: url("assets/v2/bg_lab_full.webp?v=eca3efd1") center / cover no-repeat, var(--bg-bottom); align-items: center; }
 
 /* z 0–30：BackgroundManager 嘅容器（而家只係單張圖；其餘層留空做 no-op） */
 .bg-layers { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }

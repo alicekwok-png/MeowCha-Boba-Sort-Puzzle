@@ -42,8 +42,24 @@ export function emptiesFor() { return EMPTY_BOTTLES; }
 /** 螢幕上限：真樽 + 廣告樽 ≤ 12（版面 3 行 × 4 欄保住樽高 0.19） */
 export const MAX_BOTTLES_ON_SCREEN = 12;
 
+/**
+ * 每關色數（用戶 2026-09-06 新色板：10 隻互相相容，唔再卡死喺 6）。
+ * 盤面色數 = 螢幕樽數嘅主旋鈕：樽 = 色 + 2，再加 1 隻廣告樽先啱 12 隻上限，所以封頂 9 色。
+ */
+export const MAX_COLORS_PER_LEVEL = 9;
+export function colorsFor(id) {
+  if (id <= 1) return 2;
+  if (id <= 3) return 3;
+  if (id <= 6) return 4;
+  if (id <= 10) return 5;
+  if (id <= 12) return 6;
+  if (id <= 16) return 7;
+  if (id <= 22) return 8;
+  return MAX_COLORS_PER_LEVEL;
+}
+
 /** 真樽數（唔計廣告樽）= 色數 + 2 隻空樽 */
-export function cupsFor(id, colors = MAX_COLORS_BY_HUE) {
+export function cupsFor(id, colors = colorsFor(id)) {
   return colors + EMPTY_BOTTLES;
 }
 
@@ -55,7 +71,7 @@ export function adBottlesFor(id, cups = cupsFor(id)) {
 
 /** 13 關後嘅行：色數固定 6，樽數 / 段數 / 空樽 / 廣告樽 / 最優區間由公式推 */
 const R = (id, hidden, covered, orders, title) => {
-  const colors = MAX_COLORS_BY_HUE;
+  const colors = colorsFor(id);
   const cups = cupsFor(id, colors);
   const segments = segmentsFor(id, colors);
   return L(cups, colors, emptiesFor(id), segments, hidden, covered, adBottlesFor(id, cups), orders, Math.max(3, segments - colors - 2), segments + 8, title, null, null, MIN_FATAL_RATE);
@@ -78,7 +94,7 @@ export const CAMPAIGN = [
   L(7, 5, 2, 17, 1, 0, 2, 2, 13, 25, '曲頸瓶', P('BHCIJ'), null, MIN_FATAL_EARLY),
   L(8, 6, 2, 18, 1, 0, 1, 2, 14, 26, '爆單', P('AGCIFJ'), null, MIN_FATAL_RATE),
   L(8, 6, 2, 19, 1, 0, 2, 2, 15, 27, '實驗室高峰', P('BHEIJC'), null, MIN_FATAL_RATE),
-  // ---- 第三章：6 色到底（色板互斥規則上限），難度靠段數 / 隱藏密度 / 限步推 ----
+  // ---- 第三章起：色數 7 → 8 → 9（新色板），樽數跟住 9 → 10 → 11 ----
   R(13, 1, 0, 2, '開爐'),
   R(14, 1, 0, 2, '導師提示'),
   R(15, 1, 0, 2, '裂瓶'),

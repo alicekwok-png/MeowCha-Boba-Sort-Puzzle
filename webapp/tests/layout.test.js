@@ -106,10 +106,12 @@ describe('LevelValidation', () => {
       assert.ok(patterns.every(p => p === 0), `L${l.id} patternId 應全部 P0`);
     }
   });
-  test('液體 hex 同 Spec v2 一致（唔准改）', () => {
-    assert.equal(LIQUID_COLORS.A.hex, '#E8BD13'); assert.equal(LIQUID_COLORS.F.hex, '#4A3FD4'); assert.equal(LIQUID_COLORS.J.hex, '#E8DCC0');   // v4 §1.1
-    for (const k of Object.keys(LIQUID_COLORS)) if (k !== 'J') assert.ok(LIQUID_COLORS[k].lum >= 42 && LIQUID_COLORS[k].lum <= 54, k + ' 中明度');
-    for (const [x, y] of EXCLUSIVE_PAIRS) assert.ok(x !== y);   // 色相冇郁過 → 互斥表照舊
+  test('液體 hex 同新色板一致（2026-09-06，唔准改）', () => {
+    const want = { A: '#E8BD13', B: '#DC252C', C: '#8E2FD1', D: '#2242CD', E: '#1FBFD4', F: '#4CB81E', G: '#F79ACB', H: '#9FE8C4', I: '#B9A8F0', J: '#EFE6D2' };
+    for (const [k, hex] of Object.entries(want)) assert.equal(LIQUID_COLORS[k].hex, hex, k);
+    for (const k of ['A', 'B', 'C', 'D', 'E', 'F']) assert.ok(LIQUID_COLORS[k].lum >= 42 && LIQUID_COLORS[k].lum <= 50, k + ' 深色層 L 42–50');
+    for (const k of ['G', 'H', 'I', 'J']) assert.ok(LIQUID_COLORS[k].lum >= 74 && LIQUID_COLORS[k].lum <= 88, k + ' 淺色層 L 74–88');
+    assert.equal(EXCLUSIVE_PAIRS.length, 0, '新色板冇硬互斥對');
     assert.equal(PALETTE.length, 10);
   });
 });

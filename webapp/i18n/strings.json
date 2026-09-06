@@ -181,44 +181,44 @@
       "zh-Hans": "硫黄"
     },
     "B": {
-      "en": "Amber",
-      "zh-Hant": "琥珀",
-      "zh-Hans": "琥珀"
-    },
-    "C": {
-      "en": "Rose",
-      "zh-Hant": "薔薇",
-      "zh-Hans": "蔷薇"
-    },
-    "D": {
       "en": "Cinnabar",
       "zh-Hant": "硃砂",
       "zh-Hans": "朱砂"
     },
-    "E": {
+    "C": {
       "en": "Gentian",
       "zh-Hant": "龍膽",
       "zh-Hans": "龙胆"
     },
-    "F": {
-      "en": "Amethyst",
-      "zh-Hant": "紫晶",
-      "zh-Hans": "紫晶"
-    },
-    "G": {
-      "en": "Pale Blue",
-      "zh-Hant": "淡藍",
-      "zh-Hans": "淡蓝"
-    },
-    "H": {
+    "D": {
       "en": "Ultramarine",
       "zh-Hant": "群青",
       "zh-Hans": "群青"
     },
-    "I": {
+    "E": {
+      "en": "Cyan",
+      "zh-Hant": "青碧",
+      "zh-Hans": "青碧"
+    },
+    "F": {
       "en": "Verdigris",
       "zh-Hant": "銅綠",
       "zh-Hans": "铜绿"
+    },
+    "G": {
+      "en": "Blush",
+      "zh-Hant": "緋櫻",
+      "zh-Hans": "绯樱"
+    },
+    "H": {
+      "en": "Mint",
+      "zh-Hant": "薄荷",
+      "zh-Hans": "薄荷"
+    },
+    "I": {
+      "en": "Lavender",
+      "zh-Hant": "薰衣",
+      "zh-Hans": "薰衣"
     },
     "J": {
       "en": "Opal",
