@@ -94,7 +94,6 @@
           </div>
           <div class="top-right">
             <span class="queue-left" id="hud-queue" hidden></span>
-            <button class="icon-btn img settings" id="btn-settings-game" aria-label="設定" title="設定" data-i18n-key="menu.settings" data-i18n-attr="aria-label|title"><img src="assets/v2/ui_sys_settings.webp?v=1c456084" alt=""></button>
           </div>
         </div>
         <div class="customers" id="customers"></div>
@@ -107,11 +106,12 @@
           <img id="cat-img" src="assets/v2/cat_cheer.webp?v=1c456084" alt="導師" data-i18n-key="extra.title.mascotAlt" data-i18n-attr="alt">
         </div>
       </div>
-      <!-- 道具列（用戶 2026-09-06 拎走「提示」）：撤銷（L5 起）· +樽（廣告加空樽，L11 起、盤面冇廣告樽剩低先出）· 重來 -->
+      <!-- 道具列（用戶 2026-09-06：拎走「提示」，設定由頂欄搬到「重來」右邊）：撤銷（L5 起）· +樽（廣告加空樽，L11 起、盤面冇廣告樽剩低先出）· 重來 · 設定 -->
       <footer class="zone zone-actions">
         <button class="act" id="btn-undo"><img src="assets/v2/ui_item_undo.webp?v=1c456084" alt=""><span data-i18n="actions.undo">撤銷</span></button>
         <button class="act ad" id="btn-add-cup" type="button" hidden aria-label="睇廣告加一隻空樽" title="睇廣告加一隻空樽" data-i18n-key="extra.hud.addCupAria" data-i18n-attr="aria-label|title"><img src="assets/v2/ui_item_addflask.webp?v=1c456084" alt=""><span data-i18n="extra.hud.addCup">+樽</span></button>
         <button class="act" id="btn-restart"><i>↻</i><span data-i18n="actions.restart">重來</span></button>
+        <button class="act" id="btn-settings-game" aria-label="設定" title="設定" data-i18n-key="menu.settings" data-i18n-attr="aria-label|title"><img src="assets/v2/ui_sys_settings.webp?v=1c456084" alt=""><span data-i18n="menu.settings">設定</span></button>
       </footer>
     </div>
   </section>
