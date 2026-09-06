@@ -36,7 +36,6 @@ export const UNLOCK_LEVEL = {
   orders: 1,        // 委託槽（Spec v3：L1 就有 1 個免費槽）
   adEmptyCup: 11,   // 道具列「+樽」
   moveLimit: 12,    // 步數上限
-  hint: 14,         // 提示道具
   secondOrder: 3,   // 第二免費槽（Spec v3 §7：L3 兩個槽同時開）
   adOrderSlot: 11,  // 廣告委託槽（Spec v3 adSlots，每關最多 2）
   covered: 19,      // 布遮樽（鎖死 + 蠟封提示）

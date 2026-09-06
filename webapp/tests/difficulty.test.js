@@ -68,7 +68,7 @@ describe('機制登場表', () => {
     });
   });
   test('登場表數值', () => {
-    assert.deepEqual(UNLOCK_LEVEL, { hidden: 2, adBottle: 2, undo: 5, orders: 1, adEmptyCup: 11, moveLimit: 12, hint: 14, secondOrder: 3, adOrderSlot: 11, covered: 19 });
+    assert.deepEqual(UNLOCK_LEVEL, { hidden: 2, adBottle: 2, undo: 5, orders: 1, adEmptyCup: 11, moveLimit: 12, secondOrder: 3, adOrderSlot: 11, covered: 19 });   // 提示道具 2026-09-06 拎走
   });
   test('登場（v4）：L1–3 教學 2 隻空樽、L4 起 1 隻；L2 起 `?` 樽 + 廣告樽（L2 兩隻）；全部 capacity 4；第 12 關限步；第 19 關布遮樽（campaign.json 實際盤面）', () => {
     const d = JSON.parse(readFileSync(new URL('../levels/campaign.json', import.meta.url), 'utf8'));

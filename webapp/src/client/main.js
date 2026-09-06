@@ -224,7 +224,6 @@ const LINES = {
   almost: ['extra.tutor.almost1', 'extra.tutor.almost2'],
   stuck: ['catLines.stuck', 'extra.tutor.stuck2'],
   clear: ['extra.tutor.clear1', 'extra.tutor.clear2'],
-  hint: ['extra.tutor.hint1', 'extra.tutor.hint2'],
   hidden: ['extra.tutor.hidden'],        // v4 §5：L2 第一次見 `?` 樽
   covered: ['extra.tutor.covered'],
   unlock: ['extra.tutor.unlock'],
@@ -448,7 +447,7 @@ function updateAddCupButton() {
 // ---------- 遊戲狀態 ----------
 const G = {
   view: null, level: null, session: null, board: null, moves: [], ts: [], history: [],
-  selected: null, busy: false, solved: false, startedAt: 0, practice: false, hints: 0, bgReady: false,
+  selected: null, busy: false, solved: false, startedAt: 0, practice: false, bgReady: false,
   adTotal: 0, adUnlocked: 0,   // 廣告委託槽：當關有效，重來 / 過關重置
   cupAdded: false,             // 廣告空瓶：每關只一次
   practiceDiff: null,          // 練習難度（easy / medium / hard）→ 副標題用 extra.practice.*
@@ -516,13 +515,12 @@ async function startLevel(levelData, { practice = false, diff = null } = {}) {
   G.level = levelData; G.practice = practice; G.practiceDiff = practice ? (diff || G.practiceDiff) : null;
   const st = server.start(levelData);
   G.session = st;
-  G.moves = []; G.ts = []; G.history = []; G.selected = null; G.busy = false; G.solved = false; G.hints = 0;
+  G.moves = []; G.ts = []; G.history = []; G.selected = null; G.busy = false; G.solved = false;
   G.adTotal = practice ? 0 : adSlotsFor(levelData.id); G.adUnlocked = 0; G.cupAdded = false;
   G.startedAt = performance.now();
   if (!practice) { progress.last = levelData.id; saveProgress(); }   // 續玩：下次直接落返呢關
   // 機制登場表：Undo 第 5 關起、提示第 14 關起先顯示（練習模式全部開）
   $('#btn-undo').hidden = !practice && levelData.id < UNLOCK_LEVEL.undo;
-  $('#btn-hint').hidden = !practice && levelData.id < UNLOCK_LEVEL.hint;
   if (!G.view) G.view = new GameView($('#board'), { onCupTap });
   if (typeof G.view.setLevelId === 'function') G.view.setLevelId(layoutSeedFor(levelData));   // 版面（safeLayout）以關卡號做種子，同關每次一樣
   applyBoard(st.maskedBoard);
@@ -618,7 +616,7 @@ async function onCupTap(idx) {
 
   // ---- 樂觀執行 ----
   G.busy = true; G.selected = null; G.view.select(null); G.view.clearHint();
-  $('#btn-undo').disabled = true; $('#btn-hint').disabled = true; $('#btn-add-cup').hidden = true;
+  $('#btn-undo').disabled = true; $('#btn-add-cup').hidden = true;
   const src = G.board.cups[m.from];
   const unitKey = src.seg[src.seg.length - 1];
   const prevBoard = G.board;
@@ -636,7 +634,7 @@ async function onCupTap(idx) {
     console.warn('[move] server rejected', err);
     try { applyBoard(server.reveal(G.session.sessionId, G.moves).maskedBoard); } catch { /* ignore */ }
     G.view.shake(idx); sfx.shake();
-    G.busy = false; $('#btn-undo').disabled = G.moves.length === 0; $('#btn-hint').disabled = false; updateAddCupButton();
+    G.busy = false; $('#btn-undo').disabled = G.moves.length === 0; updateAddCupButton();
     return;
   }
 
@@ -658,7 +656,6 @@ async function onCupTap(idx) {
   }
   G.view.setBoard(G.board);
   G.busy = false;
-  $('#btn-hint').disabled = false;
   updatePace();
   updateAddCupButton();
   if (!served) renderClients();
@@ -677,26 +674,6 @@ async function undo() {
   applyBoard(r.maskedBoard);
   sfx.undo();
   updatePace(); renderClients();
-}
-
-async function hint() {
-  if (G.busy || $('#btn-hint').hidden) return;
-  G.busy = true; $('#btn-hint').disabled = true;
-  try {
-    const r = await server.hint(G.session.sessionId, G.moves);
-    if (!r.move) { mocha('stuck', t('extra.tutor.noHint')); }
-    else {
-      G.hints++;
-      G.selected = null; G.view.select(null);
-      G.view.showHint(r.move.from, r.move.to);
-      sfx.hint();
-      mocha('idle', `${line('hint')} ${t('extra.tutor.hintLeft', { n: r.remaining })}`);
-    }
-  } catch (e) {
-    toast(t('extra.toast.hintUnavailable'));
-    console.error(e);
-  }
-  G.busy = false; $('#btn-hint').disabled = false; updatePace();
 }
 
 function restart() {
@@ -933,7 +910,6 @@ function bind() {
     show('screen-title');
   };
   $('#btn-undo').onclick = undo;
-  $('#btn-hint').onclick = hint;
   $('#btn-restart').onclick = restart;
   $('#btn-add-cup').onclick = addEmptyCup;
   syncMute();   // 音效掣已搬入設定 modal（頂欄 10% 只留 金幣 / 關卡 / 設定）
@@ -944,7 +920,6 @@ function bind() {
     if (!$('#screen-game').classList.contains('active') || !$('#modal').classList.contains('hidden')) return;
     if (e.key === 'Escape') { G.selected = null; G.view && G.view.select(null); }
     else if (e.key === 'u' || e.key === 'z') undo();
-    else if (e.key === 'h') hint();
     else if (e.key === 'r') restart();
     else if (/^[1-9]$/.test(e.key)) { const i = Number(e.key) - 1; if (G.board && i < G.board.cups.length) onCupTap(i); }
   });
@@ -996,5 +971,5 @@ async function startApp() {
 }
 
 // 除錯 / 自動化測試用（正式版可移除）
-window.meowcha = { G, server, bg, CONFIG, playCampaign, onCupTap, undo, hint, restart, progress, enterCafe, unlockOrderSlot, addEmptyCup, unlockAdCup, catPop, setLocale, getLocale, t, showSettings, showHelp };
+window.meowcha = { G, server, bg, CONFIG, playCampaign, onCupTap, undo, restart, progress, enterCafe, unlockOrderSlot, addEmptyCup, unlockAdCup, catPop, setLocale, getLocale, t, showSettings, showHelp };
 startApp();
