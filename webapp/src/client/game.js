@@ -1012,29 +1012,31 @@ export class GameView {
     };
 
     // 用戶 2026-09-06：同色相鄰格係同一啖液體，唔可以見到分界 —— 先合併成「連續段」再逐段畫一個圓柱。
-    // 合併條件：unit key 相同 + 淡入狀態相同（`?` 樽逐格揭露時，未同步嗰格要獨立畫）；連續隱藏格（null）亦合併，但逐格畫 ?
+    // 合併條件：unit key 相同 + **當刻淡入值**相同。⚠ 唔可以比較 c.fade[i] 嘅時間戳：`?` 樽逐格揭露之後
+    //   時間戳永遠唔同，淡入其實老早做完（alpha 都係 1），用時間戳比就會永遠合唔埋、留低接縫。
     const runs = [];
-    const push = (u, units, fade, cells) => {
+    const push = (u, units, alpha, cells) => {
       const last = runs[runs.length - 1];
-      if (last && last.u === u && last.fade === fade) { last.units += units; last.cells += cells; }
-      else runs.push({ u, units, fade, cells });
+      if (last && last.u === u && Math.abs(last.alpha - alpha) < 0.001) { last.units += units; last.cells += cells; }
+      else runs.push({ u, units, alpha, cells });
     };
     for (let i = 0; i < n; i++) {
       let units = 1;
       // 來源正在倒出：頂格縮短
       if (c.removedUnits > 0 && i >= n - Math.ceil(c.removedUnits)) units = Math.max(0, Math.min(1, (n - c.removedUnits) - i));
       if (units <= 0) continue;
-      push(seg[i], units, c.fade[i] || 0, 1);
+      const t0 = c.fade[i];
+      push(seg[i], units, t0 ? clamp01((now - t0) / RENDER.hiddenRevealMs) : 1, 1);
     }
     // 正在倒入嘅新液：同頂色一樣就併埋（倒液規則保證只會倒落同色或者空樽）
-    if (c.extraUnits > 0 && c.extraColor !== null) push(c.extraColor, c.extraUnits, 0, 1);
+    if (c.extraUnits > 0 && c.extraColor !== null) push(c.extraColor, c.extraUnits, 1, 1);
 
     let level = 0;
     for (let r = 0; r < runs.length; r++) {
       const run = runs[r], isLast = r === runs.length - 1;
       const top = isLast && !c.extraUnits ? level + run.units * settleScale : level + run.units;
       if (run.u === null) drawHidden(level, top, run.cells);
-      else drawBand(level, top, run.u, run.fade ? clamp01((now - run.fade) / RENDER.hiddenRevealMs) : 1, isLast);
+      else drawBand(level, top, run.u, run.alpha, isLast);
       level += run.units;
     }
   }

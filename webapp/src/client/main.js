@@ -115,7 +115,8 @@ function sizeClients() {
   const r = el.getBoundingClientRect(), sr = slot.getBoundingClientRect();
   if (r.height < 10 || sr.width < 10) return;
   const trayH = r.height * 0.25;                      // --label-h: 25%（styles.css .slot）
-  const size = Math.floor(Math.min(r.height - trayH, sr.width * 1.18));
+  const GAP = 10;                                     // 用戶 2026-09-06：頭頂唔可以貼住 HUD
+  const size = Math.floor(Math.min(r.height - trayH - GAP, sr.width * 1.18));
   document.documentElement.style.setProperty('--client-size', size + 'px');
 }
 window.addEventListener('resize', () => sizeClients());
