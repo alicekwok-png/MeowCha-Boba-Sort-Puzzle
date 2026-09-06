@@ -196,22 +196,34 @@ def bottle_geom_and_opaque(path):
         xs = np.where(mask[y])[0]
         if len(xs): rowL[y] = xs.min(); rowR[y] = xs.max()
     liquid_top = int(round(H * 0.26))
-    # 液體底（用戶 2026-09-06）：填到剪影最底 —— 留任何空隙都會睇落似「樽底冇液體」。
-    # 樽底圓角嗰段液體跟住剪影收窄，即係液體坐喺圓底入面，同真樽一樣；玻璃底邊由高光圖疊返上去。
+    # 液體要坐喺玻璃**內壁**入面，唔係貼住剪影最外邊（用戶 2026-09-06「穿崩」：貼外邊 = 蓋住成條玻璃壁，
+    # 喺深背景上似溢咗出樽）。壁厚由 sprite 明度剖面量到 ≈ 2.4% frame 闊；樽底窄行用 30% 行闊封頂。
+    wall = W * 0.024
+    def inner(y):
+        if rowL[y] < 0: return None
+        l, r = float(rowL[y]), float(rowR[y] + 1)
+        ins = min(wall, (r - l) * 0.30)
+        return (l + ins, r - ins)
+    # 液體底：唔可以一路跟剪影收到尖（最底幾行得 4–30% 闊 → 樽底變咗一條刺）。
+    # 切喺「內壁仲有 70% 最闊」嗰行：底邊係一個闊嘅圓弧，下面剩返 ≈ 2% 樽高嘅玻璃底腳。
+    inner_w = {}
+    for y in range(liquid_top, bottom + 1):
+        iv = inner(y)
+        if iv: inner_w[y] = iv[1] - iv[0]
+    wmax_in = max(inner_w.values())
     liquid_bottom = bottom
+    for y in range(bottom, liquid_top, -1):
+        if inner_w.get(y, 0) >= wmax_in * 0.70:
+            liquid_bottom = y
+            break
     sample = []
     # 底部圓角要密啲取樣（每 2px）先至唔會變成幾條直線斜邊
     taper = int(round(H * 0.05))
     ys_sample = sorted(set(list(range(liquid_top, max(liquid_top, liquid_bottom - taper), 8)) + list(range(max(liquid_top, liquid_bottom - taper), liquid_bottom + 1, 2)) + [liquid_bottom]))
-    # 液體要坐喺玻璃**內壁**入面，唔係貼住剪影最外邊（用戶 2026-09-06「穿崩」：液體蓋住玻璃壁，
-    # 睇落就似溢咗出樽外）。壁厚由明度剖面量到：由剪影邊向內約 2.4% frame 闊就見到內壁高光。
-    # 樽底圓角行本身好窄，用 30% 行闊封頂，唔會縮到冇。
-    wall = W * 0.024
     for y in ys_sample:
-        if rowL[y] < 0: continue
-        l, r = float(rowL[y]), float(rowR[y] + 1)
-        ins = min(wall, (r - l) * 0.30)
-        sample.append([round(y / H, 4), round((l + ins) / W, 4), round((r - ins) / W, 4)])
+        iv = inner(y)
+        if not iv: continue
+        sample.append([round(y / H, 4), round(iv[0] / W, 4), round(iv[1] / W, 4)])
     ry = top + 6
     ny_ = int(H * 0.15)
     geom = {
