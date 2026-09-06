@@ -28,9 +28,9 @@ for (const [bucket, base] of Object.entries(PRACTICE)) {
   const cfg = { ...base, hiddenRatio: hiddenRatio(PSEUDO[bucket]) };
   const list = [];
   let n = 0, rejectedByRescan = 0;
-  while (list.length < PER && n < PER * 10) {
+  while (list.length < PER && n < PER * 40) {   // 2026-09-06 加咗致命錯步篩選之後，×10 唔夠（輕鬆桶只收到 29 個）
     const seedStr = `v1:pp:${bucket}:${SALT}:${n++}`;
-    const res = generateLevelEx(cfg, hash32(createHash('sha256').update(seedStr).digest('hex').slice(0, 8)), { maxAttempts: 400 });
+    const res = generateLevelEx(cfg, hash32(createHash('sha256').update(seedStr).digest('hex').slice(0, 8)), { maxAttempts: 2000 });
     if (!res) continue;
     const rate = simulateRandom(res.board, { trials: 2000, seed: n, budget: twoStarBudget(res.optimal) }).rate;
     if (cfg.randomTwoStarMax != null && rate >= cfg.randomTwoStarMax) { rejectedByRescan++; continue; }
