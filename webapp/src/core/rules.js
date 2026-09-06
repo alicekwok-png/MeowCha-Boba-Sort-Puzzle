@@ -61,11 +61,16 @@ export function applyMove(b, m, events = null) {
   const n = pourAmount(b, m.from, m.to);
   const color = topColor(next.cups[m.from]);
 
-  next.cups[m.from].seg.splice(-n, n);
-  for (let i = 0; i < n; i++) next.cups[m.to].seg.push(color);
+  const F = next.cups[m.from], T = next.cups[m.to];
+  F.seg.splice(-n, n);
+  // 倒走嘅格連隱藏遮罩一齊清（頂格本身永遠可見，所以清走嘅一定係已經露出嗰啲）
+  if (F.hid) F.hid &= (1 << F.seg.length) - 1;
+  for (let i = 0; i < n; i++) T.seg.push(color);
+  if (T.hid) T.hid &= (1 << (T.seg.length - n)) - 1;   // 新倒入嘅格一定可見
 
   // hidden 樽倒空之後降級為 normal（冇嘢再需要隱藏）
-  if (next.cups[m.from].kind === 'hidden' && next.cups[m.from].seg.length === 0) next.cups[m.from].kind = 'normal';
+  if (F.kind === 'hidden' && F.seg.length === 0) { F.kind = 'normal'; F.hid = 0; }
+  if (T.kind === 'hidden' && T.hid === 0) T.kind = 'normal';   // 冇隱藏格剩低就唔再係 ? 樽
 
   next.moveCount++;
   settleOrders(next, events);

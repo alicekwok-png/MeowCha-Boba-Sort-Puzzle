@@ -1,6 +1,6 @@
 {
  "version": 1,
- "generatedAt": "2026-09-05T21:40:35.284Z",
+ "generatedAt": "2026-09-06T09:21:18.361Z",
  "levels": [
   {
    "id": 1,
@@ -29,7 +29,7 @@
     "randomTwoStarMax": null
    },
    "publicSeed": "v1:c:1:208b5d6c:c4e1c796",
-   "board": "BAIBAQAAAAUABgAGAP__AAYG__8AAAAABgD_____AP____8",
+   "board": "BQIBAQAAAAUABgAABgD__wAABgb__wAAAAAABgAA_____wAA_____w",
    "optimal": 3,
    "thresholds": {
     "three": 6,
@@ -69,15 +69,15 @@
     "randomTwoStarMax": null
    },
    "publicSeed": "v1:c:2:e61ff2fc:61df1f14",
-   "board": "BAMBAgAAAAgEBgAA_____4AAAP__AAYGAgKABgICBqD_____oP____8A_____4AAAP__",
-   "optimal": 5,
+   "board": "BQMBAgAAAAgABgIAAP____-AAgICBgaABQYAAAagAP____8AAAD___-AAgACAv-gAP____8AAP____8",
+   "optimal": 6,
    "thresholds": {
-    "three": 14,
-    "two": 19
+    "three": 15,
+    "two": 20
    },
    "moveLimit": null,
    "hiddenRatio": 0.3,
-   "hiddenCells": 5,
+   "hiddenCells": 4,
    "units": 12
   },
   {
@@ -109,11 +109,11 @@
     "randomTwoStarMax": null
    },
    "publicSeed": "v1:c:3:e994cd21:4561d6b1",
-   "board": "BAMCAQAAAAcIAggA_____wD_____oP____-ACAj__4ABBAEIAAQEBAEACAH__w",
+   "board": "BQMCAQAAAAcCCAgAAP____8AAAT___-ABAgEBAEAAP____-ABgEICASgAP____-AAQgBAf8",
    "optimal": 6,
    "thresholds": {
-    "three": 13,
-    "two": 18
+    "three": 15,
+    "two": 20
    },
    "moveLimit": null,
    "hiddenRatio": 0.35,
@@ -151,11 +151,11 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:4:ee39f0be:6e39c52f",
-   "board": "BAQCAgAAAAoADAgCAAAAAgig_____wD_____gAIC__-g_____4AGBv__gAIICACABgb__wAI____AAD___8",
+   "board": "BQQCAgAAAAoADAgCAAD_____gAECAv__AAAG____gAMICAAAoAD_____oAD_____gAIABgYIgAEABv__gAECAv__AAAI____",
    "optimal": 7,
    "thresholds": {
-    "three": 18,
-    "two": 23
+    "three": 20,
+    "two": 25
    },
    "moveLimit": null,
    "hiddenRatio": 0.4,
@@ -193,15 +193,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:5:0a1de6ba:b17c09f0",
-   "board": "BAQCAgAAAAkCDgkEAAT___8A_____4AJCQcHoP____-AAQH__wAJ____AAEEBP-ACQQB_4AHB___",
-   "optimal": 7,
+   "board": "BQQCAgAAAAkCDgQJgAEJBwf_gAEHB___gAEJAQH_gAMECQT_oAD_____gAEBAQT_AAAJ____AAD_____AAAE____",
+   "optimal": 8,
    "thresholds": {
-    "three": 18,
-    "two": 23
+    "three": 21,
+    "two": 26
    },
    "moveLimit": null,
    "hiddenRatio": 0.4,
-   "hiddenCells": 7,
+   "hiddenCells": 6,
    "units": 16
   },
   {
@@ -235,11 +235,11 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:6:a1d0da7d:d7c55cca",
-   "board": "BAQCAgAAAAoQAAMGAP____-g_____4AIAAAGAAP___-AAwMI_4AGBv__AAAI__8ABgP__wAIAP__oP____8",
-   "optimal": 9,
+   "board": "BQQCAgAAAAoQDAMAAAAD____oAD_____gAIDAwD_AAD_____gAMGBgD_AAAA____gAQAAwYGgAEICP__gAEICP__oAD_____",
+   "optimal": 7,
    "thresholds": {
-    "three": 18,
-    "two": 23
+    "three": 20,
+    "two": 25
    },
    "moveLimit": null,
    "hiddenRatio": 0.4,
@@ -279,11 +279,11 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:7:a8a826fe:3f5ab324",
-   "board": "BAUCAwAAAAoADAgCBYAICP__gAAAAv8ABv___4ACAAL_gAYGCAiABgX__wAFBQX_AAIA__-g_____wD_____",
+   "board": "BQUCAwAAAAoQAAUGAoADBgYF_4ABAgL__4ABBgD__4ACCAgA_wAAAP___4ACBQYICIABAgL__6AA_____wAA_____4ADAAUF_w",
    "optimal": 9,
    "thresholds": {
-    "three": 22,
-    "two": 27
+    "three": 26,
+    "two": 31
    },
    "moveLimit": null,
    "hiddenRatio": 0.45,
@@ -323,15 +323,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:8:67bae470:29f68a08",
-   "board": "BAUCAwAAAAsOCAkIAaD_____gAQH__8A_____4AHBwn_gAcB__-AAQH__4AECAkEgAkJ__-g_____4AICP__AAEIBP8",
+   "board": "BQUCAwAAAAsQEgEEB6AA_____wAACf___wAAB____4AFCAQJCYADAQQBAYADAQQJ_4ADBAcH_wAA_____4ACBwgI_6AA_____wAACP___w",
    "optimal": 11,
    "thresholds": {
-    "three": 28,
-    "two": 33
+    "three": 24,
+    "two": 29
    },
    "moveLimit": null,
    "hiddenRatio": 0.45,
-   "hiddenCells": 10,
+   "hiddenCells": 9,
    "units": 20
   },
   {
@@ -367,11 +367,11 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:9:1d40ffa9:27e4c564",
-   "board": "BAUCAwAAAAoQBgYABQAD____gAYI__-g_____wAD____gAAA__-AAAgGBoADBgX_AP____8ABQUAA4AFCAj_",
-   "optimal": 12,
+   "board": "BQUCAwAAAAoKDAMIAIAFBQMAAIAGAAYGAwAACP___wAABf___4ABCAb__6AA_____wAA_____4ADAAUI_wAABf___4AGCAYDAw",
+   "optimal": 14,
    "thresholds": {
-    "three": 25,
-    "two": 30
+    "three": 27,
+    "two": 32
    },
    "moveLimit": null,
    "hiddenRatio": 0.45,
@@ -411,15 +411,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:10:a45edef4:6190c984",
-   "board": "BAUCAwAAAAsEEgEIB4ABAgj_oP____8A_____wAC____oP____-ABwcCB4AJCAj_AAgBB_8ACf___4ABCQH_gAkC__8",
+   "board": "BQUCAwAAAAsOEgECCKAA_____wAACf___4ABCAn__4AFAgIIB4ADCQEIB4ADCAcJ_4ABAgL__wAAAf___4ABAQEH_6AA_____wAA_____w",
    "optimal": 13,
    "thresholds": {
-    "three": 26,
-    "two": 31
+    "three": 28,
+    "two": 33
    },
    "moveLimit": null,
    "hiddenRatio": 0.45,
-   "hiddenCells": 10,
+   "hiddenCells": 9,
    "units": 20
   },
   {
@@ -457,15 +457,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:11:4c5ec15c:cbc17bcf",
-   "board": "BAYCBAAAAAoKDAkACAKABQkIBYAICAAAAP____-AAgAG_wAJCAYGoP____-ABgkAAgAJ____gAIC__-ABQX__w",
+   "board": "BQYCBAAAAAoAEAkCBgWAAwUABf-AAQYJ__-ABggIAgIAAAj___8AAP____-AAgkJBgagAP____-ABQAIBQWAAwIJAP-AAwAGAv8",
    "optimal": 14,
    "thresholds": {
-    "three": 29,
-    "two": 34
+    "three": 31,
+    "two": 36
    },
    "moveLimit": null,
    "hiddenRatio": 0.5,
-   "hiddenCells": 13,
+   "hiddenCells": 12,
    "units": 24
   },
   {
@@ -503,15 +503,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:12:bb7fbfbe:0060cb57",
-   "board": "BAYCBAAAAAsCBAcIBAmABAQJ_6D_____AP____-g_____wAHCAkJgAcHCP-ABAEC_4ACCAICAAH___-ACQcB_4AIAQT_",
-   "optimal": 15,
+   "board": "BQYCBAAAAAsSEAECBAeABAQCCAgAAP____-ABQcCAgQAAAH___-gAP____-AAwQBCP-gAP____-AAwEHAQeAAwgJCf-AAwQJCf-AAQcC__8",
+   "optimal": 16,
    "thresholds": {
-    "three": 30,
-    "two": 35
+    "three": 33,
+    "two": 38
    },
-   "moveLimit": 27,
+   "moveLimit": 28,
    "hiddenRatio": 0.505,
-   "hiddenCells": 13,
+   "hiddenCells": 12,
    "units": 24
   },
   {
@@ -542,15 +542,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:13:629b41b3:c39f2be8",
-   "board": "BAYCBAAAAAsSCgIGCACABQUG_wD_____gAgA__-ABgb__4AAAv__AAkJCP-ACAgCAgAJ____gAYAAP-AAgkFBaD_____",
-   "optimal": 11,
+   "board": "BQYCBAAAAAsGCAAJCAeAAwkEAwOAAwgIAP-AAwgECf-AAwMDAAAAAAf___8AAP____-AAwkJB_-AAQQE__-AAQcAB_8AAAj___-gAP____8",
+   "optimal": 13,
    "thresholds": {
-    "three": 28,
-    "two": 33
+    "three": 30,
+    "two": 35
    },
-   "moveLimit": 23,
+   "moveLimit": 25,
    "hiddenRatio": 0.51,
-   "hiddenCells": 13,
+   "hiddenCells": 12,
    "units": 24
   },
   {
@@ -581,15 +581,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:14:a8bdc152:c9df2b6d",
-   "board": "BAYCBAAAAAwSBgYIAAUA_____wAACAD_gAYGAP8ABf___4AIA___gAYJCf-AAAUF_4AJCAj_oP____-AAwYDA4AFCf__oP____8",
+   "board": "BQYCBAAAAAwADggECQOAAwcDA_-AAQgE__-AAQkA__-AAwkECP8AAP____-AAgQAAP-AAQkJA_-AAQME__-gAP____-gAP____-AAwgIB_-AAgAHB_8",
    "optimal": 13,
    "thresholds": {
-    "three": 30,
-    "two": 35
+    "three": 34,
+    "two": 39
    },
    "moveLimit": 25,
    "hiddenRatio": 0.515,
-   "hiddenCells": 13,
+   "hiddenCells": 12,
    "units": 24
   },
   {
@@ -620,11 +620,11 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:15:46896cc2:6ef76e03",
-   "board": "BAYCBAAAAAsQEgIEBwCAAgL__4AEB___AP____8ACQkEB4AEBAkHgAgCAv-g_____4AJAAj_gAAH__-ACAAA_wAI____",
+   "board": "BQYCBAAAAAsQAAUJBgKAAwgICf-AAgACAv-AAwAGBv-AAQII__-gAP____-AAQUJ__-AAgAJCf-AAwIGBv8AAP____-AAQUFCP-AAQUA__8",
    "optimal": 14,
    "thresholds": {
-    "three": 31,
-    "two": 36
+    "three": 35,
+    "two": 40
    },
    "moveLimit": 26,
    "hiddenRatio": 0.52,
@@ -659,13 +659,13 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:16:a8bdc152:ec9e18f8",
-   "board": "BAYCBAAAAAwADgkIBAOACQP__4AJCAj_AP____-ACQT__4AHBwQDAAAEAP-AAwf__4AHA___gAQJAACg_____4AICP__oP____8",
-   "optimal": 15,
+   "board": "BQYCBAAAAAwCEgcCBAiAAQkJ__-gAP____8AAAH___-AAwcHAv-gAP____-ABgQCAQGABwgEBAKAAQgI__8AAP____-ABgIHCAGAAwkJBP8AAAf___8",
+   "optimal": 12,
    "thresholds": {
-    "three": 34,
-    "two": 39
+    "three": 29,
+    "two": 34
    },
-   "moveLimit": 27,
+   "moveLimit": 24,
    "hiddenRatio": 0.525,
    "hiddenCells": 13,
    "units": 24
@@ -698,13 +698,13 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:17:46896cc2:e8a534d3",
-   "board": "BAYCBAAAAAsACgMGCQiAAwn__wD_____gAUDA_-ABgAICIAJBgn_oP____-ACAgFBoAAAP__AAMFBf8ACf___4AABv__",
-   "optimal": 13,
+   "board": "BQYCBAAAAAsMAAMJCAWABwAICQmAAQAI__-AAQgF__-ABggFBgaAAQMD__8AAAD___-gAP____-AAQYG__-ABgMJCQAAAP____-AAwMFBf8",
+   "optimal": 14,
    "thresholds": {
-    "three": 30,
-    "two": 35
+    "three": 33,
+    "two": 38
    },
-   "moveLimit": 25,
+   "moveLimit": 26,
    "hiddenRatio": 0.53,
    "hiddenCells": 13,
    "units": 24
@@ -737,7 +737,7 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:18:a8bdc152:ba09e9d7",
-   "board": "BAYCBAAAAAwIEAYAAgmACQIA_4AGCQn_gAIICf-ABgIE_4AECP__oP____-g_____4AGAv__gAQE__-ACAgA_wAAAAb_AP____8",
+   "board": "BQYCBAAAAAwSEAMABQaAAwYACf-AAQkG__8AAAj___-ABgUDAwCAAwMDAAiAAwYGAP8AAP____-gAP____-AAQkJ__-AAwgFBf-AAQUI__-gAP____8",
    "optimal": 14,
    "thresholds": {
     "three": 33,
@@ -776,15 +776,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:19:7af7b057:6d323667",
-   "board": "BAYCBAAAAAsMCgkACAIAAAYGBiQIAggFgAkJ__-ABQkA_4AGAv__AAD___-g_____4AFBQj_AP____-AAAIC_4AICf__",
-   "optimal": 14,
+   "board": "BQYCBAAAAAsIEgAIBwOAAwAAAwAkAAcEA_8AAAn___-AAwgIA_-AAQMA__8AAAn___8AAP____-AAwkJBweAAQQH__-gAP____-ABwQICAQ",
+   "optimal": 13,
    "thresholds": {
-    "three": 29,
-    "two": 34
+    "three": 28,
+    "two": 33
    },
-   "moveLimit": 26,
+   "moveLimit": 25,
    "hiddenRatio": 0.54,
-   "hiddenCells": 12,
+   "hiddenCells": 13,
    "units": 24
   },
   {
@@ -815,15 +815,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:20:05360592:bfd4e194",
-   "board": "BAYCBAAAAAwCBAkIBQYA_____6D_____oP____-AAgIJ_wAGBf__gAgFBf-AAQEGCQAB____JAUICf-ACAkI_4AGBgH_gAIC__8",
-   "optimal": 14,
+   "board": "BQYCBAAAAAwIEggABwOAAQAE__-gAP____-ABQcABAcAAP____-ABQgIAACAAQMH__-gAP____-AAwkJCP8kAAMJ__-AAwQHCf8AAAP___-AAwgDBP8",
+   "optimal": 15,
    "thresholds": {
-    "three": 29,
-    "two": 34
+    "three": 32,
+    "two": 37
    },
-   "moveLimit": 26,
+   "moveLimit": 27,
    "hiddenRatio": 0.545,
-   "hiddenCells": 14,
+   "hiddenCells": 13,
    "units": 24
   },
   {
@@ -854,13 +854,13 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:21:222abf8f:0d001ad8",
-   "board": "BAYCBAAAAAwGCgAIBgmABQX__6D_____AP____-ACAAJ_4AAAP__AAP___-ACQAJBoAGBv__gAMFBv8ABQj__4AJAwP_gAgI__8",
-   "optimal": 13,
+   "board": "BQYCBAAAAAwKEgIGCAGAAwUGAf-AAQECBv8AAP____-AAwgICf-AAwEBCf-AAQYJ__-AAwUGBf-AAQUJ__8AAAL___-AAwgIAv-gAP____8AAAL___8",
+   "optimal": 16,
    "thresholds": {
-    "three": 32,
-    "two": 37
+    "three": 35,
+    "two": 40
    },
-   "moveLimit": 23,
+   "moveLimit": 26,
    "hiddenRatio": 0.55,
    "hiddenCells": 13,
    "units": 24
@@ -893,13 +893,13 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:22:76bbaeeb:f8755fca",
-   "board": "BAYCBAAAAAwKDAMIAAkABgb__4AFAAD_AP____-g_____4AJAP__gAYD__-AAwUF_wAI____gAgI__-ACAP__4ADBQYJgAAJCf8",
-   "optimal": 13,
+   "board": "BQYCBAAAAAwIEgYIAgGAAQIB__-AAwYGCP-AAQQG__8AAAT___8AAP____-AAwQECf-AAwECCf-AAQkJ__-AAQYC__-gAP____-ABgECCAiAAQEI__8",
+   "optimal": 15,
    "thresholds": {
-    "three": 32,
-    "two": 37
+    "three": 36,
+    "two": 41
    },
-   "moveLimit": 23,
+   "moveLimit": 25,
    "hiddenRatio": 0.555,
    "hiddenCells": 13,
    "units": 24
@@ -932,15 +932,15 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:23:26727d21:bfe59e7b",
-   "board": "BAYCBAAAAAwQAAcEAwmACAP__yQAAAP_gAkJB_-g_____wAA____AAT___8AAP___4AHBAj_gAgDA_8A_____4AHCQn_gAQEBwg",
+   "board": "BQYCBAAAAAwMBAEFCQgAAAb___8kAAgJAv-gAP____-AAwkIAf-AAQgI__8AAP____-AAQUF__8AAAn___-ABwEGAQWABQUJAQKAAQYG__-AAQIC__8",
    "optimal": 14,
    "thresholds": {
-    "three": 29,
-    "two": 34
+    "three": 31,
+    "two": 36
    },
    "moveLimit": 24,
    "hiddenRatio": 0.56,
-   "hiddenCells": 14,
+   "hiddenCells": 13,
    "units": 24
   },
   {
@@ -971,13 +971,13 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:24:222abf8f:7eb5eb08",
-   "board": "BAYCBAAAAAwIDggJAwCABAP__4AICAkJgAkJB_8A_____6D_____AAf___-ABAcAA4AECP__gAAA__-ABwMI_4AAA___AAT___8",
-   "optimal": 15,
+   "board": "BQYCBAAAAAwSEAAFAgaAAQUF__8AAP____-gAP____-AAQgJ__-AAQgA__-AAwgGAv8AAAb___-AAQAJ__-AAQAI__-ABwICBQWAAQkJ__-ABwIGBgA",
+   "optimal": 13,
    "thresholds": {
     "three": 34,
     "two": 39
    },
-   "moveLimit": 25,
+   "moveLimit": 23,
    "hiddenRatio": 0.565,
    "hiddenCells": 14,
    "units": 24
@@ -1010,13 +1010,13 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:25:00d86e21:1fedb828",
-   "board": "BAYCBAAAAAwOCAkACAOACAgE_4AJAAMDAAn___8AB____6D_____AP____-ACAQHByQAAAP_gAQD__-ACQQH_4AICf__AAD___8",
-   "optimal": 15,
+   "board": "BQYCBAAAAAwSAAgCBAeABwkAAgeAAwcABP8kAAcABP8AAP____-AAQIE__-AAQQJ__-AAQkJ__-AAwgIAv-gAP____8AAAf___-AAQgI__-AAQIA__8",
+   "optimal": 16,
    "thresholds": {
-    "three": 30,
-    "two": 35
+    "three": 35,
+    "two": 40
    },
-   "moveLimit": 25,
+   "moveLimit": 26,
    "hiddenRatio": 0.5700000000000001,
    "hiddenCells": 14,
    "units": 24
@@ -1049,11 +1049,11 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:26:e86e3903:b65a4130",
-   "board": "BAYCBAAAAAwIEAYJAgGg_____4AIBP__AAn___-AAQb__4ACCAL_AP____-ABgYCBIABCQb_gAIBCP-ABAj__wAE____gAEJCf8",
+   "board": "BQYCBAAAAAwSEAIFBgCAAwkGAv-AAwUABv-gAP____8AAAn___-AAwYFAv-AAQgJ__-AAQYI__-AAwUACP8AAP____-AAQgF__-AAQAA__-AAwICCf8",
    "optimal": 16,
    "thresholds": {
-    "three": 35,
-    "two": 40
+    "three": 37,
+    "two": 42
    },
    "moveLimit": 26,
    "hiddenRatio": 0.575,
@@ -1088,13 +1088,13 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:27:5d1304b4:857c9b91",
-   "board": "BAYCBAAAAAwCEgYIAgUACP___4AGCf__oP____-ABQUGBgD_____gAkBAv-AAQb__4ACCf__gAUCCf-AAQgB_4AICP__gAIF__8",
-   "optimal": 15,
+   "board": "BQYCBAAAAAwCEAkGBQKAAwIFBv-AAQkF__-AAwEJCf-AAQgI__-AAQYC__-AAQIB__8AAAj___-gAP____-ABwIFBgaAAQgB__-AAwkFAf8AAP____8",
+   "optimal": 16,
    "thresholds": {
-    "three": 36,
-    "two": 41
+    "three": 37,
+    "two": 42
    },
-   "moveLimit": 25,
+   "moveLimit": 26,
    "hiddenRatio": 0.58,
    "hiddenCells": 14,
    "units": 24
@@ -1127,13 +1127,13 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:28:00d86e21:4d31b676",
-   "board": "BAYCBAAAAAwSAAQIBgMACf___4AGCAMDgAYABP8A_____4ADCP__gAkE__-g_____yQICAkGgAQACQAAAP___4ADBv__AAT___8",
-   "optimal": 16,
+   "board": "BQYCBAAAAAwMEAkCAASAAQYE__-AAwgEBv-AAwIEAP-AAQkG__8AAAL___8kAAgA__8AAP____-AAQgI__-gAP____-ABwAGAgAAAAn___-ABwIJCQQ",
+   "optimal": 17,
    "thresholds": {
-    "three": 31,
-    "two": 36
+    "three": 34,
+    "two": 39
    },
-   "moveLimit": 26,
+   "moveLimit": 27,
    "hiddenRatio": 0.585,
    "hiddenCells": 14,
    "units": 24
@@ -1166,13 +1166,13 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:29:e86e3903:9bdd1fa6",
-   "board": "BAYCBAAAAAwQBAEEBwkA_____4ABBwICAAj___-ACAkEAqD_____gAcEB_8ACf___4ACCP__gAkBCP-ABAQHAQAB____AAn___8",
-   "optimal": 16,
+   "board": "BQYCBAAAAAwGEggGBQCgAP____-ABwUAAAaAAQAA__-AAwUDCf-AAwkDBv8AAP____8AAAn___-AAQMI__8AAAb___-AAQUF__-AAwYIA_-AAwkICP8",
+   "optimal": 15,
    "thresholds": {
-    "three": 31,
-    "two": 36
+    "three": 34,
+    "two": 39
    },
-   "moveLimit": 26,
+   "moveLimit": 25,
    "hiddenRatio": 0.59,
    "hiddenCells": 14,
    "units": 24
@@ -1205,13 +1205,13 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:30:6ea1b1ba:3acb849c",
-   "board": "BAYCBAAAAAwSDgQAAwgkAwP__6D_____AP____-AAAj__4AJBAkIgAcA__-ACQgD_4ADCf__gAQH__-ABAAHBIAACP__AAf___8",
-   "optimal": 18,
+   "board": "BQYCBAAAAAwKAgIGCQgAAP____-ABwgFCQKAAwEBBv-AAwkJAf8AAAL___-AAQkI__8kAAYCBv-gAP____8AAAj___-AAwUFAv8AAAX___-AAwgGAf8",
+   "optimal": 15,
    "thresholds": {
-    "three": 37,
-    "two": 42
+    "three": 30,
+    "two": 35
    },
-   "moveLimit": 28,
+   "moveLimit": 25,
    "hiddenRatio": 0.595,
    "hiddenCells": 14,
    "units": 24
@@ -1244,13 +1244,13 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:31:c9ba2e02:00b4d972",
-   "board": "BAYCBAAAAAwCEAkGAgWAAgb__4AFAQH_gAkF__-AAQn__4AFAgn_oP____8AAv___4ACCP__gAgI__-ACAYB_wD_____gAYGBQk",
-   "optimal": 15,
+   "board": "BQYCBAAAAAwIEAIABgmAAQkC__-AAwQEBv-AAwAGCP8AAP____-AAwYCBP-gAP____-AAwgABv-AAQAE__-AAwkIAv8AAAL___8AAAD___-AAwkJCP8",
+   "optimal": 16,
    "thresholds": {
-    "three": 36,
-    "two": 41
+    "three": 35,
+    "two": 40
    },
-   "moveLimit": 23,
+   "moveLimit": 24,
    "hiddenRatio": 0.6,
    "hiddenCells": 14,
    "units": 24
@@ -1283,13 +1283,13 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:32:c9ba2e02:64fab357",
-   "board": "BAYCBAAAAAwIDgMACQiABAgA_wAD____gAMHCP-ABwD__4ADAAD_gAME__8AB____wD_____gAcI__-ACAkJBIAJBAn_oP____8",
-   "optimal": 17,
+   "board": "BQYCBAAAAAwQAAMJBwSABwQJBAOAAQcI__-gAP____8AAP____-AAwkAAP-AAwAEA_-AAwcICP-AAQMD__-AAQQA__8AAAf___-AAwkHCf8AAAj___8",
+   "optimal": 15,
    "thresholds": {
-    "three": 36,
-    "two": 41
+    "three": 34,
+    "two": 39
    },
-   "moveLimit": 25,
+   "moveLimit": 23,
    "hiddenRatio": 0.605,
    "hiddenCells": 14,
    "units": 24
@@ -1322,11 +1322,11 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:33:04e8f52f:0fba6630",
-   "board": "BAYCBAAAAAwGCggGCQAAAP___4AACf__oP____-ACQUF_4AIA___JAP___-ACAAACYAFCQb_gAYDCAUA_____wAG____gAgGA_8",
+   "board": "BQYCBAAAAAwSEAEGBAKAAwIIBP-AAwECBP-AAQkB__-AAQYG__8AAAj___8AAP____-AAwgBAv-AAQkG__-gAP____-AAQkJ__-AAwYIAv8kAAQEAf8",
    "optimal": 16,
    "thresholds": {
-    "three": 33,
-    "two": 38
+    "three": 35,
+    "two": 40
    },
    "moveLimit": 24,
    "hiddenRatio": 0.61,
@@ -1361,11 +1361,11 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:34:c9ba2e02:5e12eaf7",
-   "board": "BAYCBAAAAAwQEgIHAASACAn__4AABwD_AAf___-AAgII_4AEAAf_AAj___-ACQT__4AJCQgCAP____-g_____4AHAgQAAAT___8",
+   "board": "BQYCBAAAAAwIDgAJAwiAAQkJ__8AAAf___-gAP____-ABwcDAwCAAQAD__8AAAT___-AAwgEB_-ABwkHAASAAQgJ__-AAQQD__-AAwgIAP8AAP____8",
    "optimal": 16,
    "thresholds": {
-    "three": 33,
-    "two": 38
+    "three": 35,
+    "two": 40
    },
    "moveLimit": 24,
    "hiddenRatio": 0.615,
@@ -1400,13 +1400,13 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:35:6ea1b1ba:4c32b092",
-   "board": "BAYCBAAAAAwSDAUIAgEABv___wD_____AAb___-AAQIC_4AFCAj_gAEI__-AAQb__6D_____JAgJ__-ABQYC_4AJAQn_gAIFCQU",
-   "optimal": 16,
+   "board": "BQYCBAAAAAwQDAIBBQmABwkIBQKAAQkI__-AAwkBAv8kAAYJ__-ABwIGAQYAAAH___-AAQUI__-AAwgGAv8AAAH___8AAP____-AAQUF__-gAP____8",
+   "optimal": 18,
    "thresholds": {
-    "three": 33,
-    "two": 38
+    "three": 35,
+    "two": 40
    },
-   "moveLimit": 24,
+   "moveLimit": 26,
    "hiddenRatio": 0.62,
    "hiddenCells": 14,
    "units": 24
@@ -1439,7 +1439,7 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:36:4fedb3eb:34b5476f",
-   "board": "BAYCBAAAAAwCBAkGCAUAAf___4AIBv__gAkGAv-g_____4AGAQL_gAEIBv-ACQj__4AFAv__gAEFBf8A_____wAJ____gAIFCQg",
+   "board": "BQYCBAAAAAwMBAkIAQWAAQgG__8AAAH___-AAQkI__-AAwEFBf-AAQUC__-gAP____-AAwYBAv-AAwEIBv8AAP____8AAAn___-ABwIFCQiAAwkGAv8",
    "optimal": 17,
    "thresholds": {
     "three": 36,
@@ -1478,13 +1478,13 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:37:028cd146:4988ddd5",
-   "board": "BAYCBAAAAAwOEAEEAgkABP___4AJB___gAII__-AAQgJ_yQCAv__AP____-AAQEI_4AHCf__gAcIBP-ABAkE_6D_____gAEHAv8",
-   "optimal": 17,
+   "board": "BQYCBAAAAAwMBgUICQAkAAMJAP-AAQUI__-AAwgABv-ABwgDBQAAAAj___-ABwUJCQYAAAn___8AAP____-AAwYGA_-gAP____8AAAX___-AAQAD__8",
+   "optimal": 16,
    "thresholds": {
-    "three": 36,
-    "two": 41
+    "three": 31,
+    "two": 36
    },
-   "moveLimit": 25,
+   "moveLimit": 24,
    "hiddenRatio": 0.63,
    "hiddenCells": 14,
    "units": 24
@@ -1517,13 +1517,13 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:38:db09f826:4254c226",
-   "board": "BAYCBAAAAAwSCAcAAwiACAD__4AEBwP_gAkA__-g_____4AJAAP_AP____8kCP___4AEBP__gAQJ__-ABwj__4ADBwADgAcJCP8",
-   "optimal": 18,
+   "board": "BQYCBAAAAAwIBgkABwiAAQgA__8AAAT___-gAP____8AAP____-ABwcABwiAAQMD__-ABwQACAcAAAj___8kAAP___-ABwkJBwmAAwQJBP-AAQAD__8",
+   "optimal": 16,
    "thresholds": {
-    "three": 39,
-    "two": 44
+    "three": 33,
+    "two": 38
    },
-   "moveLimit": 26,
+   "moveLimit": 24,
    "hiddenRatio": 0.635,
    "hiddenCells": 14,
    "units": 24
@@ -1556,11 +1556,11 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:39:028cd146:4f36b995",
-   "board": "BAYCBAAAAAwQEgIEAAeAAgkIB4AIBAn_AP____8ABP___4AHCQQHgAcC__-AAgn__yQC____oP____8ACP___4AAAAj_gAAEAP8",
+   "board": "BQYCBAAAAAwQBAQBCQckAAj___-AAwcIAv-AAwgBCf-gAP____-AAQIE__-AAQIH__-ABwIHCAEAAP____-ABwkBBAkAAAT___-AAQEJ__-AAQcE__8",
    "optimal": 18,
    "thresholds": {
-    "three": 35,
-    "two": 40
+    "three": 37,
+    "two": 42
    },
    "moveLimit": 26,
    "hiddenRatio": 0.64,
@@ -1595,13 +1595,13 @@
     "randomTwoStarMax": 0.1
    },
    "publicSeed": "v1:c:40:028cd146:1bf410ff",
-   "board": "BAYCBAAAAAwACAkCBwig_____4AJB___gAQHBP-AAgD__4AACAT_JAIJ__-ACAAJ_wAI____gAQJB_-AAAj__4ACBwL_AP____8",
-   "optimal": 19,
+   "board": "BQYCBAAAAAwMEgEIBAKgAP____-AAQkG__-AAwgBBP8kAAQBCAQAAAH___-ABwIGBgKAAQEE__8AAAn___-AAwgJCf8AAP____-AAQgC__-AAQYC__8",
+   "optimal": 16,
    "thresholds": {
-    "three": 38,
-    "two": 43
+    "three": 33,
+    "two": 38
    },
-   "moveLimit": 27,
+   "moveLimit": 24,
    "hiddenRatio": 0.645,
    "hiddenCells": 14,
    "units": 24

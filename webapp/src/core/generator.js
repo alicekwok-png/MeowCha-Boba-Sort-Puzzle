@@ -94,21 +94,6 @@ export function randomFill(cfg, rng) {
   }
   if (slack > 0) return null;
 
-  // 隱藏密度（工單 #5 公式）：目標隱藏格 = ratio × 有色格總數。
-  // 布遮瓶（頂格以外）同關卡表指定嘅磨砂瓶先扣走，餘下由普通瓶隨機轉做磨砂瓶（每隻隱藏 size−1 格）補足，最接近目標就停。
-  if (cfg.hiddenRatio !== undefined && cfg.hiddenRatio > 0) {
-    const fixedCells = kinds.reduce((a, k, i) => a + ((k === 'covered' || k === 'hidden') ? Math.max(0, sizes[i] - 1) : 0), 0);
-    const target = Math.max(0, Math.round(cfg.hiddenRatio * units) - fixedCells);
-    const cand = shuffle(kinds.map((k, i) => (k === 'normal' && sizes[i] >= 2 ? i : -1)).filter(i => i >= 0), rng);
-    let hidden = 0;
-    for (const i of cand) {
-      const add = sizes[i] - 1;
-      if (hidden >= target) break;
-      if (hidden + add - target > target - hidden) break;   // 加咗會離目標更遠就停
-      kinds[i] = 'hidden'; hidden += add;
-    }
-  }
-
   // 段數控制：先決定每色分成幾多段（總數 = 目標段數），再隨機組合
   const runsPerColor = new Array(cfg.colors).fill(1);
   let extra = cfg.segments - cfg.colors;
@@ -143,6 +128,30 @@ export function randomFill(cfg, rng) {
   }
 
   const cups = kinds.map((k, i) => makeCup(k, segs[i], k === 'covered'));
+  // 隱藏格（用戶 2026-09-06）：逐格隨機揀，唔再係「一整隻樽頂格以外全部 ?」——
+  // 咁 pattern 先會似參考遊戲（色 / ? / 色 / ?）而唔係每隻樽一個樣。頂格永遠可見（唔准盲倒）。
+  if (cfg.hiddenRatio !== undefined && cfg.hiddenRatio > 0) {
+    const fixed = cups.reduce((a, c) => a + (c.kind === 'covered' ? Math.max(0, c.seg.length - 1) : 0), 0);
+    const target = Math.max(0, Math.round(cfg.hiddenRatio * units) - fixed);
+    // 輪流分配（每隻樽先攞一格，再第二格…）：同一個密度之下，? 會散開喺唔同樽嘅唔同位置，
+    // 而唔係一隻樽由底填到頂 —— 咁先會出到「色 / ? / 色」呢類 pattern。
+    // 關卡表 cfg.hidden 會預先標某幾隻做 `?` 樽；佢哋一齊入候選，最後冇攞到格就降返做 normal
+    const perCup = cups.map((c) => ((c.kind === 'normal' || c.kind === 'hidden') && c.seg.length >= 2)
+      ? shuffle(Array.from({ length: c.seg.length - 1 }, (_, i) => i), rng) : []);
+    const order = shuffle(cups.map((_, ci) => ci), rng);
+    let placed = 0;
+    for (let round = 0; round < CAP_NORMAL && placed < target; round++) {
+      for (const ci of order) {
+        if (placed >= target) break;
+        const list = perCup[ci];
+        if (round >= list.length) continue;
+        cups[ci].kind = 'hidden';
+        cups[ci].hid |= (1 << list[round]);
+        placed++;
+      }
+    }
+    for (const c of cups) if (c.kind === 'hidden' && !c.hid) c.kind = 'normal';   // 冇攞到隱藏格就唔算 ? 樽
+  }
   for (let i = 0; i < cfg.empties; i++) cups.push(makeCup('normal', []));
   shuffle(cups, rng);
   // 廣告樽（v4 §4）：一開波就喺盤面，空 + 鎖死；solver 當佢唔存在 → 唔解鎖都可解

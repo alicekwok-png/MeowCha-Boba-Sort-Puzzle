@@ -85,7 +85,7 @@ describe('廣告加空瓶（Spec v2 §6 addEmptyBottle）', () => {
     const r = srv.addEmptyCup(st.sessionId, []);
     assert.equal(r.ok, true);
     assert.equal(r.maskedBoard.cups.length, 5);
-    assert.deepEqual(r.maskedBoard.cups[4], { kind: 'normal', cap: 4, locked: false, seg: [] });
+    assert.deepEqual(r.maskedBoard.cups[4], { kind: 'normal', cap: 4, locked: false, hid: 0, seg: [] });
     // 用新瓶（index 4）：瓶 2 = [2,1]（頂係 1）→ 1 落新瓶、2 落原本空瓶，再各自倒滿 → 兩色完成
     const moves = [{ from: 2, to: 4 }, { from: 2, to: 3 }, { from: 0, to: 4 }, { from: 1, to: 3 }];
     srv.sessions.get(st.sessionId).startedAt -= moves.length * MIN_MS_PER_MOVE + 1000;
