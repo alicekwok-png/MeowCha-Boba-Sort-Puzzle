@@ -543,7 +543,11 @@ async function playCampaign(id) {
 /** 唔可以揀 / 唔可以倒入嘅瓶：震一震 + 講原因 */
 function rejectTap(idx, cup) {
   G.view.shake(idx); sfx.shake();
-  if (cup.kind === 'covered' && cup.locked) toast(t('extra.toast.clothLocked', { n: cup.unlockIn || 1 }));
+  if (cup.kind === 'covered' && cup.locked) {
+    toast(cup.unlockColor != null
+      ? t('extra.toast.clothLockedColor', { name: liquidName(cup.unlockColor) })
+      : t('extra.toast.clothLocked', { n: cup.unlockIn || 1 }));
+  }
 }
 
 /** 訂單槽托盤 → canvas 座標（v4 §7 animateFlyToSlot 目標）；搵唔到就 null（用舊 animateDeliver 頂住） */

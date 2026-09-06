@@ -102,6 +102,10 @@ export function settleOrders(b, events = null) {
       b.delivered++;
       advanceQueue(b, slot, events);
       changed = true;
+      // 用戶 2026-09-07：布遮樽改為「交出佢指定嗰隻色」先揭布（布罩上面畫住嗰個彩色印就係鑰匙色）。
+      // 舊行為（交夠 2 單、唔理咩色、全部一齊開）令玩家見到「交咗一單 Tiffany 就開曬兩隻」，
+      // 同徽章講嘅嘢對唔上。冇鑰匙色（舊盤面）就仍然行舊規則。
+      unlockClothByColor(b, color, events);
       if (b.delivered === CLOTH_UNLOCK_ORDERS) unlockAllCloth(b, events);
     }
   }
@@ -115,6 +119,11 @@ export function settleOrders(b, events = null) {
  */
 export function clothUnlockIn(b) {
   return Math.max(0, CLOTH_UNLOCK_ORDERS - (b.delivered || 0));
+}
+
+/** 盤面仲有冇「未交出鑰匙色」嘅布遮樽（純查詢，UI 用） */
+export function clothPending(b) {
+  return b.cups.filter(c => c.kind === 'covered' && c.locked).length;
 }
 
 /** Spec v3 §2.4：一個槽交完貨，只有嗰個槽補新訂單；隊列空 → 槽收工（filled） */
@@ -138,9 +147,20 @@ export function openSlot(b, events = null) {
   return slot;
 }
 
+/** 交出鑰匙色 → 揭開對應嘅布遮樽（有指定鑰匙色嘅先算） */
+function unlockClothByColor(b, color, events) {
+  b.cups.forEach((c, ci) => {
+    if (c.kind !== 'covered' || !c.locked || c.unlockColor == null) return;
+    if (c.unlockColor !== color) return;
+    c.locked = false; c.kind = 'normal';
+    if (events) events.push({ type: 'unlock', cup: ci });
+  });
+}
+
+/** 舊規則兜底：冇指定鑰匙色嘅布遮樽，交夠 CLOTH_UNLOCK_ORDERS 單一次過全開 */
 function unlockAllCloth(b, events) {
   b.cups.forEach((c, ci) => {
-    if (c.kind !== 'covered' || !c.locked) return;
+    if (c.kind !== 'covered' || !c.locked || c.unlockColor != null) return;
     c.locked = false; c.kind = 'normal';
     if (events) events.push({ type: 'unlock', cup: ci });
   });

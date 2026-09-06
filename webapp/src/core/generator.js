@@ -243,12 +243,34 @@ function assemble(cfg, rng, segs, kinds, colors) {
     for (const c of cups) if (c.kind === 'hidden' && !c.hid) c.kind = 'normal';   // 冇攞到隱藏格就唔算 ? 樽
   }
   shuffle(cups, rng);
-  // 廣告樽（v4 §4）：一開波就喺盤面，空 + 鎖死；solver 當佢唔存在 → 唔解鎖都可解
-  for (let i = 0; i < (cfg.ad || 0); i++) cups.splice(randInt(rng, 0, cups.length), 0, makeCup('ad', []));
 
   // Spec v3：訂單隊列 = 關內全部顏色（隨機次序，必須涵蓋全部——否則某色永遠交唔到，必然無解）；
   // 免費槽先攞隊列頭 cfg.orders 單；廣告槽解鎖時再由隊列攞（openSlot）
-  const queue = shuffle(colors.slice(), rng);
+  const order = shuffle(colors.slice(), rng);
+
+  // 布遮樽鑰匙色（用戶 2026-09-07：「要完成指定顏色嘅訂單先揭開」）。
+  // 兩條硬規則，否則會出死局：
+  //  ① 鑰匙色喺全部布遮樽以外要仲有齊一樽嘅份量（CAP_NORMAL 格）—— 唔使開任何布都湊得齊，先交得出。
+  //  ② 每隻布遮樽用唔同鑰匙色 —— 唔係咁就會出現「交一單開曬幾隻」，即係用戶報嗰個情況。
+  // 揀色按訂單隊列次序，等布遮樽隨住進度一隻一隻開，而唔係全部塞喺最尾。
+  const coveredIdx = cups.map((c, i) => i).filter(i => cups[i].kind === 'covered');
+  if (coveredIdx.length) {
+    const outside = new Map();
+    for (const c of cups) { if (c.kind === 'covered') continue; for (const v of c.seg) outside.set(v, (outside.get(v) || 0) + 1); }
+    const pool = order.filter(u => (outside.get(u) || 0) >= CAP_NORMAL);
+    for (const i of coveredIdx) {
+      const inside = new Set(cups[i].seg);
+      let pick = pool.findIndex(u => !inside.has(u));
+      if (pick < 0) pick = pool.length ? 0 : -1;
+      if (pick < 0) { cups[i].kind = 'normal'; cups[i].locked = false; cups[i].unlockColor = null; continue; }
+      cups[i].unlockColor = pool.splice(pick, 1)[0];
+    }
+  }
+
+  // 廣告樽（v4 §4）：一開波就喺盤面，空 + 鎖死；solver 當佢唔存在 → 唔解鎖都可解
+  for (let i = 0; i < (cfg.ad || 0); i++) cups.splice(randInt(rng, 0, cups.length), 0, makeCup('ad', []));
+
+  const queue = order.slice();
   const orderColors = queue.splice(0, cfg.orders);
 
   return {

@@ -41,13 +41,18 @@ export const canMerge = (a, b) => a === b;   // 同色同圖案先合併（Spec 
  * （色 / ? / 色 / ? …）。硬規則：頂格永遠唔可以隱藏（否則變成盲倒，用戶早前已否決）。
  * 布罩樽（covered）唔用 hid：佢係整枝遮，頂格由蠟封提示。
  */
-export function makeCup(kind = 'normal', seg = [], locked = false, hid = 0) {
+/**
+ * @param {number|null} unlockColor 布遮樽嘅「鑰匙色」：交出呢隻色嘅訂單就揭布（用戶 2026-09-07）。
+ *   null = 舊行為（交夠 CLOTH_UNLOCK_ORDERS 單全部一齊開）。只有 covered 樽用得着。
+ */
+export function makeCup(kind = 'normal', seg = [], locked = false, hid = 0, unlockColor = null) {
   return {
     kind,
     cap: kind === 'takeaway' ? CAP_TAKEAWAY : CAP_NORMAL,
     seg: [...seg],
     locked: kind === 'covered' ? locked : false,
     hid: kind === 'hidden' ? (hid & 15) : 0,
+    unlockColor: kind === 'covered' && unlockColor != null ? unlockColor : null,
   };
 }
 
@@ -74,7 +79,7 @@ export function makeBoard(cups, colors, orders = [], queue = []) {
 
 export function cloneBoard(b) {
   return {
-    cups: b.cups.map(c => ({ kind: c.kind, cap: c.cap, seg: c.seg.slice(), locked: c.locked, hid: c.hid | 0 })),
+    cups: b.cups.map(c => ({ kind: c.kind, cap: c.cap, seg: c.seg.slice(), locked: c.locked, hid: c.hid | 0, unlockColor: c.unlockColor ?? null })),
     colors: b.colors,
     orders: b.orders.map(o => ({ color: o.color, filled: o.filled })),
     queue: (b.queue || []).slice(),
@@ -107,7 +112,8 @@ export function mask(board, revealed = null) {
     delivered: board.delivered,
     moveCount: board.moveCount,
     cups: board.cups.map((c, ci) => {
-      const base = { kind: c.kind, cap: c.cap, locked: c.locked, hid: c.hid | 0 };
+      // 鑰匙色一定要畀 client 睇到 —— 佢就係布罩上面畫住嗰個彩色印（用戶 2026-09-07）
+      const base = { kind: c.kind, cap: c.cap, locked: c.locked, hid: c.hid | 0, unlockColor: c.unlockColor ?? null };
       if (hiddenCount(c) === 0) return { ...base, seg: c.seg.slice() };
       return { ...base, seg: c.seg.map((v, i) => (!isHiddenCell(c, i) || (revealed && revealed.has(ci + ':' + i))) ? v : null) };
     }),
@@ -117,10 +123,11 @@ export function mask(board, revealed = null) {
 // ---------- 緊湊編碼（v3） ----------
 // 標頭: [version=3][colors][nOrders][nQueue][delivered][moveCount lo][moveCount hi][nCups]
 // 每張訂單 1 byte: unit key（key < 128）<<1 | filled；之後 nQueue byte 隊列 unit key
-// 每隻杯: 1 byte 標頭 (kind<<5 | locked<<2 | capFlag) + cap byte，每格 1 byte unit key（EMPTY=255 補位）
+// 每隻杯: 1 byte 標頭 (kind<<5 | locked<<2 | capFlag) + hid byte + （covered 先有）unlockColor byte
+//          + cap byte，每格 1 byte unit key（EMPTY=255 補位）
 //   capFlag：0 = cap 4，1 = cap 3（曲頸瓶）；cap byte 之後跟 1 byte hid（每格隱藏遮罩，低 4 bit）
 
-const VERSION = 5;   // v5：每隻杯多一個 hid byte（每格獨立隱藏遮罩）
+const VERSION = 6;   // v6：布遮樽多一個 unlockColor byte（鑰匙色；255 = 冇，行舊嘅「交夠 2 單全開」）
 
 function toBase64Url(bytes) {
   let bin = '';
@@ -146,6 +153,7 @@ export function encodeBoard(b) {
   for (const c of b.cups) {
     bytes.push((KINDS.indexOf(c.kind) << 5) | ((c.locked ? 1 : 0) << 2) | (c.cap === 3 ? 1 : 0));
     bytes.push(c.hid | 0);
+    if (c.kind === 'covered') bytes.push(c.unlockColor == null ? EMPTY : (c.unlockColor & 127));   // v6 鑰匙色
     for (let i = 0; i < c.cap; i++) bytes.push(i < c.seg.length ? c.seg[i] : EMPTY);
   }
   return toBase64Url(bytes);
@@ -168,9 +176,11 @@ export function decodeBoard(s) {
     const h = bytes[p++];
     const kind = KINDS[h >> 5], locked = !!((h >> 2) & 1), cap = (h & 1) ? 3 : 4;
     const hid = bytes[p++];
+    let unlockColor = null;
+    if (kind === 'covered') { const u = bytes[p++]; unlockColor = u === EMPTY ? null : u; }
     const seg = [];
     for (let k = 0; k < cap; k++) { const v = bytes[p++]; if (v !== EMPTY) seg.push(v); }
-    cups.push({ kind, cap, seg, locked, hid });
+    cups.push({ kind, cap, seg, locked, hid, unlockColor });
   }
   return { cups, colors, orders, queue, delivered, moveCount };
 }
