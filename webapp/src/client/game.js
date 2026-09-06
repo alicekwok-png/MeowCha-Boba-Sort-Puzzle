@@ -721,10 +721,10 @@ export class GameView {
       // 用戶 2026-09-07：印住個色但實際係「交夠 2 單全部一齊開」，兩者對唔上先係問題根源。
       const hint = c.unlockColor ?? (r ? r.hint : (c.clothHold ? c.clothHold.hint : (c.seg[c.seg.length - 1] ?? null)));
       this.drawSeal(c, hint, r ? 1 - r.rope * 0.6 : 1);
-      if (!r) {
-        const label = c.unlockColor != null
-          ? t('extra.badges.unlockColor')
-          : ((c.unlockIn || 1) === 1 ? t('extra.badges.order1') : t('hud.orders', { n: c.unlockIn }));
+      // 有鑰匙色就唔畫文字徽章（用戶 2026-09-07：「好核突」）——蠟封印本身就係訊號，
+      // 撳落去仲有 toast 講明係邊隻色。只有舊嘅「N 單」規則先需要文字。
+      if (!r && c.unlockColor == null) {
+        const label = (c.unlockIn || 1) === 1 ? t('extra.badges.order1') : t('hud.orders', { n: c.unlockIn });
         this.drawBadge(label, 0, this._clothRect(c).y + this._clothRect(c).h * 0.55 + this._clothRect(c).w * 0.36 + 12);
       }
       ctx.restore();

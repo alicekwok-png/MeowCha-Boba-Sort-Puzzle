@@ -1639,11 +1639,6 @@
         "en": "Sealed",
         "zh-Hant": "已封存",
         "zh-Hans": "已封存"
-      },
-      "unlockColor": {
-        "en": "this colour",
-        "zh-Hant": "交呢色",
-        "zh-Hans": "交这色"
       }
     }
   }
