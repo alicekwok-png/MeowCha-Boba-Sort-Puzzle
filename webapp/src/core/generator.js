@@ -137,6 +137,86 @@ export function randomFill(cfg, rng) {
     }
   }
 
+  for (let i = 0; i < cfg.empties; i++) { segs.push([]); kinds.push('normal'); }
+  return assemble(cfg, rng, segs, kinds, colors);
+}
+
+/**
+ * 倒推生成（用戶 2026-09-06「行錯一步就玩唔到」）：由「已完成」狀態開始行 N 步反向倒液。
+ * 點解要有呢個：空樽減到 1 隻（自由 4 格）之後，隨機填充嘅盤面 99.6% 係無解 —— 段數高就無解、
+ * 段數低就一開波已經有樽完成，中間冇窗口（實測 L20/L26 兩萬次全滅）。倒推法嘅可解性係構造出嚟：
+ * 每一步反向倒液都留低一步合法嘅正向倒液可以倒返轉頭，所以盤面必然喺 N 步內解得到。
+ *
+ * 反向一步 = 由 A 嘅頂段攞 j 格倒去 B，條件係 B 空或者 B 頂色 ≠ 該色 —— 咁正向 B→A 就啱啱好
+ * 倒返嗰 j 格（唔會多倒），逆轉性先嚴格成立。
+ */
+export function reverseFill(cfg, rng) {
+  const patterns = cfg.patterns || new Array(cfg.colors).fill(0);
+  const picked = cfg.palette ? cfg.palette.slice() : pickColors(cfg.colors, rng);
+  if (!picked) return null;
+  const colors = shuffle(picked.map((c, i) => makeUnit(c, patterns[i])), rng);
+  const bpc = cfg.bottlesPerColor || 1;
+  const filled = cfg.cups - cfg.empties;
+  if (filled !== cfg.colors * bpc) return null;   // 倒推法要求「一色 = 整數隻樽」
+
+  // 已完成狀態：每隻色佔 bpc 隻滿樽，再加空樽
+  const segs = [];
+  for (const c of colors) for (let k = 0; k < bpc; k++) segs.push(new Array(CAP_NORMAL).fill(c));
+  for (let i = 0; i < cfg.empties; i++) segs.push([]);
+
+  const target = cfg.segments;
+  const maxSteps = cfg.reverseSteps || filled * 40;
+  // 第二階段：段數夠咗之後淨係行「整段搬走」嘅反向步（段數不變，但盤面打亂得更深）。
+  // 冇呢一段嘅話，最優步數 ≈ 段數 − 樽數，解法太短 —— 盤面緊但一眼睇得穿。
+  const extra = cfg.reverseExtra ?? filled * 5;
+  let count = filled;            // 已完成狀態嘅段數 = 滿樽數
+  let last = null;
+  let done = 0;
+  for (let step = 0; step < maxSteps + extra; step++) {
+    if (count >= target && ++done > extra) break;
+    const froms = [];
+    for (let i = 0; i < segs.length; i++) if (segs[i].length) froms.push(i);
+    const a = froms[randInt(rng, 0, froms.length - 1)];
+    const A = segs[a];
+    const color = A[A.length - 1];
+    let run = 1;
+    while (run < A.length && A[A.length - 1 - run] === color) run++;
+    const tos = [];
+    for (let i = 0; i < segs.length; i++) {
+      if (i === a || segs[i].length >= CAP_NORMAL) continue;
+      if (segs[i].length && segs[i][segs[i].length - 1] === color) continue;   // 頂色相同 → 正向會多倒，破壞逆轉性
+      if (last && last.from === i && last.to === a) continue;                  // 唔即刻倒返轉頭
+      tos.push(i);
+    }
+    if (!tos.length) { last = null; continue; }
+    const b = tos[randInt(rng, 0, tos.length - 1)];
+    const room = CAP_NORMAL - segs[b].length;
+    if (count >= target && run > room) { last = null; continue; }   // 第二階段只准整段搬（段數不變）
+    const j = count >= target ? run : randInt(rng, 1, Math.min(run, room));
+    A.splice(-j, j);
+    for (let i = 0; i < j; i++) segs[b].push(color);
+    count += 1 - (j === run ? 1 : 0);   // B 多咗一段；A 段數只有喺整段搬走嗰陣先減
+    last = { from: a, to: b };
+  }
+  if (count !== target) return null;
+
+  // 樽種喺倒推之後先派（倒推嘅結果每隻樽格數唔同，要見到實際格數先派得準）
+  const kinds = segs.map(() => 'normal');
+  const nonEmpty = shuffle(segs.map((sg, i) => i).filter(i => segs[i].length > 0), rng);
+  let ki = 0;
+  for (let i = 0; i < (cfg.covered || 0) && ki < nonEmpty.length; i++, ki++) kinds[nonEmpty[ki]] = 'covered';
+  for (let i = 0; i < (cfg.hidden || 0); i++) {
+    while (ki < nonEmpty.length && segs[nonEmpty[ki]].length < 2) ki++;
+    if (ki >= nonEmpty.length) break;
+    kinds[nonEmpty[ki++]] = 'hidden';
+  }
+  return assemble(cfg, rng, segs, kinds, colors);
+}
+
+/** 砌返一個 Board：樽種 → 隱藏格 → 空樽 / 廣告樽 → 訂單隊列（randomFill 同 reverseFill 共用） */
+function assemble(cfg, rng, segs, kinds, colors) {
+  const bpc = cfg.bottlesPerColor || 1;
+  const units = cfg.colors * CAP_NORMAL * bpc;
   const cups = kinds.map((k, i) => makeCup(k, segs[i], k === 'covered'));
   // 隱藏格（用戶 2026-09-06）：逐格隨機揀，唔再係「一整隻樽頂格以外全部 ?」——
   // 咁 pattern 先會似參考遊戲（色 / ? / 色 / ?）而唔係每隻樽一個樣。頂格永遠可見（唔准盲倒）。
@@ -162,7 +242,6 @@ export function randomFill(cfg, rng) {
     }
     for (const c of cups) if (c.kind === 'hidden' && !c.hid) c.kind = 'normal';   // 冇攞到隱藏格就唔算 ? 樽
   }
-  for (let i = 0; i < cfg.empties; i++) cups.push(makeCup('normal', []));
   shuffle(cups, rng);
   // 廣告樽（v4 §4）：一開波就喺盤面，空 + 鎖死；solver 當佢唔存在 → 唔解鎖都可解
   for (let i = 0; i < (cfg.ad || 0); i++) cups.splice(randInt(rng, 0, cups.length), 0, makeCup('ad', []));
@@ -288,7 +367,7 @@ export function generateLevelEx(cfg, seed, opts = {}) {
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     if (opts.deadline && Date.now() > opts.deadline) { rejects.aborted++; return null; }   // 牆鐘預算（練習關即時生成用）
-    const b = randomFill(cfg, rng);
+    const b = cfg.reverse ? reverseFill(cfg, rng) : randomFill(cfg, rng);
     if (!b) { rejects.shape++; continue; }
     if (b.cups.some(isComplete) || isSolved(b)) { rejects.shape++; continue; }
 
@@ -337,16 +416,19 @@ export function generateLevelEx(cfg, seed, opts = {}) {
     }
     // 檢查 3c：一定要輸得到（用戶 2026-09-06「行錯一步就玩唔到」）——
     // 貪心玩家行 8 步之後盤面無解嘅比例要達標，否則呢一關點行都贏，唔使用腦
-    if (cfg.minFatalRate != null) {
+    if (cfg.minFatalRate != null || cfg.maxFatalRate != null) {
       // 兩段：先平嘅 80 局粗篩（要高過門檻 1.6 倍，抵銷「揀最好嗰次」嘅偏差），
       // 過到先跑 250 局確認。單靠 80 局會漏網（L11 / L12 曾經跌返落 1%）。
       // 局數跟盤面大細收縮：每一局要跑一次 solver，20 隻樽一次 solve ≈ 0.1s，
       // 用返細盤面嗰個局數會變成每個候選幾十秒。
       const big = cfg.cups > 12;
       const rough = fatalMistakeRate(b, { steps: 8, trials: big ? 30 : FATAL_TRIALS, seed: attempt + 11, maxNodes: big ? 80_000 : 200_000 });
-      if (rough.fatal < cfg.minFatalRate * 1.6) { rejects.fatal++; continue; }
+      if (cfg.minFatalRate != null && rough.fatal < cfg.minFatalRate * 1.6) { rejects.fatal++; continue; }
       const confirm = fatalMistakeRate(b, { steps: 10, trials: big ? 90 : FATAL_CONFIRM, seed: attempt + 977, maxNodes: big ? 80_000 : 200_000 });
-      if (confirm.fatal < cfg.minFatalRate * 1.3) { rejects.fatal++; continue; }   // 留 margin：重掃（其他 seed）先唔會跌返落門檻下
+      if (cfg.minFatalRate != null && confirm.fatal < cfg.minFatalRate * 1.3) { rejects.fatal++; continue; }   // 留 margin：重掃（其他 seed）先唔會跌返落門檻下
+      // 上限（用戶 2026-09-06 空樽減到 1 隻之後）：1 空樽嘅盤面天然去到 90%+ 致命錯步，
+      // 嗰啲盤面唔係「要諗」係「隨便行都死」，唔好玩 → 篩返落區間入面。
+      if (cfg.maxFatalRate != null && confirm.fatal > cfg.maxFatalRate) { rejects.fatal++; continue; }
     }
     // 檢查 4：起手安全區。深度成本係 (合法步數)^K × 一次 solve —— 20 隻樽有成百合法步，
     // K=2 就係幾千次 solve，生成會慢到停唔到。大盤面收到 K=1（第一步唔可以即死）。
@@ -355,6 +437,7 @@ export function generateLevelEx(cfg, seed, opts = {}) {
 
     return { board: b, optimal: sol.length, solution: sol, thresholds: starThresholds(sol.length, b), attempts: attempt, rejects, hiddenCells: countHidden(b), units: cfg.colors * CAP_NORMAL * (cfg.bottlesPerColor || 1) };
   }
+  opts.onReject?.(rejects);   // 失敗嗰陣先知道卡喺邊個檢查（緊 config 除錯用）
   return null;
 }
 

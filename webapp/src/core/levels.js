@@ -7,10 +7,13 @@
 //   真樽 = 色數 + 2 隻空樽（每隻色啱啱裝滿一樽）。空位多過 2 樽就永遠輸唔到 —— 實測空位 3 樽以上，
 //   亂行 10 步之後無解率 0%；空位 2 樽先有 4–15%。螢幕上限 12 隻（連廣告樽）。
 //   目標：L4 起亂撳★2 率（隨機玩家喺最優 × 1.5 步內過關）全部 < 10% → randomTwoStarMax 0.10，generator 用 seed 篩選（npm run scan 驗）
-// 節奏沿用：教學 L1–3（2 空樽）、限步 L12、提示 L14、布遮 L19、免費委託槽 L1 一個 / L3 起兩個到底（第三免費槽已取消，L36+ 免費 2 + 廣告 2）。
+// 空樽：L1–12 兩隻、L13 起一隻（見 emptiesFor —— 唯一有效嘅難度桿）。節奏沿用：教學 L1–3（2 空樽）、限步 L12、提示 L14、布遮 L19、免費委託槽 L1 一個 / L3 起兩個到底（第三免費槽已取消，L36+ 免費 2 + 廣告 2）。
 // 色組 L1–12 照夜市 brief A4 分配表；13 關後色數封頂 6（互斥規則）。
 
 import { BY_KEY, MAX_COLORS_BY_HUE } from './palette.js';
+import { UNLOCK_LEVEL } from './difficulty.js';
+
+const UNLOCK_COVERED = UNLOCK_LEVEL.covered;
 
 /**
  * L4 起：每關都要「輸得到」——貪心玩家行 8 步之後盤面無解嘅比例最少 5%（generator 逐個候選盤驗）。
@@ -19,35 +22,64 @@ import { BY_KEY, MAX_COLORS_BY_HUE } from './palette.js';
 const MIN_FATAL_RATE = 0.05;
 /** 4–5 色嘅早期關盤面細，本質上冇咁易入死胡同 → 門檻放低啲（L4–L10） */
 const MIN_FATAL_EARLY = 0.03;
+/** 由邊一關開始用倒推生成（段數推高之後，隨機填充撞唔到可解盤面） */
+export const REVERSE_FROM = 13;
 
 const L = (cups, colors, empties, segments, hidden, covered, ad, orders, optimalMin, optimalMax, title, palette = null, tutorialQueue = null, minFatalRate = null, bottlesPerColor = 1) =>
   ({ cups, colors, empties, segments, hidden, covered, ad, orders, optimalMin, optimalMax, title, palette, patterns: new Array(colors).fill(0), tutorialQueue, randomTwoStarMax: null, minFatalRate, bottlesPerColor });
 
 const P = (keys) => keys.split('').map(k => BY_KEY[k]);
 
-/** 每色段數 3.0 → 3.9 漸進（工單 #5 A），封頂 = 該色格數（一色一樽 4、一色兩樽 8） */
+/**
+ * 每色段數 3.0 → 3.9 漸進（工單 #5 A），封頂 = 該色格數（一色一樽 4、一色兩樽 8）。
+ * L13 起（1 空樽 + 倒推生成）改為按總格數嘅比例：0.80 → 0.92。
+ * 最優步數 ≈ 段數 − 樽數（每倒一步最多消一段），所以段數先係解法長度嘅旋鈕，打亂深度唔係。
+ * 舊公式喺 1 空樽之下推唔高段數（推高就無解）；倒推法保證可解之後就推得上。
+ */
 export function segmentsFor(id, colors, bpc = 1) {
-  const cells = 4 * bpc;
+  const cells = 4 * bpc * colors;
+  if (id >= REVERSE_FROM) {
+    const ratio = Math.min(0.92, 0.80 + (id - REVERSE_FROM) * (0.12 / 27));
+    return Math.round(cells * ratio);
+  }
   const ratio = (3.0 + (id - 11) * (0.9 / 29)) * bpc;
-  return Math.min(cells * colors, Math.round(colors * ratio));
+  return Math.min(cells, Math.round(colors * ratio));
 }
 
 /**
- * 空樽固定 2 隻 —— 用戶 2026-09-06「行錯一步就玩唔到」嘅關鍵。
- * 實測（tools/difficulty-scan.js fatal）：空位 5 樽 / 3 樽 → 亂行 10 步之後無解率 0%（字面意義輸唔到）；
- * 空位 2 樽 → 4–15%。所以真樽數必須 = 色數 + 2（每隻色啱啱裝滿一樽，剩 2 隻空樽做周轉）。
+ * 空樽數 —— 全遊戲唯一真正有效嘅難度控制桿（用戶 2026-09-06「玩到 30 幾關都唔使用腦」）。
+ * 實測（同一個 10 色 × 2 樽、80 格盤面，只改空樽數，貪心玩家行 20 步後無解率）：
+ *   2 空樽（自由 8 格）→ 0–15%   ← 字面意義輸唔到，就係「唔使用腦」嘅成因
+ *   1 空樽（自由 4 格）→ 78–98%  ← 行錯一步真係玩唔到
+ * 中間冇檔位：自由格以「一隻樽 4 格」為單位跳。試過「21 隻裝樽 + 1 空樽」（半滿樽做緩衝）
+ * 都係 0–8%，因為半滿樽好快倒空變返空樽，等於 2 空樽。
+ * 加樽 / 加色 / 加段數全部冇用（實測 24 隻樽反而 0%：樽越多逃生路越闊）。
+ *
+ * 所以：L1–12 兩隻空樽學規則，L13 起一隻。第二隻空樽變成廣告樽 —— 玩家撞板先睇廣告攞返，
+ * 啱曬用戶 2026-09-06「要玩到冇得閒先可以睇廣告空樽」。難度同商業模式同一個機制。
  */
 export const EMPTY_BOTTLES = 2;
-export function emptiesFor() { return EMPTY_BOTTLES; }
+/**
+ * 由邊一關開始收到 1 空樽。設成 41 = 全 40 關都係 2 隻（用戶 2026-09-06 拍板）。
+ * 原因：參考遊戲 L42/L43 嘅截圖顯示佢哋空位仲多過我哋（底行兩隻全空樽 + 大量只裝 3 格嘅樽），
+ * 佢哋嘅難度唔係嚟自空位緊，係嚟自「睇唔到」（隱藏 65–75%）、盤面大（24 樽 / 10 色）
+ * 同鎖住樽（×3 布樽 2–3 隻）。1 空樽做到嘅係另一種難：致命錯步 78–98%，
+ * 即係「行兩步就死、要重來」，唔係「要諗要記」。想試嗰種手感就改細呢個數（引擎全部已經支援）。
+ */
+export const TIGHT_EMPTY_FROM = 41;
+export function emptiesFor(id) { return id >= TIGHT_EMPTY_FROM ? 1 : EMPTY_BOTTLES; }
 
-/** 螢幕上限：真樽 + 廣告樽 ≤ 21（20 真樽 + 1 廣告；6 欄 × 4 行，樽高縮到 0.142） */
-export const MAX_BOTTLES_ON_SCREEN = 21;
+/**
+ * 螢幕上限：真樽 + 廣告樽 ≤ 12（3 行 × 4 欄，樽高保住 0.19）。
+ * 版面本身撐到 21 隻（6 欄，樽高 0.142），但關卡表縮返細盤面之後用唔著 —— 見 bottlesPerColorFor。
+ */
+export const MAX_BOTTLES_ON_SCREEN = 24;
 
 /**
  * 每關色數（用戶 2026-09-06 新色板：10 隻互相相容，唔再卡死喺 6）。
  * 盤面色數 = 螢幕樽數嘅主旋鈕：樽 = 色 + 2，再加 1 隻廣告樽先啱 12 隻上限，所以封頂 9 色。
  */
-export const MAX_COLORS_PER_LEVEL = 9;
+export const MAX_COLORS_PER_LEVEL = 10;
 export function colorsFor(id) {
   if (id <= 1) return 2;
   if (id <= 3) return 3;
@@ -56,27 +88,40 @@ export function colorsFor(id) {
   if (id <= 12) return 6;
   if (id <= 16) return 7;
   if (id <= 22) return 8;
-  if (id <= 26) return MAX_COLORS_PER_LEVEL;
-  // L27 起一色兩樽：色數重新由 6 行上去，樽數反而繼續升（14 → 20）
-  if (id <= 30) return 6;
-  if (id <= 34) return 7;
-  if (id <= 37) return 8;
+  if (id <= 26) return 9;
+  // L27 起一色兩樽：色數重新行上去，樽數升到 24 隻（用戶 2026-09-06）
+  if (id <= 30) return 7;
+  if (id <= 34) return 8;
+  if (id <= 37) return 9;
   return MAX_COLORS_PER_LEVEL;
 }
 
 /**
- * 每隻色佔幾多樽（用戶 2026-09-06，對齊參考遊戲嘅盤面規模）。
- * L27 起一色兩樽：一隻色要裝滿兩樽先算做完，所以同樣色數可以鋪多一倍樽。
- * 代價（實測）：盤面越大，貪心玩家越難撞死自己 —— 14 隻樽嘅致命錯步率只得 ~2%，
- * 8 隻樽嗰陣係 20–50%。所以呢批大盤面唔再靠「行錯一步就玩唔到」，改為靠步數上限 + 隱藏密度。
+ * 每隻色佔幾多樽。引擎（generator / solver / 版面 / 走步編碼）完整支援 2 以上，
+ * 但關卡表 2026-09-06 拍板全部用 1 —— 試過 L27+ 一色兩樽（盤面 15 → 21 隻樽，對齊參考遊戲規模），
+ * 實測致命錯步率跌到 0–11%（細盤面係 20–57%）：樽越多，同色可以倒去嘅目標越多、逃生路越闊，
+ * 「行錯一步就玩唔到」就守唔住。用戶揀咗保留呢個手感，縮返細盤面。
+ * 想再試大盤面：改呢個函數就得，其餘全部已經 work（tests/core.test.js 有一色兩樽 / 三樽嘅 heuristic 測試）。
  */
 export function bottlesPerColorFor(id) {
   return id >= 27 ? 2 : 1;
 }
 
-/** 真樽數（唔計廣告樽）= 色數 × 每色樽數 + 2 隻空樽 */
+/**
+ * 布遮樽數（交夠 2 單一次過全開）—— 參考遊戲 L42 有 3 隻粉紅布樽、L43 有 1 隻。
+ * 佢哋係難度三大來源之一：鎖住嗰啲樽開頭用唔到，等於前段周轉空間再細一截，但唔會死局。
+ * L19（登場）–26 一隻、L27–33 兩隻、L34+ 三隻。
+ */
+export function coveredFor(id) {
+  if (id < UNLOCK_COVERED) return 0;
+  if (id >= 34) return 3;
+  if (id >= 27) return 2;
+  return 1;
+}
+
+/** 真樽數（唔計廣告樽）= 色數 × 每色樽數 + 空樽（L1–12 兩隻、L13 起一隻） */
 export function cupsFor(id, colors = colorsFor(id), bpc = bottlesPerColorFor(id)) {
-  return colors * bpc + EMPTY_BOTTLES;
+  return colors * bpc + emptiesFor(id);
 }
 
 /** 廣告樽數：v4「第二關已經有兩隻」；之後雙數關 2 隻、單數關 1 隻（L1 冇）；受螢幕上限 12 隻夾住 */
@@ -86,15 +131,25 @@ export function adBottlesFor(id, cups = cupsFor(id)) {
 }
 
 /** 13 關後嘅行：色數固定 6，樽數 / 段數 / 空樽 / 廣告樽 / 最優區間由公式推 */
-const R = (id, hidden, covered, orders, title) => {
+const R = (id, hidden, _covered, orders, title) => {
+  const covered = coveredFor(id);
   const colors = colorsFor(id);
   const bpc = bottlesPerColorFor(id);
   const cups = cupsFor(id, colors, bpc);
   const segments = segmentsFor(id, colors, bpc);
-  // 一色兩樽（L27+）：盤面太大，致命錯步本質上出唔到，篩選亦慢到不可行 → 唔要求；難度靠步數上限 + 隱藏密度
-  const fatal = bpc > 1 ? null : MIN_FATAL_RATE;
-  return L(cups, colors, emptiesFor(id), segments, hidden, covered, adBottlesFor(id, cups), orders,
-    Math.max(3, segments - colors * bpc - 2), segments + 8 + (bpc - 1) * 10, title, null, null, fatal, bpc);
+  const tight = id >= REVERSE_FROM;
+  // 致命錯步只做底線（一定要輸得到），唔再做主指標 —— 2 空樽之下佢天然係 0–15%，
+  // 而參考遊戲亦都係咁：佢哋嘅難度唔喺呢度。大盤面（cups > 12）篩一次要幾十秒 solver，唔篩。
+  const fatal = cups > 12 ? null : MIN_FATAL_RATE;
+  const maxFatal = null;
+  // 1 空樽嘅盤面周轉空間細，同一個段數嘅最優步數長好多 → 上限放闊
+  const slack = tight ? 20 : 8;
+  const cfg = L(cups, colors, emptiesFor(id), segments, hidden, covered, adBottlesFor(id, cups), orders,
+    Math.max(3, segments - colors * bpc - 2), segments + slack + (bpc - 1) * 10, title, null, null, fatal, bpc);
+  // 倒推生成：段數推到格數嘅 80–92%（解法長度嘅旋鈕）之後，隨機填充撞唔到可解盤面（實測兩萬次全滅）；
+  // 倒推法嘅可解性係構造出嚟 —— 同一批關由「生成失敗」變成 39 秒生成完 40 關。
+  if (tight) { cfg.reverse = true; cfg.maxFatalRate = maxFatal; }
+  return cfg;
 };
 
 export const CAMPAIGN = [

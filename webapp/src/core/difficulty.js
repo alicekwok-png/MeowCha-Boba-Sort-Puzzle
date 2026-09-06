@@ -13,7 +13,7 @@ export function computeMoveLimit(levelId, optimal) {
 
 /**
  * 隱藏格比例（佔全部有色格）— 用戶 2026-09-06：舊曲線（L2–5 10%、L7 13%）太易，參考同類遊戲第 2 關已經約一半係 `?`。
- *  L1 0；L2 30%；L3 35%；L4–6 40%；L7–10 45%；L11 起 50% + 每關 0.5%，上限 65%
+ *  L1 0；L2 30%；L3 35%；L4–6 40%；L7–10 45%；L11 起 50% + 每關 1%，上限 72%（對齊參考遊戲）
  *  另外 generator 硬檢查：L2 起至少一隻樽有 ≥ MIN_HIDDEN_DEPTH（2）個隱藏格（hiddenDepthOk）
  */
 export function hiddenRatio(levelId) {
@@ -22,7 +22,10 @@ export function hiddenRatio(levelId) {
   if (levelId === 3) return 0.35;
   if (levelId <= 6) return 0.40;
   if (levelId <= 10) return 0.45;
-  return Math.min(0.65, 0.50 + (levelId - 11) * 0.005);
+  // 用戶 2026-09-06 影低參考遊戲 L42/L43：幾乎每隻樽只露頂一格，下面全部 `?`，密度約 65–75%。
+  // 佢哋個難度主要嚟自「睇唔到」，唔係空位緊 —— 所以呢條線要推到頂。
+  // 上限 0.72：頂格永遠可見（唔准盲倒），滿樽最多遮 3/4 = 0.75，要留位畀未滿嘅樽。
+  return Math.min(0.72, 0.50 + (levelId - 11) * 0.010);
 }
 
 /** L2 起：至少一隻樽要有咁多個隱藏格（一隻樽 2–3 個 ?） */

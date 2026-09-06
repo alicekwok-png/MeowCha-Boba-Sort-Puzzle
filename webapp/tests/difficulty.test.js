@@ -3,7 +3,7 @@ import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { computeMoveLimit, hiddenRatio, maxOrders, gatingViolations, UNLOCK_LEVEL } from '../src/core/difficulty.js';
-import { CAMPAIGN, bottlesPerColorFor } from '../src/core/levels.js';
+import { CAMPAIGN, bottlesPerColorFor, emptiesFor } from '../src/core/levels.js';
 import { makeCup, makeBoard, encodeBoard } from '../src/core/board.js';
 import * as decodeMod from '../src/core/board.js';
 import { LocalServer, MIN_MS_PER_MOVE } from '../src/client/local-server.js';
@@ -37,14 +37,17 @@ describe('步數上限', () => {
 });
 
 describe('隱藏密度', () => {
-  test('公式（2026-09-06 加強）：L1 0；L2 30%；L3 35%；L4–6 40%；L7–10 45%；L11 50%；L30 59.5%；上限 65%', () => {
+  test('公式（2026-09-06 對齊參考遊戲）：L1 0；L2 30%；L3 35%；L4–6 40%；L7–10 45%；L11 起 50% + 每關 1%，上限 72%', () => {
     assert.equal(hiddenRatio(1), 0);
     assert.ok(Math.abs(hiddenRatio(2) - 0.30) < 1e-9); assert.ok(Math.abs(hiddenRatio(3) - 0.35) < 1e-9);
     assert.ok(Math.abs(hiddenRatio(4) - 0.40) < 1e-9); assert.ok(Math.abs(hiddenRatio(6) - 0.40) < 1e-9);
     assert.ok(Math.abs(hiddenRatio(7) - 0.45) < 1e-9); assert.ok(Math.abs(hiddenRatio(10) - 0.45) < 1e-9);
     assert.ok(Math.abs(hiddenRatio(11) - 0.50) < 1e-9);
-    assert.ok(Math.abs(hiddenRatio(30) - 0.595) < 1e-9);
-    assert.equal(hiddenRatio(100), 0.65);
+    assert.ok(Math.abs(hiddenRatio(12) - 0.51) < 1e-9);
+    // 參考遊戲 L42/L43：幾乎每隻樽只露頂一格，密度約 65–75% —— 難度主要嚟自「睇唔到」
+    assert.ok(Math.abs(hiddenRatio(20) - 0.59) < 1e-9);
+    assert.ok(Math.abs(hiddenRatio(30) - 0.69) < 1e-9);
+    assert.equal(hiddenRatio(100), 0.72);   // 上限：頂格永遠可見，滿樽最多遮 3/4
   });
   test('campaign.json：L2 起每關至少一隻樽有 ≥ 2 個隱藏格', () => {
     const { decodeBoard } = decodeMod;
@@ -70,7 +73,7 @@ describe('機制登場表', () => {
   test('登場表數值', () => {
     assert.deepEqual(UNLOCK_LEVEL, { hidden: 2, adBottle: 2, orders: 1, adEmptyCup: 11, moveLimit: 12, secondOrder: 3, adOrderSlot: 11, covered: 19 });   // 提示 / 撤銷 2026-09-06 拎走
   });
-  test('登場：每關 2 隻空樽（空位 = 2 樽先輸得到）、真樽 = 色數 × 每色樽數 + 2；L2 起 `?` 樽 + 廣告樽（L2 兩隻）；全部 capacity 4；第 12 關限步；第 19 關布遮樽（campaign.json 實際盤面）', () => {
+  test('登場：空樽 L1–12 兩隻 / L13 起一隻（自由格 = 空樽 × 4，難度唯一有效桿）、真樽 = 色數 × 每色樽數 + 空樽；L2 起 `?` 樽 + 廣告樽（L2 兩隻）；全部 capacity 4；第 12 關限步；第 19 關布遮樽（campaign.json 實際盤面）', () => {
     const d = JSON.parse(readFileSync(new URL('../levels/campaign.json', import.meta.url), 'utf8'));
     const { decodeBoard } = decodeMod;
     const board = id => decodeBoard(d.levels[id - 1].board);
@@ -78,14 +81,16 @@ describe('機制登場表', () => {
     const empties = id => board(id).cups.filter(c => c.seg.length === 0).length;
     const empties2 = id => board(id).cups.filter(c => c.seg.length === 0 && c.kind === 'normal').length;
     const ads = id => board(id).cups.filter(c => c.kind === 'ad').length;
-    // 用戶 2026-09-06：空樽固定 2 隻；真樽 = 色數 × 每色樽數 + 2（每隻色啱啱裝滿佢嘅樽）
-    //   → 空位多過 2 樽就永遠輸唔到。L27 起一色兩樽，盤面 15 → 21 隻。
+    // 用戶 2026-09-06：自由格數係難度唯一有效桿（實測同一盤面 8 格 → 致命錯步 0–15%、4 格 → 78–98%）。
+    // L1–12 兩隻空樽（學規則），L13 起一隻。L13 起用倒推生成，自由格會散落喺唔同樽頂，
+    // 所以驗嘅係「自由格總數」，唔係「有幾多隻樽係全空」。
     for (let id = 1; id <= 40; id++) {
       const b = board(id);
       const real = b.cups.filter(c => c.kind !== 'ad');
       const bpc = bottlesPerColorFor(id);
-      assert.equal(real.filter(c => c.seg.length === 0).length, 2, `L${id} 兩隻空樽`);
-      assert.equal(real.length, b.colors * bpc + 2, `L${id} 真樽 = 色數 × ${bpc} + 2`);
+      const free = real.reduce((a, c) => a + (4 - c.seg.length), 0);
+      assert.equal(real.length, b.colors * bpc + emptiesFor(id), `L${id} 真樽 = 色數 × ${bpc} + 空樽`);
+      assert.equal(free, emptiesFor(id) * 4, `L${id} 自由格 = 空樽 × 4`);
       assert.equal(real.reduce((a, c) => a + c.seg.length, 0), b.colors * 4 * bpc, `L${id} 液體格數`);
     }
     assert.equal(kinds(1).includes('hidden'), false); assert.equal(ads(1), 0); assert.equal(d.levels[0].hiddenCells, 0);
