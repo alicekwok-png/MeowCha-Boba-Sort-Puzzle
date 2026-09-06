@@ -37,16 +37,16 @@ describe('步數上限', () => {
 });
 
 describe('隱藏密度', () => {
-  test('公式（2026-09-06 對齊參考遊戲）：L1 0；L2 30%；L3 35%；L4–6 40%；L7–10 45%；L11 起 50% + 每關 1%，上限 72%', () => {
+  test('公式（2026-09-06 對齊參考遊戲）：L1 0；L2 30%；L3 35%；L4 40%；L5 起 45% + 每關 3%，L14 到上限 72%', () => {
     assert.equal(hiddenRatio(1), 0);
     assert.ok(Math.abs(hiddenRatio(2) - 0.30) < 1e-9); assert.ok(Math.abs(hiddenRatio(3) - 0.35) < 1e-9);
-    assert.ok(Math.abs(hiddenRatio(4) - 0.40) < 1e-9); assert.ok(Math.abs(hiddenRatio(6) - 0.40) < 1e-9);
-    assert.ok(Math.abs(hiddenRatio(7) - 0.45) < 1e-9); assert.ok(Math.abs(hiddenRatio(10) - 0.45) < 1e-9);
-    assert.ok(Math.abs(hiddenRatio(11) - 0.50) < 1e-9);
-    assert.ok(Math.abs(hiddenRatio(12) - 0.51) < 1e-9);
+    assert.ok(Math.abs(hiddenRatio(4) - 0.40) < 1e-9);
+    // 用戶 2026-09-06「唔好去到咁後先加強」：L5 起每關 +3%
+    assert.ok(Math.abs(hiddenRatio(5) - 0.45) < 1e-9);
+    assert.ok(Math.abs(hiddenRatio(10) - 0.60) < 1e-9);
     // 參考遊戲 L42/L43：幾乎每隻樽只露頂一格，密度約 65–75% —— 難度主要嚟自「睇唔到」
-    assert.ok(Math.abs(hiddenRatio(20) - 0.59) < 1e-9);
-    assert.ok(Math.abs(hiddenRatio(30) - 0.69) < 1e-9);
+    assert.ok(Math.abs(hiddenRatio(12) - 0.66) < 1e-9);
+    assert.equal(hiddenRatio(14), 0.72);
     assert.equal(hiddenRatio(100), 0.72);   // 上限：頂格永遠可見，滿樽最多遮 3/4
   });
   test('campaign.json：L2 起每關至少一隻樽有 ≥ 2 個隱藏格', () => {
@@ -71,7 +71,7 @@ describe('機制登場表', () => {
     });
   });
   test('登場表數值', () => {
-    assert.deepEqual(UNLOCK_LEVEL, { hidden: 2, adBottle: 2, orders: 1, adEmptyCup: 11, moveLimit: 12, secondOrder: 3, adOrderSlot: 11, covered: 19 });   // 提示 / 撤銷 2026-09-06 拎走
+    assert.deepEqual(UNLOCK_LEVEL, { hidden: 2, adBottle: 2, orders: 1, adEmptyCup: 11, moveLimit: 12, secondOrder: 3, adOrderSlot: 11, covered: 13 });   // 提示 / 撤銷 2026-09-06 拎走
   });
   test('登場：空樽 L1–12 兩隻 / L13 起一隻（自由格 = 空樽 × 4，難度唯一有效桿）、真樽 = 色數 × 每色樽數 + 空樽；L2 起 `?` 樽 + 廣告樽（L2 兩隻）；全部 capacity 4；第 12 關限步；第 19 關布遮樽（campaign.json 實際盤面）', () => {
     const d = JSON.parse(readFileSync(new URL('../levels/campaign.json', import.meta.url), 'utf8'));
@@ -98,8 +98,8 @@ describe('機制登場表', () => {
     for (let id = 2; id <= 40; id++) assert.ok(ads(id) >= 1, `L${id} ad`);
     for (let id = 1; id <= 11; id++) assert.equal(d.levels[id - 1].moveLimit, null, `L${id} limit`);
     assert.ok(d.levels[11].moveLimit > 0);
-    for (let id = 1; id <= 18; id++) assert.ok(!kinds(id).includes('covered'), `L${id} covered`);
-    assert.ok(kinds(19).includes('covered'));
+    for (let id = 1; id <= 12; id++) assert.ok(!kinds(id).includes('covered'), `L${id} covered`);
+    assert.ok(kinds(13).includes('covered'));   // 2026-09-06 由 L19 提前到 L13
     for (const l of d.levels) for (const c of decodeBoard(l.board).cups) { assert.equal(c.cap, 4, `L${l.id} capacity 4`); assert.ok(!['takeaway', 'cracked', 'sealed'].includes(c.kind), `L${l.id} ${c.kind}`); }
   });
 });

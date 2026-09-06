@@ -23,7 +23,7 @@ const MIN_FATAL_RATE = 0.05;
 /** 4–5 色嘅早期關盤面細，本質上冇咁易入死胡同 → 門檻放低啲（L4–L10） */
 const MIN_FATAL_EARLY = 0.03;
 /** 由邊一關開始用倒推生成（段數推高之後，隨機填充撞唔到可解盤面） */
-export const REVERSE_FROM = 13;
+export const REVERSE_FROM = 5;
 
 const L = (cups, colors, empties, segments, hidden, covered, ad, orders, optimalMin, optimalMax, title, palette = null, tutorialQueue = null, minFatalRate = null, bottlesPerColor = 1) =>
   ({ cups, colors, empties, segments, hidden, covered, ad, orders, optimalMin, optimalMax, title, palette, patterns: new Array(colors).fill(0), tutorialQueue, randomTwoStarMax: null, minFatalRate, bottlesPerColor });
@@ -39,7 +39,7 @@ const P = (keys) => keys.split('').map(k => BY_KEY[k]);
 export function segmentsFor(id, colors, bpc = 1) {
   const cells = 4 * bpc * colors;
   if (id >= REVERSE_FROM) {
-    const ratio = Math.min(0.92, 0.80 + (id - REVERSE_FROM) * (0.12 / 27));
+    const ratio = Math.min(0.92, 0.80 + (id - REVERSE_FROM) * (0.12 / 35));
     return Math.round(cells * ratio);
   }
   const ratio = (3.0 + (id - 11) * (0.9 / 29)) * bpc;
@@ -83,16 +83,15 @@ export const MAX_COLORS_PER_LEVEL = 10;
 export function colorsFor(id) {
   if (id <= 1) return 2;
   if (id <= 3) return 3;
-  if (id <= 6) return 4;
-  if (id <= 10) return 5;
-  if (id <= 12) return 6;
-  if (id <= 16) return 7;
-  if (id <= 22) return 8;
-  if (id <= 26) return 9;
-  // L27 起一色兩樽：色數重新行上去，樽數升到 24 隻（用戶 2026-09-06）
-  if (id <= 30) return 7;
-  if (id <= 34) return 8;
-  if (id <= 37) return 9;
+  if (id <= 4) return 4;
+  // 用戶 2026-09-06「唔好去到咁後先加強」：色數由 L5 開始每兩關 +1，L15 就去到 10 色
+  // （舊表 L15 得 7 色，10 色要等到 L38）。盤面 = 色數 + 2 空樽 + 廣告樽。
+  if (id <= 14) return Math.min(MAX_COLORS_PER_LEVEL, 5 + Math.floor((id - 5) / 2));
+  if (id <= 19) return MAX_COLORS_PER_LEVEL;
+  // L20 起一色兩樽：色數重新行上去，盤面由 14 隻樽推到 24 隻
+  if (id <= 23) return 7;
+  if (id <= 27) return 8;
+  if (id <= 32) return 9;
   return MAX_COLORS_PER_LEVEL;
 }
 
@@ -104,7 +103,7 @@ export function colorsFor(id) {
  * 想再試大盤面：改呢個函數就得，其餘全部已經 work（tests/core.test.js 有一色兩樽 / 三樽嘅 heuristic 測試）。
  */
 export function bottlesPerColorFor(id) {
-  return id >= 27 ? 2 : 1;
+  return id >= 20 ? 2 : 1;   // 用戶 2026-09-06：盤面規模提前，L20 就去到 16 隻樽（舊表 L27）
 }
 
 /**
@@ -114,8 +113,8 @@ export function bottlesPerColorFor(id) {
  */
 export function coveredFor(id) {
   if (id < UNLOCK_COVERED) return 0;
-  if (id >= 34) return 3;
-  if (id >= 27) return 2;
+  if (id >= 25) return 3;
+  if (id >= 19) return 2;
   return 1;
 }
 
@@ -140,7 +139,7 @@ const R = (id, hidden, _covered, orders, title) => {
   const tight = id >= REVERSE_FROM;
   // 致命錯步只做底線（一定要輸得到），唔再做主指標 —— 2 空樽之下佢天然係 0–15%，
   // 而參考遊戲亦都係咁：佢哋嘅難度唔喺呢度。大盤面（cups > 12）篩一次要幾十秒 solver，唔篩。
-  const fatal = cups > 12 ? null : MIN_FATAL_RATE;
+  const fatal = cups > 12 ? null : (id <= 10 ? MIN_FATAL_EARLY : MIN_FATAL_RATE);
   const maxFatal = null;
   // 1 空樽嘅盤面周轉空間細，同一個段數嘅最優步數長好多 → 上限放闊
   const slack = tight ? 20 : 8;
@@ -158,18 +157,19 @@ export const CAMPAIGN = [
   L(4, 2, 2, 5, 0, 0, 0, 1, 3, 11,  '第一瓶',  P('AG'), 'firstDelivered'),
   L(5, 3, 2, 7, 1, 0, 2, 1, 3, 13,  '第二單',  P('AGC'), 'sealThenCatchUp'),   // v4：`?` 樽 + 2 隻廣告樽
   L(5, 3, 2, 8, 1, 0, 1, 2, 3, 14,  '換班',    P('IEB')),
-  // ---- 4 色 ----
+  // ---- 4 色（最後一關寫死嘅盤面）----
   L(6, 4, 2, 13, 1, 0, 2, 2, 5, 20, '熟手', P('AGCI'), null, MIN_FATAL_EARLY),
-  L(6, 4, 2, 14, 1, 0, 1, 2, 6, 21, '晚更', P('BHEJ'), null, MIN_FATAL_EARLY),
-  L(6, 4, 2, 15, 1, 0, 2, 2, 7, 22, '蓋住咗', P('AGDI'), null, MIN_FATAL_EARLY),
-  // ---- 第二章（第 12 關限步）；5–6 色 ----
-  L(7, 5, 2, 14, 1, 0, 1, 2, 9, 22, '排隊', P('AGCIF'), null, MIN_FATAL_EARLY),
-  L(7, 5, 2, 15, 1, 0, 2, 2, 10, 23, '打烊前', P('BHEIJ'), null, MIN_FATAL_EARLY),
-  L(7, 5, 2, 16, 1, 0, 1, 2, 12, 24, '問號瓶', P('AGDFI'), null, MIN_FATAL_EARLY),
-  L(7, 5, 2, 17, 1, 0, 2, 2, 13, 25, '曲頸瓶', P('BHCIJ'), null, MIN_FATAL_EARLY),
-  L(8, 6, 2, 18, 1, 0, 1, 2, 14, 26, '爆單', P('AGCIFJ'), null, MIN_FATAL_RATE),
-  L(8, 6, 2, 19, 1, 0, 2, 2, 15, 27, '實驗室高峰', P('BHEIJC'), null, MIN_FATAL_RATE),
-  // ---- 第三章起：色數 7 → 8 → 9（新色板），樽數跟住 9 → 10 → 11 ----
+  // ---- L5 起全部行公式（用戶 2026-09-06）：色數每兩關 +1、隱藏密度每關 +3%、
+  //      段數 = 格數 × 0.80→0.92、倒推生成。舊表呢一段係 4–6 色 / 隱藏 40–50%，太鬆。----
+  R(5, 1, 0, 2, '晚更'),
+  R(6, 1, 0, 2, '蓋住咗'),
+  R(7, 1, 0, 2, '排隊'),
+  R(8, 1, 0, 2, '打烊前'),
+  R(9, 1, 0, 2, '問號瓶'),
+  R(10, 1, 0, 2, '曲頸瓶'),
+  R(11, 1, 0, 2, '爆單'),
+  R(12, 1, 0, 2, '實驗室高峰'),
+  // ---- 第三章起：色數行到 10 色封頂，L20 起一色兩樽推盤面 ----
   R(13, 1, 0, 2, '開爐'),
   R(14, 1, 0, 2, '導師提示'),
   R(15, 1, 0, 2, '裂瓶'),

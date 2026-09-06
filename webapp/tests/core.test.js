@@ -118,8 +118,10 @@ describe('palette', () => {
     assert.ok(patternsCompatible([0, 1, 2], 6));
     assert.ok(!patternsCompatible([0, 1, 2, 3], 6), '每關最多 3 種圖案');
   });
-  test('第 1–12 關色組照 brief A4 分配表', () => {
-    const want = ['AG', 'AGC', 'IEB', 'AGCI', 'BHEJ', 'AGDI', 'AGCIF', 'BHEIJ', 'AGDFI', 'BHCIJ', 'AGCIFJ', 'BHEIJC'];
+  // L5 起 2026-09-06 改用公式行（色數每兩關 +1、隱藏 +3%/關），色組交返生成器按互斥規則揀 —— 見 levels.js。
+  // 教學段 L1–4 仍然照 brief A4 分配表寫死。
+  test('第 1–4 關色組照 brief A4 分配表', () => {
+    const want = ['AG', 'AGC', 'IEB', 'AGCI'];
     const d = JSON.parse(readFileSync(new URL('../levels/campaign.json', import.meta.url), 'utf8'));
     want.forEach((keys, i) => {
       const ids = keys.split('').map(k => BY_KEY[k]).sort();

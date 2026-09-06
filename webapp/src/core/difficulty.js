@@ -13,19 +13,18 @@ export function computeMoveLimit(levelId, optimal) {
 
 /**
  * 隱藏格比例（佔全部有色格）— 用戶 2026-09-06：舊曲線（L2–5 10%、L7 13%）太易，參考同類遊戲第 2 關已經約一半係 `?`。
- *  L1 0；L2 30%；L3 35%；L4–6 40%；L7–10 45%；L11 起 50% + 每關 1%，上限 72%（對齊參考遊戲）
+ *  L1 0；L2 30%；L3 35%；L4–6 40%；L7–10 45%；L4 40%；L5 起 45% + 每關 3%，L14 到上限 72%（對齊參考遊戲）
  *  另外 generator 硬檢查：L2 起至少一隻樽有 ≥ MIN_HIDDEN_DEPTH（2）個隱藏格（hiddenDepthOk）
  */
 export function hiddenRatio(levelId) {
   if (!levelId || levelId < UNLOCK_LEVEL.hidden) return 0;
   if (levelId === 2) return 0.30;
   if (levelId === 3) return 0.35;
-  if (levelId <= 6) return 0.40;
-  if (levelId <= 10) return 0.45;
-  // 用戶 2026-09-06 影低參考遊戲 L42/L43：幾乎每隻樽只露頂一格，下面全部 `?`，密度約 65–75%。
-  // 佢哋個難度主要嚟自「睇唔到」，唔係空位緊 —— 所以呢條線要推到頂。
-  // 上限 0.72：頂格永遠可見（唔准盲倒），滿樽最多遮 3/4 = 0.75，要留位畀未滿嘅樽。
-  return Math.min(0.72, 0.50 + (levelId - 11) * 0.010);
+  if (levelId === 4) return 0.40;
+  // 用戶 2026-09-06「唔好去到咁後先加強」：L5 起每關 +3%，L14 就去到參考遊戲嘅密度
+  // （舊表 L14 得 53%，72% 要等到 L33）。上限 0.72：頂格永遠可見（唔准盲倒），
+  // 滿樽最多遮 3/4 = 0.75，要留位畀未滿嘅樽。
+  return Math.min(0.72, 0.45 + (levelId - 5) * 0.03);
 }
 
 /** L2 起：至少一隻樽要有咁多個隱藏格（一隻樽 2–3 個 ?） */
@@ -40,7 +39,7 @@ export const UNLOCK_LEVEL = {
   moveLimit: 12,    // 步數上限
   secondOrder: 3,   // 第二免費槽（Spec v3 §7：L3 兩個槽同時開）
   adOrderSlot: 11,  // 廣告委託槽（Spec v3 adSlots，每關最多 2）
-  covered: 19,      // 布遮樽（鎖死 + 蠟封提示）
+  covered: 13,      // 布遮樽（鎖死 + 蠟封提示）—— 2026-09-06 由 19 提前到 13
 };   // 第三免費委託槽（原 L36）2026-09-05 取消：免費 2 + 廣告 2 到底，後期難度靠段數同隱藏密度推，唔可以喺最後五關鬆返
 
 /** 該關最多幾多個固定訂單槽 */
