@@ -1,12 +1,12 @@
 {
  "version": 1,
- "generatedAt": "2026-09-06T09:21:18.361Z",
+ "generatedAt": "2026-09-06T09:56:43.714Z",
  "levels": [
   {
    "id": 1,
    "title": "第一瓶",
    "config": {
-    "cups": 5,
+    "cups": 4,
     "colors": 2,
     "empties": 2,
     "segments": 5,
@@ -26,10 +26,11 @@
      0
     ],
     "tutorialQueue": "firstDelivered",
-    "randomTwoStarMax": null
+    "randomTwoStarMax": null,
+    "minFatalRate": null
    },
-   "publicSeed": "v1:c:1:208b5d6c:c4e1c796",
-   "board": "BQIBAQAAAAUABgAABgD__wAABgb__wAAAAAABgAA_____wAA_____w",
+   "publicSeed": "v1:c:1:9336b197:c4e1c796",
+   "board": "BQIBAQAAAAQABgAABgYAAAAA_____wAABgYAAAAA_____w",
    "optimal": 3,
    "thresholds": {
     "three": 6,
@@ -44,7 +45,7 @@
    "id": 2,
    "title": "第二單",
    "config": {
-    "cups": 6,
+    "cups": 5,
     "colors": 3,
     "empties": 2,
     "segments": 7,
@@ -66,10 +67,11 @@
      0
     ],
     "tutorialQueue": "sealThenCatchUp",
-    "randomTwoStarMax": null
+    "randomTwoStarMax": null,
+    "minFatalRate": null
    },
-   "publicSeed": "v1:c:2:e61ff2fc:61df1f14",
-   "board": "BQMBAgAAAAgABgIAAP____-AAgICBgaABQYAAAagAP____8AAAD___-AAgACAv-gAP____8AAP____8",
+   "publicSeed": "v1:c:2:2f1fc041:61df1f14",
+   "board": "BQMBAgAAAAcEAAagAP____-AAQICAACAAwYGAgCgAP____8AAP____-AAQACBgYAAP____8",
    "optimal": 6,
    "thresholds": {
     "three": 15,
@@ -84,7 +86,7 @@
    "id": 3,
    "title": "換班",
    "config": {
-    "cups": 6,
+    "cups": 5,
     "colors": 3,
     "empties": 2,
     "segments": 8,
@@ -106,14 +108,15 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": null
+    "randomTwoStarMax": null,
+    "minFatalRate": null
    },
-   "publicSeed": "v1:c:3:e994cd21:4561d6b1",
-   "board": "BQMCAQAAAAcCCAgAAP____8AAAT___-ABAgEBAEAAP____-ABgEICASgAP____-AAQgBAf8",
-   "optimal": 6,
+   "publicSeed": "v1:c:3:7bc2b2c9:4561d6b1",
+   "board": "BQMCAQAAAAYQCAEAAP____-AAQEBCAQAAP____-AAQEEBAiABQQICAGgAP____8",
+   "optimal": 7,
    "thresholds": {
-    "three": 15,
-    "two": 20
+    "three": 16,
+    "two": 21
    },
    "moveLimit": null,
    "hiddenRatio": 0.35,
@@ -124,16 +127,16 @@
    "id": 4,
    "title": "熟手",
    "config": {
-    "cups": 8,
+    "cups": 6,
     "colors": 4,
-    "empties": 1,
-    "segments": 10,
+    "empties": 2,
+    "segments": 13,
     "hidden": 1,
     "covered": 0,
     "ad": 2,
     "orders": 2,
-    "optimalMin": 4,
-    "optimalMax": 18,
+    "optimalMin": 5,
+    "optimalMax": 20,
     "title": "熟手",
     "palette": [
      0,
@@ -148,14 +151,15 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.03
    },
-   "publicSeed": "v1:c:4:ee39f0be:6e39c52f",
-   "board": "BQQCAgAAAAoADAgCAAD_____gAECAv__AAAG____gAMICAAAoAD_____oAD_____gAIABgYIgAEABv__gAECAv__AAAI____",
-   "optimal": 7,
+   "publicSeed": "v1:c:4:1ec45f12:6e39c52f",
+   "board": "BQQCAgAAAAgABAgGgAUABgYAgAUABgIIoAD_____oAD_____AAD_____gAEIAgYAgAIIAgIIAAD_____",
+   "optimal": 13,
    "thresholds": {
-    "three": 20,
-    "two": 25
+    "three": 24,
+    "two": 29
    },
    "moveLimit": null,
    "hiddenRatio": 0.4,
@@ -166,16 +170,16 @@
    "id": 5,
    "title": "晚更",
    "config": {
-    "cups": 8,
+    "cups": 6,
     "colors": 4,
-    "empties": 1,
-    "segments": 11,
+    "empties": 2,
+    "segments": 14,
     "hidden": 1,
     "covered": 0,
     "ad": 1,
     "orders": 2,
-    "optimalMin": 5,
-    "optimalMax": 19,
+    "optimalMin": 6,
+    "optimalMax": 21,
     "title": "晚更",
     "palette": [
      1,
@@ -190,14 +194,15 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.03
    },
-   "publicSeed": "v1:c:5:0a1de6ba:b17c09f0",
-   "board": "BQQCAgAAAAkCDgQJgAEJBwf_gAEHB___gAEJAQH_gAMECQT_oAD_____gAEBAQT_AAAJ____AAD_____AAAE____",
-   "optimal": 8,
+   "publicSeed": "v1:c:5:f6fb1a39:b17c09f0",
+   "board": "BQQCAgAAAAcOEgEEgAYEAQEEgAIHBwkBgAYHBAkJgAEEAQcJoAD_____AAD_____AAD_____",
+   "optimal": 11,
    "thresholds": {
-    "three": 21,
-    "two": 26
+    "three": 22,
+    "two": 27
    },
    "moveLimit": null,
    "hiddenRatio": 0.4,
@@ -208,16 +213,16 @@
    "id": 6,
    "title": "蓋住咗",
    "config": {
-    "cups": 8,
+    "cups": 6,
     "colors": 4,
-    "empties": 1,
-    "segments": 12,
+    "empties": 2,
+    "segments": 15,
     "hidden": 1,
     "covered": 0,
     "ad": 2,
     "orders": 2,
     "optimalMin": 7,
-    "optimalMax": 20,
+    "optimalMax": 22,
     "title": "蓋住咗",
     "palette": [
      0,
@@ -232,14 +237,15 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.03
    },
-   "publicSeed": "v1:c:6:a1d0da7d:d7c55cca",
-   "board": "BQQCAgAAAAoQDAMAAAAD____oAD_____gAIDAwD_AAD_____gAMGBgD_AAAA____gAQAAwYGgAEICP__gAEICP__oAD_____",
-   "optimal": 7,
+   "publicSeed": "v1:c:6:82712895:cc0816f9",
+   "board": "BQQCAgAAAAgGAAgGAAD_____gAQAAwYAoAD_____AAD_____gAUGAwgDoAD_____gAMGAAgIgAQABggD",
+   "optimal": 13,
    "thresholds": {
-    "three": 20,
-    "two": 25
+    "three": 24,
+    "two": 29
    },
    "moveLimit": null,
    "hiddenRatio": 0.4,
@@ -250,9 +256,9 @@
    "id": 7,
    "title": "排隊",
    "config": {
-    "cups": 9,
+    "cups": 7,
     "colors": 5,
-    "empties": 1,
+    "empties": 2,
     "segments": 14,
     "hidden": 1,
     "covered": 0,
@@ -276,14 +282,15 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.03
    },
-   "publicSeed": "v1:c:7:a8a826fe:3f5ab324",
-   "board": "BQUCAwAAAAoQAAUGAoADBgYF_4ABAgL__4ABBgD__4ACCAgA_wAAAP___4ACBQYICIABAgL__6AA_____wAA_____4ADAAUF_w",
-   "optimal": 9,
+   "publicSeed": "v1:c:7:ea43ea4d:3f5ab324",
+   "board": "BQUCAwAAAAgQDAIFAIADBQUGBoAFBQgIAIAGBgYAAoAGCAICAAAA_____wAA_____6AA_____4AEAAIIBQ",
+   "optimal": 12,
    "thresholds": {
-    "three": 26,
-    "two": 31
+    "three": 25,
+    "two": 30
    },
    "moveLimit": null,
    "hiddenRatio": 0.45,
@@ -294,9 +301,9 @@
    "id": 8,
    "title": "打烊前",
    "config": {
-    "cups": 9,
+    "cups": 7,
     "colors": 5,
-    "empties": 1,
+    "empties": 2,
     "segments": 15,
     "hidden": 1,
     "covered": 0,
@@ -320,14 +327,15 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.03
    },
-   "publicSeed": "v1:c:8:67bae470:29f68a08",
-   "board": "BQUCAwAAAAsQEgEEB6AA_____wAACf___wAAB____4AFCAQJCYADAQQBAYADAQQJ_4ADBAcH_wAA_____4ACBwgI_6AA_____wAACP___w",
-   "optimal": 11,
+   "publicSeed": "v1:c:8:85e17dc9:29f68a08",
+   "board": "BQUCAwAAAAkSEAEHBKAA_____4ABCAgJAYAFBwcBBAAA_____6AA_____4ADCAkBCIADBwkJBIADAQQEBwAA_____w",
+   "optimal": 13,
    "thresholds": {
-    "three": 24,
-    "two": 29
+    "three": 26,
+    "two": 31
    },
    "moveLimit": null,
    "hiddenRatio": 0.45,
@@ -338,9 +346,9 @@
    "id": 9,
    "title": "問號瓶",
    "config": {
-    "cups": 9,
+    "cups": 7,
     "colors": 5,
-    "empties": 1,
+    "empties": 2,
     "segments": 16,
     "hidden": 1,
     "covered": 0,
@@ -364,10 +372,11 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.03
    },
-   "publicSeed": "v1:c:9:1d40ffa9:27e4c564",
-   "board": "BQUCAwAAAAoKDAMIAIAFBQMAAIAGAAYGAwAACP___wAABf___4ABCAb__6AA_____wAA_____4ADAAUI_wAABf___4AGCAYDAw",
+   "publicSeed": "v1:c:9:26822d1d:27e4c564",
+   "board": "BQUCAwAAAAgQCgMGAAAA_____6AA_____4AFBQYDBYAFCAgFAIAGAAMAAIADBQYDBgAA_____4ACAwYICA",
    "optimal": 14,
    "thresholds": {
     "three": 27,
@@ -382,9 +391,9 @@
    "id": 10,
    "title": "曲頸瓶",
    "config": {
-    "cups": 9,
+    "cups": 7,
     "colors": 5,
-    "empties": 1,
+    "empties": 2,
     "segments": 17,
     "hidden": 1,
     "covered": 0,
@@ -408,14 +417,15 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.03
    },
-   "publicSeed": "v1:c:10:a45edef4:6190c984",
-   "board": "BQUCAwAAAAsOEgECCKAA_____wAACf___4ABCAn__4AFAgIIB4ADCQEIB4ADCAcJ_4ABAgL__wAAAf___4ABAQEH_6AA_____wAA_____w",
+   "publicSeed": "v1:c:10:c678e6fb:6190c984",
+   "board": "BQUCAwAAAAkEEgcIAYADBwcBAoAFAQgJCaAA_____wAA_____4AFAggBCIACAgkJAqAA_____wAA_____4ADAQgHBw",
    "optimal": 13,
    "thresholds": {
-    "three": 28,
-    "two": 33
+    "three": 26,
+    "two": 31
    },
    "moveLimit": null,
    "hiddenRatio": 0.45,
@@ -426,9 +436,9 @@
    "id": 11,
    "title": "爆單",
    "config": {
-    "cups": 9,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 18,
     "hidden": 1,
     "covered": 0,
@@ -454,14 +464,15 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:11:4c5ec15c:cbc17bcf",
-   "board": "BQYCBAAAAAoAEAkCBgWAAwUABf-AAQYJ__-ABggIAgIAAAj___8AAP____-AAgkJBgagAP____-ABQAIBQWAAwIJAP-AAwAGAv8",
-   "optimal": 14,
+   "publicSeed": "v1:c:11:abc5d6ea:cbc17bcf",
+   "board": "BQYCBAAAAAkQCgAGCQKABgkGBgCABQkCAAUAAP____-AAwAJAAaABggIAgIAAP____-AAwUJCAigAP____-AAwIGBQU",
+   "optimal": 15,
    "thresholds": {
-    "three": 31,
-    "two": 36
+    "three": 30,
+    "two": 35
    },
    "moveLimit": null,
    "hiddenRatio": 0.5,
@@ -472,9 +483,9 @@
    "id": 12,
    "title": "實驗室高峰",
    "config": {
-    "cups": 9,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 19,
     "hidden": 1,
     "covered": 0,
@@ -500,16 +511,17 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:12:bb7fbfbe:0060cb57",
-   "board": "BQYCBAAAAAsSEAECBAeABAQCCAgAAP____-ABQcCAgQAAAH___-gAP____-AAwQBCP-gAP____-AAwEHAQeAAwgJCf-AAwQJCf-AAQcC__8",
-   "optimal": 16,
+   "publicSeed": "v1:c:12:8f39c6d6:0060cb57",
+   "board": "BQYCBAAAAAoIDggJAQKAAwEJBAmgAP____8AAP____-ABgICBweAAwgIBAiABgcCAggAAP____-ABgQHCQSgAP____-ABgEJAQE",
+   "optimal": 15,
    "thresholds": {
-    "three": 33,
-    "two": 38
+    "three": 30,
+    "two": 35
    },
-   "moveLimit": 28,
+   "moveLimit": 27,
    "hiddenRatio": 0.505,
    "hiddenCells": 12,
    "units": 24
@@ -518,9 +530,9 @@
    "id": 13,
    "title": "開爐",
    "config": {
-    "cups": 10,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 18,
     "hidden": 1,
     "covered": 0,
@@ -539,16 +551,17 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:13:629b41b3:c39f2be8",
-   "board": "BQYCBAAAAAsGCAAJCAeAAwkEAwOAAwgIAP-AAwgECf-AAwMDAAAAAAf___8AAP____-AAwkJB_-AAQQE__-AAQcAB_8AAAj___-gAP____8",
-   "optimal": 13,
+   "publicSeed": "v1:c:13:25e97f84:c39f2be8",
+   "board": "BQYCBAAAAAkGEAYACQSgAP____-ABQYGBASABQMDAACABQAICQAAAP____8AAP____-ABQkEAwOABQgECAmABggJBgY",
+   "optimal": 14,
    "thresholds": {
-    "three": 30,
-    "two": 35
+    "three": 29,
+    "two": 34
    },
-   "moveLimit": 25,
+   "moveLimit": 26,
    "hiddenRatio": 0.51,
    "hiddenCells": 12,
    "units": 24
@@ -557,9 +570,9 @@
    "id": 14,
    "title": "導師提示",
    "config": {
-    "cups": 10,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 19,
     "hidden": 1,
     "covered": 0,
@@ -578,16 +591,17 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:14:a8bdc152:c9df2b6d",
-   "board": "BQYCBAAAAAwADggECQOAAwcDA_-AAQgE__-AAQkA__-AAwkECP8AAP____-AAgQAAP-AAQkJA_-AAQME__-gAP____-gAP____-AAwgIB_-AAgAHB_8",
-   "optimal": 13,
+   "publicSeed": "v1:c:14:e670888c:c9df2b6d",
+   "board": "BQYCBAAAAAoAEgYIBAOABgkGAAmABQMDCQiABQQGBgSgAP____-ABQkICAQAAP____-ABQQAAwOgAP____8AAP____-AAwAACAY",
+   "optimal": 15,
    "thresholds": {
-    "three": 34,
-    "two": 39
+    "three": 30,
+    "two": 35
    },
-   "moveLimit": 25,
+   "moveLimit": 27,
    "hiddenRatio": 0.515,
    "hiddenCells": 12,
    "units": 24
@@ -596,9 +610,9 @@
    "id": 15,
    "title": "裂瓶",
    "config": {
-    "cups": 10,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 19,
     "hidden": 1,
     "covered": 0,
@@ -617,16 +631,17 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:15:46896cc2:6ef76e03",
-   "board": "BQYCBAAAAAsQAAUJBgKAAwgICf-AAgACAv-AAwAGBv-AAQII__-gAP____-AAQUJ__-AAgAJCf-AAwIGBv8AAP____-AAQUFCP-AAQUA__8",
-   "optimal": 14,
+   "publicSeed": "v1:c:15:19e2044f:6ef76e03",
+   "board": "BQYCBAAAAAkQDAEJBQKAAwEJBQIAAP____-ABQgICQmgAP____-ABQUJBQgAAP____-ABQYCAgGABgECBQiABgYGAQY",
+   "optimal": 16,
    "thresholds": {
-    "three": 35,
-    "two": 40
+    "three": 31,
+    "two": 36
    },
-   "moveLimit": 26,
+   "moveLimit": 28,
    "hiddenRatio": 0.52,
    "hiddenCells": 12,
    "units": 24
@@ -635,9 +650,9 @@
    "id": 16,
    "title": "睇唔到嘅底",
    "config": {
-    "cups": 10,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 19,
     "hidden": 1,
     "covered": 0,
@@ -656,16 +671,17 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:16:a8bdc152:ec9e18f8",
-   "board": "BQYCBAAAAAwCEgcCBAiAAQkJ__-gAP____8AAAH___-AAwcHAv-gAP____-ABgQCAQGABwgEBAKAAQgI__8AAP____-ABgIHCAGAAwkJBP8AAAf___8",
-   "optimal": 12,
+   "publicSeed": "v1:c:16:e670888c:ec9e18f8",
+   "board": "BQYCBAAAAAoIAgkCCAegAP____-gAP____-ABQQICASABwIIBAgAAP____-AAwkJAgGABQQCCQEAAP____-ABgcHAgGABQEJBwc",
+   "optimal": 16,
    "thresholds": {
-    "three": 29,
-    "two": 34
+    "three": 31,
+    "two": 36
    },
-   "moveLimit": 24,
+   "moveLimit": 28,
    "hiddenRatio": 0.525,
    "hiddenCells": 13,
    "units": 24
@@ -674,9 +690,9 @@
    "id": 17,
    "title": "兩張委託",
    "config": {
-    "cups": 10,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 19,
     "hidden": 1,
     "covered": 0,
@@ -695,16 +711,17 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:17:46896cc2:e8a534d3",
-   "board": "BQYCBAAAAAsMAAMJCAWABwAICQmAAQAI__-AAQgF__-ABggFBgaAAQMD__8AAAD___-gAP____-AAQYG__-ABgMJCQAAAP____-AAwMFBf8",
-   "optimal": 14,
+   "publicSeed": "v1:c:17:19e2044f:e8a534d3",
+   "board": "BQYCBAAAAAkEDAUIAAmAAwAJCQiABQAICAIAAP____-ABgUIAgaAAwAFBQKgAP____8AAP____-AAwYGCQCABwIJBgU",
+   "optimal": 16,
    "thresholds": {
-    "three": 33,
-    "two": 38
+    "three": 31,
+    "two": 36
    },
-   "moveLimit": 26,
+   "moveLimit": 28,
    "hiddenRatio": 0.53,
    "hiddenCells": 13,
    "units": 24
@@ -713,9 +730,9 @@
    "id": 18,
    "title": "排長龍",
    "config": {
-    "cups": 10,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 19,
     "hidden": 1,
     "covered": 0,
@@ -734,16 +751,17 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:18:a8bdc152:ba09e9d7",
-   "board": "BQYCBAAAAAwSEAMABQaAAwYACf-AAQkG__8AAAj___-ABgUDAwCAAwMDAAiAAwYGAP8AAP____-gAP____-AAQkJ__-AAwgFBf-AAQUI__-gAP____8",
-   "optimal": 14,
+   "publicSeed": "v1:c:18:e670888c:ba09e9d7",
+   "board": "BQYCBAAAAAoIBgcACAkAAP____-gAP____-ABQQIAwOAAwAJCQeABQcJBAQAAP____-AAwMDCQCgAP____-ABgAECAiABwcIAAc",
+   "optimal": 15,
    "thresholds": {
-    "three": 33,
-    "two": 38
+    "three": 30,
+    "two": 35
    },
-   "moveLimit": 26,
+   "moveLimit": 27,
    "hiddenRatio": 0.535,
    "hiddenCells": 13,
    "units": 24
@@ -752,9 +770,9 @@
    "id": 19,
    "title": "布遮瓶",
    "config": {
-    "cups": 10,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 19,
     "hidden": 1,
     "covered": 1,
@@ -773,16 +791,17 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:19:7af7b057:6d323667",
-   "board": "BQYCBAAAAAsIEgAIBwOAAwAAAwAkAAcEA_8AAAn___-AAwgIA_-AAQMA__8AAAn___8AAP____-AAwkJBweAAQQH__-gAP____-ABwQICAQ",
-   "optimal": 13,
+   "publicSeed": "v1:c:19:16142154:6d323667",
+   "board": "BQYCBAAAAAkCEAYFCQIkAAUJCQiAAwUCAgGABgYBCAiABQgCCQKAAwEGBgmAAwUFAQYAAP____-gAP____8AAP____8",
+   "optimal": 15,
    "thresholds": {
     "three": 28,
     "two": 33
    },
-   "moveLimit": 25,
+   "moveLimit": 27,
    "hiddenRatio": 0.54,
    "hiddenCells": 13,
    "units": 24
@@ -791,9 +810,9 @@
    "id": 20,
    "title": "全家福",
    "config": {
-    "cups": 10,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 20,
     "hidden": 1,
     "covered": 1,
@@ -812,16 +831,17 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:20:05360592:bfd4e194",
-   "board": "BQYCBAAAAAwIEggABwOAAQAE__-gAP____-ABQcABAcAAP____-ABQgIAACAAQMH__-gAP____-AAwkJCP8kAAMJ__-AAwQHCf8AAAP___-AAwgDBP8",
-   "optimal": 15,
+   "publicSeed": "v1:c:20:97f20312:bfd4e194",
+   "board": "BQYCBAAAAAoMEAAJAgWgAP____-ABQYJAAAkAAAJAgWAAwUCCAYAAP____-gAP____-AAwYABgiABQgIAgUAAP____-ABgIJCQU",
+   "optimal": 18,
    "thresholds": {
-    "three": 32,
-    "two": 37
+    "three": 31,
+    "two": 36
    },
-   "moveLimit": 27,
+   "moveLimit": 30,
    "hiddenRatio": 0.545,
    "hiddenCells": 13,
    "units": 24
@@ -830,9 +850,9 @@
    "id": 21,
    "title": "夜更開始",
    "config": {
-    "cups": 11,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 20,
     "hidden": 1,
     "covered": 0,
@@ -851,16 +871,17 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:21:222abf8f:0d001ad8",
-   "board": "BQYCBAAAAAwKEgIGCAGAAwUGAf-AAQECBv8AAP____-AAwgICf-AAwEBCf-AAQYJ__-AAwUGBf-AAQUJ__8AAAL___-AAwgIAv-gAP____8AAAL___8",
-   "optimal": 16,
+   "publicSeed": "v1:c:21:dd16e06a:0d001ad8",
+   "board": "BQYCBAAAAAkMBAgJBQCABQgIBgWgAP____-ABgYAAgmABwkFAgUAAP____-AAwkAAAgAAP____-ABQUCCQCABQgGBgI",
+   "optimal": 17,
    "thresholds": {
-    "three": 35,
-    "two": 40
+    "three": 32,
+    "two": 37
    },
-   "moveLimit": 26,
+   "moveLimit": 27,
    "hiddenRatio": 0.55,
    "hiddenCells": 13,
    "units": 24
@@ -869,13 +890,13 @@
    "id": 22,
    "title": "兩隻問號",
    "config": {
-    "cups": 11,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 20,
     "hidden": 2,
     "covered": 0,
-    "ad": 1,
+    "ad": 2,
     "orders": 2,
     "optimalMin": 12,
     "optimalMax": 28,
@@ -890,16 +911,17 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:22:76bbaeeb:f8755fca",
-   "board": "BQYCBAAAAAwIEgYIAgGAAQIB__-AAwYGCP-AAQQG__8AAAT___8AAP____-AAwQECf-AAwECCf-AAQkJ__-AAQYC__-gAP____-ABgECCAiAAQEI__8",
-   "optimal": 15,
+   "publicSeed": "v1:c:22:17f9b6c1:f8755fca",
+   "board": "BQYCBAAAAAoSEAUBAgYAAP____-ABQIBBQUAAP____-ABgUJAQiAAwECCQmABQgIBgagAP____-gAP____-ABwgGAgWABgYJAQI",
+   "optimal": 16,
    "thresholds": {
-    "three": 36,
-    "two": 41
+    "three": 31,
+    "two": 36
    },
-   "moveLimit": 25,
+   "moveLimit": 26,
    "hiddenRatio": 0.555,
    "hiddenCells": 13,
    "units": 24
@@ -908,9 +930,9 @@
    "id": 23,
    "title": "布遮曲頸",
    "config": {
-    "cups": 11,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 20,
     "hidden": 1,
     "covered": 1,
@@ -929,16 +951,17 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:23:26727d21:bfe59e7b",
-   "board": "BQYCBAAAAAwMBAEFCQgAAAb___8kAAgJAv-gAP____-AAwkIAf-AAQgI__8AAP____-AAQUF__8AAAn___-ABwEGAQWABQUJAQKAAQYG__-AAQIC__8",
-   "optimal": 14,
+   "publicSeed": "v1:c:23:8d383885:bfe59e7b",
+   "board": "BQYCBAAAAAkOEAkAAwSAAwMHAAOAAwkJBwCABggAAwigAP____8AAP____8AAP____-ABQcIAwkkAAAHBASABgQECAk",
+   "optimal": 17,
    "thresholds": {
-    "three": 31,
-    "two": 36
+    "three": 30,
+    "two": 35
    },
-   "moveLimit": 24,
+   "moveLimit": 27,
    "hiddenRatio": 0.56,
    "hiddenCells": 13,
    "units": 24
@@ -947,13 +970,13 @@
    "id": 24,
    "title": "裂瓶再現",
    "config": {
-    "cups": 11,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 20,
     "hidden": 1,
     "covered": 0,
-    "ad": 1,
+    "ad": 2,
     "orders": 2,
     "optimalMin": 12,
     "optimalMax": 28,
@@ -968,16 +991,17 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:24:222abf8f:7eb5eb08",
-   "board": "BQYCBAAAAAwSEAAFAgaAAQUF__8AAP____-gAP____-AAQgJ__-AAQgA__-AAwgGAv8AAAb___-AAQAJ__-AAQAI__-ABwICBQWAAQkJ__-ABwIGBgA",
-   "optimal": 13,
+   "publicSeed": "v1:c:24:5a9f1218:7eb5eb08",
+   "board": "BQYCBAAAAAoEDAQICQGgAP____-AAwQECQKAAwEEAQagAP____-ABwkIBgaABwEIAQgAAP____-ABggJBAKABgYJAgIAAP____8",
+   "optimal": 16,
    "thresholds": {
-    "three": 34,
-    "two": 39
+    "three": 31,
+    "two": 36
    },
-   "moveLimit": 23,
+   "moveLimit": 26,
    "hiddenRatio": 0.565,
    "hiddenCells": 14,
    "units": 24
@@ -986,9 +1010,9 @@
    "id": 25,
    "title": "蠟封",
    "config": {
-    "cups": 11,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 21,
     "hidden": 1,
     "covered": 1,
@@ -1007,16 +1031,17 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:25:00d86e21:1fedb828",
-   "board": "BQYCBAAAAAwSAAgCBAeABwkAAgeAAwcABP8kAAcABP8AAP____-AAQIE__-AAQQJ__-AAQkJ__-AAwgIAv-gAP____8AAAf___-AAQgI__-AAQIA__8",
-   "optimal": 16,
+   "publicSeed": "v1:c:25:b663e58c:1fedb828",
+   "board": "BQYCBAAAAAkKAgIIBgmABggCAgEkAAgBCAmABQUCCQkAAP____-AAwEGAQWABQUCBggAAP____-gAP____-ABwkGBQY",
+   "optimal": 18,
    "thresholds": {
-    "three": 35,
-    "two": 40
+    "three": 31,
+    "two": 36
    },
-   "moveLimit": 26,
+   "moveLimit": 28,
    "hiddenRatio": 0.5700000000000001,
    "hiddenCells": 14,
    "units": 24
@@ -1025,13 +1050,13 @@
    "id": 26,
    "title": "夜更深",
    "config": {
-    "cups": 11,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 21,
     "hidden": 1,
     "covered": 0,
-    "ad": 1,
+    "ad": 2,
     "orders": 2,
     "optimalMin": 13,
     "optimalMax": 29,
@@ -1046,14 +1071,15 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:26:e86e3903:b65a4130",
-   "board": "BQYCBAAAAAwSEAIFBgCAAwkGAv-AAwUABv-gAP____8AAAn___-AAwYFAv-AAQgJ__-AAQYI__-AAwUACP8AAP____-AAQgF__-AAQAA__-AAwICCf8",
+   "publicSeed": "v1:c:26:ac1289e3:b65a4130",
+   "board": "BQYCBAAAAAoGEAQGAAmABQQDAwCABwQJAAAAAP____8AAP____-AAwYEBgagAP____-ABQgDBAOgAP____-ABwkGCQiAAwgIAAk",
    "optimal": 16,
    "thresholds": {
-    "three": 37,
-    "two": 42
+    "three": 31,
+    "two": 36
    },
    "moveLimit": 26,
    "hiddenRatio": 0.575,
@@ -1064,9 +1090,9 @@
    "id": 27,
    "title": "雙問號",
    "config": {
-    "cups": 11,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 21,
     "hidden": 2,
     "covered": 0,
@@ -1085,14 +1111,15 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:27:5d1304b4:857c9b91",
-   "board": "BQYCBAAAAAwCEAkGBQKAAwIFBv-AAQkF__-AAwEJCf-AAQgI__-AAQYC__-AAQIB__8AAAj___-gAP____-ABwIFBgaAAQgB__-AAwkFAf8AAP____8",
+   "publicSeed": "v1:c:27:f1c7328d:857c9b91",
+   "board": "BQYCBAAAAAkECAcBCAmABQEBCQIAAP____8AAP____-gAP____-ABQkJBASABgcCAQGABwgCCAeABgcIAgeABwQICQQ",
    "optimal": 16,
    "thresholds": {
-    "three": 37,
-    "two": 42
+    "three": 31,
+    "two": 36
    },
    "moveLimit": 26,
    "hiddenRatio": 0.58,
@@ -1103,13 +1130,13 @@
    "id": 28,
    "title": "三種瓶",
    "config": {
-    "cups": 11,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 21,
     "hidden": 1,
     "covered": 1,
-    "ad": 1,
+    "ad": 2,
     "orders": 2,
     "optimalMin": 13,
     "optimalMax": 29,
@@ -1124,14 +1151,15 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:28:00d86e21:4d31b676",
-   "board": "BQYCBAAAAAwMEAkCAASAAQYE__-AAwgEBv-AAwIEAP-AAQkG__8AAAL___8kAAgA__8AAP____-AAQgI__-gAP____-ABwAGAgAAAAn___-ABwIJCQQ",
+   "publicSeed": "v1:c:28:bb33d6d1:4d31b676",
+   "board": "BQYCBAAAAAoIEAcBAgmABwkIAQSgAP____-AAwQBBwGABgcHCQkAAP____-gAP____-ABQgHAggAAP____-ABQgBBAIkAAICBAk",
    "optimal": 17,
    "thresholds": {
-    "three": 34,
-    "two": 39
+    "three": 30,
+    "two": 35
    },
    "moveLimit": 27,
    "hiddenRatio": 0.585,
@@ -1142,9 +1170,9 @@
    "id": 29,
    "title": "一隻空瓶",
    "config": {
-    "cups": 11,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 21,
     "hidden": 1,
     "covered": 0,
@@ -1163,16 +1191,17 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:29:e86e3903:9bdd1fa6",
-   "board": "BQYCBAAAAAwGEggGBQCgAP____-ABwUAAAaAAQAA__-AAwUDCf-AAwkDBv8AAP____8AAAn___-AAQMI__8AAAb___-AAQUF__-AAwYIA_-AAwkICP8",
-   "optimal": 15,
+   "publicSeed": "v1:c:29:f602bc2c:9bdd1fa6",
+   "board": "BQYCBAAAAAkAEAQHCQKABgIJAASABwcAAgeABgQICAmABQQCBAmABgAICAcAAP____8AAP____-ABwcJAgCgAP____8",
+   "optimal": 18,
    "thresholds": {
-    "three": 34,
-    "two": 39
+    "three": 33,
+    "two": 38
    },
-   "moveLimit": 25,
+   "moveLimit": 28,
    "hiddenRatio": 0.59,
    "hiddenCells": 14,
    "units": 24
@@ -1181,13 +1210,13 @@
    "id": 30,
    "title": "布遮雙問號",
    "config": {
-    "cups": 11,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 22,
     "hidden": 2,
     "covered": 1,
-    "ad": 1,
+    "ad": 2,
     "orders": 2,
     "optimalMin": 14,
     "optimalMax": 30,
@@ -1202,16 +1231,17 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:30:6ea1b1ba:3acb849c",
-   "board": "BQYCBAAAAAwKAgIGCQgAAP____-ABwgFCQKAAwEBBv-AAwkJAf8AAAL___-AAQkI__8kAAYCBv-gAP____8AAAj___-AAwUFAv8AAAX___-AAwgGAf8",
-   "optimal": 15,
+   "publicSeed": "v1:c:30:6b981ca2:3acb849c",
+   "board": "BQYCBAAAAAoGEAAFBgmgAP____-ABQkGAAgAAP____-ABgYFBQCABwMJAAigAP____8kAAUJCAgAAP____-ABQYJAAOABgMGAwU",
+   "optimal": 18,
    "thresholds": {
-    "three": 30,
-    "two": 35
+    "three": 31,
+    "two": 36
    },
-   "moveLimit": 25,
+   "moveLimit": 28,
    "hiddenRatio": 0.595,
    "hiddenCells": 14,
    "units": 24
@@ -1220,9 +1250,9 @@
    "id": 31,
    "title": "六色全開",
    "config": {
-    "cups": 11,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 22,
     "hidden": 1,
     "covered": 0,
@@ -1241,16 +1271,17 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:31:c9ba2e02:00b4d972",
-   "board": "BQYCBAAAAAwIEAIABgmAAQkC__-AAwQEBv-AAwAGCP8AAP____-AAwYCBP-gAP____-AAwgABv-AAQAE__-AAwkIAv8AAAL___8AAAD___-AAwkJCP8",
-   "optimal": 16,
+   "publicSeed": "v1:c:31:3d1c4378:00b4d972",
+   "board": "BQYCBAAAAAkIBAcIAQkAAP____-ABwIJAgmABQcHCAGgAP____-ABQkBAgQAAP____-ABQgEBweAAwEECASABwIIAQk",
+   "optimal": 18,
    "thresholds": {
-    "three": 35,
-    "two": 40
+    "three": 33,
+    "two": 38
    },
-   "moveLimit": 24,
+   "moveLimit": 26,
    "hiddenRatio": 0.6,
    "hiddenCells": 14,
    "units": 24
@@ -1259,13 +1290,13 @@
    "id": 32,
    "title": "六色問號",
    "config": {
-    "cups": 11,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 22,
     "hidden": 1,
     "covered": 0,
-    "ad": 1,
+    "ad": 2,
     "orders": 2,
     "optimalMin": 14,
     "optimalMax": 30,
@@ -1280,27 +1311,28 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:32:c9ba2e02:64fab357",
-   "board": "BQYCBAAAAAwQAAMJBwSABwQJBAOAAQcI__-gAP____8AAP____-AAwkAAP-AAwAEA_-AAwcICP-AAQMD__-AAQQA__8AAAf___-AAwkHCf8AAAj___8",
-   "optimal": 15,
+   "publicSeed": "v1:c:32:a7c6e443:64fab357",
+   "board": "BQYCBAAAAAoQBgAJBQYAAP____-ABwgGAAYAAP____-ABgUIAwCABwYJCQCABQMDBQmABggGAAigAP____-gAP____-ABwUJBQM",
+   "optimal": 18,
    "thresholds": {
-    "three": 34,
-    "two": 39
+    "three": 33,
+    "two": 38
    },
-   "moveLimit": 23,
+   "moveLimit": 26,
    "hiddenRatio": 0.605,
-   "hiddenCells": 14,
+   "hiddenCells": 15,
    "units": 24
   },
   {
    "id": 33,
    "title": "八隻瓶",
    "config": {
-    "cups": 11,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 22,
     "hidden": 1,
     "covered": 1,
@@ -1319,31 +1351,32 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:33:04e8f52f:0fba6630",
-   "board": "BQYCBAAAAAwSEAEGBAKAAwIIBP-AAwECBP-AAQkB__-AAQYG__8AAAj___8AAP____-AAwgBAv-AAQkG__-gAP____-AAQkJ__-AAwYIAv8kAAQEAf8",
-   "optimal": 16,
+   "publicSeed": "v1:c:33:a84ed21a:0fba6630",
+   "board": "BQYCBAAAAAkIAgYCCAmABgkJAQQkAAQECAIAAP____8AAP____-gAP____-ABgYIBAGABwIICQmAAwYBBgKABwEIBgI",
+   "optimal": 18,
    "thresholds": {
-    "three": 35,
-    "two": 40
+    "three": 31,
+    "two": 36
    },
-   "moveLimit": 24,
+   "moveLimit": 26,
    "hiddenRatio": 0.61,
-   "hiddenCells": 14,
+   "hiddenCells": 15,
    "units": 24
   },
   {
    "id": 34,
    "title": "曲頸夜更",
    "config": {
-    "cups": 11,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 22,
     "hidden": 1,
     "covered": 0,
-    "ad": 1,
+    "ad": 2,
     "orders": 2,
     "optimalMin": 14,
     "optimalMax": 30,
@@ -1358,27 +1391,28 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:34:c9ba2e02:5e12eaf7",
-   "board": "BQYCBAAAAAwIDgAJAwiAAQkJ__8AAAf___-gAP____-ABwcDAwCAAQAD__8AAAT___-AAwgEB_-ABwkHAASAAQgJ__-AAQQD__-AAwgIAP8AAP____8",
-   "optimal": 16,
+   "publicSeed": "v1:c:34:a7c6e443:5e12eaf7",
+   "board": "BQYCBAAAAAoOEAMJAASAAwMIAwCgAP____-gAP____8AAP____-ABQcEBAcAAP____-ABwMHCQiAAwcDCACABwAIBAmABwQJAAk",
+   "optimal": 19,
    "thresholds": {
-    "three": 35,
-    "two": 40
+    "three": 34,
+    "two": 39
    },
-   "moveLimit": 24,
+   "moveLimit": 27,
    "hiddenRatio": 0.615,
-   "hiddenCells": 14,
+   "hiddenCells": 15,
    "units": 24
   },
   {
    "id": 35,
    "title": "師傅考牌",
    "config": {
-    "cups": 11,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 22,
     "hidden": 2,
     "covered": 1,
@@ -1397,31 +1431,32 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:35:6ea1b1ba:4c32b092",
-   "board": "BQYCBAAAAAwQDAIBBQmABwkIBQKAAQkI__-AAwkBAv8kAAYJ__-ABwIGAQYAAAH___-AAQUI__-AAwgGAv8AAAH___8AAP____-AAQUF__-gAP____8",
-   "optimal": 18,
+   "publicSeed": "v1:c:35:a85d5a90:4c32b092",
+   "board": "BQYCBAAAAAkGDAAICQSABgMEAAaABgAJCQMAAP____-ABwMIBAMkAAQACQmABQgGCAagAP____-ABwAIBgQAAP____8",
+   "optimal": 19,
    "thresholds": {
-    "three": 35,
-    "two": 40
+    "three": 32,
+    "two": 37
    },
-   "moveLimit": 26,
+   "moveLimit": 27,
    "hiddenRatio": 0.62,
-   "hiddenCells": 14,
+   "hiddenCells": 15,
    "units": 24
   },
   {
    "id": 36,
    "title": "導師訓話",
    "config": {
-    "cups": 11,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 23,
     "hidden": 2,
     "covered": 0,
-    "ad": 1,
+    "ad": 2,
     "orders": 2,
     "optimalMin": 15,
     "optimalMax": 31,
@@ -1436,27 +1471,28 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:36:4fedb3eb:34b5476f",
-   "board": "BQYCBAAAAAwMBAkIAQWAAQgG__8AAAH___-AAQkI__-AAwEFBf-AAQUC__-gAP____-AAwYBAv-AAwEIBv8AAP____8AAAn___-ABwIFCQiAAwkGAv8",
-   "optimal": 17,
+   "publicSeed": "v1:c:36:8a39d4dd:34b5476f",
+   "board": "BQYCBAAAAAoOBAQIAQmAAwcIAQegAP____8AAP____8AAP____-ABwQIAgKABwEICQSgAP____-AAwQJAQmABQgHCQeABwICBAE",
+   "optimal": 18,
    "thresholds": {
-    "three": 36,
-    "two": 41
+    "three": 33,
+    "two": 38
    },
-   "moveLimit": 25,
+   "moveLimit": 26,
    "hiddenRatio": 0.625,
-   "hiddenCells": 14,
+   "hiddenCells": 15,
    "units": 24
   },
   {
    "id": 37,
    "title": "布遮雙問號 II",
    "config": {
-    "cups": 11,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 23,
     "hidden": 2,
     "covered": 1,
@@ -1475,31 +1511,32 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:37:028cd146:4988ddd5",
-   "board": "BQYCBAAAAAwMBgUICQAkAAMJAP-AAQUI__-AAwgABv-ABwgDBQAAAAj___-ABwUJCQYAAAn___8AAP____-AAwYGA_-gAP____8AAAX___-AAQAD__8",
-   "optimal": 16,
+   "publicSeed": "v1:c:37:9f1edcc0:4988ddd5",
+   "board": "BQYCBAAAAAkADAMICQSABQgDBgagAP____-ABQMIBAgAAP____-ABQAEAACABwMGBAkAAP____8kAAQJAAmABwYICQM",
+   "optimal": 18,
    "thresholds": {
     "three": 31,
     "two": 36
    },
-   "moveLimit": 24,
+   "moveLimit": 26,
    "hiddenRatio": 0.63,
-   "hiddenCells": 14,
+   "hiddenCells": 15,
    "units": 24
   },
   {
    "id": 38,
    "title": "全部瓶種",
    "config": {
-    "cups": 11,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 23,
     "hidden": 1,
     "covered": 1,
-    "ad": 1,
+    "ad": 2,
     "orders": 2,
     "optimalMin": 15,
     "optimalMax": 31,
@@ -1514,27 +1551,28 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:38:db09f826:4254c226",
-   "board": "BQYCBAAAAAwIBgkABwiAAQgA__8AAAT___-gAP____8AAP____-ABwcABwiAAQMD__-ABwQACAcAAAj___8kAAP___-ABwkJBwmAAwQJBP-AAQAD__8",
-   "optimal": 16,
+   "publicSeed": "v1:c:38:4755ff32:4254c226",
+   "board": "BQYCBAAAAAoSEAIFAQagAP____8kAAUBBQiABwYCBgYAAP____8AAP____-ABwgBCQKABgIGAQiABgUJCQKgAP____-AAwUIAQk",
+   "optimal": 19,
    "thresholds": {
-    "three": 33,
-    "two": 38
+    "three": 32,
+    "two": 37
    },
-   "moveLimit": 24,
+   "moveLimit": 27,
    "hiddenRatio": 0.635,
-   "hiddenCells": 14,
+   "hiddenCells": 15,
    "units": 24
   },
   {
    "id": 39,
    "title": "最後衝刺",
    "config": {
-    "cups": 11,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 23,
     "hidden": 2,
     "covered": 1,
@@ -1553,31 +1591,32 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:39:028cd146:4f36b995",
-   "board": "BQYCBAAAAAwQBAQBCQckAAj___-AAwcIAv-AAwgBCf-gAP____-AAQIE__-AAQIH__-ABwIHCAEAAP____-ABwkBBAkAAAT___-AAQEJ__-AAQcE__8",
-   "optimal": 18,
+   "publicSeed": "v1:c:39:9f1edcc0:4f36b995",
+   "board": "BQYCBAAAAAkSAAgDBgSgAP____8kAAkEAwSABwYABAkAAP____-AAwYGAAaABQAICQCABwMJBAgAAP____-AAwMICAM",
+   "optimal": 19,
    "thresholds": {
-    "three": 37,
-    "two": 42
+    "three": 32,
+    "two": 37
    },
-   "moveLimit": 26,
+   "moveLimit": 27,
    "hiddenRatio": 0.64,
-   "hiddenCells": 14,
+   "hiddenCells": 15,
    "units": 24
   },
   {
    "id": 40,
    "title": "實驗室之光",
    "config": {
-    "cups": 11,
+    "cups": 8,
     "colors": 6,
-    "empties": 1,
+    "empties": 2,
     "segments": 23,
     "hidden": 2,
     "covered": 1,
-    "ad": 1,
+    "ad": 2,
     "orders": 2,
     "optimalMin": 15,
     "optimalMax": 31,
@@ -1592,18 +1631,19 @@
      0
     ],
     "tutorialQueue": null,
-    "randomTwoStarMax": 0.1
+    "randomTwoStarMax": null,
+    "minFatalRate": 0.05
    },
-   "publicSeed": "v1:c:40:028cd146:1bf410ff",
-   "board": "BQYCBAAAAAwMEgEIBAKgAP____-AAQkG__-AAwgBBP8kAAQBCAQAAAH___-ABwIGBgKAAQEE__8AAAn___-AAwgJCf8AAP____-AAQgC__-AAQYC__8",
-   "optimal": 16,
+   "publicSeed": "v1:c:40:a4bd8f0c:1bf410ff",
+   "board": "BQYCBAAAAAoQCgkDBgCgAP____-ABwUIBgCgAP____-AAwgJCQMAAP____8kAAgGAwaABgUABQkAAP____-AAwMDAAiABwAJBgU",
+   "optimal": 18,
    "thresholds": {
-    "three": 33,
-    "two": 38
+    "three": 31,
+    "two": 36
    },
-   "moveLimit": 24,
+   "moveLimit": 26,
    "hiddenRatio": 0.645,
-   "hiddenCells": 14,
+   "hiddenCells": 15,
    "units": 24
   }
  ]

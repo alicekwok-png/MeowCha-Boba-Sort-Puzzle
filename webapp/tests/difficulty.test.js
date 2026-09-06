@@ -70,7 +70,7 @@ describe('機制登場表', () => {
   test('登場表數值', () => {
     assert.deepEqual(UNLOCK_LEVEL, { hidden: 2, adBottle: 2, orders: 1, adEmptyCup: 11, moveLimit: 12, secondOrder: 3, adOrderSlot: 11, covered: 19 });   // 提示 / 撤銷 2026-09-06 拎走
   });
-  test('登場（v4）：L1–3 教學 2 隻空樽、L4 起 1 隻；L2 起 `?` 樽 + 廣告樽（L2 兩隻）；全部 capacity 4；第 12 關限步；第 19 關布遮樽（campaign.json 實際盤面）', () => {
+  test('登場：每關 2 隻空樽（空位 = 2 樽先輸得到）、真樽 = 色數 + 2；L2 起 `?` 樽 + 廣告樽（L2 兩隻）；全部 capacity 4；第 12 關限步；第 19 關布遮樽（campaign.json 實際盤面）', () => {
     const d = JSON.parse(readFileSync(new URL('../levels/campaign.json', import.meta.url), 'utf8'));
     const { decodeBoard } = decodeMod;
     const board = id => decodeBoard(d.levels[id - 1].board);
@@ -78,8 +78,13 @@ describe('機制登場表', () => {
     const empties = id => board(id).cups.filter(c => c.seg.length === 0).length;
     const empties2 = id => board(id).cups.filter(c => c.seg.length === 0 && c.kind === 'normal').length;
     const ads = id => board(id).cups.filter(c => c.kind === 'ad').length;
-    for (let id = 1; id <= 3; id++) assert.equal(empties2(id), 2, `L${id} empties`);
-    for (let id = 4; id <= 40; id++) assert.equal(empties2(id), 1, `L${id} empties`);
+    // 用戶 2026-09-06：空樽固定 2 隻、真樽 = 色數 + 2（每隻色啱啱裝滿一樽）→ 空位多過 2 樽就永遠輸唔到
+    for (let id = 1; id <= 40; id++) {
+      const b = board(id);
+      const real = b.cups.filter(c => c.kind !== 'ad');
+      assert.equal(real.filter(c => c.seg.length === 0).length, 2, `L${id} 兩隻空樽`);
+      assert.equal(real.length, b.colors + 2, `L${id} 真樽 = 色數 + 2`);
+    }
     assert.equal(kinds(1).includes('hidden'), false); assert.equal(ads(1), 0); assert.equal(d.levels[0].hiddenCells, 0);
     assert.ok(kinds(2).includes('hidden'), 'L2 `?`'); assert.equal(ads(2), 2, 'L2 兩隻廣告樽');
     for (let id = 2; id <= 40; id++) assert.ok(ads(id) >= 1, `L${id} ad`);

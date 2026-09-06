@@ -5,6 +5,7 @@
 // 目標（用戶 2026-09-05）：L4 之後全部 < 10%。
 
 import { legalMoves, applyMove, isSolved, topColor } from './rules.js';
+import { solveEx } from './solver.js';
 import { cloneBoard } from './board.js';
 import { mulberry32 } from './prng.js';
 
@@ -47,6 +48,30 @@ export function simulateRandom(board, opts) {
     }
   }
   return { trials, budget, solved, dead, rate: solved / trials, deadRate: dead / trials, meanSolvedMoves: solved ? movesSum / solved : null };
+}
+
+/**
+ * 致命錯步率（用戶 2026-09-06「行錯一步就玩唔到」）：用貪心策略行 steps 步之後，盤面仲解唔解到？
+ * 呢個先係「要唔要用腦」嘅真指標 —— 空位多過 2 樽嘅盤面，呢個數字係 0%，即係字面意義上輸唔到。
+ * 亂撳★2 率量嘅係「隨機撳會唔會撞中」，同呢個係兩回事。
+ */
+export function fatalMistakeRate(board, { steps = 10, trials = 150, seed = 7, maxNodes = 400_000 } = {}) {
+  const rng = mulberry32(seed >>> 0);
+  let fatal = 0, wonEarly = 0;
+  for (let t = 0; t < trials; t++) {
+    let b = cloneBoard(board), early = false;
+    for (let s = 0; s < steps; s++) {
+      const moves = legalMoves(b);
+      if (!moves.length) break;
+      const merge = moves.filter(m => b.cups[m.to].seg.length > 0 && topColor(b.cups[m.to]) === topColor(b.cups[m.from]));
+      const pool = merge.length ? merge : moves;
+      b = applyMove(b, pool[Math.floor(rng() * pool.length)]);
+      if (isSolved(b)) { early = true; break; }
+    }
+    if (early) { wonEarly++; continue; }
+    if (!solveEx(b, 60, maxNodes).moves) fatal++;
+  }
+  return { steps, trials, fatal: fatal / trials, wonEarly: wonEarly / trials };
 }
 
 /** 亂撳★2 率預設 budget：最優 × 1.5（向上取整） */

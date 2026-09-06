@@ -1181,6 +1181,16 @@
         "en": "Reset all progress? Stars and coins will be lost.",
         "zh-Hant": "要重置所有進度嗎？星星與金幣都會清除。",
         "zh-Hans": "要重置所有进度吗？星星和金币都会清除。"
+      },
+      "unsolvable": {
+        "en": "No way to finish",
+        "zh-Hant": "呢個盤面已經冇得解",
+        "zh-Hans": "这个盘面已经没得解"
+      },
+      "unsolvableBody": {
+        "en": "Some liquid got poured where it can no longer be sorted out. Restart the level and plan the order of your pours.",
+        "zh-Hant": "有藥劑倒咗落一個再分唔返出嚟嘅位。重來一次，諗定倒液嘅次序先。",
+        "zh-Hans": "有药剂倒到了一个再分不出来的位置。重来一次，先想好倒液的顺序。"
       }
     },
     "help": {

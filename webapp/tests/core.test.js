@@ -297,9 +297,9 @@ describe('solver', () => {
 
 describe('generator', () => {
   test('生成 30 關全部可解、段數落喺目標 ±1、全部通過色盲檢查', () => {
-    const cfg = CAMPAIGN[6];   // 8 杯 6 色
+    const cfg = { ...CAMPAIGN[6], minFatalRate: null };   // 呢個 case 驗生成 / 可解性，唔驗難度（致命錯步篩選好慢）
     for (let seed = 1; seed <= 30; seed++) {
-      const r = generateLevelEx(cfg, seed * 1013, { maxAttempts: 200 });
+      const r = generateLevelEx(cfg, seed * 1013, { maxAttempts: 400 });
       assert.ok(r, 'generate failed for seed ' + seed);
       assert.ok(Math.abs(countSegments(r.board) - cfg.segments) <= 1);
       assert.ok(colorSafe(r.board));
@@ -329,7 +329,7 @@ describe('generator', () => {
     assert.equal(canMerge(makeUnit(0, 1), makeUnit(0, 0)), false);
   });
   test('隱藏格逐格分配：? 可以喺任何非頂格位置，頂格永遠可見，普通樽冇隱藏格', () => {
-    const cfg = { ...CAMPAIGN[6], hiddenRatio: 0.45 };   // 第 7 關
+    const cfg = { ...CAMPAIGN[6], hiddenRatio: 0.45, minFatalRate: null };   // 第 7 關
     const r = generateLevelEx(cfg, 99, { maxAttempts: 800 });
     assert.ok(r);
     assert.ok(r.board.cups.some(c => c.kind === 'hidden'));

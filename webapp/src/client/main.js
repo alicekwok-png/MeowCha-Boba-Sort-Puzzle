@@ -612,6 +612,12 @@ async function onCupTap(idx) {
 
   if (isSolved(G.board)) { await onSolved(); return; }
   if (isDead(G.board)) { sfx.stuck(); await sleep(350); showStuck(); return; }
+  // 用戶 2026-09-06：行錯一步真係會玩唔到 —— 一發現盤面已經冇得解就即刻話畀玩家聽，
+  // 唔好等佢哋盲摸落去。（solver 喺 server 側真實盤面上跑；aborted 當仲有得解，寧縱毋枉。）
+  try {
+    const chk = await server.solvable(G.session.sessionId, G.moves);
+    if (!chk.solvable && !chk.aborted) { sfx.stuck(); await sleep(250); showUnsolvable(); return; }
+  } catch { /* 檢查失敗就當仲有得解 */ }
   if (G.session.moveLimit !== null && G.moves.length >= G.session.moveLimit) { sfx.stuck(); await sleep(350); showOutOfMoves(); return; }
 }
 
@@ -672,6 +678,22 @@ async function onSolved() {
   if ($('#m-practice')) $('#m-practice').onclick = () => { closeModal(); pickPractice(); };
 }
 
+/** 盤面已經冇得解（仲有合法步，但點行都贏唔到）：畀重來，有廣告空樽就順便畀佢救返 */
+function showUnsolvable() {
+  const canAd = canOfferEmptyCup();
+  modal(`
+    <img class="mascot" src="${asset('CHR_cat_idle')}" alt="">
+    <h3>${t('extra.modals.unsolvable')}</h3>
+    <p>${t('extra.modals.unsolvableBody')}</p>
+    <div class="row">
+      ${canAd ? `<button class="btn" id="m-addcup">${t('extra.hud.addCup')}</button>` : ''}
+      <button class="btn primary" id="m-restart">↻ ${t('actions.restart')}</button>
+    </div>
+  `);
+  if (canAd && $('#m-addcup')) $('#m-addcup').onclick = () => { closeModal(); addEmptyCup(); };
+  $('#m-restart').onclick = () => { closeModal(); restart(); };
+}
+
 function showStuck() {
   modal(`
     <img class="mascot" src="${asset('CHR_cat_idle')}" alt="">
@@ -710,7 +732,8 @@ function pickPractice() {
       // 先用 4 秒預算；唔夠時間就放寬 config（冇裂瓶 / 布遮、最優區間放寬）再試 4 秒，最後先放棄
       let lvl = await server.generatePractice({ ...cfg, hiddenRatio: hiddenRatio(pseudo) }, seed, { budgetMs: 4000 });
       if (!lvl) {
-        const relaxed = { ...cfg, cracked: 0, covered: 0, orders: Math.min(cfg.orders, 1), optimalMax: cfg.optimalMax + 8, hiddenRatio: hiddenRatio(pseudo) };   // 亂撳篩選唔貴，放寬版都保留
+        // 放寬版（池用晒 + 4 秒生成唔到先行）：拎走布罩 / 第二槽 / 致命錯步要求，確保一定生成到
+        const relaxed = { ...cfg, cracked: 0, covered: 0, orders: Math.min(cfg.orders, 1), optimalMax: cfg.optimalMax + 8, hiddenRatio: hiddenRatio(pseudo), minFatalRate: null };
         lvl = await server.generatePractice(relaxed, seed + ':r', { budgetMs: 4000 });
       }
       closeModal();

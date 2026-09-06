@@ -2,7 +2,7 @@
 
 import { makeCup, makeUnit, countSegments, hiddenCount, CAP_NORMAL } from './board.js';
 import { isComplete, isSolved, applyMove } from './rules.js';
-import { simulateRandom, twoStarBudget } from './analysis.js';
+import { simulateRandom, twoStarBudget, fatalMistakeRate } from './analysis.js';
 import { solveEx, countOptimalPaths, safeOpening } from './solver.js';
 import { mulberry32, shuffle, randInt } from './prng.js';
 import { PALETTE, colorsCompatible, unitsCompatible, MAX_COLORS_BY_HUE } from './palette.js';
@@ -11,8 +11,9 @@ import { PALETTE, colorsCompatible, unitsCompatible, MAX_COLORS_BY_HUE } from '.
  * @typedef {{cups:number, colors:number, empties:number, segments:number,
  *            hidden:number, covered:number, ad:number, orders:number,
  *            optimalMin:number, optimalMax:number, palette?:number[], patterns?:number[], hiddenRatio?:number,
- *            randomTwoStarMax?:number|null}} LevelConfig
- *  randomTwoStarMax = 亂撳★2 率上限（隨機玩家喺最優 × 1.5 步內過關嘅比例，core/analysis.js）；超過就棄掉重抽（seed 篩選）。null = 唔篩
+ *            randomTwoStarMax?:number|null, minFatalRate?:number|null}} LevelConfig
+ *  randomTwoStarMax = 亂撳★2 率上限；null = 唔篩（緊湊盤面同呢個指標本質衝突，2026-09-06 起唔再用）
+ *  minFatalRate = 致命錯步率下限：貪心玩家行 8 步之後盤面無解嘅比例。低過呢個數 = 呢一關輸唔到 → 棄掉重抽
  *  colors = 元素數（色 × 圖案）；patterns = 每個元素嘅 patternId（預設全部 P0）
  */
 
@@ -264,6 +265,8 @@ export function starThresholds(optimal, board) {
  * opts.maxAttempts 預設 400；opts.onReject 可用作統計。
  */
 const RANDOM_TRIALS = 1000;    // 亂撳篩選局數（1000 局 SD ≈ 0.95% @ 10%）
+const FATAL_TRIALS = 80;       // 致命錯步粗篩局數（每局要跑一次 solver，貴啲）
+const FATAL_CONFIRM = 250;     // 過咗粗篩先跑嘅確認局數
 // 邊際 2.5%，唔係 1.5%：篩選係「揀最好嗰次估計」，會偏向低估（winner's curse）。實際案例（2026-09-05）：L11 用 400 局估 8.4%
 // 通過咗 1.5% 邊際，5000 局真值係 10.0%，重掃即刻超標。2.5% ≈ 2.6 SD，先擋得住估計誤差 + 揀最好嗰次嘅偏差。唔好改細。
 const RANDOM_MARGIN = 0.025;
@@ -271,8 +274,8 @@ const RANDOM_MARGIN = 0.025;
 export function generateLevelEx(cfg, seed, opts = {}) {
   validateConfig(cfg);
   const rng = mulberry32(seed);
-  const maxAttempts = opts.maxAttempts ?? 400;
-  const rejects = { shape: 0, segments: 0, unsolvable: 0, length: 0, unique: 0, opening: 0, color: 0, orders: 0, hidden: 0, random: 0, aborted: 0 };
+  const maxAttempts = opts.maxAttempts ?? 2000;   // 2026-09-06 加咗致命錯步篩選之後，400 次唔夠
+  const rejects = { shape: 0, segments: 0, unsolvable: 0, length: 0, unique: 0, opening: 0, color: 0, orders: 0, hidden: 0, random: 0, fatal: 0, aborted: 0 };
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     if (opts.deadline && Date.now() > opts.deadline) { rejects.aborted++; return null; }   // 牆鐘預算（練習關即時生成用）
@@ -318,10 +321,20 @@ export function generateLevelEx(cfg, seed, opts = {}) {
     if (countOptimalPaths(b, sol.length, 2, 2_000_000, opts.deadline || 0) < 2) { rejects.unique++; continue; }
     if (opts.deadline && Date.now() > opts.deadline) { rejects.aborted++; return null; }
 
-    // 檢查 3b：亂撳★2 率（用戶 2026-09-05：L4 起 < 10%）— 隨機玩家太易撞到過關就棄掉重抽
+    // 檢查 3b：亂撳★2 率（可選；緊湊盤面唔再用）
     if (cfg.randomTwoStarMax != null) {
       const r = simulateRandom(b, { trials: RANDOM_TRIALS, seed: attempt + 1, budget: twoStarBudget(sol.length) });
       if (r.rate + RANDOM_MARGIN >= cfg.randomTwoStarMax) { rejects.random++; continue; }
+    }
+    // 檢查 3c：一定要輸得到（用戶 2026-09-06「行錯一步就玩唔到」）——
+    // 貪心玩家行 8 步之後盤面無解嘅比例要達標，否則呢一關點行都贏，唔使用腦
+    if (cfg.minFatalRate != null) {
+      // 兩段：先平嘅 80 局粗篩（要高過門檻 1.6 倍，抵銷「揀最好嗰次」嘅偏差），
+      // 過到先跑 250 局確認。單靠 80 局會漏網（L11 / L12 曾經跌返落 1%）。
+      const rough = fatalMistakeRate(b, { steps: 8, trials: FATAL_TRIALS, seed: attempt + 11, maxNodes: 200_000 });
+      if (rough.fatal < cfg.minFatalRate * 1.6) { rejects.fatal++; continue; }
+      const confirm = fatalMistakeRate(b, { steps: 10, trials: FATAL_CONFIRM, seed: attempt + 977, maxNodes: 200_000 });
+      if (confirm.fatal < cfg.minFatalRate * 1.3) { rejects.fatal++; continue; }   // 留 margin：重掃（其他 seed）先唔會跌返落門檻下
     }
     // 檢查 4：起手安全區
     const K = cfg.cups <= 8 ? 3 : 2;

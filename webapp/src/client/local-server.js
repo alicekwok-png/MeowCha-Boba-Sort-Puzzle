@@ -254,6 +254,18 @@ export class LocalServer {
     return { move: r.moves && r.moves.length ? r.moves[0] : null, remaining: r.moves ? r.moves.length : null };
   }
 
+  /**
+   * 呢個盤面仲解唔解到？（用戶 2026-09-06「行錯一步就玩唔到」）
+   * 一定要喺 server 側嘅真實盤面上跑 —— client 只有遮罩盤面，隱藏格係 null，解唔到。
+   * 只用免費槽 / 唔解鎖廣告樽，同 verify-levels 一致。
+   */
+  async solvable(sessionId, moves) {
+    const s = this._session(sessionId);
+    this._sync(s, moves);
+    const r = await this._call('solve', { board: encodeBoard(s.board), maxDepth: 60 });
+    return { solvable: !!(r.moves && r.moves.length), aborted: !!r.aborted };
+  }
+
   // ---------- 練習關：server 生成後只下發遮罩 ----------
   async generatePractice(cfg, seedStr, opts = {}) {
     const r = await this._call('generate', { cfg, seed: hash32(seedStr), budgetMs: opts.budgetMs ?? null });
